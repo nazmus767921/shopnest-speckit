@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { saveProductAttributesAction, updateVariantAction, bulkUpdateVariantsAction, getProductVariantsAction, getProductAttributeOptionsAction } from "@/app/actions/variants";
 import { AttributeEditor } from "@/components/dashboard/attribute-editor/AttributeEditor";
@@ -8,7 +8,7 @@ import { VariantRowEditor, type VariantRow } from "./VariantRowEditor";
 import { VariantBulkToolbar } from "./VariantBulkToolbar";
 import { VariantFilterBar, type FilterCriteria } from "./VariantFilterBar";
 import type { AttributeInput, VariantUpdateInput } from "@/lib/validations/variants";
-import { Save, RefreshCw, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Save, RefreshCw, Loader2, AlertCircle, CheckCircle2, Tags, Layers } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -88,6 +88,9 @@ export function VariantsSection({
     attributeFilters: {},
   });
 
+  // Snapshot of saved attributes to detect unsaved changes
+  const savedAttrsRef = useRef<AttributeInput[]>([]);
+
   // Fetch variants
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["product-variants", productId],
@@ -96,18 +99,28 @@ export function VariantsSection({
     staleTime: 30_000,
   });
 
+  const hasGeneratedData = data && data.variants.length > 0;
+
   // Load existing attributes into the editor when data arrives
   useEffect(() => {
     if (data && data.attributes.length > 0 && attributes.length === 0) {
+      savedAttrsRef.current = JSON.parse(JSON.stringify(data.attributes));
       setAttributes(data.attributes);
     }
   }, [data, attributes.length]);
 
+  // Derive disabled state: no options, OR no unsaved changes (when variants exist)
+  const hasAnyOptions = attributes.some((a) => a.options.length > 0);
+  const hasUnsavedChanges =
+    JSON.stringify(attributes) !== JSON.stringify(savedAttrsRef.current);
+  const saveDisabled =
+    !hasAnyOptions || (hasGeneratedData && !hasUnsavedChanges);
+
   // ── Manual Save: persists attributes + generates/reconciles variants ─────
 
   const handleSave = useCallback(async () => {
-    const hasAnyOptions = attributes.some((a) => a.options.length > 0);
-    if (!hasAnyOptions) {
+    const anyOptions = attributes.some((a) => a.options.length > 0);
+    if (!anyOptions) {
       setMessage({ type: "error", text: "Add at least one option before saving." });
       return;
     }
@@ -152,7 +165,7 @@ export function VariantsSection({
     [productId, queryClient],
   );
 
-  const hasGeneratedData = data && data.variants.length > 0;
+
 
   // Filtered variants
   const filteredVariants = useMemo(() => {
@@ -181,12 +194,20 @@ export function VariantsSection({
   return (
     <div className="space-y-4">
       {/* ── Attribute Editor ── */}
-      <div className="rounded-lg border border-hairline-light bg-canvas-light p-4 sm:p-6">
-        <div className="mb-4">
-          <h2 className="text-body-strong text-ink">Product Attributes</h2>
-          <p className="text-micro text-shade-50 mt-0.5">
-            Add attributes like Color, Size, or Material. Save to generate variants.
-          </p>
+      <div className="relative overflow-hidden rounded-lg border border-hairline-light bg-canvas-light p-4 sm:p-6">
+        {/* Left accent bar */}
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary/60 to-primary/10" aria-hidden="true" />
+
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/5">
+            <Tags className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-body-strong text-ink">Product Attributes</h2>
+            <p className="text-micro text-shade-50 mt-0.5">
+              Define options like Color, Size, or Material. Save to generate variants.
+            </p>
+          </div>
         </div>
 
         <AttributeEditor
@@ -217,7 +238,7 @@ export function VariantsSection({
           <button
             type="button"
             onClick={handleSave}
-            disabled={isSaving}
+            disabled={saveDisabled || isSaving}
             className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2 text-body-md text-on-primary hover:bg-shade-70 transition-colors disabled:opacity-50 w-full sm:w-auto"
           >
             {isSaving ? (
@@ -237,24 +258,33 @@ export function VariantsSection({
 
       {/* ── Variant Table ── */}
       {hasGeneratedData && (
-        <div className="rounded-lg border border-hairline-light bg-canvas-light p-4 sm:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-            <h3 className="text-body-strong text-ink">
-              {filteredVariants.length !== data.variants.length
-                ? `${filteredVariants.length} of ${data.variants.length}`
-                : data.variants.length}{` `}
-              Variant{data.variants.length !== 1 ? "s" : ""}
-            </h3>
+        <div className="rounded-lg border border-hairline-light bg-canvas-light overflow-hidden">
+          {/* Header row with integrated filters */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 px-4 sm:px-6 py-3 border-b border-hairline-light bg-canvas-cream/40">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/5">
+                <Layers className="h-4 w-4 text-primary" />
+              </div>
+              <h3 className="text-body-strong text-ink">Variants</h3>
+              <span
+                className="inline-flex items-center gap-1 rounded-md bg-primary/5 border border-primary/10 px-2 py-0.5 text-micro font-semibold text-ink"
+                aria-label={`${data.variants.length} variants total`}
+              >
+                <Layers className="h-3 w-3 text-primary/60" />
+                {data.variants.length}
+              </span>
+            </div>
+
+            <div className="flex-1 max-w-lg">
+              <VariantFilterBar
+                attributes={[]}
+                onFilterChange={setFilters}
+              />
+            </div>
           </div>
 
-          <div className="mb-3">
-            <VariantFilterBar
-              attributes={[]}
-              onFilterChange={setFilters}
-            />
-          </div>
-
-          <div className="mb-3">
+          {/* Bulk toolbar */}
+          <div className="px-4 sm:px-6 py-2 border-b border-hairline-light">
             <VariantBulkToolbar
               selectedCount={selectedIds.size}
               totalCount={filteredVariants.length}
@@ -279,11 +309,13 @@ export function VariantsSection({
             />
           </div>
 
-          <div className="space-y-2" role="list" aria-label="Variant list">
+          {/* Variant list */}
+          <div className="p-4 sm:p-6 pt-3 space-y-2" role="list" aria-label="Variant list">
             {filteredVariants.length === 0 ? (
-              <p className="text-center py-6 text-caption text-shade-40">
-                No variants match the current filters.
-              </p>
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <Layers className="h-8 w-8 text-shade-30 mb-2" />
+                <p className="text-body-md text-shade-40">No variants match the current filters.</p>
+              </div>
             ) : (
               filteredVariants.map((variant: any) => (
                 <VariantRowEditor
@@ -313,28 +345,45 @@ export function VariantsSection({
 
       {/* ── Loading ── */}
       {isLoading && (
-        <div className="rounded-lg border border-hairline-light bg-canvas-light flex items-center justify-center min-h-[200px]">
-          <div className="text-center">
-            <Loader2 className="mx-auto mb-3 h-6 w-6 animate-spin text-shade-40" />
-            <p className="text-body-md text-shade-50">Loading variants...</p>
+        <div className="rounded-lg border border-hairline-light bg-canvas-light overflow-hidden">
+          <div className="flex items-center gap-3 px-4 sm:px-6 py-3 border-b border-hairline-light bg-canvas-cream/40">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/5">
+              <Layers className="h-4 w-4 text-primary/40" />
+            </div>
+            <div className="h-5 w-24 rounded bg-shade-30/50 animate-pulse" />
+            <div className="h-5 w-10 rounded bg-shade-30/50 animate-pulse" />
+          </div>
+          <div className="flex items-center justify-center min-h-[160px]">
+            <div className="text-center">
+              <Loader2 className="mx-auto mb-3 h-6 w-6 animate-spin text-primary/40" />
+              <p className="text-body-md text-shade-40">Loading variants...</p>
+            </div>
           </div>
         </div>
       )}
 
       {/* ── Error ── */}
       {isError && (
-        <div className="rounded-lg border border-hairline-light bg-canvas-light flex items-center justify-center min-h-[200px]">
-          <div className="text-center">
-            <AlertCircle className="mx-auto mb-3 h-8 w-8 text-red-400" />
-            <p className="text-body-md text-shade-50 mb-3">Could not load variant data</p>
-            <button
-              type="button"
-              onClick={() => refetch()}
-              className="inline-flex items-center gap-1.5 rounded-full border border-hairline-light px-4 py-2 text-caption text-ink hover:bg-canvas-cream transition-colors"
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-              <span>Try Again</span>
-            </button>
+        <div className="rounded-lg border border-hairline-light bg-canvas-light overflow-hidden">
+          <div className="flex items-center gap-3 px-4 sm:px-6 py-3 border-b border-hairline-light bg-canvas-cream/40">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50">
+              <AlertCircle className="h-4 w-4 text-red-400" />
+            </div>
+            <h3 className="text-body-strong text-ink">Variants</h3>
+          </div>
+          <div className="flex items-center justify-center min-h-[160px]">
+            <div className="text-center">
+              <AlertCircle className="mx-auto mb-3 h-8 w-8 text-red-300" />
+              <p className="text-body-md text-shade-50 mb-3">Could not load variant data</p>
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="inline-flex items-center gap-1.5 rounded-full border border-hairline-light px-4 py-2 text-caption text-ink hover:bg-canvas-cream transition-colors"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                <span>Try Again</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

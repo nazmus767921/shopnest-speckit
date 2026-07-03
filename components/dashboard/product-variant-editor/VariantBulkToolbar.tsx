@@ -113,7 +113,7 @@ export function VariantBulkToolbar({
   if (totalCount === 0) return null;
 
   return (
-    <div className="rounded-lg border border-hairline-light bg-canvas-light">
+    <div className="rounded-lg bg-canvas-cream/60">
       {/* Selection bar */}
       <div className="flex items-center gap-2 px-3 py-2">
         {/* Left side — grows to push right side to the end */}
@@ -170,7 +170,7 @@ export function VariantBulkToolbar({
 
       {/* Expanded bulk editor */}
       {expanded && hasSelection && (
-        <div className="border-t border-hairline-light px-3 py-4 space-y-4">
+        <div className="border-t border-hairline-light/60 px-3 py-4 space-y-4">
           {message && (
             <div
               className={`rounded-lg px-3 py-2 text-caption ${

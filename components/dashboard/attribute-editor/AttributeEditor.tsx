@@ -181,10 +181,10 @@ function TagInput({
 
   return (
     <div
-      className={`flex flex-wrap items-center gap-1.5 rounded-md border px-2.5 py-1.5 min-h-[38px] transition-colors ${
+      className={`flex flex-wrap items-center gap-1.5 rounded-lg border px-2.5 py-2 min-h-[42px] transition-colors ${
         disabled
           ? "border-hairline-light bg-canvas-cream/50 cursor-not-allowed"
-          : "border-hairline-light bg-canvas-light focus-within:border-ink"
+          : "border-hairline-light bg-canvas-light focus-within:border-shade-40 focus-within:ring-1 focus-within:ring-shade-30"
       }`}
       onClick={() => inputRef.current?.focus()}
     >
@@ -192,17 +192,23 @@ function TagInput({
       {options.map((opt, i) => (
         <span
           key={i}
-          className="inline-flex items-center gap-1 rounded-full bg-canvas-cream border border-hairline-light px-2.5 py-0.5 text-micro text-ink"
+          className="inline-flex items-center gap-1.5 rounded-md border border-shade-30/60 bg-gradient-to-b from-canvas-cream to-canvas-cream/80 px-2.5 py-1 text-micro font-medium text-ink shadow-sm"
         >
-          <span>{opt.label}</span>
-          {canAdd && (
+          <span
+            className="h-1.5 w-1.5 rounded-full shrink-0"
+            style={{
+              backgroundColor: ["#6366f1", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4", "#f97316", "#14b8a6", "#a855f7"][i % 10],
+            }}
+          />
+          <span className="truncate max-w-[120px]">{opt.label}</span>
+          {!disabled && (
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 onRemoveOption(i);
               }}
-              className="rounded-full p-0.5 text-shade-40 hover:text-red-500 hover:bg-red-50 transition-colors"
+              className="ml-0.5 rounded p-0.5 text-shade-40 opacity-60 hover:opacity-100 hover:text-red-500 hover:bg-red-50 transition-all"
               aria-label={`Remove ${opt.label}`}
             >
               <X className="h-3 w-3" />
@@ -219,14 +225,17 @@ function TagInput({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={options.length === 0 ? "Type option, press Enter..." : "Add more..."}
+          placeholder={options.length === 0 ? "Type and press Enter..." : "Add more..."}
           disabled={disabled}
           className="min-w-[80px] flex-1 border-0 bg-transparent py-1 text-body-md text-ink placeholder:text-shade-40 focus:outline-none"
         />
       )}
 
       {/* Count badge */}
-      <span className="text-micro text-shade-40 ml-auto shrink-0">
+      <span className="inline-flex items-center gap-1 rounded-md border border-hairline-light bg-canvas-cream px-2 py-0.5 text-micro text-shade-50 font-medium ml-auto shrink-0">
+        <span className={`h-1.5 w-1.5 rounded-full ${
+          options.length >= MAX_OPTIONS ? "bg-amber-500" : "bg-primary/60"
+        }`} />
         {options.length}/{MAX_OPTIONS}
       </span>
     </div>

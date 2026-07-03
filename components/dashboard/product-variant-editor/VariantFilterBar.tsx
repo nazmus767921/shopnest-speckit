@@ -110,8 +110,7 @@ export function VariantFilterBar({
   }, [onFilterChange]);
 
   return (
-    <div className="rounded-lg border border-hairline-light bg-canvas-light">
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 px-3 py-2">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         {/* SKU Search */}
         <div className="relative flex-1 w-full sm:max-w-xs">
           <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-shade-40" />
@@ -185,13 +184,12 @@ export function VariantFilterBar({
             type="button"
             onClick={handleClear}
             disabled={disabled}
-            className="inline-flex items-center gap-1 rounded-full border border-hairline-light px-3 py-1.5 text-micro text-shade-50 hover:bg-canvas-cream transition-colors shrink-0"
+            className="inline-flex items-center gap-1 rounded-md bg-canvas-cream border border-hairline-light px-2.5 py-1.5 text-micro text-shade-50 hover:bg-shade-30/30 hover:text-ink transition-colors shrink-0"
           >
             <X className="h-3 w-3" />
             <span>Clear</span>
           </button>
         )}
       </div>
-    </div>
   );
 }

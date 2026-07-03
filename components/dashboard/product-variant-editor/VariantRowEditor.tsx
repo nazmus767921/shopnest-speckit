@@ -3,7 +3,7 @@
 import { useCallback, useState, useEffect, useRef } from "react";
 import type { VariantUpdateInput } from "@/lib/validations/variants";
 import { Input } from "@/components/ui/primitives/Input";
-import { Loader2 } from "lucide-react";
+import { Loader2, Check, X } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -343,17 +343,17 @@ export function VariantRowEditor({
             type="button"
             onClick={handleToggleStatus}
             disabled={disabled}
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-micro font-medium shrink-0 transition-colors hover:opacity-80 disabled:cursor-not-allowed ${variant.isActive
-              ? "bg-aloe-10/60 text-shade-70"
-              : "bg-shade-30/50 text-shade-50"
+            className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-micro font-medium shrink-0 transition-all hover:scale-105 active:scale-95 disabled:cursor-not-allowed ${variant.isActive
+              ? "bg-green-600 text-white shadow-sm"
+              : "bg-shade-30/60 text-shade-50"
               }`}
             aria-label={variant.isActive ? "Deactivate variant" : "Activate variant"}
           >
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${variant.isActive ? "bg-green-600" : "bg-shade-40"
-                }`}
-              aria-hidden="true"
-            />
+            {variant.isActive ? (
+              <Check className="h-3 w-3" />
+            ) : (
+              <X className="h-3 w-3" />
+            )}
             {variant.isActive ? "Active" : "Inactive"}
           </button>
         </div>
