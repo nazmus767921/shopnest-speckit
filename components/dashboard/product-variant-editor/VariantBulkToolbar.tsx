@@ -8,6 +8,11 @@ import { Input } from "@/components/ui/primitives/Input";
 
 type PriceAdjustmentType = "fixed" | "percent" | "add_amount";
 
+interface UndoSnapshot {
+  variants: Array<{ id: string; pricePaisa: number | null; stockCount: number; isActive: boolean; sku: string }>;
+  appliedData: any;
+}
+
 interface BulkToolbarProps {
   selectedCount: number;
   totalCount: number;
@@ -21,6 +26,8 @@ interface BulkToolbarProps {
     skuPrefix?: string;
   }) => Promise<void>;
   disabled?: boolean;
+  undoSnapshot?: UndoSnapshot | null;
+  onUndo?: () => Promise<void>;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -32,6 +39,8 @@ export function VariantBulkToolbar({
   onDeselectAll,
   onBulkUpdate,
   disabled = false,
+  undoSnapshot,
+  onUndo,
 }: BulkToolbarProps) {
   const uid = useId();
   const [expanded, setExpanded] = useState(false);
@@ -114,6 +123,22 @@ export function VariantBulkToolbar({
 
   return (
     <div className="rounded-lg bg-canvas-cream/60">
+      {/* Undo toast */}
+      {undoSnapshot && onUndo && (
+        <div className="flex items-center justify-between gap-2 px-3 py-2 bg-aloe-10/30 border-b border-aloe-10/40">
+          <span className="text-caption text-shade-70">
+            Bulk update applied.
+          </span>
+          <button
+            type="button"
+            onClick={onUndo}
+            className="rounded-md bg-ink px-3 py-1 text-micro text-on-primary hover:bg-shade-70 transition-colors shrink-0"
+          >
+            Undo
+          </button>
+        </div>
+      )}
+
       {/* Selection bar */}
       <div className="flex items-center gap-2 px-3 py-2">
         {/* Left side — grows to push right side to the end */}

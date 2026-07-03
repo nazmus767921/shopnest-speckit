@@ -185,16 +185,16 @@ description: "Task list for Product Variants & Custom Metadata feature"
 
 - [X] T056 [P] [US5] Test removing an attribute option deactivates affected variants — covered by T076 smartMergeVariants deactivation logic in `lib/products/__tests__/smartMerge.test.ts`
 - [X] T057 [P] [US5] Test adding a new attribute option generates new variants for existing options — covered by T075 smartMergeVariants addition logic in `lib/products/__tests__/smartMerge.test.ts`
-- [ ] T058 [P] [US5] Test variant image upload to Supabase Storage at correct path in `components/dashboard/product-variant-editor/__tests__/VariantImageUpload.test.ts`
+- [X] T058 [P] [US5] Test variant image upload to Supabase Storage at correct path in `components/dashboard/product-variant-editor/__tests__/VariantImageUpload.test.ts`
 - [X] T059 [P] [US5] Test bulk price update (fixed amount, ±%, ±amount) applies to selected variants correctly — covered by bulkVariantUpdateSchema validation tests in `components/dashboard/__tests__/bulkAndFilter.test.ts`
 
 ### Implementation for User Story 5
 
 - [X] T060 [US5] Extend `saveProductAttributesAction` to handle attribute option removal — smart merge detects removed options, sets isActive=false (not delete), preserves FK integrity
 - [X] T061 [US5] Extend `saveProductAttributesAction` to handle attribute option addition — smart merge generates only new combinations, re-links preserved variants to new option IDs
-- [ ] T062 [P] [US5] Create variant image upload component at `components/dashboard/product-variant-editor/VariantImageUpload.tsx` — upload to `product-images/{merchant_id}/{product_id}/variants/{variant_id}/{uuid}.{ext}` with plan-based size limits
-- [ ] T063 [US5] Implement variant image Server Actions in `app/(dashboard)/products/[id]/actions.ts` — `uploadVariantImageAction`, `deleteVariantImageAction`
-- [ ] T064 [US5] Integrate VariantImageUpload into VariantRowEditor at `components/dashboard/product-variant-editor/VariantRowEditor.tsx`
+- [X] T062 [P] [US5] Create variant image upload component at `components/dashboard/product-variant-editor/VariantImageUpload.tsx` — upload to `product-images/{merchant_id}/{product_id}/variants/{variant_id}/{uuid}.{ext}` with plan-based size limits
+- [X] T063 [US5] Implement variant image Server Actions in `app/actions/variants.ts` — `uploadVariantImageAction`, `deleteVariantImageAction`
+- [X] T064 [US5] Integrate VariantImageUpload into VariantRowEditor at `components/dashboard/product-variant-editor/VariantRowEditor.tsx`
 - [X] T065 [US5] Build the unified inline variant table at `components/dashboard/product-variant-editor/VariantsSection.tsx` — integrated with VariantBulkToolbar, VariantFilterBar, checkbox selection, and filtered display
 - [X] T071 [US5] Create bulk toolbar component at `components/dashboard/product-variant-editor/VariantBulkToolbar.tsx` — checkbox selection, set price (fixed/±%/±amount), set stock, bulk activate/deactivate, bulk SKU prefix change
 - [X] T072 [US5] Create search/filter bar component at `components/dashboard/product-variant-editor/VariantFilterBar.tsx` — SKU search, stock filter, status filter, attribute dropdowns
@@ -216,20 +216,20 @@ description: "Task list for Product Variants & Custom Metadata feature"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T066 [P] Add backward compatibility test for existing non-variant products — verify they render and check out correctly with no variant UI in `app/(storefront)/product/[slug]/__tests__/page.test.tsx`
-- [ ] T067 [P] Add performance test for variant matrix generation at max capacity (1000 variants) in `lib/products/__tests__/variants.test.ts`
+- [X] T066 [P] Add backward compatibility test for existing non-variant products — verify they render and check out correctly with no variant UI in `app/(storefront)/product/[slug]/__tests__/page.test.tsx`
+- [X] T067 [P] Add performance test for variant matrix generation at max capacity (1000 variants) in `lib/products/__tests__/variants.test.ts`
 - [ ] T068 Run `quickstart.md` validation scenarios end-to-end
-- [ ] T069 [P] Update `db/schema.ts` comments to document new variant tables and their relationships
-- [ ] T070 Add error boundary handling for variant selector failures in `components/storefront/variant-selector/VariantSelector.tsx`
-- [ ] T080 [P] Add chip input validation in `components/dashboard/attribute-editor/AttributeEditor.tsx` — reject duplicate option values, reject empty values on Enter, enforce max character length (50), show inline validation messages
-- [ ] T081 [P] Add empty state, loading state, and error state to `components/dashboard/product-variant-editor/VariantsSection.tsx` — skeleton loader during variant fetch, empty state illustration when no attributes, error state with retry when fetch fails
+- [X] T069 [P] Update `db/schema.ts` comments to document new variant tables and their relationships
+- [X] T070 Add error boundary handling for variant selector failures in `components/storefront/variant-selector/VariantSelector.tsx`
+- [X] T080 [P] Add chip input validation in `components/dashboard/attribute-editor/AttributeEditor.tsx` — reject duplicate option values, reject empty values on Enter, enforce max character length (50), show inline validation messages
+- [X] T081 [P] Add empty state, loading state, and error state to `components/dashboard/product-variant-editor/VariantsSection.tsx` — skeleton loader during variant fetch, empty state illustration when no attributes, error state with retry when fetch fails
 - [ ] T082 [P] Add keyboard navigation to the inline variant table at `components/dashboard/product-variant-editor/VariantsSection.tsx` — Tab between cells, Enter to edit, Escape to cancel, Arrow keys for cell navigation, ARIA role="grid" / role="gridcell"
-- [ ] T083 [P] Add screen reader announcements to the variant table — live region for variant count changes, edit state announcements, selection state announcements in `components/dashboard/product-variant-editor/VariantsSection.tsx` and `VariantBulkToolbar.tsx`
-- [ ] T084 [P] Add responsive behavior to the variant table — collapse to card-list layout on <768px viewport, adapt inline editing for touch targets at `components/dashboard/product-variant-editor/VariantsSection.tsx`
+- [X] T083 [P] Add screen reader announcements to the variant table — live region for variant count changes, edit state announcements, selection state announcements in `components/dashboard/product-variant-editor/VariantsSection.tsx` and `VariantBulkToolbar.tsx`
+- [X] T084 [P] Add responsive behavior to the variant table — collapse to card-list layout on <768px viewport, adapt inline editing for touch targets at `components/dashboard/product-variant-editor/VariantsSection.tsx`
 - [ ] T085 [P] Add scroll virtualization or pagination to the variant table — when variant count > 50, show 25 per page with pagination controls or virtual scroll at `components/dashboard/product-variant-editor/VariantsSection.tsx`
-- [ ] T086 [P] Add visual focus indicators to all interactive elements in the variant editor — chip × buttons, filter inputs, table cells, toolbar buttons — using DESIGN.md focus ring tokens at all related components
-- [ ] T087 [P] Add undo capability for bulk operations — show an "Undo" toast/notification for 5 seconds after bulk price/stock changes in `components/dashboard/product-variant-editor/VariantBulkToolbar.tsx`
-- [ ] T090 [P] Add DESIGN.md compliance audit for all variant editor components — verify Invariant 9 (DESIGN.md First) across VariantsSection, VariantRowEditor, VariantBulkToolbar, VariantFilterBar, AttributeEditor, MetadataEditor, MetadataSection
+- [X] T086 [P] Add visual focus indicators to all interactive elements in the variant editor — chip × buttons, filter inputs, table cells, toolbar buttons — using DESIGN.md focus ring tokens at all related components
+- [X] T087 [P] Add undo capability for bulk operations — show an "Undo" toast/notification for 5 seconds after bulk price/stock changes in `components/dashboard/product-variant-editor/VariantBulkToolbar.tsx`
+- [X] T090 [P] Add DESIGN.md compliance audit for all variant editor components — verify Invariant 9 (DESIGN.md First) across VariantsSection, VariantRowEditor, VariantBulkToolbar, VariantFilterBar, AttributeEditor, MetadataEditor, MetadataSection
 
 ---
 

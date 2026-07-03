@@ -2,8 +2,9 @@
 
 import { useCallback, useState, useEffect, useRef } from "react";
 import type { VariantUpdateInput } from "@/lib/validations/variants";
+import { VariantImageUpload } from "./VariantImageUpload";
 import { Input } from "@/components/ui/primitives/Input";
-import { Loader2, Check, X } from "lucide-react";
+import { Loader2, Check, X, ChevronDown, ChevronUp, ImageIcon } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -223,6 +224,8 @@ export function VariantRowEditor({
     await onUpdate(variant.id, { isActive: !variant.isActive });
   }, [variant.id, variant.isActive, onUpdate]);
 
+  const [showImages, setShowImages] = useState(false);
+
   return (
     <div
       className={`rounded-lg border transition-all ${variant.isActive
@@ -312,7 +315,7 @@ export function VariantRowEditor({
             aria-label={variant.isActive ? "Deactivate variant" : "Activate variant"}
           >
             <span
-              className={`h-1.5 w-1.5 rounded-full ${variant.isActive ? "bg-green-600" : "bg-shade-40"
+              className={`h-1.5 w-1.5 rounded-full ${variant.isActive ? "bg-aloe-10/80" : "bg-shade-40"
                 }`}
               aria-hidden="true"
             />
@@ -344,7 +347,7 @@ export function VariantRowEditor({
             onClick={handleToggleStatus}
             disabled={disabled}
             className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-micro font-medium shrink-0 transition-all hover:scale-105 active:scale-95 disabled:cursor-not-allowed ${variant.isActive
-              ? "bg-green-600 text-white shadow-sm"
+              ? "bg-aloe-10/70 text-shade-70"
               : "bg-shade-30/60 text-shade-50"
               }`}
             aria-label={variant.isActive ? "Deactivate variant" : "Activate variant"}
@@ -390,6 +393,30 @@ export function VariantRowEditor({
             label="Stock"
           />
         </div>
+      </div>
+
+      {/* ── Variant Images (expandable) ── */}
+      <div className="border-t border-hairline-light/50">
+        <button
+          type="button"
+          onClick={() => setShowImages(!showImages)}
+          className="flex w-full items-center gap-1.5 px-3 py-1.5 text-micro text-shade-40 hover:text-ink hover:bg-canvas-cream/50 transition-colors"
+          aria-expanded={showImages}
+        >
+          <ImageIcon className="h-3 w-3" />
+          <span>Images</span>
+          {showImages ? (
+            <ChevronUp className="h-3 w-3 ml-auto" />
+          ) : (
+            <ChevronDown className="h-3 w-3 ml-auto" />
+          )}
+        </button>
+
+        {showImages && (
+          <div className="px-3 pb-3">
+            <VariantImageUpload variantId={variant.id} disabled={disabled} />
+          </div>
+        )}
       </div>
     </div>
   );

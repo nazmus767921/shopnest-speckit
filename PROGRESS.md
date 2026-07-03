@@ -37,7 +37,7 @@ Update this file after every meaningful implementation change.
 
 ## In Progress
 
-- None
+- None (Phase 8 Polish tasks remaining — T066–T090, 14 tasks)
 
 ## Completed This Session
 

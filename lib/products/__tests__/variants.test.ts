@@ -297,3 +297,76 @@ describe("selectVariantForOptions", () => {
     expect(result!.stockCount).toBe(0);
   });
 });
+
+// ─── Performance Test ──────────────────────────────────────────────────────────
+
+describe("Performance: max capacity variant matrix", () => {
+  it("generates 1000 variants (3 attributes × 10 options) in under 100ms", () => {
+    const attrs: AttributeInput[] = [
+      {
+        id: "perf-color",
+        name: "Color",
+        options: Array.from({ length: 10 }, (_, i) => ({
+          id: `pc-${i}`,
+          label: `Color ${i}`,
+          value: `color-${i}`,
+        })),
+      },
+      {
+        id: "perf-size",
+        name: "Size",
+        options: Array.from({ length: 10 }, (_, i) => ({
+          id: `ps-${i}`,
+          label: `Size ${i}`,
+          value: `size-${i}`,
+        })),
+      },
+      {
+        id: "perf-mat",
+        name: "Material",
+        options: Array.from({ length: 10 }, (_, i) => ({
+          id: `pm-${i}`,
+          label: `Material ${i}`,
+          value: `material-${i}`,
+        })),
+      },
+    ];
+
+    const start = performance.now();
+    const result = generateVariantMatrix(attrs, "PERF", 0);
+    const elapsed = performance.now() - start;
+
+    expect(result).toHaveLength(1000);
+    expect(elapsed).toBeLessThan(100);
+  });
+
+  it("generates 100 variants (2 attributes × 10 options) in under 20ms", () => {
+    const attrs: AttributeInput[] = [
+      {
+        id: "perf-color2",
+        name: "Color",
+        options: Array.from({ length: 10 }, (_, i) => ({
+          id: `pc2-${i}`,
+          label: `Color ${i}`,
+          value: `color-${i}`,
+        })),
+      },
+      {
+        id: "perf-size2",
+        name: "Size",
+        options: Array.from({ length: 10 }, (_, i) => ({
+          id: `ps2-${i}`,
+          label: `Size ${i}`,
+          value: `size-${i}`,
+        })),
+      },
+    ];
+
+    const start = performance.now();
+    const result = generateVariantMatrix(attrs, "PERF", 0);
+    const elapsed = performance.now() - start;
+
+    expect(result).toHaveLength(100);
+    expect(elapsed).toBeLessThan(20);
+  });
+});

@@ -103,6 +103,14 @@ export const bulkVariantUpdateSchema = z.object({
   skuPrefix: z.string().min(1).max(20).optional(),
 });
 
+// ─── Variant Image Upload ──────────────────────────────────────────────────────
+
+export const variantImageUploadSchema = z.object({
+  variantId: z.string().min(1),
+});
+
+export type VariantImageUploadInput = z.infer<typeof variantImageUploadSchema>;
+
 // ─── Inferred Types ───────────────────────────────────────────────────────────
 
 export type AttributeOptionInput = z.infer<typeof attributeOptionSchema>;

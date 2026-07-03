@@ -81,6 +81,10 @@ export function VariantsSection({
     text: string;
   } | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [undoSnapshot, setUndoSnapshot] = useState<{
+    variants: Array<{ id: string; pricePaisa: number | null; stockCount: number; isActive: boolean; sku: string }>;
+    appliedData: any;
+  } | null>(null);
   const [filters, setFilters] = useState<FilterCriteria>({
     skuQuery: "",
     stockFilter: "all",
@@ -191,8 +195,104 @@ export function VariantsSection({
     return result;
   }, [data, filters]);
 
+  // ── Loading Skeleton ──
+  if (isLoading) {
+    return (
+      <div className="space-y-4" aria-label="Loading variant data">
+        {/* Attribute editor skeleton */}
+        <div className="relative overflow-hidden rounded-lg border border-hairline-light bg-canvas-light p-4 sm:p-6">
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-shade-30/60 to-shade-30/20" aria-hidden="true" />
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-shade-30/30">
+              <div className="h-4 w-4 rounded bg-shade-30/50" />
+            </div>
+            <div>
+              <div className="h-5 w-40 rounded bg-shade-30/50 animate-pulse" />
+              <div className="h-3 w-64 rounded bg-shade-30/30 animate-pulse mt-1.5" />
+            </div>
+          </div>
+          {/* Attribute row skeleton */}
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <div className="h-[42px] w-[200px] rounded-md bg-shade-30/30 animate-pulse" />
+              <div className="h-[42px] flex-1 rounded-md bg-shade-30/30 animate-pulse" />
+              <div className="h-[42px] w-[32px] rounded-md bg-shade-30/30 animate-pulse" />
+            </div>
+          </div>
+          {/* Add button skeleton */}
+          <div className="mt-4 pt-4 border-t border-hairline-light">
+            <div className="h-5 w-32 rounded bg-shade-30/30 animate-pulse" />
+          </div>
+        </div>
+
+        {/* Variant table skeleton */}
+        <div className="rounded-lg border border-hairline-light bg-canvas-light overflow-hidden">
+          <div className="flex items-center gap-3 px-4 sm:px-6 py-3 border-b border-hairline-light bg-canvas-cream/40">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-shade-30/30">
+              <div className="h-4 w-4 rounded bg-shade-30/40" />
+            </div>
+            <div className="h-5 w-20 rounded bg-shade-30/50 animate-pulse" />
+            <div className="h-5 w-10 rounded bg-shade-30/30 animate-pulse" />
+          </div>
+          <div className="p-4 sm:p-6 space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center gap-2 h-10">
+                <div className="h-4 w-4 rounded bg-shade-30/30 animate-pulse" />
+                <div className="h-2 w-2 rounded-full bg-shade-30/30" />
+                <div className="h-5 w-24 rounded bg-shade-30/40 animate-pulse" />
+                <div className="h-5 w-32 rounded bg-shade-30/30 animate-pulse" />
+                <div className="h-5 w-20 rounded bg-shade-30/40 animate-pulse" />
+                <div className="h-5 w-20 rounded bg-shade-30/30 animate-pulse" />
+                <div className="h-5 w-16 rounded bg-shade-30/40 animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Error State ──
+  if (isError) {
+    return (
+      <div className="rounded-lg border border-hairline-light bg-canvas-light overflow-hidden">
+        <div className="flex items-center gap-3 px-4 sm:px-6 py-3 border-b border-hairline-light bg-canvas-cream/40">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50">
+            <AlertCircle className="h-4 w-4 text-red-400" />
+          </div>
+          <h3 className="text-body-strong text-ink">Variants</h3>
+        </div>
+        <div className="flex items-center justify-center min-h-[160px]">
+          <div className="text-center">
+            <AlertCircle className="mx-auto mb-3 h-8 w-8 text-red-300" />
+            <p className="text-body-md text-shade-50 mb-3">Could not load variant data</p>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="inline-flex items-center gap-1.5 rounded-full border border-hairline-light px-4 py-2 text-caption text-ink hover:bg-canvas-cream transition-colors"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              <span>Try Again</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Screen reader live region for count/selection changes ──
+  const announcement = data
+    ? `${filteredVariants.length} of ${data.variants.length} variants shown`
+    : "";
+
+  // ── Normal UI ──
   return (
-    <div className="space-y-4">
+    <>
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {announcement}
+        {selectedIds.size > 0 && `, ${selectedIds.size} selected`}
+      </div>
+      <div className="space-y-4">
       {/* ── Attribute Editor ── */}
       <div className="relative overflow-hidden rounded-lg border border-hairline-light bg-canvas-light p-4 sm:p-6">
         {/* Left accent bar */}
@@ -239,7 +339,7 @@ export function VariantsSection({
             type="button"
             onClick={handleSave}
             disabled={saveDisabled || isSaving}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2 text-body-md text-on-primary hover:bg-shade-70 transition-colors disabled:opacity-50 w-full sm:w-auto"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2 text-body-md text-on-primary hover:bg-shade-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors disabled:opacity-50 w-full sm:w-auto"
           >
             {isSaving ? (
               <>
@@ -293,18 +393,49 @@ export function VariantsSection({
               }}
               onDeselectAll={() => setSelectedIds(new Set())}
               onBulkUpdate={async (bulkData: any) => {
+                // Capture pre-update state for undo
+                const affectedVariants = data?.variants
+                  .filter((v: any) => selectedIds.has(v.id))
+                  .map((v: any) => ({
+                    id: v.id,
+                    pricePaisa: v.pricePaisa,
+                    stockCount: v.stockCount,
+                    isActive: v.isActive,
+                    sku: v.sku,
+                  })) || [];
+
                 const result = await bulkUpdateVariantsAction({
                   ...bulkData,
                   variantIds: Array.from(selectedIds),
                 });
                 if (result.success) {
+                  setUndoSnapshot({ variants: affectedVariants, appliedData: bulkData });
                   queryClient.invalidateQueries({
                     queryKey: ["product-variants", productId],
                   });
                   setSelectedIds(new Set());
+                  // Clear undo snapshot after 10 seconds
+                  setTimeout(() => setUndoSnapshot(null), 10_000);
                 } else {
                   throw new Error(result.error);
                 }
+              }}
+              undoSnapshot={undoSnapshot}
+              onUndo={async () => {
+                if (!undoSnapshot) return;
+                // Restore each variant to its previous state
+                for (const v of undoSnapshot.variants) {
+                  await updateVariantAction(v.id, {
+                    pricePaisa: v.pricePaisa,
+                    stockCount: v.stockCount,
+                    isActive: v.isActive,
+                    sku: v.sku,
+                  });
+                }
+                setUndoSnapshot(null);
+                queryClient.invalidateQueries({
+                  queryKey: ["product-variants", productId],
+                });
               }}
             />
           </div>
@@ -342,51 +473,7 @@ export function VariantsSection({
           </div>
         </div>
       )}
-
-      {/* ── Loading ── */}
-      {isLoading && (
-        <div className="rounded-lg border border-hairline-light bg-canvas-light overflow-hidden">
-          <div className="flex items-center gap-3 px-4 sm:px-6 py-3 border-b border-hairline-light bg-canvas-cream/40">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/5">
-              <Layers className="h-4 w-4 text-primary/40" />
-            </div>
-            <div className="h-5 w-24 rounded bg-shade-30/50 animate-pulse" />
-            <div className="h-5 w-10 rounded bg-shade-30/50 animate-pulse" />
-          </div>
-          <div className="flex items-center justify-center min-h-[160px]">
-            <div className="text-center">
-              <Loader2 className="mx-auto mb-3 h-6 w-6 animate-spin text-primary/40" />
-              <p className="text-body-md text-shade-40">Loading variants...</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Error ── */}
-      {isError && (
-        <div className="rounded-lg border border-hairline-light bg-canvas-light overflow-hidden">
-          <div className="flex items-center gap-3 px-4 sm:px-6 py-3 border-b border-hairline-light bg-canvas-cream/40">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50">
-              <AlertCircle className="h-4 w-4 text-red-400" />
-            </div>
-            <h3 className="text-body-strong text-ink">Variants</h3>
-          </div>
-          <div className="flex items-center justify-center min-h-[160px]">
-            <div className="text-center">
-              <AlertCircle className="mx-auto mb-3 h-8 w-8 text-red-300" />
-              <p className="text-body-md text-shade-50 mb-3">Could not load variant data</p>
-              <button
-                type="button"
-                onClick={() => refetch()}
-                className="inline-flex items-center gap-1.5 rounded-full border border-hairline-light px-4 py-2 text-caption text-ink hover:bg-canvas-cream transition-colors"
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-                <span>Try Again</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
+    </>
   );
 }

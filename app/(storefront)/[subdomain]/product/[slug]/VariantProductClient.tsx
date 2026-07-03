@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { VariantSelector } from "@/components/storefront/variant-selector/VariantSelector";
+import { VariantSelectorErrorBoundary } from "@/components/storefront/variant-selector/VariantSelectorErrorBoundary";
 import { AddToCartButton } from "@/components/storefront/AddToCartButton";
 import { BuyNowButton } from "@/components/storefront/BuyNowButton";
 import type { VariantOption, AttributeInfo } from "@/components/storefront/variant-selector/VariantSelector";
@@ -90,12 +91,14 @@ export function VariantProductClient({
 
   return (
     <div className="space-y-4">
-      <VariantSelector
-        attributes={attributeInfos}
-        variants={enrichedVariants}
-        basePricePaisa={product.pricePaisa}
-        onVariantSelect={setSelectedVariant}
-      />
+      <VariantSelectorErrorBoundary>
+        <VariantSelector
+          attributes={attributeInfos}
+          variants={enrichedVariants}
+          basePricePaisa={product.pricePaisa}
+          onVariantSelect={setSelectedVariant}
+        />
+      </VariantSelectorErrorBoundary>
 
       {hasSelection && selectedVariant && (
         <div className="space-y-3">

@@ -355,6 +355,12 @@ export const productPromotions = pgTable("product_promotions", {
 
 // ─── Variant & Metadata Tables ────────────────────────────────────────────────
 
+/**
+ * Product attributes — defines the "columns" of the variant matrix.
+ * Each attribute (e.g. Color, Size, Material) has a display type (dropdown/swatch/radio)
+ * and a set of options stored in `attribute_options`. Max 3 attributes per product.
+ * @see specs/20-product-variants-metadata/spec.md §FR-001
+ */
 export const productAttributes = pgTable("product_attributes", {
   id: text("id").primaryKey(),
   merchantId: text("merchant_id")
@@ -373,6 +379,12 @@ export const productAttributes = pgTable("product_attributes", {
   index("idx_product_attributes_merchant").on(table.merchantId),
 ]).enableRLS()
 
+/**
+ * Attribute option values — each option belongs to one attribute.
+ * Options are the "rows" within each attribute column (e.g. "Red", "Blue" for Color).
+ * Max 10 options per attribute. Variant matrix is the Cartesian product across attributes.
+ * @see specs/20-product-variants-metadata/spec.md §FR-001
+ */
 export const attributeOptions = pgTable("attribute_options", {
   id: text("id").primaryKey(),
   attributeId: text("attribute_id")
@@ -388,6 +400,12 @@ export const attributeOptions = pgTable("attribute_options", {
   uniqueIndex("uq_attribute_options_attr_value").on(table.attributeId, table.value),
 ]).enableRLS()
 
+/**
+ * Product variants — auto-generated from the Cartesian product of attribute options.
+ * Each variant has its own SKU (auto-generated or overridden), price (inherits base price
+ * if null), stock count, and active status. Max 1000 variants per product.
+ * @see specs/20-product-variants-metadata/spec.md §FR-002, FR-003
+ */
 export const productVariants = pgTable("product_variants", {
   id: text("id").primaryKey(),
   merchantId: text("merchant_id")
@@ -426,6 +444,12 @@ export const variantAttributeLinks = pgTable("variant_attribute_links", {
   uniqueIndex("uq_variant_links_variant_option").on(table.variantId, table.attributeOptionId),
 ]).enableRLS()
 
+/**
+ * Variant images — stored in Supabase Storage `product-images` bucket.
+ * Path format: `{merchant_id}/{product_id}/variants/{variant_id}/{uuid}.{ext}`.
+ * Max 5 images per variant. Display order is user-controllable.
+ * @see specs/20-product-variants-metadata/spec.md §FR-014
+ */
 export const variantImages = pgTable("variant_images", {
   id: text("id").primaryKey(),
   variantId: text("variant_id")

@@ -82,7 +82,7 @@ function ThreeDotMenu({
 
       {open && (
         <div
-          className="absolute right-0 top-full mt-1 z-20 w-44 rounded-lg border border-hairline-light bg-canvas-light shadow-sm py-1"
+          className="absolute right-0 top-full mt-1 z-20 w-44 rounded-lg border border-hairline-light bg-canvas-light py-1"
           role="menu"
         >
           {/* Display Type submenu */}
@@ -137,6 +137,8 @@ function ThreeDotMenu({
 
 // ─── Tag Input ───────────────────────────────────────────────────────────────
 
+const MAX_OPTION_LENGTH = 50;
+
 function TagInput({
   options,
   onAddOption,
@@ -149,14 +151,26 @@ function TagInput({
   disabled?: boolean;
 }) {
   const [input, setInput] = useState("");
+  const [validationError, setValidationError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const commitTag = useCallback(
     (raw: string) => {
       const trimmed = raw.trim();
-      if (!trimmed) return;
+      if (!trimmed) {
+        setValidationError("Option value cannot be empty.");
+        return;
+      }
+      if (trimmed.length > MAX_OPTION_LENGTH) {
+        setValidationError(`Option value must be ${MAX_OPTION_LENGTH} characters or fewer.`);
+        return;
+      }
       // Prevent duplicates
-      if (options.some((o) => o.label.toLowerCase() === trimmed.toLowerCase())) return;
+      if (options.some((o) => o.label.toLowerCase() === trimmed.toLowerCase())) {
+        setValidationError(`"${trimmed}" already exists.`);
+        return;
+      }
+      setValidationError(null);
       onAddOption(trimmed, slugify(trimmed));
       setInput("");
     },
@@ -172,9 +186,20 @@ function TagInput({
         // Backspace on empty input removes last chip
         e.preventDefault();
         onRemoveOption(options.length - 1);
+      } else {
+        // Clear validation on any other keypress
+        if (validationError) setValidationError(null);
       }
     },
-    [input, options, commitTag, onRemoveOption],
+    [input, options, commitTag, onRemoveOption, validationError],
+  );
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setInput(e.target.value);
+      if (validationError) setValidationError(null);
+    },
+    [validationError],
   );
 
   const canAdd = options.length < MAX_OPTIONS && !disabled;
@@ -184,7 +209,9 @@ function TagInput({
       className={`flex flex-wrap items-center gap-1.5 rounded-lg border px-2.5 py-2 min-h-[42px] transition-colors ${
         disabled
           ? "border-hairline-light bg-canvas-cream/50 cursor-not-allowed"
-          : "border-hairline-light bg-canvas-light focus-within:border-shade-40 focus-within:ring-1 focus-within:ring-shade-30"
+          : validationError
+            ? "border-red-400 bg-red-50/30"
+            : "border-hairline-light bg-canvas-light focus-within:border-shade-40 focus-within:ring-1 focus-within:ring-shade-30"
       }`}
       onClick={() => inputRef.current?.focus()}
     >
@@ -192,7 +219,7 @@ function TagInput({
       {options.map((opt, i) => (
         <span
           key={i}
-          className="inline-flex items-center gap-1.5 rounded-md border border-shade-30/60 bg-gradient-to-b from-canvas-cream to-canvas-cream/80 px-2.5 py-1 text-micro font-medium text-ink shadow-sm"
+          className="inline-flex items-center gap-1.5 rounded-md border border-shade-30/60 bg-gradient-to-b from-canvas-cream to-canvas-cream/80 px-2.5 py-1 text-micro font-medium text-ink"
         >
           <span
             className="h-1.5 w-1.5 rounded-full shrink-0"
@@ -223,7 +250,7 @@ function TagInput({
           ref={inputRef}
           type="text"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={options.length === 0 ? "Type and press Enter..." : "Add more..."}
           disabled={disabled}
@@ -238,6 +265,13 @@ function TagInput({
         }`} />
         {options.length}/{MAX_OPTIONS}
       </span>
+
+      {/* Validation error */}
+      {validationError && (
+        <div className="w-full text-micro text-red-500 mt-0.5">
+          {validationError}
+        </div>
+      )}
     </div>
   );
 }
@@ -374,7 +408,7 @@ export function AttributeEditor({
             type="button"
             onClick={addAttribute}
             disabled={!canAddAttribute}
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-body-md text-on-primary hover:bg-shade-70 transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-body-md text-on-primary hover:bg-shade-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors disabled:opacity-50"
           >
             <Plus className="h-4 w-4" />
             <span>Add Attribute</span>
@@ -422,7 +456,7 @@ export function AttributeEditor({
             <button
               type="button"
               onClick={addAttribute}
-              className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-hairline-light px-4 py-2 text-caption text-shade-50 hover:border-shade-40 hover:text-ink transition-colors w-full justify-center"
+              className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-hairline-light px-4 py-2 text-caption text-shade-50 hover:border-shade-40 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors w-full justify-center"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Add {attributes.length >= MAX_ATTRIBUTES ? "" : "Another Attribute"}</span>
