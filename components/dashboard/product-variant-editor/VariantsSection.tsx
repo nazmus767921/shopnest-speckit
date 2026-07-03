@@ -81,6 +81,9 @@ export function VariantsSection({
     text: string;
   } | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [page, setPage] = useState(0);
+  const [focusedRowIndex, setFocusedRowIndex] = useState(0);
+  const gridRef = useRef<HTMLDivElement>(null);
   const [undoSnapshot, setUndoSnapshot] = useState<{
     variants: Array<{ id: string; pricePaisa: number | null; stockCount: number; isActive: boolean; sku: string }>;
     appliedData: any;
@@ -195,6 +198,57 @@ export function VariantsSection({
     return result;
   }, [data, filters]);
 
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filteredVariants.length / 25));
+  const safePage = Math.min(page, totalPages - 1);
+  const paginatedVariants = filteredVariants.slice(
+    safePage * 25,
+    (safePage + 1) * 25,
+  );
+
+  // Keyboard navigation: arrow keys
+  const handleGridKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const rowCount = paginatedVariants.length;
+      if (rowCount === 0) return;
+
+      switch (e.key) {
+        case "ArrowDown":
+          e.preventDefault();
+          setFocusedRowIndex((prev) => Math.min(prev + 1, rowCount - 1));
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setFocusedRowIndex((prev) => Math.max(prev - 1, 0));
+          break;
+        case "Home":
+          e.preventDefault();
+          setFocusedRowIndex(0);
+          break;
+        case "End":
+          e.preventDefault();
+          setFocusedRowIndex(rowCount - 1);
+          break;
+      }
+    },
+    [paginatedVariants.length],
+  );
+
+  // Focus the focused row
+  useEffect(() => {
+    if (!gridRef.current) return;
+    const row = gridRef.current.querySelector<HTMLElement>(
+      `[data-row-index="${focusedRowIndex}"]`,
+    );
+    row?.focus();
+  }, [focusedRowIndex]);
+
+  // Reset page and focused row when filters change
+  useEffect(() => {
+    setPage(0);
+    setFocusedRowIndex(0);
+  }, [filters, data]);
+
   // ── Loading Skeleton ──
   if (isLoading) {
     return (
@@ -280,9 +334,9 @@ export function VariantsSection({
     );
   }
 
-  // ── Screen reader live region for count/selection changes ──
+  // ── Screen reader live region ──
   const announcement = data
-    ? `${filteredVariants.length} of ${data.variants.length} variants shown`
+    ? `${paginatedVariants.length} of ${filteredVariants.length} variants shown`
     : "";
 
   // ── Normal UI ──
@@ -440,15 +494,23 @@ export function VariantsSection({
             />
           </div>
 
-          {/* Variant list */}
-          <div className="p-4 sm:p-6 pt-3 space-y-2" role="list" aria-label="Variant list">
-            {filteredVariants.length === 0 ? (
+          {/* Variant list (grid) */}
+          <div
+            ref={gridRef}
+            className="p-4 sm:p-6 pt-3 space-y-2"
+            role="grid"
+            aria-label="Variants table"
+            aria-rowcount={filteredVariants.length}
+            tabIndex={-1}
+            onKeyDown={handleGridKeyDown}
+          >
+            {paginatedVariants.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <Layers className="h-8 w-8 text-shade-30 mb-2" />
                 <p className="text-body-md text-shade-40">No variants match the current filters.</p>
               </div>
             ) : (
-              filteredVariants.map((variant: any) => (
+              paginatedVariants.map((variant: any, idx: number) => (
                 <VariantRowEditor
                   key={variant.id}
                   variant={{
@@ -460,6 +522,8 @@ export function VariantsSection({
                     isActive: variant.isActive,
                   }}
                   selected={selectedIds.has(variant.id)}
+                  rowIndex={idx}
+                  focused={focusedRowIndex === idx}
                   onSelectChange={(checked) => {
                     const next = new Set(selectedIds);
                     if (checked) next.add(variant.id);
@@ -471,6 +535,53 @@ export function VariantsSection({
               ))
             )}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between gap-3 px-4 sm:px-6 pb-4" role="navigation" aria-label="Pagination">
+              <span className="text-micro text-shade-50">
+                {safePage * 25 + 1}–{Math.min((safePage + 1) * 25, filteredVariants.length)} of {filteredVariants.length}
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => { setPage((p) => Math.max(0, p - 1)); setFocusedRowIndex(0); }}
+                  disabled={safePage === 0}
+                  className="rounded-full border border-hairline-light px-3 py-1 text-caption text-ink hover:bg-canvas-cream disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  aria-label="Previous page"
+                >
+                  Previous
+                </button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => { setPage(i); setFocusedRowIndex(0); }}
+                      className={`h-7 w-7 rounded-full text-micro font-medium transition-colors ${
+                        i === safePage
+                          ? "bg-primary text-on-primary"
+                          : "text-shade-50 hover:bg-canvas-cream"
+                      }`}
+                      aria-label={`Page ${i + 1}`}
+                      aria-current={i === safePage ? "page" : undefined}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setPage((p) => Math.min(totalPages - 1, p + 1)); setFocusedRowIndex(0); }}
+                  disabled={safePage >= totalPages - 1}
+                  className="rounded-full border border-hairline-light px-3 py-1 text-caption text-ink hover:bg-canvas-cream disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  aria-label="Next page"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

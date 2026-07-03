@@ -37,7 +37,7 @@ Update this file after every meaningful implementation change.
 
 ## In Progress
 
-- None (Phase 8 Polish tasks remaining — T066–T090, 14 tasks)
+- T068: Manual E2E quickstart validation (run `quickstart.md` scenarios on dev server)
 
 ## Completed This Session
 
@@ -59,11 +59,11 @@ Update this file after every meaningful implementation change.
   - **Validation fix**: addressSchema now includes variantId/variantLabel (was being silently stripped by Zod)
   - **66 passing tests** across 9 test files (T039-T041 tests now green)
   - **Spec remediations applied**: 7 HIGH issues from analysis resolved (save model, ±% semantics, FR-017, US5 SC3/SC4, FR-002 quantified, etc.)
+  - **Phase 8 Polish (89/90)**: All code tasks done — schema comments (T069), chip validation (T080), backward compat test (T066), perf test (T067), error boundary (T070), image upload (T062-T064), DESIGN.md audit (T090), focus indicators (T086), screen reader announcements (T083), undo toast (T087), keyboard nav with ARIA grid (T082), pagination at 25/page (T085)
 
 ## Next Up
 
-- Remaining: **Variant image upload** (T058, T062-T064) — Supabase Storage integration for per-variant images
-- Remaining: **Phase 8 Polish** (T066-T090) — chip validation, keyboard nav, responsive, pagination, undo, accessibility, DESIGN.md audit
+- **PENDING**: T068 — Manual E2E quickstart validation (walk through `quickstart.md` scenarios on dev server)
 
 ## Open Questions
 

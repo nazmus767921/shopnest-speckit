@@ -23,6 +23,8 @@ interface VariantRowEditorProps {
   selected?: boolean;
   onSelectChange?: (selected: boolean) => void;
   disabled?: boolean;
+  rowIndex?: number;
+  focused?: boolean;
 }
 
 // ─── Inline Editable Cell ────────────────────────────────────────────────────
@@ -175,6 +177,8 @@ export function VariantRowEditor({
   selected = false,
   onSelectChange,
   disabled = false,
+  rowIndex = 0,
+  focused = false,
 }: VariantRowEditorProps) {
   const priceDisplay =
     variant.pricePaisa !== null
@@ -231,14 +235,17 @@ export function VariantRowEditor({
       className={`rounded-lg border transition-all ${variant.isActive
         ? "border-hairline-light bg-canvas-light"
         : "border-hairline-light bg-canvas-cream/50 opacity-75"
-        } ${selected ? "ring-2 ring-primary/30" : ""}`}
+        } ${selected ? "ring-2 ring-primary/30" : ""} ${focused ? "ring-2 ring-primary/20" : ""}`}
       role="row"
+      data-row-index={rowIndex}
+      tabIndex={focused ? 0 : -1}
+      aria-rowindex={rowIndex + 1}
       aria-label={`Variant: ${variant.label}`}
     >
       {/* ── Desktop: horizontal row ── */}
       <div className="hidden sm:flex items-center gap-2 px-3 py-2">
         {/* Checkbox + Label */}
-        <div className="flex items-center gap-2 w-[110px] shrink-0">
+        <div className="flex items-center gap-2 w-[110px] shrink-0" role="gridcell">
           <label
             className="flex items-center cursor-pointer"
             onClick={(e) => e.stopPropagation()}
@@ -260,7 +267,7 @@ export function VariantRowEditor({
         </div>
 
         {/* SKU */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0" role="gridcell">
           <span className="text-micro text-shade-40 block leading-tight">SKU</span>
           <InlineCell
             value={variant.sku}
@@ -273,7 +280,7 @@ export function VariantRowEditor({
         </div>
 
         {/* Price */}
-        <div className="w-[140px] shrink-0">
+        <div className="w-[140px] shrink-0" role="gridcell">
           <span className="text-micro text-shade-40 block leading-tight">Price (৳)</span>
           <InlineCell
             value={variant.pricePaisa !== null ? (variant.pricePaisa / 100).toFixed(0) : ""}
@@ -288,7 +295,7 @@ export function VariantRowEditor({
         </div>
 
         {/* Stock */}
-        <div className="w-[110px] shrink-0">
+        <div className="w-[110px] shrink-0" role="gridcell">
           <span className="text-micro text-shade-40 block leading-tight">Stock</span>
           <InlineCell
             value={variant.stockCount.toString()}
@@ -302,7 +309,7 @@ export function VariantRowEditor({
         </div>
 
         {/* Status — click to toggle */}
-        <div className="w-[80px] shrink-0">
+        <div className="w-[80px] shrink-0" role="gridcell">
           <span className="text-micro text-shade-40 block leading-tight">Status</span>
           <button
             type="button"
@@ -325,7 +332,7 @@ export function VariantRowEditor({
       </div>
 
       {/* ── Mobile: stacked card layout ── */}
-      <div className="sm:hidden px-3 py-3 space-y-3">
+      <div className="sm:hidden px-3 py-3 space-y-3" role="gridcell">
         {/* Header row: checkbox + label + status */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
