@@ -1,0 +1,1 @@
+ALTER TABLE "subscription_payments" ADD COLUMN "features_at_payment_time" jsonb;

@@ -1,0 +1,205 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand & Accent Colors */
+  --color-primary: #000000;
+  --color-ink: #000000;
+  --color-on-primary: #ffffff;
+  --color-on-dark: #ffffff;
+  --color-canvas-night: #000000;
+  --color-canvas-night-elevated: #0a0a0a;
+  --color-canvas-light: #ffffff;
+  --color-canvas-cream: #fbfbf5;
+  --color-surface-elevated-dark: #1e2c31;
+
+  /* Shade Ladder */
+  --color-shade-30: #d4d4d8;
+  --color-shade-40: #a1a1aa;
+  --color-shade-50: #71717a;
+  --color-shade-60: #52525b;
+  --color-shade-70: #3f3f46;
+
+  /* Hairlines & Accents */
+  --color-hairline-light: #e4e4e7;
+  --color-hairline-dark: #1e2c31;
+  --color-aloe-10: #c1fbd4;
+  --color-pistachio-10: #d4f9e0;
+
+  /* Cool Link Tones */
+  --color-link-cool-1: #9dabad;
+  --color-link-cool-2: #9797a2;
+  --color-link-cool-3: #bdbdca;
+  --color-link-mint: #99b3ad;
+
+  /* Fonts */
+  --font-display: "NeueHaasGrotesk Display", Helvetica, Arial, sans-serif;
+  --font-sans: var(--font-inter), "Inter Variable", Inter, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Border Radii */
+  --radius-xs: 4px;
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+  --radius-pill: 9999px;
+
+  /* Warning Color */
+  --color-warning: #f59e0b;
+}
+
+/* Base Styles */
+@layer base {
+  html, body {
+    font-feature-settings: "ss03";
+  }
+}
+
+/* Typography Utility Classes */
+@utility text-display-xxl {
+  font-family: var(--font-display);
+  font-size: 96px;
+  font-weight: 330;
+  line-height: 1.0;
+  letter-spacing: 2.4px;
+}
+
+@utility text-display-xl {
+  font-family: var(--font-display);
+  font-size: 70px;
+  font-weight: 330;
+  line-height: 1.0;
+  letter-spacing: 0;
+}
+
+@utility text-display-lg {
+  font-family: var(--font-display);
+  font-size: 55px;
+  font-weight: 330;
+  line-height: 1.16;
+  letter-spacing: 0;
+}
+
+@utility text-display-md {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 330;
+  line-height: 1.14;
+  letter-spacing: 0;
+}
+
+@utility text-heading-xl {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.28;
+  letter-spacing: 0.42px;
+}
+
+@utility text-heading-lg {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: 0.36px;
+}
+
+@utility text-heading-md {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.3px;
+}
+
+@utility text-heading-sm {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0.72px;
+}
+
+@utility text-body-lg {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 550;
+  line-height: 1.56;
+  letter-spacing: 0;
+}
+
+@utility text-body-md {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 420;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+@utility text-body-strong {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 550;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+@utility text-caption {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.49;
+  letter-spacing: 0.28px;
+}
+
+@utility text-micro {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.13px;
+}
+
+@utility text-eyebrow-cap {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.72px;
+  text-transform: uppercase;
+}
+
+@utility text-code {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+@keyframes new-order-highlight {
+  0%   { box-shadow: 0 0 0 3px var(--color-warning); }
+  100% { box-shadow: 0 0 0 0px transparent; }
+}
+
+@utility animate-new-order-highlight {
+  animation: new-order-highlight 1.5s ease-out;
+}
+
+@keyframes slide-up {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+
+@utility animate-slide-up {
+  animation: slide-up 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@utility animate-fade-in {
+  animation: fade-in 0.2s ease-out forwards;
+}

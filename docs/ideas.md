@@ -1,0 +1,1 @@
+- shop delete feature. v3

@@ -1,0 +1,1 @@
+ALTER TABLE "merchants" DROP COLUMN "fallback_delivery_charge_paisa";

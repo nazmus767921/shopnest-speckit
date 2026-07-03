@@ -1,0 +1,1 @@
+ALTER TABLE "subscription_payments" ADD COLUMN "target_plan" text;
