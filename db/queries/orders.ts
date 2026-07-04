@@ -493,16 +493,8 @@ export async function updateOrderStatus(merchantId: string, orderId: string, new
       })
 
       for (const item of items) {
-        await tx
-          .update(products)
-          .set({
-            stockCount: sql`stock_count + ${item.quantity}`,
-            updatedAt: new Date()
-          })
-          .where(eq(products.id, item.productId))
-
-        // If this item had a variant, restore variant stock as well
         if (item.variantId) {
+          // For variant items, restore variant stock (symmetrical to createOrder)
           await tx
             .update(productVariants)
             .set({
@@ -513,6 +505,15 @@ export async function updateOrderStatus(merchantId: string, orderId: string, new
               eq(productVariants.id, item.variantId),
               eq(productVariants.merchantId, merchantId),
             ))
+        } else {
+          // For base products, restore product stock (symmetrical to createOrder)
+          await tx
+            .update(products)
+            .set({
+              stockCount: sql`stock_count + ${item.quantity}`,
+              updatedAt: new Date()
+            })
+            .where(eq(products.id, item.productId))
         }
       }
     }
