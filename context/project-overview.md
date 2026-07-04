@@ -164,12 +164,16 @@ ShopNest is a multi-tenant e-commerce SaaS platform built specifically for Bangl
 ## Out of Scope
 
 ### Deliberately V2
-- Product variants (size, color, SKU matrix), Compare-at-price, SKU, Product SEO
-- Cash on delivery (COD) payment option
-- Abandoned cart recovery
-- Suscription plan maker and editor. for superadmin
+- [✅] Product variants (size, color, SKU matrix) — **implemented** (full attribute system, SKU auto-generation, dashboard editor, storefront variant selector)
+- [❌] Compare-at-price — **not implemented**
+- [✅] SKU — **implemented** (per-variant SKU with auto-generation)
+- [❌] Product SEO — **not implemented** (no meta_title/meta_description on products)
+- [⚠️] Cash on delivery (COD) payment option — **partially implemented** (feature flag exists in plan editor, but checkout only supports bkash/nagad — COD never surfaced in payment flow)
+- [✅] Subscription plan maker and editor for superadmin — **implemented** (full CRUD at /admin/plans/)
 
 ### Deliberately V3
+- [❌] Custom storefront themes — **not implemented** (single theme only)
+- Abandoned cart recovery
 - Custom storefront themes
 - Analytics and sales reports dashboard
 - Multiple staff accounts per merchant
