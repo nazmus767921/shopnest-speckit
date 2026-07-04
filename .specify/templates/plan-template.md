@@ -41,7 +41,7 @@
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 Gates are derived from `.specify/memory/constitution.md`. At minimum, verify:
-- No principle (I–V) is violated by the proposed design.
+- No principle (I–VI) is violated by the proposed design.
 - No invariant (see Principle V) is broken.
 - Each library identified has a clear, independently testable purpose.
 - Complexity is justified against a simpler rejected alternative.

@@ -2,32 +2,29 @@
 # Sync Impact Report
 
 ## Version Change
-- **Old**: 1.0.0
-- **New**: 1.3.0
-- **Bump Type**: MINOR — added invariant 9 (DESIGN.md First); expanded invariants to 10; elevated DESIGN.md to binding rule across three sections
+- **Old**: 1.3.0
+- **New**: 1.4.0
+- **Bump Type**: MINOR — added Principle VI (Next.js 16.2.9 & React 19 Modern Architecture); updated Technical Conventions to forbid manual optimization boilerplate (useMemo, useCallback, React.memo) in favor of the React Compiler.
 
 ## Principles
 - I. Library-First — unchanged
 - II. Functional Programming — unchanged
-- III. Test-First (NON-NEGOTIABLE) — rationale updated to self-reference
+- III. Test-First (NON-NEGOTIABLE) — unchanged
 - IV. Integration Testing — unchanged
-- V. Invariants & Simplicity — expanded to ten invariants (added DESIGN.md First at #9, shifted payment snapshot to #10)
+- V. Invariants & Simplicity — unchanged
+- VI. Next.js 16.2.9 & React 19 Modern Architecture (NON-NEGOTIABLE) — Added ✨
 
 ## Sections Added
-- Technical Conventions ✨ (AGENTS.md conventions migrated)
+- Principle VI (Next.js 16.2.9 & React 19 Modern Architecture)
 
 ## Sections Expanded
-- Security & Data Isolation — beefed up with route protection, auth plugins, session handling
-- Development Workflow & Quality Gates — expanded with spec-driven workflow, scoping rules, protected files
+- Technical Conventions -> Next.js & React (updated to forbid manual optimization boilerplate)
 
 ## Sections Removed
 - None
 
 ## Templates Updated
 - `.specify/templates/plan-template.md` ✅
-- `.specify/templates/spec-template.md` ✅
-- `.specify/templates/tasks-template.md` ✅
-- `.specify/templates/checklist-template.md` ✅
 
 ## Follow-up TODOs
 - None — all placeholders resolved.
@@ -141,12 +138,12 @@ Ten non-negotiable invariants MUST be enforced in code review:
    `shadow-`, or bare `rounded` (without a token suffix) in component JSX
    SHALL be rejected.
 10. **Payment snapshot priority**: When verifying a subscription payment, always
-   prioritize features/limits snapshotted at submission time
-   (`payment.featuresAtPaymentTime`) over live plan configurations
-   (`targetPlan.features`) to preserve grandfathered limits. During payment
-   verification, do not hard-block or throw if a merchant's resource count
-   exceeds plan limits — use warnings instead, and enforce limits dynamically
-   at runtime via the soft-cap resolved by `getMerchantPlan`.
+    prioritize features/limits snapshotted at submission time
+    (`payment.featuresAtPaymentTime`) over live plan configurations
+    (`targetPlan.features`) to preserve grandfathered limits. During payment
+    verification, do not hard-block or throw if a merchant's resource count
+    exceeds plan limits — use warnings instead, and enforce limits dynamically
+    at runtime via the soft-cap resolved by `getMerchantPlan`.
 
 Follow YAGNI: start simple, avoid speculative abstraction. Every implementation
 plan MUST justify complexity against a simpler alternative that was rejected.
@@ -157,6 +154,28 @@ happen — data breach (1, 4), oversell (2), financial misreporting (3), broken
 customer links (5), silent data loss (6), billing bypass (7), design drift
 (8, 9), or brand fragmentation (10).
 
+### VI. Next.js 16.2.9 & React 19 Modern Architecture (NON-NEGOTIABLE)
+
+The project strictly uses Next.js 16.2.9, React 19, and TypeScript 5.x, with `cacheComponents: true` explicitly enabled at the top level of `next.config.ts`. All code contributions MUST adhere to the following caching, compiler, and prerendering mandates:
+
+1. **Architectural & Caching Principles**:
+   - **App Router Isolation**: All features MUST use the `app/` directory. The legacy `pages/` directory is strictly prohibited.
+   - **Server Components by Default**: Every component MUST be a React Server Component (RSC) by default. The `"use client"` directive MUST be strictly isolated to interactive leaf nodes requiring event listeners or local React state.
+   - **Placement of "use cache"**: Do NOT apply `"use cache"` globally at the page or layout level. Pages and layouts MUST remain thin orchestration layers. Apply `"use cache"` granularly at the individual data-fetching function or leaf component level.
+   - **Legacy Configurations Banned**: All route segment variables (including `dynamic = 'force-dynamic'`, `revalidate`, and `fetchCache`) are strictly banned. Caching MUST be explicitly component-driven or function-driven.
+
+2. **Code Quality, Performance, & Prerendering Guardrails**:
+   - **React Compiler Enforcement**: Explicitly forbid manual optimization boilerplate such as `useMemo`, `useCallback`, or `React.memo`. Rely entirely on the automated React Compiler for render optimization.
+   - **Dynamic API & Non-Deterministic Safety**: Any component executing dynamic or non-deterministic operations (including `cookies()`, `headers()`, `Math.random()`, or `Date.now()`) MUST invoke `await connection()` from `"next/server"` and MUST be wrapped inside a React `<Suspense>` boundary to prevent build-time static prerendering abort errors.
+   - **Cache Lifecycle Configuration**: Govern time-based caching through `cacheLife('profileName')` from `"next/cache"`. Custom profiles containing explicit `stale`, `revalidate`, and `expire` timelines MUST be declared in `next.config.ts`.
+   - **Tag-Based Invalidation**: Enforce on-demand purging using `cacheTag()` to register unique string identifiers and `revalidateTag()` within Server Actions for immediate cache invalidation.
+   - **Navigation State Governance**: Client-side navigation utilizes React `<Activity>` blocks to hide instead of unmounting routes. Component code MUST assume local state is preserved and ensure `useEffect` cleanups properly handle visibility toggle states.
+
+3. **Toolchain & Configuration**:
+   - **TypeScript Native Configurations**: Enforce framework configurations solely via `next.config.ts`, explicitly maintaining `cacheComponents: true`.
+   - **Turbopack Engine**: Enforce the use of `next dev --turbo` for all local development scripts to maintain instant compile and HMR caching metrics.
+
+**Rationale**: These architectural patterns leverage Next.js 16.2.9's Component Caching engine and React 19's native compiler. Restricting dynamic functions under `<Suspense>` via `connection()` ensures build safety, while banning legacy segment options guarantees consistent caching behavior.
 
 ## Security & Data Isolation
 
@@ -232,10 +251,9 @@ codify patterns derived from the ShopNest codebase.
 - Always include the `sizes` prop (e.g.,
   `sizes="(max-width: 1280px) 100vw, 1280px"`) whenever using the Next.js
   `<Image>` component with the `fill` attribute.
-- When passing callbacks to client components that trigger side effects inside
-  a `useEffect` (such as checking sessions), always memoize the callback using
-  `useCallback` to prevent duplicate network calls or re-runs on text input
-  keystrokes.
+- Rely entirely on the automated React Compiler for render optimization. Manual
+  optimization boilerplate (useMemo, useCallback, React.memo) is strictly forbidden
+  unless integrating with legacy third-party components that specifically demand them.
 
 ### Client-Side State
 
@@ -284,4 +302,4 @@ ShopNest codebase.
 
 ---
 
-**Version**: 1.3.0 | **Ratified**: 2026-07-03 | **Last Amended**: 2026-07-03
+**Version**: 1.4.0 | **Ratified**: 2026-07-03 | **Last Amended**: 2026-07-04
