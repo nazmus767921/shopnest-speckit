@@ -90,13 +90,13 @@
 
 ### Tests for User Story 3 (TDD)
 
-- [ ] T017 [P] [US3] Write integration tests for order payment confirmation, auto-paid on delivery, and stock restoration on returned status in __tests__/cod-checkout.test.ts
+- [X] T017 [P] [US3] Write integration tests for order payment confirmation, auto-paid on delivery, and stock restoration on returned status in __tests__/cod-checkout.test.ts
 
 ### Implementation for User Story 3
 
-- [ ] T018 [US3] Implement order queries `confirmPayment`, `updateOrderStatus`, and `restoreStockCount` with safe transaction stock guards in db/queries/orders.ts
-- [ ] T019 [US3] Implement "COD" badge UI in dashboard order lists and detail views in app/(dashboard)/dashboard/orders/components/StatusBadge.tsx
-- [ ] T020 [US3] Implement "Confirm Payment" button and status transition controls in app/(dashboard)/dashboard/orders/components/OrderActions.tsx
+- [X] T018 [US3] Implement order queries `confirmPayment`, `updateOrderStatus`, and `restoreStockCount` with safe transaction stock guards in db/queries/orders.ts
+- [X] T019 [US3] Implement "COD" badge UI in dashboard order lists and detail views in app/(dashboard)/dashboard/orders/components/StatusBadge.tsx
+- [X] T020 [US3] Implement "Confirm Payment" button and status transition controls in app/(dashboard)/dashboard/orders/components/OrderActions.tsx
 
 **Checkpoint**: All user stories should now be independently functional.
 

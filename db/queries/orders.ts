@@ -461,7 +461,7 @@ export async function confirmPayment(merchantId: string, orderId: string, confir
 }
 
 export async function updateOrderStatus(merchantId: string, orderId: string, newStatus: string) {
-  const validStatuses = ["pending_payment", "processing", "shipped", "delivered", "cancelled"]
+  const validStatuses = ["pending_payment", "processing", "shipped", "delivered", "cancelled", "returned"]
   if (!validStatuses.includes(newStatus)) {
     throw new Error("Invalid status.")
   }
@@ -484,8 +484,10 @@ export async function updateOrderStatus(merchantId: string, orderId: string, new
       throw new Error("Must confirm payment before shipping or delivering.")
     }
 
-    // If cancelled from pending_payment or processing, restore stock counts
-    if (newStatus === "cancelled" && existingOrder.status !== "cancelled") {
+    // If cancelled or returned, and was not previously cancelled/returned, restore stock counts
+    if ((newStatus === "cancelled" || newStatus === "returned") && 
+        existingOrder.status !== "cancelled" && 
+        existingOrder.status !== "returned") {
       const items = await tx.query.orderItems.findMany({
         where: eq(orderItems.orderId, orderId)
       })
@@ -512,6 +514,29 @@ export async function updateOrderStatus(merchantId: string, orderId: string, new
               eq(productVariants.merchantId, merchantId),
             ))
         }
+      }
+    }
+
+    // Auto-confirm COD payments on delivery (FR-009)
+    if (newStatus === "delivered") {
+      const confirmation = await tx.query.paymentConfirmations.findFirst({
+        where: and(
+          eq(paymentConfirmations.orderId, orderId),
+          eq(paymentConfirmations.merchantId, merchantId)
+        )
+      })
+      if (confirmation && confirmation.paymentMethod === "cod" && !confirmation.confirmedAt) {
+        await tx
+          .update(paymentConfirmations)
+          .set({
+            confirmedAt: new Date()
+          })
+          .where(
+            and(
+              eq(paymentConfirmations.orderId, orderId),
+              eq(paymentConfirmations.merchantId, merchantId)
+            )
+          )
       }
     }
 

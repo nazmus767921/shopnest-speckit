@@ -458,9 +458,15 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                       <td className="p-4 align-middle">
                         {order.paymentConfirmation ? (
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-semibold capitalize text-ink">
-                              {order.paymentConfirmation.paymentMethod}
-                            </span>
+                            {order.paymentConfirmation.paymentMethod === "cod" ? (
+                              <span className="inline-flex items-center rounded bg-zinc-900 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider self-start">
+                                COD
+                              </span>
+                            ) : (
+                              <span className="font-semibold capitalize text-ink">
+                                {order.paymentConfirmation.paymentMethod}
+                              </span>
+                            )}
                             <span className="text-[12px] font-mono text-shade-50 flex items-center gap-1">
                               TxID: {txId}
                               <button
@@ -647,9 +653,15 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                           Payment
                         </span>
                         <div className="flex items-center gap-1.5 text-caption text-ink font-mono text-[13px]">
-                          <span className="capitalize font-sans font-semibold">
-                            {order.paymentConfirmation.paymentMethod}
-                          </span>
+                          {order.paymentConfirmation.paymentMethod === "cod" ? (
+                            <span className="inline-flex items-center rounded bg-zinc-900 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
+                              COD
+                            </span>
+                          ) : (
+                            <span className="capitalize font-sans font-semibold">
+                              {order.paymentConfirmation.paymentMethod}
+                            </span>
+                          )}
                           <span>({txId})</span>
                           <button
                             onClick={(e) => handleCopy(e, txId || "", "txid")}

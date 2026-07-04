@@ -32,6 +32,11 @@ export function StatusBadge({ status, className = "" }: StatusBadgeProps) {
       colorClasses = "bg-rose-500/10 text-rose-800 border-rose-500/20"
       dotClasses = "bg-rose-500"
       break
+    case "returned":
+      statusText = "Returned"
+      colorClasses = "bg-purple-500/10 text-purple-800 border-purple-500/20"
+      dotClasses = "bg-purple-500"
+      break
     default:
       colorClasses = "bg-zinc-500/10 text-zinc-800 border-zinc-500/20"
       dotClasses = "bg-zinc-500"

@@ -9,7 +9,7 @@ import { storeSettingsSchema } from "@/lib/validations/settings"
 import { paymentSchema } from "@/lib/validations/checkout"
 
 // Mock Drizzle DB calls
-const { mockReturning, mockWhere, mockSet, mockUpdate, mockInsert, mockFindFirstMerchant, mockFindFirstOrder, mockTransaction } = vi.hoisted(() => {
+const { mockReturning, mockWhere, mockSet, mockUpdate, mockInsert, mockFindFirstMerchant, mockFindFirstOrder, mockTransaction, mockQuery } = vi.hoisted(() => {
   const mockReturning = vi.fn()
   const mockWhere = vi.fn(() => ({ returning: mockReturning }))
   const mockSet = vi.fn(() => ({ where: mockWhere }))
@@ -17,7 +17,21 @@ const { mockReturning, mockWhere, mockSet, mockUpdate, mockInsert, mockFindFirst
   const mockInsert = vi.fn(() => ({ values: vi.fn().mockResolvedValue([]) }))
   const mockFindFirstMerchant = vi.fn()
   const mockFindFirstOrder = vi.fn()
-  const mockTransaction = vi.fn((cb) => cb({ update: mockUpdate, insert: mockInsert }))
+  const mockQuery = {
+    merchants: {
+      findFirst: mockFindFirstMerchant,
+    },
+    orders: {
+      findFirst: mockFindFirstOrder,
+    },
+    orderItems: {
+      findMany: vi.fn(),
+    },
+    paymentConfirmations: {
+      findFirst: vi.fn(),
+    },
+  }
+  const mockTransaction = vi.fn((cb) => cb({ update: mockUpdate, insert: mockInsert, query: mockQuery }))
   return {
     mockReturning,
     mockWhere,
@@ -27,6 +41,7 @@ const { mockReturning, mockWhere, mockSet, mockUpdate, mockInsert, mockFindFirst
     mockFindFirstMerchant,
     mockFindFirstOrder,
     mockTransaction,
+    mockQuery,
   }
 })
 
@@ -35,14 +50,7 @@ vi.mock("@/db", () => ({
     update: mockUpdate,
     insert: mockInsert,
     transaction: mockTransaction,
-    query: {
-      merchants: {
-        findFirst: mockFindFirstMerchant,
-      },
-      orders: {
-        findFirst: mockFindFirstOrder,
-      },
-    },
+    query: mockQuery,
   },
 }))
 
@@ -370,5 +378,59 @@ describe("submitPayment integration flow for COD", () => {
     expect(mockUpdate).not.toHaveBeenCalled()
     // Verify cookie cleared
     expect(mockCookies.delete).toHaveBeenCalledWith("checkout-order-id")
+  })
+})
+
+describe("updateOrderStatus query for COD", () => {
+  it("T017 — should auto-confirm payment when COD order is marked delivered", async () => {
+    const { updateOrderStatus } = await vi.importActual<any>("@/db/queries/orders")
+
+    // Mock existing order
+    mockFindFirstOrder.mockResolvedValueOnce({
+      id: "order-123",
+      merchantId: "merchant-123",
+      status: "shipped",
+    })
+
+    // Mock existing payment confirmation which is COD and not yet confirmed
+    mockQuery.paymentConfirmations.findFirst = vi.fn().mockResolvedValueOnce({
+      id: "confirm-123",
+      orderId: "order-123",
+      paymentMethod: "cod",
+      confirmedAt: null,
+    })
+
+    mockReturning.mockResolvedValue([{ id: "order-123", status: "delivered" }])
+
+    const result = await updateOrderStatus("merchant-123", "order-123", "delivered")
+
+    expect(result.status).toBe("delivered")
+    // Verify that it updated paymentConfirmations to set confirmedAt
+    expect(mockUpdate).toHaveBeenCalled()
+  })
+
+  it("T017 — should restore stock counts for products and variants when COD order is marked returned", async () => {
+    const { updateOrderStatus } = await vi.importActual<any>("@/db/queries/orders")
+
+    // Mock existing order
+    mockFindFirstOrder.mockResolvedValueOnce({
+      id: "order-123",
+      merchantId: "merchant-123",
+      status: "shipped",
+    })
+
+    // Mock order items to be restored
+    mockQuery.orderItems.findMany = vi.fn().mockResolvedValueOnce([
+      { productId: "prod-1", quantity: 2, variantId: null },
+      { productId: "prod-2", quantity: 1, variantId: "variant-2" }
+    ])
+
+    mockReturning.mockResolvedValue([{ id: "order-123", status: "returned" }])
+
+    const result = await updateOrderStatus("merchant-123", "order-123", "returned")
+
+    expect(result.status).toBe("returned")
+    // Verify that it updated products and productVariants to restore stock
+    expect(mockUpdate).toHaveBeenCalled()
   })
 })
