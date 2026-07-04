@@ -109,6 +109,7 @@ vi.mock("@/db/queries/merchants", async () => {
 
 import { updateStoreSettings } from "@/db/queries/merchants"
 import { updateStoreSettingsAction } from "@/app/actions/settings"
+import { updateOrderStatus } from "@/db/queries/orders"
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -383,8 +384,6 @@ describe("submitPayment integration flow for COD", () => {
 
 describe("updateOrderStatus query for COD", () => {
   it("T017 — should auto-confirm payment when COD order is marked delivered", async () => {
-    const { updateOrderStatus } = await vi.importActual<any>("@/db/queries/orders")
-
     // Mock existing order
     mockFindFirstOrder.mockResolvedValue({
       id: "order-123",
@@ -410,8 +409,6 @@ describe("updateOrderStatus query for COD", () => {
   })
 
   it("T017 — should restore stock counts for products and variants when COD order is marked returned", async () => {
-    const { updateOrderStatus } = await vi.importActual<any>("@/db/queries/orders")
-
     // Mock existing order
     mockFindFirstOrder.mockResolvedValue({
       id: "order-123",
@@ -435,8 +432,6 @@ describe("updateOrderStatus query for COD", () => {
   })
 
   it("T021 — should restore stock counts for products under 50ms (latency check)", async () => {
-    const { updateOrderStatus } = await vi.importActual<any>("@/db/queries/orders")
-
     mockFindFirstOrder.mockResolvedValue({
       id: "order-123",
       merchantId: "merchant-123",
