@@ -1,15 +1,15 @@
 {
-  "version": "0.12.5.dev0",
+  "version": "0.12.4",
   "integration_state_schema": 1,
   "installed_integrations": [
-    "pi"
+    "agy"
   ],
   "integration_settings": {
-    "pi": {
+    "agy": {
       "script": "ps",
-      "invoke_separator": "."
+      "invoke_separator": "-"
     }
   },
-  "integration": "pi",
-  "default_integration": "pi"
+  "integration": "agy",
+  "default_integration": "agy"
 }
