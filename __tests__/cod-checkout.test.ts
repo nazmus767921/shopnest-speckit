@@ -10,7 +10,11 @@ import { paymentSchema } from "@/lib/validations/checkout"
 
 // Mock Drizzle DB calls
 const { mockReturning, mockWhere, mockSet, mockUpdate, mockInsert, mockFindFirstMerchant, mockFindFirstOrder, mockTransaction, mockQuery } = vi.hoisted(() => {
-  const mockReturning = vi.fn()
+  const mockReturning = vi.fn().mockImplementation(() => {
+    console.log("mockReturning called! Stack trace:")
+    console.log(new Error().stack)
+    return Promise.resolve([{ id: "order-123", status: "delivered" }])
+  })
   const mockWhere = vi.fn(() => ({ returning: mockReturning }))
   const mockSet = vi.fn(() => ({ where: mockWhere }))
   const mockUpdate = vi.fn(() => ({ set: mockSet }))
@@ -322,8 +326,6 @@ describe("submitPayment integration flow for COD", () => {
       status: "pending_payment",
     })
 
-    mockReturning.mockResolvedValueOnce([{ id: "order-123" }])
-
     const response = await submitPayment({
       paymentMethod: "cod",
     })
@@ -384,6 +386,8 @@ describe("submitPayment integration flow for COD", () => {
 
 describe("updateOrderStatus query for COD", () => {
   it("T017 — should auto-confirm payment when COD order is marked delivered", async () => {
+    mockReturning.mockReset()
+
     // Mock existing order
     mockFindFirstOrder.mockResolvedValue({
       id: "order-123",
@@ -409,6 +413,8 @@ describe("updateOrderStatus query for COD", () => {
   })
 
   it("T017 — should restore stock counts for products and variants when COD order is marked returned", async () => {
+    mockReturning.mockReset()
+
     // Mock existing order
     mockFindFirstOrder.mockResolvedValue({
       id: "order-123",
@@ -432,6 +438,8 @@ describe("updateOrderStatus query for COD", () => {
   })
 
   it("T021 — should restore stock counts for products under 50ms (latency check)", async () => {
+    mockReturning.mockReset()
+
     mockFindFirstOrder.mockResolvedValue({
       id: "order-123",
       merchantId: "merchant-123",

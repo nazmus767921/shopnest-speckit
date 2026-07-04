@@ -540,7 +540,7 @@ export async function updateOrderStatus(merchantId: string, orderId: string, new
       }
     }
 
-    const [updatedOrder] = await tx
+    const returningResult = await tx
       .update(orders)
       .set({
         status: newStatus,
@@ -554,8 +554,11 @@ export async function updateOrderStatus(merchantId: string, orderId: string, new
       )
       .returning()
 
+    const [updatedOrder] = returningResult
+
     return updatedOrder
   })
+  return transactionResult
 }
 
 export async function getCustomerOrders(merchantId: string, userId: string, phone?: string) {
