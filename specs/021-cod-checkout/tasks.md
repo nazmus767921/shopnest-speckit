@@ -97,6 +97,7 @@
 - [X] T018 [US3] Implement order queries `confirmPayment`, `updateOrderStatus`, and `restoreStockCount` with safe transaction stock guards in db/queries/orders.ts
 - [X] T019 [US3] Implement "COD" badge UI in dashboard order lists and detail views in app/(dashboard)/dashboard/orders/components/StatusBadge.tsx
 - [X] T020 [US3] Implement "Confirm Payment" button and status transition controls in app/(dashboard)/dashboard/orders/components/OrderActions.tsx
+- [X] T020a [US3] Implement storefront "Returned" banner UI and hide the step-by-step timeline tracker for returned orders in components/storefront/CustomerOrderDetailClient.tsx
 
 **Checkpoint**: All user stories should now be independently functional.
 

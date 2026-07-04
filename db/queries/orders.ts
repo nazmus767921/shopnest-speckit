@@ -559,7 +559,6 @@ export async function updateOrderStatus(merchantId: string, orderId: string, new
 
     return updatedOrder
   })
-  return transactionResult
 }
 
 export async function getCustomerOrders(merchantId: string, userId: string, phone?: string) {
