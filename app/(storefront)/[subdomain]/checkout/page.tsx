@@ -19,6 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 import { Suspense } from "react"
+import { connection } from "next/server"
 
 export default function CheckoutPage({ params }: Props) {
   return (
@@ -29,6 +30,7 @@ export default function CheckoutPage({ params }: Props) {
 }
 
 async function CheckoutPageContent({ params }: Props) {
+  await connection()
   const { subdomain } = await params
   const headersList = await headers()
   const merchantId = headersList.get("x-merchant-id")

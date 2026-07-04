@@ -88,6 +88,10 @@ export async function updateStoreSettings(
     bkashNumber?: string | null
     nagadNumber?: string | null
     lowStockThresholdDefault?: number
+    codEnabled?: boolean
+    payDeliveryChargeFirst?: boolean
+    bkashWalletNumber?: string | null
+    nagadWalletNumber?: string | null
   }
 ) {
   const [updated] = await db
@@ -98,6 +102,10 @@ export async function updateStoreSettings(
       bkashNumber: data.bkashNumber,
       nagadNumber: data.nagadNumber,
       lowStockThresholdDefault: data.lowStockThresholdDefault,
+      codEnabled: data.codEnabled,
+      payDeliveryChargeFirst: data.payDeliveryChargeFirst,
+      bkashWalletNumber: data.bkashWalletNumber,
+      nagadWalletNumber: data.nagadWalletNumber,
     })
     .where(eq(merchants.id, merchantId))
     .returning()

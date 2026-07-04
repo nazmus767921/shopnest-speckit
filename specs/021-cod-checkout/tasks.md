@@ -20,8 +20,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Verify database migration environment and setup feature branch dependencies in package.json
-- [ ] T002 Configure Vitest test suite settings in vitest.config.ts
+- [X] T001 Verify database migration environment and setup feature branch dependencies in package.json
+- [X] T002 Configure Vitest test suite settings in vitest.config.ts
 
 ---
 
@@ -31,11 +31,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Update Drizzle schema extensions for merchants (adding codEnabled, payDeliveryChargeFirst, bkashWalletNumber, nagadWalletNumber), orders, and payment confirmations in db/schema.ts
-- [ ] T004 Create Drizzle migration file and apply it to target Postgres database
-- [ ] T005 [P] Ensure settings page app/(dashboard)/dashboard/settings/page.tsx and storefront checkout page app/(storefront)/[subdomain]/checkout/page.tsx call await connection() and are wrapped in <Suspense> boundaries
-- [ ] T006 [P] Implement validation schema updates for store settings (including optional bkash/nagad wallet numbers) in lib/validations/settings.ts
-- [ ] T007 [P] Implement validation schema updates for checkout payment method in lib/validations/checkout.ts
+- [X] T003 Update Drizzle schema extensions for merchants (adding codEnabled, payDeliveryChargeFirst, bkashWalletNumber, nagadWalletNumber), orders, and payment confirmations in db/schema.ts
+- [X] T004 Create Drizzle migration file and apply it to target Postgres database
+- [X] T005 [P] Ensure settings page app/(dashboard)/dashboard/settings/page.tsx and storefront checkout page app/(storefront)/[subdomain]/checkout/page.tsx call await connection() and are wrapped in <Suspense> boundaries
+- [X] T006 [P] Implement validation schema updates for store settings (including optional bkash/nagad wallet numbers) in lib/validations/settings.ts
+- [X] T007 [P] Implement validation schema updates for checkout payment method in lib/validations/checkout.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -49,14 +49,14 @@
 
 ### Tests for User Story 1 (TDD - Write first and verify they fail)
 
-- [ ] T008 [P] [US1] Write unit tests for merchant store settings validation and plan capability check in __tests__/cod-checkout.test.ts
-- [ ] T009 [P] [US1] Write integration tests for settings DB query function `updateStoreSettings` in __tests__/cod-checkout.test.ts
+- [X] T008 [P] [US1] Write unit tests for merchant store settings validation and plan capability check in __tests__/cod-checkout.test.ts
+- [X] T009 [P] [US1] Write integration tests for settings DB query function `updateStoreSettings` in __tests__/cod-checkout.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `updateStoreSettings` database query function in db/queries/merchants.ts
-- [ ] T011 [US1] Implement server action `updateStoreSettingsAction` in app/actions/settings.ts with plan-gating checks
-- [ ] T012 [US1] Implement toggle UI, sub-toggle visibility, and wallet number inputs in app/(dashboard)/dashboard/settings/components/StoreSettingsForm.tsx using design system tokens
+- [X] T010 [US1] Implement `updateStoreSettings` database query function in db/queries/merchants.ts
+- [X] T011 [US1] Implement server action `updateStoreSettingsAction` in app/actions/settings.ts with plan-gating checks
+- [X] T012 [US1] Implement toggle UI, sub-toggle visibility, and wallet number inputs in app/(dashboard)/dashboard/settings/components/StoreSettingsForm.tsx using design system tokens
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
 

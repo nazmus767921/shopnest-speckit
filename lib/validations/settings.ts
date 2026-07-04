@@ -13,6 +13,10 @@ export const storeSettingsSchema = z.object({
     .int("Low stock threshold must be a whole number.")
     .min(0, "Low stock threshold cannot be negative.")
     .max(9999, "Low stock threshold is too high."),
+  codEnabled: z.boolean().default(false),
+  payDeliveryChargeFirst: z.boolean().default(false),
+  bkashWalletNumber: z.string().max(20, "bKash wallet number is too long.").nullable().optional(),
+  nagadWalletNumber: z.string().max(20, "Nagad wallet number is too long.").nullable().optional(),
 })
 
 export type StoreSettingsValues = z.infer<typeof storeSettingsSchema>
