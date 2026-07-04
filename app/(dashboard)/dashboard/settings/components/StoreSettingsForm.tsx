@@ -35,6 +35,10 @@ interface Merchant {
   socialLinks?: Record<string, string> | null
   customFaqs?: Array<{ question: string; answer: string }> | null
   telegramChatId?: string | null
+  codEnabled?: boolean
+  payDeliveryChargeFirst?: boolean
+  bkashWalletNumber?: string | null
+  nagadWalletNumber?: string | null
 }
 
 interface StoreSettingsFormProps {
@@ -64,6 +68,10 @@ const profileSchema = z.object({
 const paymentsSchema = z.object({
   bkashNumber: storeSettingsSchema.shape.bkashNumber,
   nagadNumber: storeSettingsSchema.shape.nagadNumber,
+  codEnabled: storeSettingsSchema.shape.codEnabled,
+  payDeliveryChargeFirst: storeSettingsSchema.shape.payDeliveryChargeFirst,
+  bkashWalletNumber: storeSettingsSchema.shape.bkashWalletNumber,
+  nagadWalletNumber: storeSettingsSchema.shape.nagadWalletNumber,
 })
 
 const inventorySchema = z.object({
@@ -208,6 +216,10 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
     defaultValues: {
       bkashNumber: merchant.bkashNumber || "",
       nagadNumber: merchant.nagadNumber || "",
+      codEnabled: merchant.codEnabled ?? false,
+      payDeliveryChargeFirst: merchant.payDeliveryChargeFirst ?? false,
+      bkashWalletNumber: merchant.bkashWalletNumber || "",
+      nagadWalletNumber: merchant.nagadWalletNumber || "",
     },
     onSubmit: async ({ value }) => {
       const validation = paymentsSchema.safeParse(value)
@@ -222,6 +234,10 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
         bkashNumber: value.bkashNumber || null,
         nagadNumber: value.nagadNumber || null,
         lowStockThresholdDefault: merchant.lowStockThresholdDefault,
+        codEnabled: value.codEnabled,
+        payDeliveryChargeFirst: value.payDeliveryChargeFirst,
+        bkashWalletNumber: value.bkashWalletNumber || null,
+        nagadWalletNumber: value.nagadWalletNumber || null,
       }
 
       const result = await updateStoreSettingsAction(payload)
@@ -559,6 +575,127 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                         </div>
                       )}
                     </paymentsForm.Field>
+                  </div>
+
+                  {/* Cash on Delivery Bento Card */}
+                  <div className="bg-zinc-50/50 border border-hairline-light rounded-2xl p-5 md:col-span-2 flex flex-col gap-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 bg-zinc-900 text-white rounded-xl flex items-center justify-center font-bold text-body-md shrink-0">
+                          C
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-body-strong font-bold text-ink leading-tight">Cash on Delivery (COD)</span>
+                          <span className="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">Storefront Delivery Payment</span>
+                        </div>
+                      </div>
+                      
+                      {/* codEnabled Toggle */}
+                      <paymentsForm.Field name="codEnabled">
+                        {(field) => (
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={field.state.value}
+                              disabled={!plan?.features.cod}
+                              onChange={(e) => {
+                                field.handleChange(e.target.checked)
+                                if (!e.target.checked) {
+                                  paymentsForm.setFieldValue("payDeliveryChargeFirst", false)
+                                }
+                              }}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-shade-30 rounded-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-canvas-light after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-disabled:opacity-50"></div>
+                          </label>
+                        )}
+                      </paymentsForm.Field>
+                    </div>
+
+                    {!plan?.features.cod && (
+                      <div className="p-3.5 bg-amber-50 border border-amber-200/50 rounded-xl text-micro text-amber-800 flex items-center gap-2">
+                        <Lock className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                        <span>Upgrade your subscription plan to Growth or Pro to enable Cash on Delivery checkout options.</span>
+                      </div>
+                    )}
+
+                    {plan?.features.cod && (
+                      <paymentsForm.Subscribe>
+                        {(state) => (
+                          <>
+                            {state.values.codEnabled && (
+                              <div className="border-t border-hairline-light pt-4 flex flex-col gap-4 animate-fade-in">
+                                <div className="flex items-center justify-between gap-4">
+                                  <div className="flex flex-col gap-0.5">
+                                    <span className="text-caption font-semibold text-ink">Pay Delivery Charge First</span>
+                                    <p className="text-micro text-shade-50">Require customers to pay the shipping fee upfront via bKash/Nagad during checkout.</p>
+                                  </div>
+                                  
+                                  {/* payDeliveryChargeFirst Toggle */}
+                                  <paymentsForm.Field name="payDeliveryChargeFirst">
+                                    {(field) => (
+                                      <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                          type="checkbox"
+                                          checked={field.state.value}
+                                          onChange={(e) => field.handleChange(e.target.checked)}
+                                          className="sr-only peer"
+                                        />
+                                        <div className="w-11 h-6 bg-shade-30 rounded-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-canvas-light after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                                      </label>
+                                    )}
+                                  </paymentsForm.Field>
+                                </div>
+
+                                {state.values.payDeliveryChargeFirst && (
+                                  <div className="bg-canvas-cream/30 border border-hairline-light rounded-xl p-4 flex flex-col gap-4 animate-fade-in">
+                                    <span className="text-micro font-bold text-ink uppercase tracking-wider">Merchant Wallet Numbers for Shipping Collection</span>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                      <paymentsForm.Field name="bkashWalletNumber">
+                                        {(field) => (
+                                          <div className="flex flex-col gap-1.5">
+                                            <FormLabel htmlFor="bkash-wallet-number">bKash Personal Number</FormLabel>
+                                            <Input
+                                              id="bkash-wallet-number"
+                                              type="tel"
+                                              value={field.state.value}
+                                              onChange={(e) => field.handleChange(e.target.value)}
+                                              onBlur={field.handleBlur}
+                                              placeholder="e.g. 01700000000"
+                                              className="bg-white border-hairline-light focus:border-ink rounded-lg"
+                                            />
+                                          </div>
+                                        )}
+                                      </paymentsForm.Field>
+                                      
+                                      <paymentsForm.Field name="nagadWalletNumber">
+                                        {(field) => (
+                                          <div className="flex flex-col gap-1.5">
+                                            <FormLabel htmlFor="nagad-wallet-number">Nagad Personal Number</FormLabel>
+                                            <Input
+                                              id="nagad-wallet-number"
+                                              type="tel"
+                                              value={field.state.value}
+                                              onChange={(e) => field.handleChange(e.target.value)}
+                                              onBlur={field.handleBlur}
+                                              placeholder="e.g. 01700000000"
+                                              className="bg-white border-hairline-light focus:border-ink rounded-lg"
+                                            />
+                                          </div>
+                                        )}
+                                      </paymentsForm.Field>
+                                    </div>
+                                    <p className="text-micro text-shade-40 leading-relaxed">
+                                      * These wallet numbers will be displayed to customers during the checkout payment step to submit their shipping fee.
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </paymentsForm.Subscribe>
+                    )}
                   </div>
                 </div>
 

@@ -20,6 +20,10 @@ interface Props {
   subdomain: string
   bkashNumber: string | null
   nagadNumber: string | null
+  codEnabled: boolean
+  payDeliveryChargeFirst: boolean
+  bkashWalletNumber: string | null
+  nagadWalletNumber: string | null
   shippingZones: Array<{
     id: string
     name: string
@@ -41,6 +45,10 @@ export function CheckoutClientPage({
   subdomain,
   bkashNumber,
   nagadNumber,
+  codEnabled,
+  payDeliveryChargeFirst,
+  bkashWalletNumber,
+  nagadWalletNumber,
   shippingZones = [],
 }: Props) {
   const router = useRouter()
@@ -71,7 +79,8 @@ export function CheckoutClientPage({
   const [selectedDistrict, setSelectedDistrict] = useState<string>("")
   
   // Step 2: Payment State
-  const [paymentMethod, setPaymentMethod] = useState<"bkash" | "nagad">("bkash")
+  const [paymentMethod, setPaymentMethod] = useState<"bkash" | "nagad" | "cod">("bkash")
+  const [codUpfrontMethod, setCodUpfrontMethod] = useState<"bkash" | "nagad">("bkash")
   const [transactionId, setTransactionId] = useState("")
   
   // Result state
@@ -276,7 +285,7 @@ export function CheckoutClientPage({
 
     const paymentData = {
       paymentMethod,
-      transactionId,
+      transactionId: paymentMethod === "cod" && !payDeliveryChargeFirst ? "COD" : transactionId,
     }
 
     // Validate with Zod
@@ -310,7 +319,9 @@ export function CheckoutClientPage({
     }
   }
 
-  const activeMerchantNumber = paymentMethod === "bkash" ? bkashNumber : nagadNumber
+  const activeMerchantNumber = paymentMethod === "cod"
+    ? (codUpfrontMethod === "bkash" ? bkashWalletNumber : nagadWalletNumber)
+    : (paymentMethod === "bkash" ? bkashNumber : nagadNumber)
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-8 animate-fade-in pb-16">
@@ -593,18 +604,25 @@ export function CheckoutClientPage({
             <Card variant="default" className="p-6 flex flex-col gap-6">
               <div className="flex flex-col gap-1">
                 <h2 className="text-heading-lg font-semibold text-ink">
-                  Manual bKash/Nagad Payment
+                  {paymentMethod === "cod"
+                    ? (payDeliveryChargeFirst ? "Advance Shipping Charge Payment" : "Confirm Cash on Delivery Order")
+                    : "Manual bKash/Nagad Payment"}
                 </h2>
                 <p className="text-caption text-shade-50">
-                  Please send the exact order amount manually using your mobile wallet.
+                  {paymentMethod === "cod"
+                    ? (payDeliveryChargeFirst ? "Please pay the delivery charge upfront. The remaining product balance will be paid in cash at delivery." : "Your order will be processed and you can pay the full amount in cash at delivery time.")
+                    : "Please send the exact order amount manually using your mobile wallet."}
                 </p>
               </div>
 
               {/* Payment Method Selector */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className={`grid gap-4 ${codEnabled ? "grid-cols-3" : "grid-cols-2"}`}>
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod("bkash")}
+                  onClick={() => {
+                    setPaymentMethod("bkash")
+                    setTransactionId("")
+                  }}
                   className={`py-3.5 px-6 rounded-xl font-bold flex items-center justify-center border transition-all text-body-strong ${
                     paymentMethod === "bkash"
                       ? "border-pink-600 bg-pink-50/50 text-pink-700 font-bold"
@@ -615,7 +633,10 @@ export function CheckoutClientPage({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod("nagad")}
+                  onClick={() => {
+                    setPaymentMethod("nagad")
+                    setTransactionId("")
+                  }}
                   className={`py-3.5 px-6 rounded-xl font-bold flex items-center justify-center border transition-all text-body-strong ${
                     paymentMethod === "nagad"
                       ? "border-orange-600 bg-orange-50/50 text-orange-700 font-bold"
@@ -624,76 +645,184 @@ export function CheckoutClientPage({
                 >
                   Nagad
                 </button>
+                {codEnabled && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPaymentMethod("cod")
+                      setTransactionId("")
+                    }}
+                    className={`py-3.5 px-6 rounded-xl font-bold flex items-center justify-center border transition-all text-body-strong ${
+                      paymentMethod === "cod"
+                        ? "border-zinc-950 bg-zinc-100 text-zinc-950 font-bold"
+                        : "border-hairline-light bg-canvas-light text-shade-60 hover:border-shade-40"
+                    }`}
+                  >
+                    COD
+                  </button>
+                )}
               </div>
 
               {/* Payment Instructions Card */}
-              <div className="bg-canvas-cream border border-hairline-light rounded-xl p-6 flex flex-col gap-4 text-ink">
+              {paymentMethod === "cod" ? (
+                payDeliveryChargeFirst ? (
+                  /* Upfront Delivery Payment Instructions */
+                  <div className="bg-canvas-cream border border-hairline-light rounded-xl p-6 flex flex-col gap-4 text-ink">
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-eyebrow-cap font-semibold text-shade-50 uppercase tracking-widest">
+                        Advance Delivery Charge Payment
+                      </span>
+                      <p className="text-caption text-shade-70">
+                        Please send the delivery charge of <strong className="text-ink">{formatTaka(deliveryChargePaisa)}</strong> to the merchant's personal wallet number below.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setCodUpfrontMethod("bkash")}
+                        className={`py-2 px-4 rounded-lg font-bold flex items-center justify-center border transition-all text-xs ${
+                          codUpfrontMethod === "bkash"
+                            ? "border-pink-650 bg-pink-50/50 text-pink-700"
+                            : "border-hairline-light bg-canvas-light text-shade-60"
+                        }`}
+                      >
+                        bKash
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCodUpfrontMethod("nagad")}
+                        className={`py-2 px-4 rounded-lg font-bold flex items-center justify-center border transition-all text-xs ${
+                          codUpfrontMethod === "nagad"
+                            ? "border-orange-650 bg-orange-50/50 text-orange-700"
+                            : "border-hairline-light bg-canvas-light text-shade-60"
+                        }`}
+                      >
+                        Nagad
+                      </button>
+                    </div>
+
+                    <div className="flex flex-col gap-1 mt-2">
+                      <span className="text-[10px] text-shade-50 uppercase tracking-wider">Merchant {codUpfrontMethod === "bkash" ? "bKash" : "Nagad"} Wallet</span>
+                      {activeMerchantNumber ? (
+                        <span className="font-mono text-display-md font-bold text-ink">
+                          {activeMerchantNumber}
+                        </span>
+                      ) : (
+                        <span className="text-caption text-red-650 font-medium bg-red-50 p-2 rounded border border-red-200">
+                          {codUpfrontMethod === "bkash" ? "bKash" : "Nagad"} number not configured. Contact store.
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col gap-2 border-t border-hairline-light/60 pt-3">
+                      <div className="flex justify-between items-center text-xs text-shade-60">
+                        <span>Upfront Payment (Delivery Charge):</span>
+                        <span className="font-semibold text-ink">{formatTaka(deliveryChargePaisa)}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs text-shade-60">
+                        <span>Cash on Delivery (Product Balance):</span>
+                        <span className="font-semibold text-ink">{formatTaka(totalPaisaState - deliveryChargePaisa)}</span>
+                      </div>
+                      <div className="flex justify-between items-center border-t border-hairline-light/45 pt-2 text-body-strong font-bold text-ink">
+                        <span>Total Amount:</span>
+                        <span>{formatTaka(totalPaisaState)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* Standard Cash on Delivery note */
+                  <div className="bg-canvas-cream border border-hairline-light rounded-xl p-6 flex flex-col gap-4 text-ink">
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-eyebrow-cap font-semibold text-shade-50 uppercase tracking-widest">
+                        Cash on Delivery
+                      </span>
+                      <p className="text-body-md text-ink leading-relaxed">
+                        Pay the full order amount in cash at your doorstep when the delivery agent delivers your package.
+                      </p>
+                    </div>
+                    <div className="flex justify-between items-center border-t border-hairline-light/60 pt-3">
+                      <span className="text-caption text-shade-60">Total Amount to Pay on Delivery:</span>
+                      <span className="text-heading-lg font-bold text-ink">
+                        {formatTaka(totalPaisaState)}
+                      </span>
+                    </div>
+                  </div>
+                )
+              ) : (
+                /* Regular Manual payment instructions */
+                <div className="bg-canvas-cream border border-hairline-light rounded-xl p-6 flex flex-col gap-4 text-ink">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-eyebrow-cap font-semibold text-shade-50 uppercase tracking-widest">
+                      Merchant Wallet Number
+                    </span>
+                    {activeMerchantNumber ? (
+                      <span className="font-mono text-display-md font-bold text-ink">
+                        {activeMerchantNumber}
+                      </span>
+                    ) : (
+                      <span className="text-caption text-red-650 font-medium bg-red-50 p-2 rounded border border-red-200">
+                        Payment details not configured. Contact store to pay.
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex justify-between items-center border-t border-hairline-light/60 pt-3">
+                    <span className="text-caption text-shade-60">Total Amount:</span>
+                    <span className="text-heading-lg font-bold text-ink">
+                      {formatTaka(totalPaisaState)}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 border-t border-hairline-light/60 pt-3">
+                    <span className="text-eyebrow-cap font-semibold text-shade-50 uppercase tracking-widest">
+                      Reference / Notes Field
+                    </span>
+                    <p className="text-caption text-shade-70">
+                      Input your order code in the reference/note field during payment:
+                    </p>
+                    <span className="font-mono text-heading-xl text-primary font-bold bg-zinc-50 border border-hairline-light py-2 px-3 rounded-lg self-start">
+                      #{orderId.substring(0, 8).toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Transaction ID Input (Hidden for standard COD) */}
+              {!(paymentMethod === "cod" && !payDeliveryChargeFirst) && (
                 <div className="flex flex-col gap-1">
-                  <span className="text-eyebrow-cap font-semibold text-shade-50 uppercase tracking-widest">
-                    Merchant Wallet Number
-                  </span>
-                  {activeMerchantNumber ? (
-                    <span className="font-mono text-display-md font-bold text-ink">
-                      {activeMerchantNumber}
-                    </span>
-                  ) : (
-                    <span className="text-caption text-red-600 font-medium bg-red-50 p-2 rounded border border-red-200">
-                      Payment details not configured. Contact store to pay.
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex justify-between items-center border-t border-hairline-light/60 pt-3">
-                  <span className="text-caption text-shade-60">Total Amount:</span>
-                  <span className="text-heading-lg font-bold text-ink">
-                    {formatTaka(totalPaisaState)}
-                  </span>
-                </div>
-
-                <div className="flex flex-col gap-1.5 border-t border-hairline-light/60 pt-3">
-                  <span className="text-eyebrow-cap font-semibold text-shade-50 uppercase tracking-widest">
-                    Reference / Notes Field
-                  </span>
-                  <p className="text-caption text-shade-70">
-                    Input your order code in the reference/note field during payment:
+                  <FormLabel htmlFor="transaction-id">Transaction ID (TxID)</FormLabel>
+                  <Input
+                    id="transaction-id"
+                    type="text"
+                    placeholder="8XK9L..."
+                    value={transactionId}
+                    onChange={(e) => setTransactionId(e.target.value)}
+                    error={!!errors.transactionId}
+                    className="font-mono uppercase"
+                  />
+                  <p className="text-xs text-shade-40 mt-1">
+                    Enter the unique transaction code received via SMS/App after successful payment.
                   </p>
-                  <span className="font-mono text-heading-xl text-primary font-bold bg-zinc-50 border border-hairline-light py-2 px-3 rounded-lg self-start">
-                    #{orderId.substring(0, 8).toUpperCase()}
-                  </span>
                 </div>
-              </div>
-
-              {/* Transaction ID Input */}
-              <div className="flex flex-col gap-1">
-                <FormLabel htmlFor="transaction-id">Transaction ID (TxID)</FormLabel>
-                <Input
-                  id="transaction-id"
-                  type="text"
-                  placeholder="8XK9L..."
-                  value={transactionId}
-                  onChange={(e) => setTransactionId(e.target.value)}
-                  error={!!errors.transactionId}
-                  className="font-mono uppercase"
-                />
-                <p className="text-xs text-shade-40 mt-1">
-                  Enter the unique transaction code received via SMS/App after successful payment.
-                </p>
-              </div>
+              )}
             </Card>
 
             <Button
               type="submit"
               variant="primary"
-              disabled={submitting || !activeMerchantNumber}
+              disabled={submitting || (paymentMethod === "cod" ? (payDeliveryChargeFirst && !activeMerchantNumber) : !activeMerchantNumber)}
               className="w-full py-4 min-h-12 text-body-strong font-semibold"
             >
               {submitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
-                  Submitting Payment...
+                  Submitting...
                 </>
               ) : (
-                "Confirm Payment & Place Order"
+                paymentMethod === "cod" && !payDeliveryChargeFirst
+                  ? "Confirm Order (Cash on Delivery)"
+                  : "Confirm Payment & Place Order"
               )}
             </Button>
           </form>

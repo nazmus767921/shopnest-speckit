@@ -104,7 +104,20 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
     })
   }
 
-  if (status === "delivered" || status === "cancelled") {
+  const onMarkAsReturned = () => {
+    openConfirmation({
+      title: "Mark as Returned",
+      description: "Are you sure you want to mark this order as returned? This will update the status to returned and restore all allocated stock counts to inventory.",
+      confirmText: "Mark as Returned",
+      variant: "danger",
+      onConfirm: () => {
+        setDialogOpen(false)
+        handleAction(() => updateOrderStatusAction(orderId, "returned"))
+      }
+    })
+  }
+
+  if (status === "delivered" || status === "cancelled" || status === "returned") {
     return null
   }
 
@@ -153,6 +166,15 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
             </Button>
             <Button
               variant="outline-light"
+              onClick={onMarkAsReturned}
+              disabled={isPending}
+              className="gap-2 w-full md:w-fit text-caption min-h-10 hover:text-purple-700 hover:border-purple-200 cursor-pointer"
+            >
+              <XCircle className="h-4 w-4" />
+              Mark as Returned
+            </Button>
+            <Button
+              variant="outline-light"
               onClick={onCancelOrder}
               disabled={isPending}
               className="gap-2 w-full md:w-fit text-caption min-h-10 hover:text-rose-700 hover:border-rose-200 cursor-pointer"
@@ -164,15 +186,26 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
         )}
 
         {status === "shipped" && (
-          <Button
-            variant="primary"
-            onClick={onMarkAsDelivered}
-            disabled={isPending}
-            className="gap-2 shrink-0 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 border-none text-white text-caption min-h-10 cursor-pointer"
-          >
-            <Check className="h-4 w-4" />
-            Mark as Delivered
-          </Button>
+          <>
+            <Button
+              variant="primary"
+              onClick={onMarkAsDelivered}
+              disabled={isPending}
+              className="gap-2 shrink-0 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 border-none text-white text-caption min-h-10 cursor-pointer"
+            >
+              <Check className="h-4 w-4" />
+              Mark as Delivered
+            </Button>
+            <Button
+              variant="outline-light"
+              onClick={onMarkAsReturned}
+              disabled={isPending}
+              className="gap-2 text-caption min-h-10 hover:text-purple-700 hover:border-purple-200 cursor-pointer"
+            >
+              <XCircle className="h-4 w-4" />
+              Mark as Returned
+            </Button>
+          </>
         )}
       </div>
 

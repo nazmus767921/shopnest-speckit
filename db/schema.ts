@@ -98,6 +98,10 @@ export const merchants = pgTable("merchants", {
   socialLinks: jsonb("social_links").$type<Record<string, string>>(), // jsonb: { facebook?, instagram?, whatsapp?, tiktok? }
   customFaqs: jsonb("custom_faqs").$type<Array<{ question: string; answer: string }>>(), // jsonb: Array<{ question, answer }>
   telegramChatId: text("telegram_chat_id"), // Opt-in Telegram Chat ID for order notifications
+  codEnabled: boolean("cod_enabled").notNull().default(false),
+  payDeliveryChargeFirst: boolean("pay_delivery_charge_first").notNull().default(false),
+  bkashWalletNumber: text("bkash_wallet_number"),
+  nagadWalletNumber: text("nagad_wallet_number"),
 }, (table) => [
   index("merchants_owner_id_idx").on(table.ownerId),
   index("merchants_subscription_status_idx").on(table.subscriptionStatus),

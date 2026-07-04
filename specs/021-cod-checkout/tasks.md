@@ -20,8 +20,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Verify database migration environment and setup feature branch dependencies in package.json
-- [ ] T002 Configure Vitest test suite settings in vitest.config.ts
+- [X] T001 Verify database migration environment and setup feature branch dependencies in package.json
+- [X] T002 Configure Vitest test suite settings in vitest.config.ts
 
 ---
 
@@ -31,11 +31,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Update Drizzle schema extensions for merchants (adding codEnabled, payDeliveryChargeFirst, bkashWalletNumber, nagadWalletNumber), orders, and payment confirmations in db/schema.ts
-- [ ] T004 Create Drizzle migration file and apply it to target Postgres database
-- [ ] T005 [P] Ensure settings page app/(dashboard)/dashboard/settings/page.tsx and storefront checkout page app/(storefront)/[subdomain]/checkout/page.tsx call await connection() and are wrapped in <Suspense> boundaries
-- [ ] T006 [P] Implement validation schema updates for store settings (including optional bkash/nagad wallet numbers) in lib/validations/settings.ts
-- [ ] T007 [P] Implement validation schema updates for checkout payment method in lib/validations/checkout.ts
+- [X] T003 Update Drizzle schema extensions for merchants (adding codEnabled, payDeliveryChargeFirst, bkashWalletNumber, nagadWalletNumber), orders, and payment confirmations in db/schema.ts
+- [X] T004 Create Drizzle migration file and apply it to target Postgres database
+- [X] T005 [P] Ensure settings page app/(dashboard)/dashboard/settings/page.tsx and storefront checkout page app/(storefront)/[subdomain]/checkout/page.tsx call await connection() and are wrapped in <Suspense> boundaries
+- [X] T006 [P] Implement validation schema updates for store settings (including optional bkash/nagad wallet numbers) in lib/validations/settings.ts
+- [X] T007 [P] Implement validation schema updates for checkout payment method in lib/validations/checkout.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -49,14 +49,14 @@
 
 ### Tests for User Story 1 (TDD - Write first and verify they fail)
 
-- [ ] T008 [P] [US1] Write unit tests for merchant store settings validation and plan capability check in __tests__/cod-checkout.test.ts
-- [ ] T009 [P] [US1] Write integration tests for settings DB query function `updateStoreSettings` in __tests__/cod-checkout.test.ts
+- [X] T008 [P] [US1] Write unit tests for merchant store settings validation and plan capability check in __tests__/cod-checkout.test.ts
+- [X] T009 [P] [US1] Write integration tests for settings DB query function `updateStoreSettings` in __tests__/cod-checkout.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `updateStoreSettings` database query function in db/queries/merchants.ts
-- [ ] T011 [US1] Implement server action `updateStoreSettingsAction` in app/actions/settings.ts with plan-gating checks
-- [ ] T012 [US1] Implement toggle UI, sub-toggle visibility, and wallet number inputs in app/(dashboard)/dashboard/settings/components/StoreSettingsForm.tsx using design system tokens
+- [X] T010 [US1] Implement `updateStoreSettings` database query function in db/queries/merchants.ts
+- [X] T011 [US1] Implement server action `updateStoreSettingsAction` in app/actions/settings.ts with plan-gating checks
+- [X] T012 [US1] Implement toggle UI, sub-toggle visibility, and wallet number inputs in app/(dashboard)/dashboard/settings/components/StoreSettingsForm.tsx using design system tokens
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
 
@@ -70,13 +70,13 @@
 
 ### Tests for User Story 2 (TDD)
 
-- [ ] T013 [P] [US2] Write unit tests for checkout payment validation schema in __tests__/cod-checkout.test.ts
-- [ ] T014 [P] [US2] Write integration tests for checkout order creation action in __tests__/cod-checkout.test.ts
+- [X] T013 [P] [US2] Write unit tests for checkout payment validation schema in __tests__/cod-checkout.test.ts
+- [X] T014 [P] [US2] Write integration tests for checkout order creation action in __tests__/cod-checkout.test.ts
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Update checkout client UI to dynamically render standard COD note or upfront payment instructions (with wallet numbers) and transaction ID input based on merchant settings in components/storefront/CheckoutClientPage.tsx
-- [ ] T016 [US2] Implement checkout submission order creation logic and stock-level validation in app/(storefront)/[subdomain]/checkout/actions.ts
+- [X] T015 [US2] Update checkout client UI to dynamically render standard COD note or upfront payment instructions (with wallet numbers) and transaction ID input based on merchant settings in components/storefront/CheckoutClientPage.tsx
+- [X] T016 [US2] Implement checkout submission order creation logic and stock-level validation in app/(storefront)/[subdomain]/checkout/actions.ts
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
 
@@ -90,13 +90,14 @@
 
 ### Tests for User Story 3 (TDD)
 
-- [ ] T017 [P] [US3] Write integration tests for order payment confirmation, auto-paid on delivery, and stock restoration on returned status in __tests__/cod-checkout.test.ts
+- [X] T017 [P] [US3] Write integration tests for order payment confirmation, auto-paid on delivery, and stock restoration on returned status in __tests__/cod-checkout.test.ts
 
 ### Implementation for User Story 3
 
-- [ ] T018 [US3] Implement order queries `confirmPayment`, `updateOrderStatus`, and `restoreStockCount` with safe transaction stock guards in db/queries/orders.ts
-- [ ] T019 [US3] Implement "COD" badge UI in dashboard order lists and detail views in app/(dashboard)/dashboard/orders/components/StatusBadge.tsx
-- [ ] T020 [US3] Implement "Confirm Payment" button and status transition controls in app/(dashboard)/dashboard/orders/components/OrderActions.tsx
+- [X] T018 [US3] Implement order queries `confirmPayment`, `updateOrderStatus`, and `restoreStockCount` with safe transaction stock guards in db/queries/orders.ts
+- [X] T019 [US3] Implement "COD" badge UI in dashboard order lists and detail views in app/(dashboard)/dashboard/orders/components/StatusBadge.tsx
+- [X] T020 [US3] Implement "Confirm Payment" button and status transition controls in app/(dashboard)/dashboard/orders/components/OrderActions.tsx
+- [X] T020a [US3] Implement storefront "Returned" banner UI and hide the step-by-step timeline tracker for returned orders in components/storefront/CustomerOrderDetailClient.tsx
 
 **Checkpoint**: All user stories should now be independently functional.
 
@@ -106,10 +107,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T021 [P] Implement performance check for order return stock restoration latency in __tests__/cod-checkout.test.ts
-- [ ] T022 Clean up unused Drizzle imports and run linter and TypeScript compiler checks across the app
-- [ ] T023 Document COD payment workflow setup guidelines in docs/cod-integration.md
-- [ ] T024 Run validation scenarios in specs/021-cod-checkout/quickstart.md to verify end-to-end flow correctness
+- [X] T021 [P] Implement performance check for order return stock restoration latency in __tests__/cod-checkout.test.ts
+- [X] T022 Clean up unused Drizzle imports and run linter and TypeScript compiler checks across the app
+- [X] T023 Document COD payment workflow setup guidelines in docs/cod-integration.md
+- [X] T024 Run validation scenarios in specs/021-cod-checkout/quickstart.md to verify end-to-end flow correctness
 
 ---
 

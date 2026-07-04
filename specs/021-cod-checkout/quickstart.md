@@ -67,6 +67,8 @@ This guide provides step-by-step scenarios to manually or programmatically verif
 1. Identify a product with a current stock count of `10`.
 2. Place a COD order for `2` units of this product (reducing stock count to `8`).
 3. Log in as the merchant, open the order, and change the order status to **Returned** (representing a doorstep rejection).
-4. **Verify**:
+4: **Verify**:
    - The order status updates successfully to **Returned**.
    - Check the product's stock count. It must automatically return to `10` in the database.
+5. As the customer, view the order details page:
+   - **Verify**: The page displays a dedicated "Returned" banner at the top, and the standard step-by-step progress timeline tracker is hidden.

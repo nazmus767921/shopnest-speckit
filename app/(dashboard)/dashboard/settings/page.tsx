@@ -12,6 +12,7 @@ export const metadata = {
 }
 
 import { Suspense } from "react"
+import { connection } from "next/server"
 
 export default function SettingsPage() {
   return (
@@ -22,6 +23,7 @@ export default function SettingsPage() {
 }
 
 async function SettingsPageContent() {
+  await connection()
   const session = await auth.api.getSession({ headers: await headers() })
   const merchant = session ? await getMerchantByOwnerId(session.user.id) : null
 

@@ -18,10 +18,16 @@ export const otpSchema = z.object({
   otp: z.string().length(6, "OTP must be 6 digits").regex(/^\d{6}$/, "OTP must be numeric"),
 })
 
-export const paymentSchema = z.object({
-  paymentMethod: z.enum(["bkash", "nagad"] as const),
-  transactionId: z.string().min(6, "Enter the transaction ID from your bKash/Nagad app"),
-})
+export const paymentSchema = z.discriminatedUnion("paymentMethod", [
+  z.object({
+    paymentMethod: z.enum(["bkash", "nagad"] as const),
+    transactionId: z.string().min(6, "Enter the transaction ID from your bKash/Nagad app"),
+  }),
+  z.object({
+    paymentMethod: z.literal("cod"),
+    transactionId: z.string().optional(),
+  })
+])
 
 export type AddressFormData = z.infer<typeof addressSchema>
 export type OtpFormData = z.infer<typeof otpSchema>

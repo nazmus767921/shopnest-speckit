@@ -10,6 +10,13 @@
 
 ## Clarifications
 
+### Session 2026-07-05
+
+- **Q: How should the storefront customer order detail page tracker handle the `returned` status?**
+  - **A:** Display a dedicated "Returned" banner at the top and hide the standard step-by-step progress tracker (Option A).
+- **Q: How does the merchant know a COD order has been returned/rejected at the doorstep and update its status?**
+  - **A:** The merchant receives doorstep rejection/return notifications from their courier partner (external to ShopNest) and manually updates the order status to `returned` in the dashboard (Option B).
+
 ### Session 2026-07-04
 
 - **Q: When a merchant enables the "Pay Delivery Charge First" option for COD, how should the customer submit the advance delivery charge payment during storefront checkout?**
@@ -109,6 +116,7 @@ So that I can fulfill orders efficiently and track inventory accurately.
 - **FR-009**: When a COD order (whether paying delivery charge first or full COD) is updated to `delivered` status, the system MUST automatically mark the payment as completed.
 - **FR-010**: The system MUST support a new order status `returned` for doorstep rejections or customer returns.
 - **FR-011**: When an order status is updated to `returned`, the system MUST automatically restore all allocated stock counts for that order back to the inventory.
+- **FR-012**: Storefront order details page MUST display a dedicated banner for returned orders and hide the step-by-step progress timeline.
 
 ### Key Entities *(include if feature involves data)*
 

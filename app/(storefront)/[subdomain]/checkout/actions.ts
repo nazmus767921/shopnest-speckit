@@ -5,6 +5,10 @@ import { createOrder, attachPaymentConfirmation } from "@/db/queries/orders"
 import { addressSchema, paymentSchema } from "@/lib/validations/checkout"
 import { auth } from "@/lib/auth/auth"
 
+import { db } from "@/db"
+import { merchants, orders } from "@/db/schema"
+import { eq } from "drizzle-orm"
+
 export async function submitAddress(formData: {
   deliveryName: string
   deliveryPhone: string
@@ -65,8 +69,8 @@ export async function submitAddress(formData: {
 }
 
 export async function submitPayment(formData: {
-  paymentMethod: "bkash" | "nagad"
-  transactionId: string
+  paymentMethod: "bkash" | "nagad" | "cod"
+  transactionId?: string
 }) {
   // 1. Resolve merchantId from proxy headers (Invariant 1)
   const headersList = await headers()
@@ -88,16 +92,49 @@ export async function submitPayment(formData: {
     return { error: "Session expired. Please review your cart and try again." }
   }
 
+  // Fetch merchant to verify settings
+  const merchant = await db.query.merchants.findFirst({
+    where: eq(merchants.id, merchantId)
+  })
+  if (!merchant) {
+    return { error: "Merchant not found." }
+  }
+
+  // Validate COD specific settings
+  if (formData.paymentMethod === "cod") {
+    if (!merchant.codEnabled) {
+      return { error: "Cash on Delivery is not enabled for this store." }
+    }
+    if (merchant.payDeliveryChargeFirst && !formData.transactionId) {
+      return { error: "Transaction ID is required for advance delivery charge payment." }
+    }
+  }
+
+  const finalTransactionId = formData.paymentMethod === "cod" && !merchant.payDeliveryChargeFirst
+    ? "COD"
+    : formData.transactionId!
+
   // 4. Attach payment details
   const result = await attachPaymentConfirmation({
     orderId,
     merchantId,
     paymentMethod: formData.paymentMethod,
-    transactionId: formData.transactionId,
+    transactionId: finalTransactionId,
   })
 
   if (!result.success) {
     return { error: result.error || "Failed to submit payment details." }
+  }
+
+  // If standard COD (without upfront payment), transition order directly to processing (FR-006)
+  if (formData.paymentMethod === "cod" && !merchant.payDeliveryChargeFirst) {
+    await db
+      .update(orders)
+      .set({
+        status: "processing",
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, orderId))
   }
 
   // 5. Clear continuity cookie

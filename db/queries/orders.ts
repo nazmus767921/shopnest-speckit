@@ -207,7 +207,7 @@ export async function createOrder(params: {
 export async function attachPaymentConfirmation(params: {
   orderId: string
   merchantId: string // Invariant 1
-  paymentMethod: "bkash" | "nagad"
+  paymentMethod: "bkash" | "nagad" | "cod"
   transactionId: string
 }): Promise<{ success: boolean; error?: string }> {
   try {
@@ -461,7 +461,7 @@ export async function confirmPayment(merchantId: string, orderId: string, confir
 }
 
 export async function updateOrderStatus(merchantId: string, orderId: string, newStatus: string) {
-  const validStatuses = ["pending_payment", "processing", "shipped", "delivered", "cancelled"]
+  const validStatuses = ["pending_payment", "processing", "shipped", "delivered", "cancelled", "returned"]
   if (!validStatuses.includes(newStatus)) {
     throw new Error("Invalid status.")
   }
@@ -484,23 +484,17 @@ export async function updateOrderStatus(merchantId: string, orderId: string, new
       throw new Error("Must confirm payment before shipping or delivering.")
     }
 
-    // If cancelled from pending_payment or processing, restore stock counts
-    if (newStatus === "cancelled" && existingOrder.status !== "cancelled") {
+    // If cancelled or returned, and was not previously cancelled/returned, restore stock counts
+    if ((newStatus === "cancelled" || newStatus === "returned") && 
+        existingOrder.status !== "cancelled" && 
+        existingOrder.status !== "returned") {
       const items = await tx.query.orderItems.findMany({
         where: eq(orderItems.orderId, orderId)
       })
 
       for (const item of items) {
-        await tx
-          .update(products)
-          .set({
-            stockCount: sql`stock_count + ${item.quantity}`,
-            updatedAt: new Date()
-          })
-          .where(eq(products.id, item.productId))
-
-        // If this item had a variant, restore variant stock as well
         if (item.variantId) {
+          // For variant items, restore variant stock (symmetrical to createOrder)
           await tx
             .update(productVariants)
             .set({
@@ -511,11 +505,43 @@ export async function updateOrderStatus(merchantId: string, orderId: string, new
               eq(productVariants.id, item.variantId),
               eq(productVariants.merchantId, merchantId),
             ))
+        } else {
+          // For base products, restore product stock (symmetrical to createOrder)
+          await tx
+            .update(products)
+            .set({
+              stockCount: sql`stock_count + ${item.quantity}`,
+              updatedAt: new Date()
+            })
+            .where(eq(products.id, item.productId))
         }
       }
     }
 
-    const [updatedOrder] = await tx
+    // Auto-confirm COD payments on delivery (FR-009)
+    if (newStatus === "delivered") {
+      const confirmation = await tx.query.paymentConfirmations.findFirst({
+        where: and(
+          eq(paymentConfirmations.orderId, orderId),
+          eq(paymentConfirmations.merchantId, merchantId)
+        )
+      })
+      if (confirmation && confirmation.paymentMethod === "cod" && !confirmation.confirmedAt) {
+        await tx
+          .update(paymentConfirmations)
+          .set({
+            confirmedAt: new Date()
+          })
+          .where(
+            and(
+              eq(paymentConfirmations.orderId, orderId),
+              eq(paymentConfirmations.merchantId, merchantId)
+            )
+          )
+      }
+    }
+
+    const returningResult = await tx
       .update(orders)
       .set({
         status: newStatus,
@@ -528,6 +554,8 @@ export async function updateOrderStatus(merchantId: string, orderId: string, new
         )
       )
       .returning()
+
+    const [updatedOrder] = returningResult
 
     return updatedOrder
   })

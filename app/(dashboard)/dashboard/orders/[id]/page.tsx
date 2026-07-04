@@ -285,7 +285,15 @@ async function OrderDetailPageContent({ params }: Props) {
                   </div>
                   <div className="flex flex-col gap-0.5">
                     <span className="text-eyebrow-cap text-shade-40 font-semibold tracking-wider uppercase">Payment Method</span>
-                    <span className="text-body-md font-semibold capitalize">{order.paymentConfirmation.paymentMethod}</span>
+                    {order.paymentConfirmation.paymentMethod === "cod" ? (
+                      <span className="inline-flex items-center rounded bg-zinc-900 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider self-start mt-0.5">
+                        COD
+                      </span>
+                    ) : (
+                      <span className="text-body-md font-semibold capitalize text-ink">
+                        {order.paymentConfirmation.paymentMethod}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="flex gap-3">

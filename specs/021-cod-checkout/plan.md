@@ -1,6 +1,6 @@
 # Implementation Plan: Cash on Delivery (COD) Checkout Integration
 
-**Branch**: `021-cod-checkout` | **Date**: 2026-07-04 | **Spec**: [specs/021-cod-checkout/spec.md](file:///c:/Users/Admin/Desktop/Projects/running/shopnest-speckit/specs/021-cod-checkout/spec.md)
+**Branch**: `021-cod-checkout` | **Date**: 2026-07-05 | **Spec**: [specs/021-cod-checkout/spec.md](file:///c:/Users/Admin/Desktop/Projects/running/shopnest-speckit/specs/021-cod-checkout/spec.md)
 
 **Input**: Feature specification from `/specs/021-cod-checkout/spec.md`
 
@@ -8,7 +8,7 @@
 
 ## Summary
 
-Complete the integration of the Cash on Delivery (COD) payment method. This feature enables merchants to configure standard Cash on Delivery or "Pay Delivery Charge First" (requiring upfront shipping fees via bKash/Nagad), surfaces it in the storefront checkout, bypasses transaction verification when appropriate, introduces a new `returned` order status, and automatically restores stock levels upon delivery rejection.
+Complete the integration of the Cash on Delivery (COD) payment method. This feature enables merchants to configure standard Cash on Delivery or "Pay Delivery Charge First" (requiring upfront shipping fees via bKash/Nagad), surfaces it in the storefront checkout, bypasses transaction verification when appropriate, introduces a new `returned` order status, and automatically restores stock levels upon delivery rejection. It also includes a storefront returned banner view when an order status is updated to `returned`.
 
 ## Technical Context
 

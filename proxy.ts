@@ -122,7 +122,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // 2. Handling Main Domain Requests (Marketing & Merchant Dashboard & Admin)
-  
+
   // Guard dashboard, admin, onboarding, and auth pages
   const isDashboardRoute = pathname.startsWith("/dashboard")
   const isAdminRoute = pathname.startsWith("/admin")

@@ -7,13 +7,13 @@ import { PromoteAccountCard } from "./PromoteAccountCard"
 import { Card, Button } from "@/components/ui"
 import { formatTaka } from "@/lib/utils"
 import { supabase } from "@/lib/supabase/client"
-import { 
-  ArrowLeft, 
-  Check, 
-  MapPin, 
-  Phone, 
-  User, 
-  Calendar, 
+import {
+  ArrowLeft,
+  Check,
+  MapPin,
+  Phone,
+  User,
+  Calendar,
   Receipt,
   AlertTriangle,
   ImageIcon,
@@ -46,6 +46,7 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
 
   const currentStepIndex = steps.findIndex(s => s.key === order.status)
   const isCancelled = order.status === "cancelled"
+  const isReturned = order.status === "returned"
 
   // Helper to resolve public URL for product images
   const getProductImageUrl = (item: any) => {
@@ -60,8 +61,8 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
     <div className="max-w-4xl mx-auto flex flex-col gap-8 animate-fade-in pb-16">
       {/* Back Link & Header */}
       <div className="flex flex-col gap-3">
-        <Link 
-          href={`/orders`} 
+        <Link
+          href={`/orders`}
           className="inline-flex items-center gap-1.5 text-caption text-shade-60 hover:text-ink font-semibold transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -86,21 +87,21 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
       </div>
 
       {/* Visual Status Tracker Timeline */}
-      {!isCancelled ? (
+      {!isCancelled && !isReturned ? (
         <Card variant="default" className="p-8 bg-canvas-light border border-hairline-light">
           <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 sm:gap-4">
-            
+
             {/* Connecting Progress Line (desktop only) */}
-            <div className="absolute top-[21px] left-6 right-6 h-0.5 bg-zinc-200 hidden sm:block -z-10" />
-            <div 
-              className="absolute top-[21px] left-6 h-0.5 bg-emerald-600 hidden sm:block -z-10 transition-all duration-500" 
+            <div className="absolute top-5.25 left-6 right-6 h-0.5 bg-zinc-200 hidden sm:block -z-10" />
+            <div
+              className="absolute top-5.25 left-6 h-0.5 bg-emerald-600 hidden sm:block -z-10 transition-all duration-500"
               style={{ width: `${(Math.max(0, currentStepIndex) / (steps.length - 1)) * 95}%` }}
             />
 
             {/* Connecting Progress Line (mobile only) */}
-            <div className="absolute left-[21px] top-6 bottom-6 w-0.5 bg-zinc-200 block sm:hidden -z-10" />
-            <div 
-              className="absolute left-[21px] top-6 w-0.5 bg-emerald-600 block sm:hidden -z-10 transition-all duration-500" 
+            <div className="absolute left-5.25 top-6 bottom-6 w-0.5 bg-zinc-200 block sm:hidden -z-10" />
+            <div
+              className="absolute left-5.25 top-6 w-0.5 bg-emerald-600 block sm:hidden -z-10 transition-all duration-500"
               style={{ height: `${(Math.max(0, currentStepIndex) / (steps.length - 1)) * 90}%` }}
             />
 
@@ -113,14 +114,13 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
               return (
                 <div key={step.key} className="flex sm:flex-col items-center sm:text-center gap-4 sm:gap-2 grow">
                   {/* Step Circle */}
-                  <div 
-                    className={`h-11 w-11 rounded-full flex items-center justify-center border-2 text-caption font-bold transition-all duration-300 ${
-                      isCompleted 
-                        ? "bg-emerald-600 border-emerald-600 text-white" 
-                        : isActive 
-                        ? "bg-canvas-light border-emerald-600 text-emerald-800 scale-105 animate-pulse" 
-                        : "bg-canvas-light border-zinc-200 text-shade-40"
-                    }`}
+                  <div
+                    className={`h-11 w-11 rounded-full flex items-center justify-center border-2 text-caption font-bold transition-all duration-300 ${isCompleted
+                        ? "bg-emerald-600 border-emerald-600 text-white"
+                        : isActive
+                          ? "bg-canvas-light border-emerald-600 text-emerald-800 scale-105 animate-pulse"
+                          : "bg-canvas-light border-zinc-200 text-shade-40"
+                      }`}
                   >
                     {isCompleted ? (
                       <Check className="h-5 w-5 stroke-[2.5]" />
@@ -131,14 +131,13 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
 
                   {/* Step Label */}
                   <div className="flex flex-col sm:items-center">
-                    <span 
-                      className={`text-caption font-bold ${
-                        isActive 
-                          ? "text-emerald-800 font-semibold" 
-                          : isCompleted 
-                          ? "text-ink font-semibold" 
-                          : "text-shade-50"
-                      }`}
+                    <span
+                      className={`text-caption font-bold ${isActive
+                          ? "text-emerald-800 font-semibold"
+                          : isCompleted
+                            ? "text-ink font-semibold"
+                            : "text-shade-50"
+                        }`}
                     >
                       {step.label}
                     </span>
@@ -153,7 +152,7 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
             })}
           </div>
         </Card>
-      ) : (
+      ) : isCancelled ? (
         /* Cancelled Banner */
         <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl">
           <AlertTriangle className="h-5 w-5 shrink-0" />
@@ -164,14 +163,25 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
             </p>
           </div>
         </div>
+      ) : (
+        /* Returned Banner */
+        <div className="flex items-center gap-3 p-4 bg-orange-50 border border-orange-200 text-orange-700 rounded-xl animate-fade-in">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-orange-600" />
+          <div className="text-caption">
+            <p className="font-semibold text-orange-850">This order has been returned</p>
+            <p className="text-orange-600/80 text-xs mt-0.5">
+              The order was rejected or returned. Inventory stock has been restored to the merchant.
+            </p>
+          </div>
+        </div>
       )}
 
       {/* Main Order Details Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
+
         {/* Left Side: Items & Details */}
         <div className="md:col-span-2 flex flex-col gap-6">
-          
+
           {/* Order Items Card */}
           <Card variant="default" className="p-6 bg-canvas-light border border-hairline-light flex flex-col gap-4">
             <h3 className="text-body-strong font-bold text-ink uppercase tracking-wider pb-3 border-b border-hairline-light flex items-center gap-2">
@@ -244,7 +254,7 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
 
         {/* Right Side: Delivery Address & Payment details */}
         <div className="flex flex-col gap-6">
-          
+
           {/* Delivery Details Card */}
           <Card variant="default" className="p-6 bg-canvas-light border border-hairline-light flex flex-col gap-4">
             <h3 className="text-body-strong font-bold text-ink uppercase tracking-wider pb-3 border-b border-hairline-light flex items-center gap-2">
