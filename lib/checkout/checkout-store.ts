@@ -9,6 +9,8 @@ export interface CheckoutStoreItem {
   stockCount: number
   imageUrl: string | null
   quantity: number
+  variantId?: string
+  variantLabel?: string
 }
 
 interface CheckoutState {

@@ -145,29 +145,49 @@ to a single unified view.
 - Side panel editor: Hides the matrix from view while editing attributes.
 - Spreadsheet import: Overkill for <1000 variants and adds CSV complexity.
 
-### 9. Smart Merge on Attribute Changes
+### 9. Cascade-Delete on Attribute/Option Removal
 
 **Decision**: When a merchant modifies attribute options (adds "Green" to
-Color, removes "Blue"), the system performs a smart merge:
-- **New options** → Generate new variants (preserving existing combination
-  variants that don't include the new option)
-- **Removed options** → Set affected variants to `is_active = false` (not
-  deleted, so historical orders maintain referential integrity)
-- **Unchanged options** → All existing variants preserved with their
-  price/SKU/stock overrides intact
+Color, removes "Blue"), the system performs smart merge, but with
+**cascade-delete** for removed options instead of deactivation:
+- **New options** → Generate new variants (surviving variants preserve their
+  price/SKU/stock overrides)
+- **Removed options** → Cascade-delete all variants referencing the removed
+  option. Merchant sees a warning dialog: "Removing 'Blue' will delete 2
+  variants with custom pricing."
+- **Deleted attribute** → Cascade-delete all options and variants under that
+  attribute. Warning dialog: "Delete 'Color' and its 6 associated variants?
+  This cannot be undone."
+- **Last attribute deleted** → Auto-revert product to non-variant mode
+  (`has_variants = false`).
+- **Active carts** → Items referencing deleted variants show "No longer
+  available" and must be removed before checkout. Historical orders retain
+  their variant snapshot (price already snapshotted in order_items).
 
-**Rationale**: Full regeneration would destroy all per-variant customizations
-(prices, stock counts, SKU overrides) — violating FR-004 (merchants MUST be
-able to override per variant). Smart merge preserves existing work while
-correctly adding/deactivating variants for the changed attribute set.
+**Enforcement**: ON DELETE CASCADE foreign keys at the DB level:
+`attribute → options (via attribute_id FK) → variant_attribute_links (via
+attribute_option_id FK) → product_variants (via variant_id FK)`. This ensures
+atomic cleanup with no application "forgot to delete" bugs.
+
+**Rationale**: The old approach (deactivate instead of delete) created a
+zombie-data problem — merchants could manually reactivate variants referencing
+deleted attributes, causing a broken storefront with no attribute to display.
+Cascade-delete closes this loophole entirely. Merchant warnings prevent
+accidental data loss. Historical orders are safe because variant price is
+snapshotted at checkout (per Invariant 3).
 
 **Alternatives considered**:
-- Full regeneration (delete all, recreate from scratch): Simpler to implement
-  but destroys all per-variant edits. Unacceptable for products where merchants
-  have set specific prices per variant.
-- Full regeneration with warning: Still destructive, just prompts first.
-- Manual only: Merchant must add/remove each variant individually. Too slow
-  for 9+ variant matrices.
+- Deactivate (is_active = false): Creates zombie variants that can be
+  reactivated even when the underlying attribute no longer exists. Storefront
+  breakage.
+- Block re-activation of orphaned variants: Technically possible but leaves
+  dead data in the DB that can never be used again.
+- Full regeneration (delete all, recreate): Destroys all per-variant edits.
+- Require variant resolution before deletion: Forces merchant to manually
+  deactivate/delete variants first before removing the attribute. More steps,
+  same outcome as cascade-delete with warning.
+- Hard-delete only, no smart merge for additions: Loses smart merge's key
+  advantage of preserving existing price edits on surviving variants.
 
 ### 10. Bulk Operations & Navigation
 

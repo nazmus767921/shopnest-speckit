@@ -1,13 +1,14 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { ShoppingCart, ArrowLeft } from "lucide-react"
+import { ShoppingCart, ArrowLeft, AlertTriangle } from "lucide-react"
 import { useCart } from "@/hooks/use-cart"
 import { CartItemRow } from "./CartItemRow"
 import { type CartItem } from "@/lib/cart/cart-store"
 import { Card, Button } from "@/components/ui"
 import { formatTaka } from "@/lib/utils"
+import { validateCartVariantsAction } from "@/app/actions/validate-cart"
 
 interface Props {
   merchantId: string
@@ -20,9 +21,43 @@ export function CartClientPage({ merchantId, merchantName, subdomain }: Props) {
   const { items, updateQuantity, removeItem, subtotalPaisa } = useCart(merchantId)
   const [mounted, setMounted] = useState(false)
 
+  // ── Deleted variant detection ──────────────────────────────────────────────
+  // Track which cart items (by itemKey = variantId ?? productId) reference
+  // cascade-deleted variants. Re-validate on mount and when items change.
+  const [unavailableKeys, setUnavailableKeys] = useState<Set<string>>(new Set())
+
+  const validateCart = useCallback(async () => {
+    const variantIds = items
+      .filter((i: CartItem) => i.variantId)
+      .map((i: CartItem) => i.variantId as string)
+
+    if (variantIds.length === 0) {
+      setUnavailableKeys(new Set())
+      return
+    }
+
+    try {
+      const { deletedVariantIds } = await validateCartVariantsAction(variantIds)
+      if (deletedVariantIds.length > 0) {
+        setUnavailableKeys(new Set(deletedVariantIds))
+      } else {
+        setUnavailableKeys(new Set())
+      }
+    } catch {
+      // Validation failure is non-blocking — cart still works
+      console.error("Failed to validate cart variants.")
+    }
+  }, [items])
+
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (mounted) {
+      validateCart()
+    }
+  }, [mounted, validateCart])
 
   if (!mounted) {
     return (
@@ -32,6 +67,15 @@ export function CartClientPage({ merchantId, merchantName, subdomain }: Props) {
     )
   }
 
+  // Enrich items with isUnavailable flag from the validation result
+  const enrichedItems = items.map((item: CartItem) => {
+    const itemKey = item.variantId ?? item.productId
+    return unavailableKeys.has(itemKey)
+      ? { ...item, isUnavailable: true }
+      : item
+  })
+
+  const hasUnavailableItems = enrichedItems.some((i: CartItem) => i.isUnavailable)
   const isEmpty = items.length === 0
 
   return (
@@ -80,9 +124,9 @@ export function CartClientPage({ merchantId, merchantName, subdomain }: Props) {
           <div className="md:col-span-2 flex flex-col gap-4">
             <Card variant="default" className="p-6">
               <div className="flex flex-col divide-y divide-hairline-light">
-                {items.map((item: CartItem) => (
+                {enrichedItems.map((item: CartItem) => (
                   <CartItemRow
-                    key={item.productId}
+                    key={item.variantId ?? item.productId}
                     item={item}
                     onUpdateQuantity={updateQuantity}
                     onRemove={removeItem}
@@ -119,10 +163,22 @@ export function CartClientPage({ merchantId, merchantName, subdomain }: Props) {
                 </div>
               </div>
 
+              {/* Unavailable items warning */}
+              {hasUnavailableItems && (
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 border border-red-200" role="alert">
+                  <AlertTriangle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-caption text-red-700">
+                    Some items are no longer available.{" "}
+                    <strong>Remove them to proceed to checkout.</strong>
+                  </p>
+                </div>
+              )}
+
               <div className="mt-8">
                 <Button
                   variant="primary"
                   size="md"
+                  disabled={hasUnavailableItems}
                   onClick={() => { window.location.href = "/checkout" }}
                   className="w-full py-3.5 min-h-12 text-body-strong font-medium"
                 >

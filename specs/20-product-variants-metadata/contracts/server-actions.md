@@ -7,7 +7,10 @@
 Saves attribute definitions for a product and performs a smart merge on the variant matrix.
 If the product already has variants, existing overrides (price, stock, SKU) on surviving
 variants are preserved. New variants are added for new options; variants for removed options
-are deactivated (not deleted).
+are **cascade-deleted** (with a warning dialog shown before confirmation). When an entire
+attribute has all its options removed, the attribute and all associated variants are
+cascade-deleted. If the last attribute is removed, the product auto-reverts to non-variant
+mode (`has_variants = false`).
 
 ```typescript
 function saveProductAttributesAction(
@@ -35,9 +38,10 @@ function saveProductAttributesAction(
 
 **Postconditions**:
 - All previous attribute definitions and options for this product are replaced
-- Smart merge applied: variants with unchanged options preserved (with edits), new combinations added, removed option combinations deactivated
+- Smart merge applied: variants with unchanged options preserved (with edits), new combinations added, removed option combinations **cascade-deleted**
 - `products.variant_generation` snapshot updated with new attribute config
-- `products.has_variants` is set to `true`
+- `products.has_variants` is set to `true` (or `false` if no attributes remain)
+- If variants were cascade-deleted, active carts referencing them display "No longer available" and block checkout
 
 ---
 

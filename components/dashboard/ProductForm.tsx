@@ -41,6 +41,8 @@ interface ProductFormProps {
   maxImages: number
   imageSizeLimitMb: number
   hideHeader?: boolean
+  hasVariants?: boolean
+  totalVariantStock?: number
   initialData?: {
     id: string
     name: string
@@ -55,7 +57,7 @@ interface ProductFormProps {
   }
 }
 
-export function ProductForm({ merchantId, productId: initialProductId, initialData, maxImages, imageSizeLimitMb, hideHeader = false }: ProductFormProps) {
+export function ProductForm({ merchantId, productId: initialProductId, initialData, maxImages, imageSizeLimitMb, hideHeader = false, hasVariants = false, totalVariantStock = 0 }: ProductFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [productId] = useState(() => initialData?.id || initialProductId || crypto.randomUUID())
@@ -389,29 +391,41 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                 )}
               />
 
-              {/* Stock count */}
-              <form.Field
-                name="stockCount"
-                children={(field) => (
-                  <div className="flex flex-col gap-1.5">
-                    <FormLabel htmlFor={field.name}>Stock Quantity *</FormLabel>
-                    <Input
-                      id={field.name}
-                      type="number"
-                      placeholder="e.g. 100"
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : 0)}
-                      error={field.state.meta.errors.length > 0}
-                    />
-                    {field.state.meta.errors.length > 0 && (
-                      <span className="text-caption text-red-500 font-medium mt-0.5">
-                        {getErrorMessage(field.state.meta.errors[0])}
-                      </span>
-                    )}
+              {/* Stock count — managed per-variant when product has variants */}
+              {hasVariants ? (
+                <div className="flex flex-col gap-1.5">
+                  <FormLabel htmlFor="variant-stock">Stock Quantity</FormLabel>
+                  <div className="flex items-center gap-2 rounded-md border border-hairline-light bg-canvas-cream/60 px-3 py-2.5 text-body-md text-shade-40 italic">
+                    Managed per variant
                   </div>
-                )}
-              />
+                  <p className="text-caption text-shade-40 mt-0.5">
+                    Set individual stock levels for each variant in the Variants tab.
+                  </p>
+                </div>
+              ) : (
+                <form.Field
+                  name="stockCount"
+                  children={(field) => (
+                    <div className="flex flex-col gap-1.5">
+                      <FormLabel htmlFor={field.name}>Stock Quantity *</FormLabel>
+                      <Input
+                        id={field.name}
+                        type="number"
+                        placeholder="e.g. 100"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : 0)}
+                        error={field.state.meta.errors.length > 0}
+                      />
+                      {field.state.meta.errors.length > 0 && (
+                        <span className="text-caption text-red-500 font-medium mt-0.5">
+                          {getErrorMessage(field.state.meta.errors[0])}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+              )}
             </div>
 
             {/* Category selection */}

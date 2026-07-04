@@ -3,12 +3,13 @@
 import React, { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Check, ChevronLeft, Loader2, AlertCircle } from "lucide-react"
+import { ArrowLeft, Check, ChevronLeft, Loader2, AlertCircle, X } from "lucide-react"
 import { useCart } from "@/hooks/use-cart"
 import { type CartItem } from "@/lib/cart/cart-store"
 import { addressSchema, paymentSchema } from "@/lib/validations/checkout"
 import { CheckoutIdentitySection } from "./CheckoutIdentitySection"
 import { Card, Button, Input, FormLabel, Combobox } from "@/components/ui"
+import { toast } from "@/components/ui/feedback/Toast"
 import { formatTaka } from "@/lib/utils"
 import { submitAddress, submitPayment } from "@/app/(storefront)/[subdomain]/checkout/actions"
 import { useCheckoutStore } from "@/lib/checkout/checkout-store"
@@ -90,6 +91,11 @@ export function CheckoutClientPage({
   }, [])
 
   // Redirect to cart if empty (and not on success step)
+  // Mark as client-side mounted to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   useEffect(() => {
     const isHydrated = useCheckoutStore.persist.hasHydrated()
     if (mounted && isHydrated && activeItems.length === 0 && step !== "confirm") {
@@ -223,6 +229,8 @@ export function CheckoutClientPage({
       items: activeItems.map((i: any) => ({
         productId: i.productId,
         quantity: i.quantity,
+        variantId: i.variantId ?? undefined,
+        variantLabel: i.variantLabel ?? undefined,
       })),
     }
 
@@ -242,7 +250,9 @@ export function CheckoutClientPage({
     try {
       const res = await submitAddress(addressData)
       if ("error" in res) {
-        setSubmitError(res.error || "An error occurred.")
+        const errorMsg = res.error || "An error occurred."
+        setSubmitError(errorMsg)
+        toast.error(errorMsg, { duration: 15000 })
       } else {
         setOrderId(res.orderId)
         setTotalPaisaState(res.totalPaisa)
@@ -251,6 +261,7 @@ export function CheckoutClientPage({
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : "Something went wrong. Please try again."
       setSubmitError(errorMsg)
+      toast.error(errorMsg, { duration: 15000 })
     } finally {
       setSubmitting(false)
     }
@@ -284,13 +295,16 @@ export function CheckoutClientPage({
     try {
       const res = await submitPayment(paymentData)
       if ("error" in res) {
-        setSubmitError(res.error || "Failed to submit payment details.")
+        const errorMsg = res.error || "Failed to submit payment details."
+        setSubmitError(errorMsg)
+        toast.error(errorMsg, { duration: 15000 })
       } else {
         setStep("confirm")
       }
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : "Failed to submit payment details."
       setSubmitError(errorMsg)
+      toast.error(errorMsg, { duration: 15000 })
     } finally {
       setSubmitting(false)
     }
@@ -379,8 +393,17 @@ export function CheckoutClientPage({
       </div>
 
       {submitError && (
-        <div className="text-body-md text-red-600 bg-red-50 p-4 rounded-xl border border-red-200/50">
-          {submitError}
+        <div className="flex items-start gap-3 text-body-md text-red-800 bg-red-50 p-4 rounded-xl border border-red-200/60" role="alert">
+          <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+          <span className="flex-1">{submitError}</span>
+          <button
+            type="button"
+            onClick={() => setSubmitError("")}
+            className="p-1 rounded hover:bg-red-100 text-red-400 hover:text-red-700 transition shrink-0"
+            aria-label="Dismiss"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
 
@@ -419,7 +442,6 @@ export function CheckoutClientPage({
                       value={deliveryPhone}
                       onChange={(e) => {
                         setDeliveryPhone(e.target.value)
-                        setIsVerified(false) // Re-verify on phone change
                       }}
                       error={!!errors.deliveryPhone}
                     />

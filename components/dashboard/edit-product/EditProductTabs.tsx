@@ -122,6 +122,8 @@ export function EditProductTabs({
             maxImages={maxImages}
             imageSizeLimitMb={imageSizeLimitMb}
             hideHeader
+            hasVariants={product.hasVariants}
+            totalVariantStock={product.stockCount}
           />
         )}
 

@@ -63,9 +63,17 @@ export async function updateMerchant(
 }
 
 export async function getMerchantById(id: string) {
-  return await db.query.merchants.findFirst({
-    where: eq(merchants.id, id),
-  })
+  try {
+    const [merchant] = await db
+      .select()
+      .from(merchants)
+      .where(eq(merchants.id, id))
+      .limit(1)
+    return merchant || null
+  } catch (error) {
+    console.error("getMerchantById failed for id:", id, error)
+    return null
+  }
 }
 
 /**

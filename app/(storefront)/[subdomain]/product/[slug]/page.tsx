@@ -10,7 +10,7 @@ import { AddToCartButton } from "@/components/storefront/AddToCartButton"
 import { BuyNowButton } from "@/components/storefront/BuyNowButton"
 import { supabase } from "@/lib/supabase/client"
 import { ProductMetadata } from "@/components/storefront/product-metadata/ProductMetadata"
-import { getMetadataByProductId, getAttributesByProductId, getVariantsByProductId } from "@/db/queries/variants"
+import { getMetadataByProductId, getAttributesWithOptionsByProductId, getVariantsWithCombinationsByProductId } from "@/db/queries/variants"
 import { VariantProductClient } from "./VariantProductClient"
 
 type Props = {
@@ -63,14 +63,20 @@ async function ProductDetailPageContent({ params }: Props) {
     notFound()
   }
 
-  const isOutOfStock = product.stockCount === 0
-  const isLowStock = !isOutOfStock && product.stockCount <= product.lowStockThreshold
+  // For variant products, stock is managed per-variant — skip product-level indicators
+  const showStockWarnings = !product.hasVariants
+  const isOutOfStock = showStockWarnings && product.stockCount === 0
+  const isLowStock = showStockWarnings && !isOutOfStock && product.stockCount <= product.lowStockThreshold
 
   // Fetch metadata and variant data when product has variants
   const metadata = product.hasVariants ? await getMetadataByProductId(product.id) : []
 
-  const variantAttributes = product.hasVariants ? await getAttributesByProductId(product.id) : []
-  const variants = product.hasVariants ? await getVariantsByProductId(product.id) : []
+  const variantAttributes = product.hasVariants
+    ? await getAttributesWithOptionsByProductId(product.id)
+    : []
+  const variants = product.hasVariants
+    ? await getVariantsWithCombinationsByProductId(product.id)
+    : []
 
   const thumbnailImage = product.images[0]?.storagePath
   const publicUrl = thumbnailImage
@@ -175,7 +181,11 @@ async function ProductDetailPageContent({ params }: Props) {
                 attributes={variantAttributes.map((a) => ({
                   name: a.name,
                   displayType: a.displayType as "swatch" | "dropdown" | "radio",
-                  options: [], // populated client-side via link
+                  options: a.options.map((o) => ({
+                    label: o.label,
+                    value: o.value,
+                    swatchColor: o.swatchColor ?? undefined,
+                  })),
                 }))}
                 variants={variants.map((v) => ({
                   id: v.id,
@@ -183,7 +193,7 @@ async function ProductDetailPageContent({ params }: Props) {
                   pricePaisa: v.pricePaisa,
                   stockCount: v.stockCount,
                   isActive: v.isActive,
-                  attributeCombination: {} as Record<string, string>,
+                  attributeCombination: v.attributeCombination,
                 }))}
               />
             ) : (

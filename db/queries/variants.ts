@@ -77,6 +77,68 @@ export async function deleteOptionsByAttributeId(attributeId: string) {
     .where(eq(attributeOptions.attributeId, attributeId));
 }
 
+/**
+ * Gets all attributes for a product with their options pre-loaded.
+ * Uses a single join query to avoid N+1.
+ */
+export async function getAttributesWithOptionsByProductId(productId: string) {
+  const rows = await db
+    .select({
+      id: productAttributes.id,
+      productId: productAttributes.productId,
+      merchantId: productAttributes.merchantId,
+      name: productAttributes.name,
+      displayType: productAttributes.displayType,
+      sortOrder: productAttributes.sortOrder,
+      optionId: attributeOptions.id,
+      optionLabel: attributeOptions.label,
+      optionValue: attributeOptions.value,
+      optionSortOrder: attributeOptions.sortOrder,
+      optionSwatchColor: attributeOptions.swatchColor,
+    })
+    .from(productAttributes)
+    .leftJoin(
+      attributeOptions,
+      eq(productAttributes.id, attributeOptions.attributeId),
+    )
+    .where(eq(productAttributes.productId, productId))
+    .orderBy(productAttributes.sortOrder, attributeOptions.sortOrder);
+
+  // Group by attribute
+  const attrMap = new Map<string, {
+    id: string;
+    name: string;
+    displayType: string;
+    options: Array<{
+      id: string | null;
+      label: string;
+      value: string;
+      swatchColor: string | null;
+    }>;
+  }>();
+
+  for (const row of rows) {
+    if (!attrMap.has(row.id)) {
+      attrMap.set(row.id, {
+        id: row.id,
+        name: row.name,
+        displayType: row.displayType,
+        options: [],
+      });
+    }
+    if (row.optionId) {
+      attrMap.get(row.id)!.options.push({
+        id: row.optionId,
+        label: row.optionLabel ?? "",
+        value: row.optionValue ?? "",
+        swatchColor: row.optionSwatchColor,
+      });
+    }
+  }
+
+  return Array.from(attrMap.values());
+}
+
 // ─── Product Variants ─────────────────────────────────────────────────────────
 
 export async function getVariantsByProductId(productId: string) {

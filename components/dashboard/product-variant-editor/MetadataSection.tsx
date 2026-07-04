@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { saveProductMetadataAction, getProductMetadataAction } from "@/app/actions/variants";
 import { MetadataEditor } from "./MetadataEditor";
@@ -16,23 +16,38 @@ interface MetadataSectionProps {
 
 export function MetadataSection({ productId }: MetadataSectionProps) {
   const queryClient = useQueryClient();
-  const [entries, setEntries] = useState<MetadataEntryInput[]>([]);
+  // Initialize from query cache to prevent flash on tab switch.
+  // When the component re-mounts (tab switch), the cache has data within
+  // staleTime, so we hydrate state synchronously before the first render.
+  const [entries, setEntries] = useState<MetadataEntryInput[]>(
+    () => {
+      const cached = queryClient.getQueryData(["product-metadata", productId]);
+      return (cached as MetadataEntryInput[]) ?? [];
+    },
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
 
-  const { isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["product-metadata", productId],
     queryFn: async () => {
       const res = await getProductMetadataAction(productId);
       if (!res.success) throw new Error(res.error);
-      setEntries(res.metadata);
       return res.metadata;
     },
     staleTime: 30_000,
   });
+
+  // Sync query data into local editing state after first fetch or cache update.
+  // On initial mount with no cache, this populates entries after the query completes.
+  useEffect(() => {
+    if (data) {
+      setEntries(data);
+    }
+  }, [data]);
 
   const handleSave = useCallback(async () => {
     setIsSaving(true);
