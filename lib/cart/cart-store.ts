@@ -13,6 +13,8 @@ export interface CartItem {
   variantId?: string | null
   /** Human-readable variant label (e.g., "Color: Red, Size: M") */
   variantLabel?: string | null
+  /** Set to true when the variant has been cascade-deleted and is no longer available */
+  isUnavailable?: boolean
 }
 
 export interface CartState {

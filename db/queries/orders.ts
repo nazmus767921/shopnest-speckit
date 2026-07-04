@@ -59,15 +59,39 @@ export async function createOrder(params: {
         .for("update") // Row-level lock
 
       // 2. Verify all products exist and check stock_count >= quantity (Invariant 2)
+      //    For variant items, check variant stock instead of product stock.
       for (const item of params.items) {
         const product = productRows.find((p) => p.id === item.productId)
         if (!product) {
-          tx.rollback()
-          return { error: `Product not found or unavailable.` }
+          throw new Error(`Product not found or unavailable.`)
         }
-        if (product.stockCount < item.quantity) {
-          tx.rollback()
-          return { error: `"${product.name}" only has ${product.stockCount} left in stock.` }
+
+        if (item.variantId) {
+          // For variant items, check variant-level stock
+          const [variant] = await tx
+            .select({ stockCount: productVariants.stockCount })
+            .from(productVariants)
+            .where(
+              and(
+                eq(productVariants.id, item.variantId),
+                eq(productVariants.merchantId, params.merchantId),
+                eq(productVariants.isActive, true),
+              ),
+            )
+            .for("update")
+
+          if (!variant) {
+            throw new Error(`"${product.name}" variant is no longer available.`)
+          }
+
+          if (variant.stockCount < item.quantity) {
+            throw new Error(`"${product.name}" variant is out of stock. Please remove it from your cart and try again.`)
+          }
+        } else {
+          // For base products, check product-level stock
+          if (product.stockCount < item.quantity) {
+            throw new Error(`"${product.name}" only has ${product.stockCount} left in stock.`)
+          }
         }
       }
 
@@ -146,8 +170,7 @@ export async function createOrder(params: {
             .returning()
 
           if (updateResult.length === 0) {
-            tx.rollback()
-            return { error: "Stock was updated by a concurrent checkout. Please try again." }
+            throw new Error("This variant just went out of stock. Please remove it from your cart and try again.")
           }
         } else {
           // Decrement base product stock
@@ -167,8 +190,7 @@ export async function createOrder(params: {
             .returning()
 
           if (updateResult.length === 0) {
-            tx.rollback()
-            return { error: "Stock was updated by a concurrent checkout. Please try again." }
+            throw new Error("This item just went out of stock. Please remove it from your cart and try again.")
           }
         }
       }
@@ -476,6 +498,20 @@ export async function updateOrderStatus(merchantId: string, orderId: string, new
             updatedAt: new Date()
           })
           .where(eq(products.id, item.productId))
+
+        // If this item had a variant, restore variant stock as well
+        if (item.variantId) {
+          await tx
+            .update(productVariants)
+            .set({
+              stockCount: sql`${productVariants.stockCount} + ${item.quantity}`,
+              updatedAt: new Date()
+            })
+            .where(and(
+              eq(productVariants.id, item.variantId),
+              eq(productVariants.merchantId, merchantId),
+            ))
+        }
       }
     }
 

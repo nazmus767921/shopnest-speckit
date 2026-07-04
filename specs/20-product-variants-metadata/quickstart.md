@@ -110,23 +110,26 @@ pnpm vitest run -- test/lib/products/variants.test.ts
 
 ---
 
-### Scenario 5: Smart Merge — Removing an Option
+### Scenario 5: Cascade-Delete — Removing an Option
 
-**Goal**: Verify removed option deactivates variants, doesn't delete them.
+**Goal**: Verify removing an option cascade-deletes affected variants with merchant warning.
 
 1. Start with Color=[Red, Blue, Green], Size=[S, M] → 6 variants
-2. Click × on the "Green" chip to remove it
+2. Set a custom price on "Green / S" to ৳499
+3. Click × on the "Green" chip to remove it
 
 **Expected**:
-- Red/* and Blue/* variants still active and editable
-- Green/S and Green/M variants are now marked inactive (grayed out, "Inactive" badge)
-- Inactive variants can be reactivated via bulk toolbar if needed
-- Historical orders with Green variants are preserved (variants not deleted)
+- Warning dialog appears: "Removing 'Green' will delete 2 variants with custom pricing."
+- Click Confirm → Green/S and Green/M are cascade-deleted from the database
+- Removed variants are gone from the table entirely (not grayed out)
+- Red/* and Blue/* variants still present and editable
+- Historical orders with Green variants are preserved (price already snapshotted)
 
 **Test command**:
 ```bash
 pnpm vitest run -- test/app/(dashboard)/products/actions.test.ts
-# Expected: saveProductAttributesAction deactivates affected variants
+# Expected: saveProductAttributesAction cascade-deletes affected variants
+#   and warns merchant before deletion
 ```
 
 ---
@@ -210,8 +213,11 @@ Product storefront shows "Blue/S" as unavailable.
 
 | Scenario | Expected Behavior |
 |----------|-------------------|
-| Remove an attribute option after variants exist | Affected variants deactivated (is_active = false), not deleted |
+| Remove an attribute option after variants exist | Affected variants cascade-deleted (with warning dialog), not deactivated |
+| Delete an entire attribute | All associated options and variants cascade-deleted (with warning dialog) |
+| Last attribute deleted | Product auto-reverts to non-variant mode (has_variants = false) |
 | Add a new attribute option after generation | New variants generated for new option × existing options, existing edits preserved |
+| Cascade-deleted variant in active cart | Cart shows "No longer available" notice, checkout blocked until removed |
 | Bulk-select 5 variants and set stock to 50 | All 5 variants show stock 50, others unchanged |
 | Filter by "Color: Red" in a 27-variant matrix | Only Red/* variants shown, count updates to "9 of 27" |
 | Set all attribute options to same value (Color only: Red) | Single variant generated (1×1 = 1) |

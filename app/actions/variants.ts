@@ -16,7 +16,7 @@ import {
   products,
 } from "@/db/schema";
 import { generateVariantMatrix, variantFingerprint, smartMergeVariants } from "@/lib/products/variants";
-import { getMetadataByProductId, getVariantsByProductId, getAttributesByProductId, getOptionsByAttributeId, getVariantImages, createVariantImage, deleteVariantImage } from "@/db/queries/variants";
+import { getMetadataByProductId, getVariantsByProductId, getAttributesByProductId, getOptionsByAttributeId, getAttributesWithOptionsByProductId, getVariantsWithCombinationsByProductId, getVariantImages, createVariantImage, deleteVariantImage } from "@/db/queries/variants";
 import { saveAttributesSchema, variantUpdateSchema, saveMetadataSchema, bulkVariantUpdateSchema, variantImageUploadSchema } from "@/lib/validations/variants";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -197,7 +197,7 @@ export async function saveProductAttributesAction(
       })),
     }));
 
-    const { toPreserve, toDeactivate, toAdd } = smartMergeVariants(
+    const { toPreserve, toDelete, toAdd } = smartMergeVariants(
       oldAttributesFormatted,
       newAttrsForMerge,
       existingForMerge,
@@ -207,11 +207,28 @@ export async function saveProductAttributesAction(
 
     // ── Execute merge in a transaction ─────────────────────────────────────
     await db.transaction(async (tx) => {
-      // 1. Deactivate removed combinations (do NOT delete)
-      for (const variantId of toDeactivate) {
+      // 1. Cascade-delete removed combinations: delete variant images from Storage,
+      //    then let ON DELETE CASCADE handle DB rows
+      for (const variantId of toDelete) {
+        // Clean up variant images from Supabase Storage before DB delete
+        const images = await tx
+          .select({ storagePath: variantImages.storagePath })
+          .from(variantImages)
+          .where(eq(variantImages.variantId, variantId));
+
+        for (const img of images) {
+          try {
+            const path = img.storagePath.replace(/^product-images\//, '');
+            await supabaseAdmin.storage.from('product-images').remove([path]);
+          } catch {
+            // Storage cleanup is best-effort — log failure but don't block cascade
+            console.error(`Failed to delete variant image: ${img.storagePath}`);
+          }
+        }
+
+        // Delete variant — ON DELETE CASCADE handles variant_attribute_links
         await tx
-          .update(productVariants)
-          .set({ isActive: false, updatedAt: new Date() })
+          .delete(productVariants)
           .where(
             and(
               eq(productVariants.id, variantId),
@@ -220,7 +237,7 @@ export async function saveProductAttributesAction(
           );
       }
 
-      // 2. Delete old attributes (cascades to attribute_options)
+      // 2. Delete old attributes (cascades to attribute_options via ON DELETE CASCADE)
       await tx
         .delete(productAttributes)
         .where(
@@ -356,17 +373,29 @@ export async function saveProductAttributesAction(
       }
 
       // 6. Update product flags
+      const hasAnyAttributes = validatedAttributes.length > 0;
       await tx
         .update(products)
         .set({
-          hasVariants: true,
-          variantGeneration: JSON.stringify(validatedAttributes),
+          hasVariants: hasAnyAttributes,
+          variantGeneration: hasAnyAttributes
+            ? JSON.stringify(validatedAttributes)
+            : null,
           updatedAt: new Date(),
         })
         .where(eq(products.id, productId));
     });
 
     revalidatePath(`/dashboard/products/${productId}/edit`);
+
+    // Audit log for cascade-delete events
+    if (toDelete.length > 0) {
+      console.log(
+        `[AUDIT] Merchant ${merchant.id} cascade-deleted ${toDelete.length} variant(s)` +
+        ` on product ${productId}. Reason: attribute/option removal.`,
+      );
+    }
+
     return { success: true as const, message: "Variants saved successfully." };
   } catch (error) {
     return {
@@ -454,8 +483,9 @@ export async function getProductVariantsAction(productId: string) {
 
     if (!product) throw new Error("Product not found.");
 
-    const attributes = await getAttributesByProductId(productId);
-    const variants = await getVariantsByProductId(productId);
+    // Use optimized join queries to avoid N+1
+    const attributes = await getAttributesWithOptionsByProductId(productId);
+    const variants = await getVariantsWithCombinationsByProductId(productId);
 
     return {
       success: true as const,
@@ -463,7 +493,13 @@ export async function getProductVariantsAction(productId: string) {
         id: a.id,
         name: a.name,
         displayType: a.displayType,
-        sortOrder: a.sortOrder,
+        // Options are pre-loaded via a single join query — no N+1
+        options: a.options.map((o) => ({
+          id: o.id ?? "",
+          label: o.label,
+          value: o.value,
+          swatchColor: o.swatchColor,
+        })),
       })),
       variants: variants.map((v) => ({
         id: v.id,
@@ -472,6 +508,7 @@ export async function getProductVariantsAction(productId: string) {
         stockCount: v.stockCount,
         isActive: v.isActive,
         sortOrder: v.sortOrder,
+        attributeCombination: v.attributeCombination,
       })),
     };
   } catch (error) {

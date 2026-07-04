@@ -40,28 +40,22 @@ async function fetchVariants(productId: string): Promise<{
   attributes: AttributeInput[];
   variants: VariantFromDb[];
 }> {
-  const variantsRes = await getProductVariantsAction(productId);
-  if (!variantsRes.success) throw new Error(variantsRes.error);
+  const res = await getProductVariantsAction(productId);
+  if (!res.success) throw new Error(res.error);
 
-  const mappedAttributes: AttributeInput[] = await Promise.all(
-    variantsRes.attributes.map(async (attr) => {
-      const optionsRes = await getProductAttributeOptionsAction(attr.id);
-      if (!optionsRes.success) throw new Error(optionsRes.error);
-      return {
-        name: attr.name,
-        displayType: attr.displayType as "swatch" | "dropdown" | "radio",
-        options: optionsRes.options.map((opt) => ({
-          label: opt.label,
-          value: opt.value,
-          swatchColor: opt.swatchColor ?? undefined,
-        })),
-      };
-    }),
-  );
-
+  // Server action now returns attributes WITH options (join query) and
+  // variants WITH attributeCombination — no N+1 option fetches needed.
   return {
-    attributes: mappedAttributes,
-    variants: variantsRes.variants as VariantFromDb[],
+    attributes: res.attributes.map((attr) => ({
+      name: attr.name,
+      displayType: attr.displayType as "swatch" | "dropdown" | "radio",
+      options: attr.options.map((opt) => ({
+        label: opt.label,
+        value: opt.value,
+        swatchColor: opt.swatchColor ?? undefined,
+      })),
+    })),
+    variants: res.variants as VariantFromDb[],
   };
 }
 
@@ -74,7 +68,23 @@ export function VariantsSection({
   basePricePaisa,
 }: VariantsSectionProps) {
   const queryClient = useQueryClient();
-  const [attributes, setAttributes] = useState<AttributeInput[]>([]);
+  // Snapshot of saved attributes to detect unsaved changes
+  // MUST be declared before useState initializer that references it.
+  const savedAttrsRef = useRef<AttributeInput[]>([]);
+
+  // Initialize from query cache to prevent flash on tab switch.
+  // When the component re-mounts (tab switch), the cache has data within
+  // staleTime, so we hydrate state synchronously before the first render.
+  const [attributes, setAttributes] = useState<AttributeInput[]>(
+    () => {
+      const cached = queryClient.getQueryData(["product-variants", productId]);
+      const attrs = (cached as { attributes: AttributeInput[] } | undefined)?.attributes ?? [];
+      if (attrs.length > 0) {
+        savedAttrsRef.current = JSON.parse(JSON.stringify(attrs));
+      }
+      return attrs;
+    },
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
@@ -95,14 +105,10 @@ export function VariantsSection({
     attributeFilters: {},
   });
 
-  // Snapshot of saved attributes to detect unsaved changes
-  const savedAttrsRef = useRef<AttributeInput[]>([]);
-
   // Fetch variants
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["product-variants", productId],
     queryFn: () => fetchVariants(productId),
-    enabled: true,
     staleTime: 30_000,
   });
 
@@ -367,6 +373,7 @@ export function VariantsSection({
         <AttributeEditor
           attributes={attributes}
           onChange={setAttributes}
+          estimatedExistingVariants={data?.variants.length ?? 0}
         />
 
         {/* Status message */}
@@ -431,7 +438,7 @@ export function VariantsSection({
 
             <div className="flex-1 max-w-lg">
               <VariantFilterBar
-                attributes={[]}
+                attributes={data?.attributes ?? []}
                 onFilterChange={setFilters}
               />
             </div>

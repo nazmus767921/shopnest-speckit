@@ -158,14 +158,17 @@ export function selectVariantForOptions(
  *
  * - `toPreserve`: Existing variant IDs whose attribute combination still exists —
  *   keep their data (price, SKU overrides, stock, isActive) unchanged.
- * - `toDeactivate`: Existing variant IDs whose combination was removed —
- *   set is_active = false instead of deleting.
+ * - `toDelete`: Existing variant IDs whose combination was removed —
+ *   cascade-delete these variants (DB enforces ON DELETE CASCADE for related rows).
  * - `toAdd`: New variant entries for combinations that don't exist yet —
  *   insert with defaults.
+ *
+ * Note: is_active is still used for manual merchant control (bulk activate/deactivate).
+ * Cascade-delete only triggers on attribute/option removal — not on the manual toggle.
  */
 export type SmartMergeResult = {
   toPreserve: string[];
-  toDeactivate: string[];
+  toDelete: string[];
   toAdd: VariantMatrixEntry[];
 };
 
@@ -187,7 +190,7 @@ export function variantFingerprint(
  * and produces a diff of variant IDs to preserve, deactivate, or add.
  *
  * Key behaviors:
- * - Option removed → matching variants are **deactivated** (not deleted)
+ * - Option removed → matching variants are **cascade-deleted**
  * - Option added → only new combinations are **added** (existing preserved)
  * - Unchanged options → all existing data (price, SKU, stock, status) is **preserved**
  * - Attribute added/removed → **all** old variants deactivated, **all** new added
@@ -231,13 +234,13 @@ export function smartMergeVariants(
 
   // Classify existing variants
   const toPreserve: string[] = [];
-  const toDeactivate: string[] = [];
+  const toDelete: string[] = [];
 
   for (const [fp, id] of existingFingerprintMap) {
     if (newFingerprints.has(fp)) {
       toPreserve.push(id);
     } else {
-      toDeactivate.push(id);
+      toDelete.push(id);
     }
   }
 
@@ -250,7 +253,7 @@ export function smartMergeVariants(
     }
   }
 
-  return { toPreserve, toDeactivate, toAdd };
+  return { toPreserve, toDelete, toAdd };
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

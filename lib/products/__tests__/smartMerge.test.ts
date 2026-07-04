@@ -81,7 +81,7 @@ describe("smartMergeVariants — T075: Adding an option", () => {
     // 4 existing preserved: Red/S, Red/M, Blue/S, Blue/M
     expect(result.toPreserve).toHaveLength(4);
     // Nothing deactivated
-    expect(result.toDeactivate).toHaveLength(0);
+    expect(result.toDelete).toHaveLength(0);
   });
 
   it("should not generate duplicate variants when re-adding same options", () => {
@@ -97,7 +97,7 @@ describe("smartMergeVariants — T075: Adding an option", () => {
     // No changes — everything preserved, nothing added or deactivated
     expect(result.toAdd).toHaveLength(0);
     expect(result.toPreserve).toHaveLength(4);
-    expect(result.toDeactivate).toHaveLength(0);
+    expect(result.toDelete).toHaveLength(0);
   });
 
   it("should add correct number of variants when option added to second attribute", () => {
@@ -133,7 +133,7 @@ describe("smartMergeVariants — T075: Adding an option", () => {
     // 2 new: Red/L, Blue/L
     expect(result.toAdd).toHaveLength(2);
     expect(result.toPreserve).toHaveLength(4);
-    expect(result.toDeactivate).toHaveLength(0);
+    expect(result.toDelete).toHaveLength(0);
   });
 });
 
@@ -168,7 +168,7 @@ describe("smartMergeVariants — T076: Removing an option", () => {
     );
 
     // Blue variants deactivated (Blue/S, Blue/M)
-    expect(result.toDeactivate).toHaveLength(2);
+    expect(result.toDelete).toHaveLength(2);
     // Red variants preserved (Red/S, Red/M)
     expect(result.toPreserve).toHaveLength(2);
     // Nothing new
@@ -205,7 +205,7 @@ describe("smartMergeVariants — T076: Removing an option", () => {
 
     // Only Blue variants deactivated (variant-1 = Blue/S, variant-3 = Blue/M)
     // Since matrix generates [Red/S, Red/M, Blue/S, Blue/M]
-    expect(result.toDeactivate).toEqual(
+    expect(result.toDelete).toEqual(
       expect.arrayContaining(["variant-2", "variant-3"]),
     );
   });
@@ -259,7 +259,7 @@ describe("smartMergeVariants — T077: Unchanged options preserve data", () => {
     // All 4 variants preserved, nothing added/deactivated
     expect(result.toPreserve).toHaveLength(4);
     expect(result.toAdd).toHaveLength(0);
-    expect(result.toDeactivate).toHaveLength(0);
+    expect(result.toDelete).toHaveLength(0);
 
     // The preserved IDs should match the existing variant IDs
     expect(result.toPreserve).toEqual(
@@ -301,7 +301,7 @@ describe("smartMergeVariants — T077: Unchanged options preserve data", () => {
     expect(result.toPreserve).toHaveLength(4);
     // 2 new (Red/L, Blue/L)
     expect(result.toAdd).toHaveLength(2);
-    expect(result.toDeactivate).toHaveLength(0);
+    expect(result.toDelete).toHaveLength(0);
   });
 });
 
@@ -323,7 +323,7 @@ describe("smartMergeVariants — edge cases", () => {
     );
 
     // All existing deactivated; no new variants with empty options
-    expect(result.toDeactivate).toHaveLength(4);
+    expect(result.toDelete).toHaveLength(4);
     expect(result.toPreserve).toHaveLength(0);
     expect(result.toAdd).toHaveLength(0);
   });
@@ -340,7 +340,7 @@ describe("smartMergeVariants — edge cases", () => {
     // 4 new variants
     expect(result.toAdd).toHaveLength(4);
     expect(result.toPreserve).toHaveLength(0);
-    expect(result.toDeactivate).toHaveLength(0);
+    expect(result.toDelete).toHaveLength(0);
   });
 
   it("should add all as new when adding a new attribute (dimension)", () => {
@@ -372,7 +372,7 @@ describe("smartMergeVariants — edge cases", () => {
     );
 
     // All old variants deactivated (their combination fingerprint doesn't match new ones)
-    expect(result.toDeactivate).toHaveLength(2);
+    expect(result.toDelete).toHaveLength(2);
     // All new combinations added (Color×Size = 4)
     expect(result.toAdd).toHaveLength(4);
     expect(result.toPreserve).toHaveLength(0);

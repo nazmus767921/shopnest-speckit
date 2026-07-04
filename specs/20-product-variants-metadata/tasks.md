@@ -342,3 +342,15 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - US3 and US4 depend on variants existing (US1) — they cannot be delivered before US1
 - US2 (metadata) has no dependency on US1 (variants) — they can be built in parallel
+
+---
+
+## Phase 9: Convergence
+
+**Purpose**: Address gaps identified during convergence between the spec (FR-020) and implementation
+
+- [X] T091 Wire `validateCartVariantsAction` into `CartClientPage` — call on mount to detect cascade-deleted variants, set `isUnavailable` on affected cart items via local state (`Set<string>` of `itemKey = variantId ?? productId` per FR-020 (`missing`)
+- [X] T092 Disable "Proceed to Checkout" button in `CartClientPage` when any cart item has `isUnavailable=true`; show inline notification that unavailable items must be removed before checkout per FR-020 (`missing`)
+
+**Deferred** (already tracked): T068 — run `quickstart.md` validation scenarios end-to-end
+

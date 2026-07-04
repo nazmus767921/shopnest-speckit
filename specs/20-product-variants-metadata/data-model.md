@@ -186,11 +186,17 @@ Product Created (has_variants=false)
   │           ├── Merchant edits per-variant via inline cell editing (SKU, price, stock)
   │           │   └── Each change auto-saves on Enter/blur
   │           │
-  │           ├── Attribute option removed → smart merge:
-  │           │   ├── Affected variants deactivated (is_active=false), not deleted
-  │           │   ├── Unchanged options → existing variants preserved with edits
-  │           │   └── Active carts referencing now-deactivated variants show notice
+  │           ├── Attribute option removed → cascade-delete:
+  │           │   ├── Warning dialog: "Removing '{option}' will delete {N} variants with custom pricing"
+  │           │   ├── ON DELETE CASCADE removes variant_attribute_links → product_variants
+  │           │   ├── Active carts show "No longer available", must remove before checkout
+  │           │   └── Historical orders retain their variant snapshot (price snapshotted at checkout)
   │           │
+  │           ├── Attribute deleted → cascade-delete:
+  │           │   ├── Warning dialog: "Delete '{attribute}' and its {N} associated variants? Cannot be undone."
+  │           │   ├── ON DELETE CASCADE removes attribute_options → variant_attribute_links → product_variants
+  │           │   ├── Active carts show "No longer available", must remove before checkout
+  │           │   └── If last attribute: auto-revert (has_variants=false)
   │           ├── Attribute option added → smart merge:
   │           │   ├── New variants generated for new option × all existing options
   │           │   ├── Existing variant prices/SKU/stock overrides preserved
@@ -211,7 +217,7 @@ Product Created (has_variants=false)
 
 ```
 Input:  oldAttributes[], newAttributes[], existingVariants[]
-Output: { toAdd: VariantEntry[], toDeactivate: variantId[], toPreserve: variantId[] }
+Output: { toAdd: VariantEntry[], toDelete: variantId[], toPreserve: variantId[] }
 
 1. Compute old matrix (Cartesian product of oldAttributes options)
 2. Compute new matrix (Cartesian product of newAttributes options)
@@ -222,8 +228,11 @@ Output: { toAdd: VariantEntry[], toDeactivate: variantId[], toPreserve: variantI
      → ADD (generate new variant with defaults)
 4. For each existing variant:
    - If its combination is NOT in new matrix:
-     → DEACTIVATE (set is_active=false)
+     → DELETE (cascade-delete via ON DELETE CASCADE — DB handles cleanup)
 5. All other existing variants → PRESERVE as-is
+
+Note: is_active is still used for manual merchant control (bulk activate/deactivate).
+Cascade-delete only triggers on attribute/option removal, not on the manual toggle.
 ```
 
 ### `variant_generation` JSON Schema
@@ -270,3 +279,7 @@ stock_count decremented → Atomic Postgres transaction with WHERE guard
 | Attribute values | Unique within attribute | DB unique constraint |
 | Variant-option links | Exactly one per attribute per variant | Application (matrix generation) |
 | Variant images | Max per plan limit (2/5) | Application (Server Action) |
+| Attribute deletion | Cascade-deletes options, variant links, and variants | DB ON DELETE CASCADE (attribute_options → variant_attribute_links → product_variants) |
+| Option removal | Cascade-deletes variant links and variants | DB ON DELETE CASCADE (variant_attribute_links → product_variants) |
+| Cart with deleted variant | Shows "No longer available", blocks checkout | Application (Server Action — checkout guard) |
+| Auto-revert on last attribute delete | Sets has_variants = false | Application (Server Action after delete) |

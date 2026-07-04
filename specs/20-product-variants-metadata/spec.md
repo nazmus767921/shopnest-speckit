@@ -82,9 +82,11 @@ As a merchant, I want to add, edit, or remove variants from the product manageme
 **Acceptance Scenarios**:
 
 1. **Given** a merchant is on the product edit page, **When** they change the price of variant Red/L from ৳500 to ৳550, **Then** the storefront displays ৳550 for Red/L.
-2. **Given** a merchant removes the "Blue" option from the Color attribute, **When** the system recalculates the matrix, **Then** all Blue variants are deactivated (`is_active = false`), active carts referencing Blue variants show a "This item has been updated" notice, and historical orders retain their variant snapshot unchanged.
+2. **Given** a merchant removes the "Blue" option from the Color attribute via the chip input, **When** the merchant confirms the warning dialog ("Removing 'Blue' will delete 2 variants with custom pricing"), **Then** all Blue variants are cascade-deleted from the database, active carts referencing Blue variants show a "No longer available" notice and the customer must remove them before checkout, and historical orders retain their variant snapshot unchanged.
 3. **Given** a product has 6 variants (Color×Size=3×2), **When** the merchant checks 3 variants and applies "+10%" price adjustment from the bulk toolbar, **Then** only the selected 3 variants show updated prices and the other 3 remain unchanged.
 4. **Given** a product has 27 variants (3 attributes × 3 options each), **When** the merchant selects "Color: Red" in the filter bar, **Then** only the 9 Red/* variants are shown and the variant count indicator reads "9 of 27."
+5. **Given** a merchant deletes an entire attribute (e.g., "Color") via the three-dot → Delete Attribute menu, **When** the merchant confirms the warning dialog ("Delete 'Color' and its 6 associated variants? This cannot be undone."), **Then** all variants referencing that attribute's options are cascade-deleted, active carts referencing those variants show "No longer available" and must be removed before checkout.
+6. **Given** the last attribute on a product is cascade-deleted, **When** zero variants remain, **Then** the product automatically reverts to non-variant mode (`has_variants = false`) and the base product price/SKU/stock becomes the primary surface.
 
 ## Requirements
 
@@ -121,15 +123,20 @@ As a merchant, I want to add, edit, or remove variants from the product manageme
 - **FR-014**: Variant images MUST be uploaded per variant using path:
   `product-images/{merchant_id}/{product_id}/variants/{variant_id}/{uuid}.{ext}`.
   Image count and size limits follow the same plan-based rules as base product
-  images (Starter: 2 images, 1MB; Growth/Pro: 5 images, 2MB). Accepted
-  formats: JPG, PNG, WebP.
+  images (Starter: 2 images per variant, 1MB per image file; Growth/Pro: 5 images
+  per variant, 2MB per image file). Accepted formats: JPG, PNG, WebP.
 - **FR-017**: The variant table editor MUST support full keyboard navigation — Tab between cells, Enter to edit, Escape to cancel, Arrow keys for cell navigation. ARIA roles (`role="grid"`, `role="gridcell"`) MUST be applied. Screen readers MUST announce variant count changes, edit state, and selection state via live regions.
+- **FR-018**: Deleting an attribute MUST cascade-delete all its options and all variants referencing those options. BEFORE deletion, show a warning dialog: "Delete '{attribute_name}' and its {N} associated variants? This cannot be undone." with Cancel/Confirm buttons. The delete operation MUST use an ON DELETE CASCADE foreign key chain (attribute → attribute_options → variant_attribute_links → product_variants) for atomic cleanup.
+- **FR-019**: Removing a single option from an attribute MUST cascade-delete all variants referencing that option. BEFORE removal, show a warning dialog: "Removing '{option_value}' will delete {N} variants with custom pricing." with Cancel/Confirm buttons.
+- **FR-020**: When a variant is cascade-deleted, any active cart item referencing that variant MUST display "No longer available" instead of variant details. The customer MUST remove the item before checkout can proceed. The checkout endpoint MUST reject orders containing references to deleted variants.
+- **FR-021**: When the last attribute on a product is cascade-deleted and zero variants remain, the system MUST automatically set `has_variants = false`. The product's base `price`, `sku`, and `stock_count` become the primary surface again. The `variant_generation` JSON snapshot on the product MUST be cleared. No manual toggle required.
+- **FR-022**: The system MUST maintain a `variant_generation` JSON snapshot on the product record that records the attribute configuration at the time of the last matrix generation. This snapshot MUST be updated whenever attribute options are added or removed. It MUST be cleared when the product auto-reverts to non-variant mode (per FR-021). The snapshot schema is defined in the data model.
 
 ### Key Entities
 
 - **ProductAttribute**: A custom attribute definition on a product (e.g., Color, Size). Has a name and type (dropdown/swatch/etc).
 - **AttributeOption**: A value within an attribute (e.g., "Red" for Color, "M" for Size).
-- **ProductVariant**: A single variant generated from the attribute matrix. Has SKU, price, stock_count, images, and references to its attribute options.
+- **ProductVariant**: A single variant generated from the attribute matrix. Has SKU, price, stock_count, images, and references to its attribute options via a variant_attribute_links junction table with ON DELETE CASCADE foreign keys.
 - **ProductMetadata**: A key-value pair on a product for custom display information.
 
 ## Success Criteria
@@ -137,7 +144,7 @@ As a merchant, I want to add, edit, or remove variants from the product manageme
 ### Measurable Outcomes
 
 - **SC-001**: A merchant can define 2 attributes with 3 options each, auto-generate 9 variants, and set per-variant pricing in under **2 minutes** using the inline table editor — type option chips, see variants populate instantly, click cells to edit prices.
-- **SC-002**: A customer can select a variant, add to cart, and complete checkout without ambiguity about which variant they ordered.
+- **SC-002**: After checkout, `order_items` contains `variant_id`, `variant_label`, and the variant's SKU for every line item that was added as a variant. The order confirmation page displays the selected attribute combination (e.g., "Color: Red, Size: M").
 - **SC-003**: Per-variant stock decrements atomically — no race conditions allow negative stock even under concurrent checkout.
 - **SC-004**: Existing non-variant products continue to work without modification.
 
@@ -146,7 +153,7 @@ As a merchant, I want to add, edit, or remove variants from the product manageme
 ### Session 2026-07-03
 
 - Q: What is the target UX model for variant creation? → A: Inline table with chip options — Shopify-style. Add attributes as columns via inline "+" button, type option values as chips/pills that become removable tags. Variants populate instantly in the table below. Edit SKU, price, stock directly in editable table cells. No step wizard, no modals, no separate "Generate" button.
-- Q: How should attribute modifications (add/remove options) after variants exist be handled? → A: Smart merge — add new variants for new options, deactivate variants for removed options (not delete). Existing price/SKU/stock overrides on surviving variants are preserved.
+- Q: How should attribute modifications (add/remove options) after variants exist be handled? → A: Smart merge — add new variants for new options. When an option is removed, associated variants are cascade-deleted with a merchant warning. When an attribute is deleted, all its variants are cascade-deleted with a merchant warning. Existing price/SKU/stock overrides on surviving variants are preserved.
 - Q: How should merchants navigate and bulk-edit many variants? → A: Inline table editing (click cells to edit) + bulk toolbar (checkbox selection for mass price/stock adjustments) + search/filter bar to find variants by attribute combination.
 
 ### Session 2026-07-03 (UX Refinement)
@@ -154,6 +161,14 @@ As a merchant, I want to add, edit, or remove variants from the product manageme
 - Q: What should the attribute editor row layout be? → A: Dynamic row pattern — tap "Add Attribute" inserts a row with attribute name input (left), tag input (center, Enter-only to add tags, Space behaves normally for multi-word values), and a three-dot menu (right) with Delete and Display Type options.
 - Q: Should Space also add tags in the chip input? → A: No — Enter only. Space behaves normally to allow multi-word option values (e.g., "Extra Large", "Half Sleeve").
 - Q: How should variant editing work? → A: Direct inline cell editing — click any cell to edit instantly. No expand-to-edit, no separate "Edit" button. Enter/blur saves, Escape reverts. Auto-save on confirm.
+
+### Session 2026-07-04
+
+- Q: What enforcement model prevents orphaned variants when an attribute/option is deleted and a merchant tries to reactivate? → A: Cascade-delete — attribute deletion cascade-deletes all associated variants. Option removal cascade-deletes all variants referencing that option. Merchant sees a warning dialog summarizing affected variant count before confirmation. Manual variant toggle (is_active) is unaffected — only attribute/option removal triggers cascade.
+- Q: What happens to active customer carts when a variant is cascade-deleted? → A: Cart item stays visible but shows "No longer available" notice. Customer must remove it before checkout. Checkout is blocked until all unavailable items are resolved.
+- Q: Should removing a single option from an attribute cascade-delete or deactivate? → A: Cascade-delete (consistent with attribute deletion). Warning dialog shown: "Removing '{option}' will delete {N} variants with custom pricing."
+- Q: How is cascade-delete enforced at the database level? → A: Foreign keys with ON DELETE CASCADE on variant─option junction tables. DB handles cleanup atomically — no application-level "forgot to clean up" bugs.
+- Q: Should a product auto-revert to non-variant mode when all attributes are cascade-deleted? → A: Yes — when the last attribute is deleted and zero variants remain, `has_variants` is automatically set to `false`. Base product price/SKU/stock becomes primary surface.
 
 ## Assumptions
 

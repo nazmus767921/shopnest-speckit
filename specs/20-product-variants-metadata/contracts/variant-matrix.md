@@ -55,12 +55,13 @@ function generateVariantMatrix(
 Pure function that computes the diff between old and new attribute configurations,
 returning a merge plan for existing variants. This is the core of the smart merge
 feature — it ensures merchants don't lose per-variant customizations when adding
-or removing attribute options.
+or removing attribute options. Removed options result in cascade-deletion of
+associated variants (not deactivation).
 
 ```typescript
 type SmartMergeResult = {
   toPreserve: Array<{ variantId: string }>;
-  toDeactivate: Array<{ variantId: string; reason: string }>;
+  toDelete: Array<{ variantId: string; reason: string }>;
   toAdd: Array<{
     attributeCombination: Record<string, string>;
     label: string;
@@ -94,10 +95,15 @@ function smartMergeVariants(
    - If match found → `toPreserve` (keep variant id, preserve price/stock/SKU edits)
    - If no match → `toAdd` (generate with defaults: base price, auto SKU, stock=0)
 4. For each existing variant:
-   - If its combination is NOT in any new combination → `toDeactivate`
+   - If its combination is NOT in any new combination → `toDelete` (caller must delete these variants; DB enforces ON DELETE CASCADE for related rows)
    - All other existing variants → automatically in `toPreserve` (unchanged)
 
 **Pure**: No side effects. Deterministic for same inputs.
+
+**Note**: The `is_active` flag is still used for manual merchant control (bulk
+activate/deactivate in VariantBulkToolbar). Cascade-delete only triggers on
+attribute/option removal via the saveProductAttributesAction flow, not on the
+manual toggle.
 
 ---
 

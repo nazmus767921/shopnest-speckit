@@ -3,6 +3,8 @@
 import { useCallback, useMemo, useId, useState, useRef, useEffect } from "react";
 import type { AttributeInput } from "@/lib/validations/variants";
 import { Plus, X, MoreVertical, Trash2, Palette, List, Circle } from "lucide-react";
+import { DeleteAttributeDialog } from "@/components/dashboard/product-variant-editor/DeleteAttributeDialog";
+import { RemoveOptionDialog } from "@/components/dashboard/attribute-editor/RemoveOptionDialog";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -10,6 +12,8 @@ interface AttributeEditorProps {
   attributes: AttributeInput[];
   onChange: (attributes: AttributeInput[]) => void;
   disabled?: boolean;
+  /** Estimated number of existing variants. Used for warning dialogs. */
+  estimatedExistingVariants?: number;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -38,6 +42,24 @@ function estimateVariantCount(attributes: AttributeInput[]): number {
     const validOptions = attr.options.filter((o) => o.label.trim() && o.value.trim());
     return count * Math.max(validOptions.length, 1);
   }, attributes.length > 0 ? 1 : 0);
+}
+
+/**
+ * Estimates how many variants include a specific option, based on a naive
+ * combinatorial model. Used for the RemoveOptionDialog warning.
+ */
+function estimateOptionVariantCount(
+  attributes: AttributeInput[],
+  attrIndex: number,
+  optIndex: number,
+): number {
+  if (attributes.length === 0) return 0;
+  const otherAttrCounts = attributes
+    .filter((_, i) => i !== attrIndex)
+    .map((a) => a.options.filter((o) => o.label.trim()).length)
+    .filter((c) => c > 0);
+  if (otherAttrCounts.length === 0) return 1;
+  return otherAttrCounts.reduce((a, b) => a * b, 1);
 }
 
 // ─── Three-Dot Menu ──────────────────────────────────────────────────────────
@@ -283,30 +305,17 @@ function AttributeRow({
   attrIndex,
   onUpdate,
   onDelete,
+  onRemoveOption,
   disabled,
 }: {
   attr: AttributeInput;
   attrIndex: number;
   onUpdate: (index: number, field: keyof AttributeInput, value: string) => void;
   onDelete: (index: number) => void;
+  onRemoveOption: (attrIndex: number, optIndex: number) => void;
   disabled?: boolean;
 }) {
   const rowId = useId();
-
-  const handleAddOption = useCallback(
-    (label: string, value: string) => {
-      // We use onUpdate to set the entire options array... but we need a different approach.
-      // Instead, use a callback pattern via the parent's state.
-    },
-    [],
-  );
-
-  const handleRemoveOption = useCallback(
-    (optIndex: number) => {
-      // Same issue - needs access to parent state.
-    },
-    [],
-  );
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-2 rounded-lg border border-hairline-light bg-canvas-light p-3">
@@ -344,8 +353,7 @@ function AttributeRow({
             onUpdate(attrIndex, "options", updated as any);
           }}
           onRemoveOption={(optIndex) => {
-            const updated = attr.options.filter((_, i) => i !== optIndex);
-            onUpdate(attrIndex, "options", updated as any);
+            onRemoveOption(attrIndex, optIndex);
           }}
           disabled={disabled}
         />
@@ -360,9 +368,19 @@ export function AttributeEditor({
   attributes,
   onChange,
   disabled = false,
+  estimatedExistingVariants,
 }: AttributeEditorProps) {
   const variantCount = useMemo(() => estimateVariantCount(attributes), [attributes]);
   const canAddAttribute = attributes.length < MAX_ATTRIBUTES && !disabled;
+
+  // ── Dialog state ───────────────────────────────────────────────────────────
+  const [pendingDeleteAttr, setPendingDeleteAttr] = useState<number | null>(null);
+  const [pendingRemoveOption, setPendingRemoveOption] = useState<{
+    attrIndex: number;
+    optIndex: number;
+  } | null>(null);
+
+  // ── Attribute CRUD ─────────────────────────────────────────────────────────
 
   const addAttribute = useCallback(() => {
     if (!canAddAttribute) return;
@@ -385,12 +403,78 @@ export function AttributeEditor({
     [attributes, onChange],
   );
 
-  const removeAttribute = useCallback(
+  /** Intercept deletion — show warning dialog first */
+  const requestDeleteAttribute = useCallback(
     (attrIndex: number) => {
-      onChange(attributes.filter((_, i) => i !== attrIndex));
+      // If attribute has no options, delete immediately without dialog
+      if (attributes[attrIndex]?.options.length === 0) {
+        onChange(attributes.filter((_, i) => i !== attrIndex));
+        return;
+      }
+      setPendingDeleteAttr(attrIndex);
     },
     [attributes, onChange],
   );
+
+  const confirmDeleteAttribute = useCallback(() => {
+    if (pendingDeleteAttr !== null) {
+      onChange(attributes.filter((_, i) => i !== pendingDeleteAttr));
+      setPendingDeleteAttr(null);
+    }
+  }, [attributes, onChange, pendingDeleteAttr]);
+
+  /** Intercept option removal — show warning dialog first */
+  const requestRemoveOption = useCallback(
+    (attrIndex: number, optIndex: number) => {
+      // If there are no existing variants (fresh editor), skip dialog
+      if (!estimatedExistingVariants || estimatedExistingVariants === 0) {
+        const updated = [...attributes];
+        updated[attrIndex] = {
+          ...updated[attrIndex],
+          options: updated[attrIndex].options.filter((_, i) => i !== optIndex),
+        };
+        onChange(updated);
+        return;
+      }
+      setPendingRemoveOption({ attrIndex, optIndex });
+    },
+    [attributes, onChange, estimatedExistingVariants],
+  );
+
+  const confirmRemoveOption = useCallback(() => {
+    if (pendingRemoveOption) {
+      const { attrIndex, optIndex } = pendingRemoveOption;
+      const updated = [...attributes];
+      updated[attrIndex] = {
+        ...updated[attrIndex],
+        options: updated[attrIndex].options.filter((_, i) => i !== optIndex),
+      };
+      onChange(updated);
+      setPendingRemoveOption(null);
+    }
+  }, [attributes, onChange, pendingRemoveOption]);
+
+  // ── Dialog computed data ───────────────────────────────────────────────────
+
+  const pendingDeleteAttrData = pendingDeleteAttr !== null
+    ? attributes[pendingDeleteAttr]
+    : null;
+
+  const pendingRemoveOptionData = pendingRemoveOption
+    ? attributes[pendingRemoveOption.attrIndex]?.options[pendingRemoveOption.optIndex]
+    : null;
+
+  const deleteAttrVariantCount = pendingDeleteAttr !== null
+    ? estimateOptionVariantCount(attributes, pendingDeleteAttr, -1)
+    : 0;
+
+  const removeOptionVariantCount = pendingRemoveOption
+    ? estimateOptionVariantCount(
+        attributes,
+        pendingRemoveOption.attrIndex,
+        pendingRemoveOption.optIndex,
+      )
+    : 0;
 
   return (
     <div className="space-y-3" role="region" aria-label="Product attribute editor">
@@ -424,7 +508,8 @@ export function AttributeEditor({
                 attr={attr}
                 attrIndex={i}
                 onUpdate={updateAttribute}
-                onDelete={removeAttribute}
+                onDelete={requestDeleteAttribute}
+                onRemoveOption={requestRemoveOption}
                 disabled={disabled}
               />
             ))}
@@ -467,6 +552,28 @@ export function AttributeEditor({
           )}
         </>
       )}
+
+      {/* ── Warning Dialogs ────────────────────────────────────────────────────── */}
+
+      <DeleteAttributeDialog
+        open={pendingDeleteAttr !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteAttr(null);
+        }}
+        attributeName={pendingDeleteAttrData?.name || "this attribute"}
+        variantCount={deleteAttrVariantCount}
+        onConfirm={confirmDeleteAttribute}
+      />
+
+      <RemoveOptionDialog
+        open={pendingRemoveOption !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingRemoveOption(null);
+        }}
+        optionLabel={pendingRemoveOptionData?.label || "this option"}
+        variantCount={removeOptionVariantCount}
+        onConfirm={confirmRemoveOption}
+      />
     </div>
   );
 }

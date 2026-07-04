@@ -42,6 +42,14 @@ export function CheckoutIdentitySection({ phone, merchantId, onVerified }: Props
     loadSession()
   }, [onVerified])
 
+  // Reset OTP state when phone changes (guest re-verification)
+  useEffect(() => {
+    setOtpSent(false)
+    setOtpCodes(Array(6).fill(""))
+    setError("")
+    setTimer(0)
+  }, [phone])
+
   // Timer countdown
   useEffect(() => {
     if (timer <= 0) return
