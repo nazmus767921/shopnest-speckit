@@ -9,16 +9,41 @@ import { storeSettingsSchema } from "@/lib/validations/settings"
 import { paymentSchema } from "@/lib/validations/checkout"
 
 // Mock Drizzle DB calls
-const { mockReturning, mockWhere, mockSet, mockUpdate } = vi.hoisted(() => {
+const { mockReturning, mockWhere, mockSet, mockUpdate, mockInsert, mockFindFirstMerchant, mockFindFirstOrder, mockTransaction } = vi.hoisted(() => {
   const mockReturning = vi.fn()
   const mockWhere = vi.fn(() => ({ returning: mockReturning }))
   const mockSet = vi.fn(() => ({ where: mockWhere }))
   const mockUpdate = vi.fn(() => ({ set: mockSet }))
-  return { mockReturning, mockWhere, mockSet, mockUpdate }
+  const mockInsert = vi.fn(() => ({ values: vi.fn().mockResolvedValue([]) }))
+  const mockFindFirstMerchant = vi.fn()
+  const mockFindFirstOrder = vi.fn()
+  const mockTransaction = vi.fn((cb) => cb({ update: mockUpdate, insert: mockInsert }))
+  return {
+    mockReturning,
+    mockWhere,
+    mockSet,
+    mockUpdate,
+    mockInsert,
+    mockFindFirstMerchant,
+    mockFindFirstOrder,
+    mockTransaction,
+  }
 })
 
 vi.mock("@/db", () => ({
-  db: { update: mockUpdate },
+  db: {
+    update: mockUpdate,
+    insert: mockInsert,
+    transaction: mockTransaction,
+    query: {
+      merchants: {
+        findFirst: mockFindFirstMerchant,
+      },
+      orders: {
+        findFirst: mockFindFirstOrder,
+      },
+    },
+  },
 }))
 
 // Mock auth & next/headers
@@ -30,8 +55,19 @@ vi.mock("@/lib/auth/auth", () => ({
   },
 }))
 
+const { mockCookies } = vi.hoisted(() => {
+  return {
+    mockCookies: {
+      get: vi.fn(),
+      set: vi.fn(),
+      delete: vi.fn(),
+    }
+  }
+})
+
 vi.mock("next/headers", () => ({
   headers: vi.fn(),
+  cookies: vi.fn(() => mockCookies),
 }))
 
 vi.mock("next/cache", () => ({
@@ -47,14 +83,12 @@ vi.mock("@/lib/plans/getPlan", () => ({
 }))
 
 // Mock DB queries for merchants
-const { mockGetMerchantByOwnerId } = vi.hoisted(() => {
+const { mockGetMerchantByOwnerId, mockUpdateStoreSettings } = vi.hoisted(() => {
   return {
     mockGetMerchantByOwnerId: vi.fn(),
+    mockUpdateStoreSettings: vi.fn(),
   }
 })
-
-// We'll declare a mock function container for updateStoreSettings that can be spied on
-const mockUpdateStoreSettings = vi.fn()
 
 vi.mock("@/db/queries/merchants", async () => {
   const actual = await vi.importActual<any>("@/db/queries/merchants")
@@ -246,5 +280,95 @@ describe("updateStoreSettingsAction plan capability enforcement", () => {
     }
     expect(response.success).toBe(true)
     expect(mockUpdateStoreSettings).toHaveBeenCalled()
+  })
+})
+
+describe("submitPayment integration flow for COD", () => {
+  it("T014 — should place order with status processing and transactionId COD for standard COD", async () => {
+    const { headers } = await import("next/headers")
+    const { submitPayment } = await import("@/app/(storefront)/[subdomain]/checkout/actions")
+
+    // Mock merchantId header
+    vi.mocked(headers).mockResolvedValueOnce({
+      get: vi.fn((key) => {
+        if (key === "x-merchant-id") return "merchant-123"
+        return null
+      })
+    } as any)
+
+    // Mock continuity cookie value
+    mockCookies.get.mockReturnValueOnce({ value: "order-123" })
+
+    // Mock merchant to have standard COD enabled
+    mockFindFirstMerchant.mockResolvedValueOnce({
+      id: "merchant-123",
+      codEnabled: true,
+      payDeliveryChargeFirst: false,
+    })
+
+    // Mock order search to verify it belongs to merchant
+    mockFindFirstOrder.mockResolvedValueOnce({
+      id: "order-123",
+      merchantId: "merchant-123",
+      status: "pending_payment",
+    })
+
+    mockReturning.mockResolvedValueOnce([{ id: "order-123" }])
+
+    const response = await submitPayment({
+      paymentMethod: "cod",
+    })
+
+    expect(response.success).toBe(true)
+    // Verify payment confirmation created with COD
+    expect(mockInsert).toHaveBeenCalled()
+    // Verify order status updated to processing
+    expect(mockUpdate).toHaveBeenCalled()
+    expect(mockSet).toHaveBeenCalledWith(expect.objectContaining({ status: "processing" }))
+    // Verify cookie cleared
+    expect(mockCookies.delete).toHaveBeenCalledWith("checkout-order-id")
+  })
+
+  it("should place order with status pending_payment and custom transactionId for upfront charge COD", async () => {
+    const { headers } = await import("next/headers")
+    const { submitPayment } = await import("@/app/(storefront)/[subdomain]/checkout/actions")
+
+    // Mock merchantId header
+    vi.mocked(headers).mockResolvedValueOnce({
+      get: vi.fn((key) => {
+        if (key === "x-merchant-id") return "merchant-123"
+        return null
+      })
+    } as any)
+
+    // Mock continuity cookie value
+    mockCookies.get.mockReturnValueOnce({ value: "order-123" })
+
+    // Mock merchant to have upfront delivery payment enabled
+    mockFindFirstMerchant.mockResolvedValueOnce({
+      id: "merchant-123",
+      codEnabled: true,
+      payDeliveryChargeFirst: true,
+    })
+
+    // Mock order search to verify it belongs to merchant
+    mockFindFirstOrder.mockResolvedValueOnce({
+      id: "order-123",
+      merchantId: "merchant-123",
+      status: "pending_payment",
+    })
+
+    const response = await submitPayment({
+      paymentMethod: "cod",
+      transactionId: "TRX_UPFRONT_99",
+    })
+
+    expect(response.success).toBe(true)
+    // Verify payment confirmation created with transactionId
+    expect(mockInsert).toHaveBeenCalled()
+    // Verify order status was NOT updated (remains pending_payment)
+    expect(mockUpdate).not.toHaveBeenCalled()
+    // Verify cookie cleared
+    expect(mockCookies.delete).toHaveBeenCalledWith("checkout-order-id")
   })
 })

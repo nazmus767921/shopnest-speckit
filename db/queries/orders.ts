@@ -207,7 +207,7 @@ export async function createOrder(params: {
 export async function attachPaymentConfirmation(params: {
   orderId: string
   merchantId: string // Invariant 1
-  paymentMethod: "bkash" | "nagad"
+  paymentMethod: "bkash" | "nagad" | "cod"
   transactionId: string
 }): Promise<{ success: boolean; error?: string }> {
   try {

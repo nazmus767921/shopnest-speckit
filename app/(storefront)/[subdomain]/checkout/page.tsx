@@ -54,6 +54,10 @@ async function CheckoutPageContent({ params }: Props) {
       subdomain={subdomain}
       bkashNumber={merchant.bkashNumber}
       nagadNumber={merchant.nagadNumber}
+      codEnabled={merchant.codEnabled ?? false}
+      payDeliveryChargeFirst={merchant.payDeliveryChargeFirst ?? false}
+      bkashWalletNumber={merchant.bkashWalletNumber}
+      nagadWalletNumber={merchant.nagadWalletNumber}
       shippingZones={shippingZones}
     />
   )

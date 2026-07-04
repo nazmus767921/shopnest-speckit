@@ -70,13 +70,13 @@
 
 ### Tests for User Story 2 (TDD)
 
-- [ ] T013 [P] [US2] Write unit tests for checkout payment validation schema in __tests__/cod-checkout.test.ts
-- [ ] T014 [P] [US2] Write integration tests for checkout order creation action in __tests__/cod-checkout.test.ts
+- [X] T013 [P] [US2] Write unit tests for checkout payment validation schema in __tests__/cod-checkout.test.ts
+- [X] T014 [P] [US2] Write integration tests for checkout order creation action in __tests__/cod-checkout.test.ts
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Update checkout client UI to dynamically render standard COD note or upfront payment instructions (with wallet numbers) and transaction ID input based on merchant settings in components/storefront/CheckoutClientPage.tsx
-- [ ] T016 [US2] Implement checkout submission order creation logic and stock-level validation in app/(storefront)/[subdomain]/checkout/actions.ts
+- [X] T015 [US2] Update checkout client UI to dynamically render standard COD note or upfront payment instructions (with wallet numbers) and transaction ID input based on merchant settings in components/storefront/CheckoutClientPage.tsx
+- [X] T016 [US2] Implement checkout submission order creation logic and stock-level validation in app/(storefront)/[subdomain]/checkout/actions.ts
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
 
