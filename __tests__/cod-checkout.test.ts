@@ -386,14 +386,14 @@ describe("updateOrderStatus query for COD", () => {
     const { updateOrderStatus } = await vi.importActual<any>("@/db/queries/orders")
 
     // Mock existing order
-    mockFindFirstOrder.mockResolvedValueOnce({
+    mockFindFirstOrder.mockResolvedValue({
       id: "order-123",
       merchantId: "merchant-123",
       status: "shipped",
     })
 
     // Mock existing payment confirmation which is COD and not yet confirmed
-    mockQuery.paymentConfirmations.findFirst = vi.fn().mockResolvedValueOnce({
+    mockQuery.paymentConfirmations.findFirst = vi.fn().mockResolvedValue({
       id: "confirm-123",
       orderId: "order-123",
       paymentMethod: "cod",
@@ -413,14 +413,14 @@ describe("updateOrderStatus query for COD", () => {
     const { updateOrderStatus } = await vi.importActual<any>("@/db/queries/orders")
 
     // Mock existing order
-    mockFindFirstOrder.mockResolvedValueOnce({
+    mockFindFirstOrder.mockResolvedValue({
       id: "order-123",
       merchantId: "merchant-123",
       status: "shipped",
     })
 
     // Mock order items to be restored
-    mockQuery.orderItems.findMany = vi.fn().mockResolvedValueOnce([
+    mockQuery.orderItems.findMany = vi.fn().mockResolvedValue([
       { productId: "prod-1", quantity: 2, variantId: null },
       { productId: "prod-2", quantity: 1, variantId: "variant-2" }
     ])
@@ -437,13 +437,13 @@ describe("updateOrderStatus query for COD", () => {
   it("T021 — should restore stock counts for products under 50ms (latency check)", async () => {
     const { updateOrderStatus } = await vi.importActual<any>("@/db/queries/orders")
 
-    mockFindFirstOrder.mockResolvedValueOnce({
+    mockFindFirstOrder.mockResolvedValue({
       id: "order-123",
       merchantId: "merchant-123",
       status: "shipped",
     })
 
-    mockQuery.orderItems.findMany = vi.fn().mockResolvedValueOnce([
+    mockQuery.orderItems.findMany = vi.fn().mockResolvedValue([
       { productId: "prod-1", quantity: 2, variantId: null }
     ])
 
