@@ -433,4 +433,26 @@ describe("updateOrderStatus query for COD", () => {
     // Verify that it updated products and productVariants to restore stock
     expect(mockUpdate).toHaveBeenCalled()
   })
+
+  it("T021 — should restore stock counts for products under 50ms (latency check)", async () => {
+    const { updateOrderStatus } = await vi.importActual<any>("@/db/queries/orders")
+
+    mockFindFirstOrder.mockResolvedValueOnce({
+      id: "order-123",
+      merchantId: "merchant-123",
+      status: "shipped",
+    })
+
+    mockQuery.orderItems.findMany = vi.fn().mockResolvedValueOnce([
+      { productId: "prod-1", quantity: 2, variantId: null }
+    ])
+
+    mockReturning.mockResolvedValue([{ id: "order-123", status: "returned" }])
+
+    const start = performance.now()
+    await updateOrderStatus("merchant-123", "order-123", "returned")
+    const duration = performance.now() - start
+
+    expect(duration).toBeLessThan(50)
+  })
 })

@@ -106,10 +106,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T021 [P] Implement performance check for order return stock restoration latency in __tests__/cod-checkout.test.ts
-- [ ] T022 Clean up unused Drizzle imports and run linter and TypeScript compiler checks across the app
-- [ ] T023 Document COD payment workflow setup guidelines in docs/cod-integration.md
-- [ ] T024 Run validation scenarios in specs/021-cod-checkout/quickstart.md to verify end-to-end flow correctness
+- [X] T021 [P] Implement performance check for order return stock restoration latency in __tests__/cod-checkout.test.ts
+- [X] T022 Clean up unused Drizzle imports and run linter and TypeScript compiler checks across the app
+- [X] T023 Document COD payment workflow setup guidelines in docs/cod-integration.md
+- [X] T024 Run validation scenarios in specs/021-cod-checkout/quickstart.md to verify end-to-end flow correctness
 
 ---
 
