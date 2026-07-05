@@ -253,10 +253,29 @@ export async function getPublishedProducts(merchantId: string) {
       },
       category: true,
       promotions: true,
+      attributes: {
+        orderBy: (attrs, { asc }) => [asc(attrs.sortOrder)],
+        with: {
+          options: {
+            orderBy: (opts, { asc }) => [asc(opts.sortOrder)],
+          },
+        },
+      },
+      variants: {
+        orderBy: (vars, { asc }) => [asc(vars.sortOrder)],
+        with: {
+          attributeLinks: {
+            with: {
+              attributeOption: true,
+            },
+          },
+        },
+      },
     },
     orderBy: [desc(products.createdAt)],
   })
 }
+
 
 export async function getPublishedProductBySlug(merchantId: string, slug: string) {
   return await db.query.products.findFirst({
@@ -308,6 +327,24 @@ export async function getFilteredPublishedProducts(
       },
       category: true,
       promotions: true,
+      attributes: {
+        orderBy: (attrs, { asc }) => [asc(attrs.sortOrder)],
+        with: {
+          options: {
+            orderBy: (opts, { asc }) => [asc(opts.sortOrder)],
+          },
+        },
+      },
+      variants: {
+        orderBy: (vars, { asc }) => [asc(vars.sortOrder)],
+        with: {
+          attributeLinks: {
+            with: {
+              attributeOption: true,
+            },
+          },
+        },
+      },
     },
     orderBy: [desc(products.createdAt)],
   })

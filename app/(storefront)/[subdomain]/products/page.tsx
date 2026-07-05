@@ -50,18 +50,50 @@ async function ProductsPageContent({ params, searchParams }: Props) {
     ? await getFilteredPublishedProducts(merchantId, { categoryId, search })
     : []
 
-  let formattedProducts = products.map((p) => ({
-    id: p.id,
-    name: p.name,
-    slug: p.slug,
-    description: p.description,
-    pricePaisa: p.pricePaisa,
-    stockCount: p.stockCount,
-    lowStockThreshold: p.lowStockThreshold,
-    images: p.images.map((img) => ({ storagePath: img.storagePath })),
-    category: p.category ? { id: p.category.id, name: p.category.name } : null,
-    promotions: p.promotions.map((pr) => ({ promotionType: pr.promotionType })),
-  }))
+  let formattedProducts = products.map((p) => {
+    // Build attributeOptionId → attribute name lookup for combination resolution
+    const attrNameById: Record<string, string> = {}
+    for (const attr of p.attributes ?? []) {
+      for (const opt of attr.options ?? []) {
+        attrNameById[opt.id] = attr.name
+      }
+    }
+    return {
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      description: p.description,
+      pricePaisa: p.pricePaisa,
+      stockCount: p.stockCount,
+      lowStockThreshold: p.lowStockThreshold,
+      images: p.images.map((img) => ({ storagePath: img.storagePath })),
+      category: p.category ? { id: p.category.id, name: p.category.name } : null,
+      promotions: p.promotions.map((pr) => ({ promotionType: pr.promotionType })),
+      attributes: (p.attributes ?? []).map((attr) => ({
+        name: attr.name,
+        displayType: attr.displayType as "swatch" | "dropdown" | "radio",
+        options: (attr.options ?? []).map((opt) => ({
+          value: opt.value,
+          label: opt.label,
+          swatchColor: opt.swatchColor ?? undefined,
+        })),
+      })),
+      variants: (p.variants ?? []).map((v) => ({
+        id: v.id,
+        sku: v.sku,
+        pricePaisa: v.pricePaisa,
+        stockCount: v.stockCount,
+        isActive: v.isActive,
+        attributeCombination: Object.fromEntries(
+          (v.attributeLinks ?? []).map((link) => [
+            attrNameById[link.attributeOptionId] ?? "",
+            link.attributeOption.value,
+          ])
+        ),
+      })),
+    }
+  })
+
 
   // Server-side filter by price range in memory
   if (price) {

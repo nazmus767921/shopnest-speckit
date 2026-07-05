@@ -274,17 +274,22 @@ async function ProductDetailPageContent({ params }: Props) {
             You might also like
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {relatedProducts.map((p) => (
-              <ProductCard
-                key={p.id}
-                product={{
-                  ...p,
-                  images: p.images.map((img) => ({ storagePath: img.storagePath })),
-                }}
-                subdomain={subdomain}
-                merchantId={merchantId}
-              />
-            ))}
+            {relatedProducts.map((p) => {
+              // Exclude raw DB variant shape — related cards link to PDP
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const { variants: _v, attributes: _a, ...rest } = p
+              return (
+                <ProductCard
+                  key={p.id}
+                  product={{
+                    ...rest,
+                    images: p.images.map((img) => ({ storagePath: img.storagePath })),
+                  }}
+                  subdomain={subdomain}
+                  merchantId={merchantId}
+                />
+              )
+            })}
           </div>
         </div>
       )}

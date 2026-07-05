@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { ProductCard } from "./ProductCard"
+import { ProductCard, type ProductVariant, type ProductAttributeInfo } from "./ProductCard"
 
 interface FormattedProduct {
   id: string
@@ -15,6 +15,8 @@ interface FormattedProduct {
   images: { storagePath: string }[]
   category?: { id: string; name: string } | null
   promotions?: { promotionType: string }[]
+  variants?: ProductVariant[]
+  attributes?: ProductAttributeInfo[]
 }
 
 interface ProductSliderProps {
@@ -23,9 +25,10 @@ interface ProductSliderProps {
   merchantId: string
   totalCount?: number
   promoType?: "featured" | "new_arrival"
+  themeClass?: string
 }
 
-export function ProductSlider({ products, subdomain, merchantId, totalCount, promoType }: ProductSliderProps) {
+export function ProductSlider({ products, subdomain, merchantId, totalCount, promoType, themeClass = "storefront-theme-default" }: ProductSliderProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [showLeftBtn, setShowLeftBtn] = useState(false)
   const [showRightBtn, setShowRightBtn] = useState(true)
@@ -86,6 +89,7 @@ export function ProductSlider({ products, subdomain, merchantId, totalCount, pro
                 product={product}
                 subdomain={subdomain}
                 merchantId={merchantId}
+                themeClass={themeClass}
               />
             </div>
           ))}
