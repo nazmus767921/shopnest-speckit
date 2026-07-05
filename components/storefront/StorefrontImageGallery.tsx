@@ -30,25 +30,10 @@ export function StorefrontImageGallery({ images, productName }: Props) {
     : null
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Primary Image */}
-      <div className="aspect-square w-full relative bg-zinc-50/70 rounded-2xl overflow-hidden border border-hairline-light flex items-center justify-center">
-        {activeUrl ? (
-          <img
-            src={activeUrl}
-            alt={`${productName} view ${selectedIndex + 1}`}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-canvas-cream flex items-center justify-center text-shade-40">
-            <ImageIcon className="h-10 w-10 stroke-[1.5]" />
-          </div>
-        )}
-      </div>
-
+    <div className="flex flex-col-reverse lg:flex-row gap-3.5 md:gap-4 items-start">
       {/* Thumbnail Strip */}
       {images.length > 1 && (
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-row lg:flex-col gap-3 lg:gap-4 overflow-x-auto lg:overflow-y-auto w-full lg:w-[152px] shrink-0 pb-1 lg:pb-0 select-none">
           {images.map((img, idx) => {
             const thumbUrl = supabase.storage
               .from("product-images")
@@ -59,23 +44,38 @@ export function StorefrontImageGallery({ images, productName }: Props) {
                 key={img.storagePath}
                 onClick={() => setSelectedIndex(idx)}
                 className={cn(
-                  "aspect-3/4 w-16 sm:w-20 rounded-lg overflow-hidden cursor-pointer bg-zinc-50/70 transition-all border-2 focus:outline-none focus:ring-1 focus:ring-shade-40",
+                  "aspect-square w-[76px] lg:w-full rounded-[10px] lg:rounded-[20px] overflow-hidden cursor-pointer bg-[#F0EEED] transition-all border-2 focus:outline-none shrink-0 flex items-center justify-center",
                   selectedIndex === idx
-                    ? "border-ink scale-102"
-                    : "border-hairline-light hover:border-shade-40"
+                    ? "border-primary"
+                    : "border-transparent hover:border-shade-40"
                 )}
                 aria-label={`View image ${idx + 1}`}
               >
                 <img
                   src={thumbUrl}
                   alt={`${productName} thumbnail ${idx + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover mix-blend-multiply"
                 />
               </button>
             )
           })}
         </div>
       )}
+
+      {/* Primary Image */}
+      <div className="flex-1 w-full aspect-square relative bg-[#F0EEED] rounded-[10px] lg:rounded-[20px] overflow-hidden border border-hairline-light/30 flex items-center justify-center">
+        {activeUrl ? (
+          <img
+            src={activeUrl}
+            alt={`${productName} view ${selectedIndex + 1}`}
+            className="w-full h-full object-cover mix-blend-multiply"
+          />
+        ) : (
+          <div className="w-full h-full bg-[#F0EEED] flex items-center justify-center text-shade-40">
+            <ImageIcon className="h-10 w-10 stroke-[1.5]" />
+          </div>
+        )}
+      </div>
     </div>
   )
 }

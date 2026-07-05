@@ -14,13 +14,16 @@ interface Props {
     pricePaisa: number
     stockCount: number
     imageUrl: string | null
+    variantId?: string | null
+    variantLabel?: string | null
   }
+  quantity?: number
   size?: "sm" | "md" | "lg"
   className?: string
 }
 
-export function AddToCartButton({ merchantId, product, size = "sm", className }: Props) {
-  const { addItem } = useCart(merchantId)
+export function AddToCartButton({ merchantId, product, quantity = 1, size = "sm", className }: Props) {
+  const { addItem, updateQuantity } = useCart(merchantId)
   const [added, setAdded] = useState(false)
 
   const isOutOfStock = product.stockCount === 0
@@ -29,6 +32,9 @@ export function AddToCartButton({ merchantId, product, size = "sm", className }:
     e.preventDefault()
     e.stopPropagation()
     addItem(product)
+    if (quantity > 1) {
+      updateQuantity(product.productId, quantity, product.variantId)
+    }
     setAdded(true)
     setTimeout(() => {
       setAdded(false)

@@ -53,8 +53,8 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
       </Suspense>
 
       {/* Main Content Area */}
-      <main className="grow py-12 px-6">
-        <div className="max-w-6xl mx-auto">{children}</div>
+      <main className="grow py-8 md:py-12 px-4 md:px-8">
+        <div className="max-w-7xl mx-auto">{children}</div>
       </main>
 
       {/* Modern responsive footer */}
@@ -94,7 +94,7 @@ async function StorefrontFooterWrapper({ params }: { params: Promise<{ subdomain
 
   return (
     <footer className="w-full mt-12 bg-zinc-50 border-t border-hairline-light">
-      <div className="max-w-6xl mx-auto px-6 py-12 flex flex-col gap-10">
+      <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col gap-10">
         
         {/* 1. Newsletter Block */}
         <div className="block-storefront-newsletter flex flex-col md:flex-row items-center justify-between gap-6">
@@ -223,7 +223,7 @@ async function StorefrontFooterWrapper({ params }: { params: Promise<{ subdomain
 function NavbarSkeleton() {
   return (
     <header className="border-b border-hairline-light bg-canvas-light px-6 py-4 sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto flex items-center justify-between animate-pulse">
+      <div className="max-w-7xl mx-auto flex items-center justify-between animate-pulse">
         <div className="flex items-center gap-3">
           <div className="h-5 w-5 bg-shade-30 rounded-full" />
           <div className="h-6 w-32 bg-shade-30 rounded-full" />
@@ -247,7 +247,7 @@ function NavbarSkeleton() {
 function FooterSkeleton() {
   return (
     <footer className="border-t border-hairline-light bg-canvas-light py-8 px-6">
-      <div className="max-w-6xl mx-auto flex flex-col items-center gap-3 text-center animate-pulse">
+      <div className="max-w-7xl mx-auto flex flex-col items-center gap-3 text-center animate-pulse">
         <div className="h-4 w-64 bg-shade-30 rounded-full" />
         <div className="h-3 w-48 bg-shade-30 rounded-full" />
       </div>

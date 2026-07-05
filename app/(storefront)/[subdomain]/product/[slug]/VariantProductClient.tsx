@@ -6,6 +6,8 @@ import { VariantSelectorErrorBoundary } from "@/components/storefront/variant-se
 import { AddToCartButton } from "@/components/storefront/AddToCartButton";
 import { BuyNowButton } from "@/components/storefront/BuyNowButton";
 import type { VariantOption, AttributeInfo } from "@/components/storefront/variant-selector/VariantSelector";
+import { Minus, Plus } from "lucide-react";
+import { formatTaka } from "@/lib/utils";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -43,6 +45,7 @@ export function VariantProductClient({
   variants,
 }: VariantProductClientProps) {
   const [selectedVariant, setSelectedVariant] = useState<VariantOption | null>(null);
+  const [quantity, setQuantity] = useState<number>(1);
 
   // Build attribute options with attribute names resolved
   const attributeInfos: AttributeInfo[] = useMemo(
@@ -88,9 +91,27 @@ export function VariantProductClient({
   }, [selectedVariant, product]);
 
   const hasSelection = selectedVariant !== null;
+  const activePricePaisa = selectedVariant?.pricePaisa ?? product.pricePaisa;
+  const discountPercent = 30; // 30% discount simulated
+  const originalPricePaisa = Math.round(activePricePaisa / (1 - discountPercent / 100));
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
+      {/* Dynamic Price Display */}
+      <div className="flex items-center gap-3 select-none">
+        <span className="font-sans text-2xl md:text-3xl font-extrabold text-ink">
+          {formatTaka(activePricePaisa)}
+        </span>
+        <span className="font-sans text-lg md:text-xl font-bold text-shade-40 line-through">
+          {formatTaka(originalPricePaisa)}
+        </span>
+        <span className="bg-[#FF33331A] text-[#FF3333] px-3 py-0.5 rounded-full text-xs md:text-sm font-bold font-sans">
+          -{discountPercent}%
+        </span>
+      </div>
+
+      <div className="h-px bg-hairline-light w-full my-2" />
+
       <VariantSelectorErrorBoundary>
         <VariantSelector
           attributes={attributeInfos}
@@ -100,25 +121,57 @@ export function VariantProductClient({
         />
       </VariantSelectorErrorBoundary>
 
-      {hasSelection && selectedVariant && (
-        <div className="space-y-3">
+      {/* Steppers & Action Buttons */}
+      <div className="flex flex-col gap-4 mt-6">
+        <div className="flex flex-col sm:flex-row gap-3 items-center w-full">
+          {/* Stepper */}
+          <div className="flex items-center justify-between bg-[#F2F0F1] rounded-full h-12 px-5 gap-4 w-full sm:w-32.5 shrink-0 select-none">
+            <button
+              type="button"
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              disabled={quantity <= 1 || !hasSelection}
+              className="p-1 text-ink disabled:opacity-30 disabled:pointer-events-none hover:opacity-75 transition-opacity"
+              aria-label="Decrease quantity"
+            >
+              <Minus className="h-4 w-4 stroke-[2.5]" />
+            </button>
+            <span className="w-6 text-center text-base font-bold text-ink font-sans">
+              {quantity}
+            </span>
+            <button
+              type="button"
+              onClick={() => setQuantity((q) => Math.min(selectedVariant?.stockCount ?? 99, q + 1))}
+              disabled={!hasSelection || quantity >= (selectedVariant?.stockCount ?? 99)}
+              className="p-1 text-ink disabled:opacity-30 disabled:pointer-events-none hover:opacity-75 transition-opacity"
+              aria-label="Increase quantity"
+            >
+              <Plus className="h-4 w-4 stroke-[2.5]" />
+            </button>
+          </div>
+
+          {/* Add To Cart */}
           <AddToCartButton
             merchantId={merchantId}
-            product={cartProduct!}
+            product={cartProduct || { ...product, variantId: undefined }}
+            quantity={quantity}
             size="lg"
-            className="w-full text-body-strong font-medium"
-          />
-          <BuyNowButton
-            subdomain={subdomain}
-            product={cartProduct!}
-            size="lg"
-            className="w-full text-body-strong font-medium"
+            className="w-full h-12 rounded-full bg-primary text-white font-bold font-sans cursor-pointer flex items-center justify-center gap-2 hover:bg-zinc-800 disabled:opacity-50 disabled:pointer-events-none transition-colors"
           />
         </div>
-      )}
+
+        {hasSelection && cartProduct && (
+          <BuyNowButton
+            subdomain={subdomain}
+            product={cartProduct}
+            quantity={quantity}
+            size="lg"
+            className="w-full h-12 rounded-full border border-hairline-light hover:bg-zinc-50 font-bold font-sans cursor-pointer flex items-center justify-center transition-colors"
+          />
+        )}
+      </div>
 
       {!hasSelection && (
-        <p className="text-sm text-amber-600">
+        <p className="text-sm text-amber-600 font-sans mt-2">
           Select all options to add to cart
         </p>
       )}

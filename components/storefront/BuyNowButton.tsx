@@ -13,12 +13,15 @@ interface Props {
     pricePaisa: number
     stockCount: number
     imageUrl: string | null
+    variantId?: string
+    variantLabel?: string
   }
+  quantity?: number
   size?: "sm" | "md" | "lg"
   className?: string
 }
 
-export function BuyNowButton({ subdomain, product, size = "sm", className }: Props) {
+export function BuyNowButton({ subdomain, product, quantity = 1, size = "sm", className }: Props) {
   const { handleBuyNow } = useBuyNow(subdomain)
   const isOutOfStock = product.stockCount === 0
 
@@ -30,7 +33,7 @@ export function BuyNowButton({ subdomain, product, size = "sm", className }: Pro
       onClick={(e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
-        handleBuyNow(product)
+        handleBuyNow(product, quantity)
       }}
       className={className}
     >
