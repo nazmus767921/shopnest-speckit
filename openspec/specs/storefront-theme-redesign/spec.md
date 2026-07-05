@@ -27,11 +27,15 @@ The system MUST render the Product Detail Page (PDP) according to the storefront
 - **THEN** the active size pill reverses its colors (black background with white text) and updates the selected variant.
 
 ### Requirement: Storefront Product Listing Page Filters and Grid
-The PLP MUST display product cards on a light gray background (`#F0EEED`) with rounded corners and no shadows, and allow filtering via accordion filters (Categories, Price, Colors grid, Size grid).
+The PLP MUST display product cards with rounded corners and no shadows, and allow filtering via accordion filters (Categories, Price, Colors grid, Size grid). The product card layout MUST left-align the title, star rating, and price. A compact icon-only Add to Cart button MUST be displayed to the right of the price section, and bottom action buttons MUST be removed.
 
 #### Scenario: Filtering products on PLP
 - **WHEN** a user selects a color or size filter from the accordion
 - **THEN** the products grid updates to show only matching products, rendering cards with the scoped light gray background and rounded corners.
+
+#### Scenario: Adding to cart from Product Card
+- **WHEN** a user clicks the compact icon-only Add to Cart button on the product card
+- **THEN** the item is added to the cart, the button state updates to indicate success, and the global cart count increases.
 
 ### Requirement: Storefront Cart and Order Summary Layout
 The Cart page MUST render a split column layout on desktop and stacked layout on mobile, displaying order items with a quantity adjuster pill and delete icon on the left column, and subtotal/discount breakdown on the right Order Summary card.
