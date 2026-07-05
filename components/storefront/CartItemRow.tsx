@@ -43,8 +43,8 @@ export function CartItemRow({ item, onUpdateQuantity, onRemove }: Props) {
 
   return (
     <div className="flex items-center gap-4 py-4 border-b border-hairline-light last:border-0">
-      {/* Thumbnail Image Container */}
-      <div className="h-16 w-16 bg-zinc-50 rounded-lg overflow-hidden border border-hairline-light flex items-center justify-center shrink-0">
+      {/* Thumbnail Image Container: light gray background (#F0EEED) & rounded-md */}
+      <div className="h-16 w-16 bg-[#F0EEED] rounded-md overflow-hidden border border-hairline-light/30 flex items-center justify-center shrink-0">
         {item.imageUrl ? (
           <img
             src={item.imageUrl}
@@ -58,13 +58,13 @@ export function CartItemRow({ item, onUpdateQuantity, onRemove }: Props) {
 
       {/* Product Details */}
       <div className="grow min-w-0">
-        <h3 className="text-body-strong font-semibold text-ink truncate">
+        <h3 className="text-storefront-body-strong font-bold text-ink truncate">
           {item.name}
         </h3>
         {item.variantLabel && (
-          <p className="text-caption text-shade-40">{item.variantLabel}</p>
+          <p className="text-storefront-caption text-shade-40">{item.variantLabel}</p>
         )}
-        <p className="text-caption text-shade-50">
+        <p className="text-storefront-caption text-shade-50">
           {formatTaka(item.pricePaisa)} each
         </p>
       </div>
@@ -72,18 +72,18 @@ export function CartItemRow({ item, onUpdateQuantity, onRemove }: Props) {
       {/* Stepper and Price */}
       <div className="flex items-center gap-6 shrink-0">
         {/* Quantity Stepper */}
-        <div className="flex items-center border border-hairline-light rounded-full bg-canvas-light overflow-hidden h-9">
+        <div className="flex items-center border border-hairline-light rounded-full bg-zinc-50 overflow-hidden h-9">
           <button
             type="button"
             onClick={() => onUpdateQuantity(item.productId, item.quantity - 1, item.variantId)}
             disabled={item.quantity <= 1}
-            className="px-2.5 h-full text-shade-50 hover:text-ink hover:bg-canvas-cream transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+            className="px-2.5 h-full text-shade-50 hover:text-ink hover:bg-zinc-100 transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
             aria-label="Decrease quantity"
           >
             <Minus className="h-3 w-3" />
           </button>
           
-          <span className="w-8 text-center text-caption font-semibold select-none text-ink">
+          <span className="w-8 text-center text-storefront-caption font-bold select-none text-ink">
             {item.quantity}
           </span>
 
@@ -91,7 +91,7 @@ export function CartItemRow({ item, onUpdateQuantity, onRemove }: Props) {
             type="button"
             onClick={() => onUpdateQuantity(item.productId, item.quantity + 1, item.variantId)}
             disabled={item.quantity >= item.stockCount}
-            className="px-2.5 h-full text-shade-50 hover:text-ink hover:bg-canvas-cream transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+            className="px-2.5 h-full text-shade-50 hover:text-ink hover:bg-zinc-100 transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
             aria-label="Increase quantity"
           >
             <Plus className="h-3 w-3" />
@@ -100,7 +100,7 @@ export function CartItemRow({ item, onUpdateQuantity, onRemove }: Props) {
 
         {/* Total Price for this item row */}
         <div className="w-24 text-right">
-          <span className="text-body-strong font-bold text-ink">
+          <span className="text-storefront-body-strong font-bold text-ink">
             {formatTaka(item.pricePaisa * item.quantity)}
           </span>
         </div>

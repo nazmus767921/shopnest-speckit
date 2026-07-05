@@ -121,11 +121,7 @@ export function ProductSlider({ products, subdomain, merchantId, totalCount, pro
             onClick={() => {
               window.dispatchEvent(new CustomEvent("shopnest:select-tab", { detail: `promo:${promoType}` }))
             }}
-            className={`px-6 py-2.5 transition-all text-caption font-semibold rounded-full border shadow-sm hover:shadow-md cursor-pointer hover:scale-105 active:scale-95 select-none ${
-              promoType === "featured"
-                ? "bg-emerald-800 border-emerald-800 text-white hover:bg-emerald-950"
-                : "bg-amber-800 border-amber-800 text-white hover:bg-amber-955"
-            }`}
+            className="btn-storefront-outline text-storefront-body-strong px-8 py-3 cursor-pointer select-none"
           >
             Discover All {promoType === "featured" ? "Featured" : "New Arrivals"} ({totalCount})
           </button>

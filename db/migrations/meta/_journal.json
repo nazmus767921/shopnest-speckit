@@ -169,6 +169,13 @@
       "when": 1783183974403,
       "tag": "0023_past_freak",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1783221774346,
+      "tag": "0024_nostalgic_starbolt",
+      "breakpoints": true
     }
   ]
 }

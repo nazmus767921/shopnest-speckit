@@ -130,11 +130,12 @@ export function VariantSelector({
             {attr.name}
           </label>
 
-          {attr.displayType === "swatch" && attr.options.length <= 5 ? (
-            <div className="flex flex-wrap gap-2">
+          {attr.displayType === "swatch" || attr.displayType === "radio" ? (
+            <div className="flex flex-wrap gap-3">
               {attr.options.map((opt) => {
                 const isSelected = selectedOptions[attr.name] === opt.value;
                 const isAvailable = availableOptions[attr.name]?.has(opt.value) ?? true;
+                const isSwatch = attr.displayType === "swatch" && opt.swatchColor;
 
                 return (
                   <button
@@ -142,12 +143,20 @@ export function VariantSelector({
                     type="button"
                     onClick={() => handleOptionSelect(attr.name, opt.value)}
                     disabled={disabled || (!isAvailable && !isSelected)}
-                    className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-all ${
-                      isSelected
-                        ? "bg-primary text-on-primary"
-                        : isAvailable
-                          ? "border-hairline-light bg-canvas-light text-ink hover:border-shade-40"
-                          : "cursor-not-allowed border-hairline-light bg-canvas-cream text-shade-40 line-through"
+                    className={`flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                      isSwatch
+                        ? `h-10 w-10 rounded-full border-2 relative ${
+                            isSelected
+                              ? "border-black scale-110 shadow-sm"
+                              : "border-hairline-light hover:border-shade-40"
+                          }`
+                        : `rounded-full border px-5 py-3 text-sm font-medium ${
+                            isSelected
+                              ? "bg-primary text-on-primary border-primary"
+                              : isAvailable
+                                ? "border-hairline-light bg-[#F2F0F1] text-ink hover:border-shade-40"
+                                : "cursor-not-allowed border-hairline-light bg-canvas-cream text-shade-40 opacity-50 line-through"
+                          }`
                     }`}
                     title={
                       !isAvailable
@@ -155,13 +164,34 @@ export function VariantSelector({
                         : opt.label
                     }
                   >
-                    {attr.displayType === "swatch" && opt.swatchColor && (
-                      <span
-                        className="inline-block h-4 w-4 rounded-full border border-hairline-light"
-                        style={{ backgroundColor: opt.swatchColor }}
-                      />
+                    {isSwatch ? (
+                      <>
+                        <span
+                          className="absolute inset-0.5 rounded-full border border-black/10"
+                          style={{ backgroundColor: opt.swatchColor }}
+                        />
+                        {isSelected && (
+                          <span className="swatch-checkmark absolute inset-0 flex items-center justify-center text-white z-10">
+                            <svg
+                              className="h-4 w-4 stroke-[3]"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          </span>
+                        )}
+                        <span className="sr-only">{opt.label}</span>
+                      </>
+                    ) : (
+                      <span>{opt.label}</span>
                     )}
-                    <span>{opt.label}</span>
                   </button>
                 );
               })}

@@ -102,6 +102,7 @@ export const merchants = pgTable("merchants", {
   payDeliveryChargeFirst: boolean("pay_delivery_charge_first").notNull().default(false),
   bkashWalletNumber: text("bkash_wallet_number"),
   nagadWalletNumber: text("nagad_wallet_number"),
+  theme: text("theme").default("default").notNull(),
 }, (table) => [
   index("merchants_owner_id_idx").on(table.ownerId),
   index("merchants_subscription_status_idx").on(table.subscriptionStatus),
