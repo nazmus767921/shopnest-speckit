@@ -57,14 +57,14 @@
 
 ## 7. Storefront Route Refactoring (Thin Resolvers)
 
-- [ ] 7.1 Refactor `app/(storefront)/[subdomain]/layout.tsx` — resolve merchant template, get template module from registry, render template's Navbar + children + Footer, apply `.storefront-template-<slug>` wrapper class
-- [ ] 7.2 Refactor `app/(storefront)/[subdomain]/page.tsx` — thin resolver: fetch data, render `<template.HomePage>`
-- [ ] 7.3 Refactor `app/(storefront)/[subdomain]/products/page.tsx` — thin resolver: fetch data, render `<template.PLP>`
-- [ ] 7.4 Refactor `app/(storefront)/[subdomain]/product/[slug]/page.tsx` — thin resolver: fetch data, render `<template.PDP>`
-- [ ] 7.5 Update cart/checkout/orders pages to use shared implementation with template CSS tokens (no template-specific component swap)
-- [ ] 7.6 Add `?template_preview=<slug>` support in layout.tsx — owner-only preview override
-- [ ] 7.7 Update middleware/proxy to pass `x-merchant-template` header alongside existing headers
-- [ ] 7.8 Remove old `.storefront-theme-default` and `.storefront-theme-cinematic` CSS blocks from `globals.css`
+- [x] 7.1 Refactor `app/(storefront)/[subdomain]/layout.tsx` — resolve merchant template, get template module from registry, render template's Navbar + children + Footer, apply `.storefront-template-<slug>` wrapper class
+- [x] 7.2 Refactor `app/(storefront)/[subdomain]/page.tsx` — thin resolver: fetch data, render `<template.HomePage>`
+- [x] 7.3 Refactor `app/(storefront)/[subdomain]/products/page.tsx` — thin resolver: fetch data, render `<template.PLP>`
+- [x] 7.4 Refactor `app/(storefront)/[subdomain]/product/[slug]/page.tsx` — thin resolver: fetch data, render `<template.PDP>`
+- [x] 7.5 Update cart/checkout/orders pages to use shared implementation with template CSS tokens (no template-specific component swap)
+- [x] 7.6 Add `?template_preview=<slug>` support in layout.tsx — owner-only preview override
+- [x] 7.7 Update middleware/proxy to pass `x-merchant-template` header alongside existing headers
+- [x] 7.8 Remove old `.storefront-theme-default` and `.storefront-theme-cinematic` CSS blocks from `globals.css`
 
 ## 8. Merchant Dashboard — Template Gallery
 

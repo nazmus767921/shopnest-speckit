@@ -1,14 +1,14 @@
 import React from "react"
 import { headers } from "next/headers"
 import { notFound } from "next/navigation"
-import { CartClientPage } from "@/components/storefront/CartClientPage"
+import { getMerchantById } from "@/db/queries/merchants"
+import { getTemplate } from "@/templates/registry"
+import { Suspense } from "react"
+import { connection } from "next/server"
 
 type Props = {
   params: Promise<{ subdomain: string }>
 }
-
-import { Suspense } from "react"
-import { connection } from "next/server"
 
 export default function CartPage({ params }: Props) {
   return (
@@ -23,27 +23,39 @@ async function CartPageContent({ params }: Props) {
   const { subdomain } = await params
   const headersList = await headers()
   const merchantId = headersList.get("x-merchant-id")
-  const merchantName = headersList.get("x-merchant-name") || "Boutique Store"
+  const template = headersList.get("x-merchant-template") || "general"
 
   if (!merchantId) {
     notFound()
   }
 
+  const merchant = await getMerchantById(merchantId)
+
+  const store = {
+    id: merchant?.id || "",
+    name: merchant?.name || "Boutique Store",
+    subdomain: merchant?.subdomain || subdomain,
+    template,
+    heroImageUrl: merchant?.heroImageUrl || null,
+    subtitle: merchant?.subtitle || null,
+    description: merchant?.storeDescription || null,
+    address: merchant?.storeAddress || null,
+    socialLinks: merchant?.socialLinks || null,
+    customFaqs: merchant?.customFaqs || null,
+  }
+
+  const templateModule = getTemplate(template)
+
   return (
-    <CartClientPage
-      merchantId={merchantId}
-      merchantName={merchantName}
-      subdomain={subdomain}
-    />
+    <templateModule.CartPage store={store} />
   )
 }
 
 function CartSkeleton() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 animate-pulse">
-      <div className="h-8 w-48 bg-shade-30 rounded-full mb-6" />
-      <div className="bg-canvas-light border border-hairline-light rounded-lg p-6 h-64 w-full" />
+    <div className="max-w-4xl mx-auto px-4 py-8 animate-pulse mt-8">
+      <div className="h-8 w-48 bg-zinc-200 rounded-full mb-6" />
+      <div className="bg-zinc-100 rounded-lg p-6 h-64 w-full" />
     </div>
   )
 }
-
