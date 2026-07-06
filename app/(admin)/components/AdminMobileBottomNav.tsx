@@ -10,7 +10,8 @@ import {
   MoreHorizontal,
   X,
   UserCircle,
-  Layers
+  Layers,
+  LayoutTemplate
 } from "lucide-react"
 import { LogoutButton } from "../../(dashboard)/components/LogoutButton"
 
@@ -133,6 +134,18 @@ export function AdminMobileBottomNav({ adminName }: AdminMobileBottomNavProps) {
               >
                 <Layers className="h-4.5 w-4.5" />
                 <span>Subscription Plans</span>
+              </Link>
+              <Link
+                href="/admin/templates"
+                onClick={() => setIsDrawerOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-body-md transition-colors ${
+                  pathname.startsWith("/admin/templates")
+                    ? "bg-primary text-on-primary font-semibold"
+                    : "text-shade-70 font-medium hover:bg-canvas-cream"
+                }`}
+              >
+                <LayoutTemplate className="h-4.5 w-4.5" />
+                <span>Templates</span>
               </Link>
             </div>
 

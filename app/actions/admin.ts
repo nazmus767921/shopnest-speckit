@@ -334,3 +334,101 @@ export async function changeMerchantPlanAction(params: {
     return { success: false, error: error.message || "Failed to change merchant plan." }
   }
 }
+
+export async function updateTemplateAction(params: {
+  id: string
+  name: string
+  description?: string | null
+  previewImageUrl?: string | null
+  businessTypes: string[]
+  allowedTiers: string[]
+  isActive: boolean
+  isDefault: boolean
+}) {
+  try {
+    await assertAdmin()
+    const { storeTemplates } = await import("@/db/schema")
+
+    // Validation
+    if (params.isDefault && !params.isActive) {
+      throw new Error("Default template must be active.")
+    }
+
+    // Check if we are unsetting the default template without setting another one
+    const currentTemplate = await db.query.storeTemplates.findFirst({
+      where: eq(storeTemplates.id, params.id)
+    })
+
+    if (currentTemplate?.isDefault && !params.isDefault) {
+      throw new Error("You must set another template as default before unsetting this one.")
+    }
+
+    // Transaction to update default constraint
+    await db.transaction(async (tx) => {
+      if (params.isDefault) {
+        // Unset default status of all other templates
+        await tx
+          .update(storeTemplates)
+          .set({ isDefault: false, updatedAt: new Date() })
+          .where(eq(storeTemplates.isDefault, true))
+      }
+
+      await tx
+        .update(storeTemplates)
+        .set({
+          name: params.name,
+          description: params.description || null,
+          previewImageUrl: params.previewImageUrl || null,
+          businessTypes: params.businessTypes,
+          allowedTiers: params.allowedTiers,
+          isActive: params.isActive,
+          isDefault: params.isDefault,
+          updatedAt: new Date(),
+        })
+        .where(eq(storeTemplates.id, params.id))
+    })
+
+    revalidatePath("/admin/templates")
+    revalidatePath("/dashboard/settings")
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to update template." }
+  }
+}
+
+export async function toggleTemplateActiveAction(params: {
+  id: string
+  isActive: boolean
+}) {
+  try {
+    await assertAdmin()
+    const { storeTemplates } = await import("@/db/schema")
+
+    const currentTemplate = await db.query.storeTemplates.findFirst({
+      where: eq(storeTemplates.id, params.id)
+    })
+
+    if (!currentTemplate) {
+      throw new Error("Template not found.")
+    }
+
+    if (!params.isActive && currentTemplate.isDefault) {
+      throw new Error("Cannot deactivate the default template.")
+    }
+
+    await db
+      .update(storeTemplates)
+      .set({
+        isActive: params.isActive,
+        updatedAt: new Date(),
+      })
+      .where(eq(storeTemplates.id, params.id))
+
+    revalidatePath("/admin/templates")
+    revalidatePath("/dashboard/settings")
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to toggle template status." }
+  }
+}
+

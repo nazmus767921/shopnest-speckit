@@ -7,7 +7,41 @@ Before any Next.js work, find and read the relevant doc in `node_modules/next/di
 <!-- END:nextjs-agent-rules -->
 
 
+# Core Principles & Architecture:
+    - Library-First: Features start as standalone libraries with defined public APIs before application composition.
+    - Functional Programming: Pure functions, immutable data transformations, side-effects isolated at boundaries.
+    - Test-Driven Development (TDD): Red-Green-Refactor. Tests must be written and approved before implementation code.
+    - Integration Testing: Mandatory for library contracts, inter-service boundaries (Postgres, Resend, Storage, Telegram), and shared Zod schemas.
+    - RSC by Default: `"use client"` isolated to interactive leaves.
+    - "use cache" Granularity: Apply `"use cache"` only on data-fetching functions/components, never globally at page/layout level. Banned route segment config variables.
+    - React Compiler: Automated optimization; manual `useMemo`/`useCallback` strictly forbidden.
+    - Prerendering Safety: Wrap dynamic/non-deterministic operations (`cookies()`, `headers()`, etc.) in `<Suspense>` and call `await connection()` from `"next/server"` to prevent static build abort errors.
+    
+# Ten Non-Negotiable Invariants:
+    1. Merchant-ID Filter: Every query must include merchant_id from `auth.api.getSession()`, never from client.
+    2. Stock Non-negative: `products.stock_count` >= 0 via Postgres transactions with `WHERE stock_count >= quantity` guard.
+    3. Price Snapshotted: `order_items.unit_price` is written once at checkout.
+    4. Auth Secret: `BETTER_AUTH_SECRET` and server auth instances never imported in client code.
+    5. Subdomain Immutable: `merchants.subdomain` rejects UPDATE after INSERT.
+    6. Email Non-blocking: Email dispatch wrapped in try/catch (best-effort delivery).
+    7. Limits Enforced Server-side: Subscription plan limits checked in Server Actions/API routes.
+    8. UI Primitives Only: Composed from `components/ui`, extending with DESIGN.md tokens if needed.
+    9. DESIGN.md First: No shadows, pill buttons only (`rounded-full`), tailored colors (e.g., bg-primary, text-ink), two-track canvas polarity. Banned: raw Tailwind grays/blues, shadow-* classes, and bare rounded.
+    10. Payment Snapshot Priority: Use `payment.featuresAtPaymentTime` to resolve grand-fathered features/limits; use warnings, not hard-blocks during verification.
+
+# Security & Secrets:
+    - Multi-tenant isolation at application query layer (explicit merchantId) and Postgres RLS.
+    - Anonymous Supabase client: Storage bucket RLS must grant access `TO public`.
+    - Secrets module evaluation: Do not throw on missing env secrets during build phase (`process.env.NEXT_PHASE === "phase-production-build"`).
+
+# Technical Conventions:
+    - Zod validation: Use `error.issues[0].message` for safeParse errors. Use `z.url()` and `z.email()`.
+    - Next.js Image: Must include `sizes` prop when using `fill`.
+    - Zustand: Verify store has finished hydration (`useStore.persist.hasHydrated()`) before redirects.
+
+
+
 
 # MUST FOLLOW
-- Do not run build command or `bun run build` command without permission. Ask for permission before running.
+- Do not run build command or `bun run build` or dev server (`bun dev`) command without permission. Ask for permission before running.
 -  use `bun` command to run scripts not `npm` or `pnpm`. `npx` is equal to `bunx`.

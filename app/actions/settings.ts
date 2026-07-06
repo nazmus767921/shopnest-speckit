@@ -96,3 +96,68 @@ export async function updateStorefrontLayoutAction(values: unknown) {
     return { success: false, error: error.message || "Failed to update storefront layout." }
   }
 }
+
+export async function getAvailableTemplatesAction() {
+  try {
+    const { getActiveTemplates } = await import("@/db/queries/templates")
+    const merchant = await getAuthenticatedMerchant()
+    const plan = await getMerchantPlan(merchant.id)
+    const tier = plan?.slug || "starter"
+
+    const templates = await getActiveTemplates()
+
+    const mappedTemplates = templates.map((t) => {
+      const allowed = t.allowedTiers as string[]
+      const isLocked = Array.isArray(allowed) && !allowed.includes(tier)
+      return {
+        id: t.id,
+        slug: t.slug,
+        name: t.name,
+        description: t.description,
+        previewImageUrl: t.previewImageUrl,
+        businessTypes: t.businessTypes,
+        allowedTiers: t.allowedTiers,
+        isLocked,
+      }
+    })
+
+    return { success: true, templates: mappedTemplates }
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to retrieve templates." }
+  }
+}
+
+export async function applyTemplateAction(templateSlug: string) {
+  try {
+    const { getTemplateBySlug } = await import("@/db/queries/templates")
+    const merchant = await getAuthenticatedMerchant()
+    const plan = await getMerchantPlan(merchant.id)
+    const tier = plan?.slug || "starter"
+
+    const template = await getTemplateBySlug(templateSlug)
+    if (!template || !template.isActive) {
+      throw new Error("The selected template is not active or does not exist.")
+    }
+
+    const allowed = template.allowedTiers as string[]
+    if (Array.isArray(allowed) && !allowed.includes(tier)) {
+      throw new Error(`Your current plan does not support the ${template.name} template. Please upgrade.`)
+    }
+
+    const updated = await updateStorefrontLayout(merchant.id, {
+      heroImageUrl: merchant.heroImageUrl,
+      subtitle: merchant.subtitle,
+      storeDescription: merchant.storeDescription,
+      storeAddress: merchant.storeAddress,
+      socialLinks: merchant.socialLinks,
+      customFaqs: merchant.customFaqs,
+      template: templateSlug,
+    })
+
+    revalidatePath("/dashboard/settings")
+    return { success: true, merchant: updated }
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to apply template." }
+  }
+}
+

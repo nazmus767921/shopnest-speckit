@@ -60,28 +60,28 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 
-describe("Storefront Theme Validation & Plan Enforcement", () => {
-  it("should validate storefrontLayoutSchema with theme field", () => {
-    // Valid default theme
+describe("Storefront Template Validation & Plan Enforcement", () => {
+  it("should validate storefrontLayoutSchema with template field", () => {
+    // Valid general template
     const resDefault = storefrontLayoutSchema.safeParse({
-      theme: "default",
+      template: "general",
     })
     expect(resDefault.success).toBe(true)
 
-    // Valid cinematic theme
-    const resCinematic = storefrontLayoutSchema.safeParse({
-      theme: "cinematic",
+    // Valid fashion template
+    const resFashion = storefrontLayoutSchema.safeParse({
+      template: "fashion",
     })
-    expect(resCinematic.success).toBe(true)
+    expect(resFashion.success).toBe(true)
 
-    // Invalid theme value
+    // Invalid template value
     const resInvalid = storefrontLayoutSchema.safeParse({
-      theme: "invalid-theme-name",
+      template: "invalid-template-name",
     })
     expect(resInvalid.success).toBe(false)
   })
 
-  it("should fail to save premium 'cinematic' theme if merchant is on starter plan", async () => {
+  it("should fail to save premium 'fashion' template if merchant is on starter plan", async () => {
     const { auth } = await import("@/lib/auth/auth")
 
     // Setup session
@@ -97,7 +97,7 @@ describe("Storefront Theme Validation & Plan Enforcement", () => {
       plan: "starter",
     })
 
-    // Setup plan without cinematic theme access (starter slug)
+    // Setup plan without fashion template access (starter slug)
     mockGetMerchantPlan.mockResolvedValueOnce({
       name: "Starter",
       slug: "starter",
@@ -108,16 +108,16 @@ describe("Storefront Theme Validation & Plan Enforcement", () => {
     })
 
     const payload = {
-      theme: "cinematic",
+      template: "fashion",
       subtitle: "My boutique shop",
     }
 
     const response = await updateStorefrontLayoutAction(payload)
     expect(response.success).toBe(false)
-    expect(response.error).toContain("Upgrade your subscription to use premium themes")
+    expect(response.error).toContain("Upgrade your subscription to use premium templates")
   })
 
-  it("should successfully save 'cinematic' theme if merchant is on growth plan", async () => {
+  it("should successfully save 'fashion' template if merchant is on growth plan", async () => {
     const { auth } = await import("@/lib/auth/auth")
 
     // Setup session
@@ -133,7 +133,7 @@ describe("Storefront Theme Validation & Plan Enforcement", () => {
       plan: "growth",
     })
 
-    // Setup plan supporting cinematic theme (growth slug)
+    // Setup plan supporting fashion template (growth slug)
     mockGetMerchantPlan.mockResolvedValueOnce({
       name: "Growth",
       slug: "growth",
@@ -145,18 +145,18 @@ describe("Storefront Theme Validation & Plan Enforcement", () => {
 
     mockUpdateStorefrontLayout.mockResolvedValueOnce({
       id: "merchant-123",
-      theme: "cinematic",
+      template: "fashion",
     })
 
     const payload = {
-      theme: "cinematic",
+      template: "fashion",
       subtitle: "My premium boutique shop",
     }
 
     const response = await updateStorefrontLayoutAction(payload)
     expect(response.success).toBe(true)
     expect(mockUpdateStorefrontLayout).toHaveBeenCalledWith("merchant-123", expect.objectContaining({
-      theme: "cinematic",
+      template: "fashion",
     }))
   })
 })

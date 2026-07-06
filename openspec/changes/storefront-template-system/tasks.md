@@ -68,31 +68,31 @@
 
 ## 8. Merchant Dashboard — Template Gallery
 
-- [ ] 8.1 Create `getAvailableTemplatesForMerchant(merchantId)` server action — returns templates with availability status based on merchant's tier
-- [ ] 8.2 Build template gallery UI component for dashboard settings (template cards with preview thumbnail, name, description, Preview/Apply buttons, lock icons for unavailable templates)
-- [ ] 8.3 Create `applyTemplate(merchantId, templateSlug)` server action — validates tier access, updates `merchants.template`, returns success/error
-- [ ] 8.4 Add confirmation dialog before template switch ("Your store will now use the Fashion template")
-- [ ] 8.5 Replace existing theme selection UI in store settings with the new template gallery
-- [ ] 8.6 Write tests for template apply server action (tier validation, successful apply, rejection)
+- [x] 8.1 Create `getAvailableTemplatesForMerchant(merchantId)` server action — returns templates with availability status based on merchant's tier
+- [x] 8.2 Build template gallery UI component for dashboard settings (template cards with preview thumbnail, name, description, Preview/Apply buttons, lock icons for unavailable templates)
+- [x] 8.3 Create `applyTemplate(merchantId, templateSlug)` server action — validates tier access, updates `merchants.template`, returns success/error
+- [x] 8.4 Add confirmation dialog before template switch ("Your store will now use the Fashion template")
+- [x] 8.5 Replace existing theme selection UI in store settings with the new template gallery
+- [x] 8.6 Write tests for template apply server action (tier validation, successful apply, rejection)
 
 ## 9. SuperAdmin — Template Management
 
-- [ ] 9.1 Build superadmin template management page — list all templates with status, tier badges, business type tags
-- [ ] 9.2 Build template edit form — name, description, preview image upload, business_types multi-select, allowed_tiers checkboxes, active/draft toggle
-- [ ] 9.3 Create server actions: `updateTemplate(id, data)`, `toggleTemplateActive(id, isActive)`
-- [ ] 9.4 Write tests for superadmin template actions (update, toggle, is_default constraint)
+- [x] 9.1 Build superadmin template management page — list all templates with status, tier badges, business type tags
+- [x] 9.2 Build template edit form — name, description, preview image upload, business_types multi-select, allowed_tiers checkboxes, active/draft toggle
+- [x] 9.3 Create server actions: `updateTemplate(id, data)`, `toggleTemplateActive(id, isActive)`
+- [x] 9.4 Write tests for superadmin template actions (update, toggle, is_default constraint)
 
 ## 10. Onboarding — Business Type Auto-Assignment
 
-- [ ] 10.1 Add business type selection step to the onboarding flow — radio/card selection UI with business type options
-- [ ] 10.2 Create `resolveAndAssignTemplate(merchantId, businessType)` server action — queries `store_templates`, resolves best-fit template, updates merchant record
-- [ ] 10.3 Integrate auto-assignment into the onboarding completion flow — after business type selection, assign template before redirecting to dashboard
-- [ ] 10.4 Write tests for auto-assignment logic (matching, tier filtering, fallback chain)
+- [x] 10.1 Add business type selection step to the onboarding flow — radio/card selection UI with business type options
+- [x] 10.2 Create `resolveAndAssignTemplate(merchantId, businessType)` server action — queries `store_templates`, resolves best-fit template, updates merchant record
+- [x] 10.3 Integrate auto-assignment into the onboarding completion flow — after business type selection, assign template before redirecting to dashboard
+- [x] 10.4 Write tests for auto-assignment logic (matching, tier filtering, fallback chain)
 
 ## 11. Cleanup & Migration Safety
 
-- [ ] 11.1 Update all references to `merchant.theme` across the codebase to use `merchant.template`
-- [ ] 11.2 Update `db/queries/merchants.ts` — `updateMerchantSettings` to accept `template` instead of `theme`
-- [ ] 11.3 Remove old theme-related code paths (theme dropdown in settings, cinematic theme CSS)
-- [ ] 11.4 Verify no broken references to `storefront-theme-*` CSS classes remain
-- [ ] 11.5 End-to-end verification: create a test store, go through onboarding with "clothing" business type, verify fashion template renders, switch to general via settings, verify general template renders
+- [x] 11.1 Update all references to `merchant.theme` across the codebase to use `merchant.template`
+- [x] 11.2 Update `db/queries/merchants.ts` — `updateMerchantSettings` to accept `template` instead of `theme`
+- [x] 11.3 Remove old theme-related code paths (theme dropdown in settings, cinematic theme CSS)
+- [x] 11.4 Verify no broken references to `storefront-theme-*` CSS classes remain
+- [x] 11.5 End-to-end verification: create a test store, go through onboarding with "clothing" business type, verify fashion template renders, switch to general via settings, verify general template renders

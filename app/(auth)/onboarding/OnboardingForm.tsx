@@ -24,6 +24,7 @@ type OnboardingData = {
   name: string
   subdomain: string
   plan: string
+  businessType: string
 }
 
 export default function OnboardingForm({ plans }: OnboardingFormProps) {
@@ -40,6 +41,7 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
       name: "",
       subdomain: "",
       plan: defaultPlanSlug,
+      businessType: "general",
     } as OnboardingData,
     onSubmit: async ({ value }) => {
       setError(null)
@@ -262,6 +264,59 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
                               ))}
                             </div>
                           </div>
+                      )}
+                    </form.Field>
+
+                    {/* Business Type Selection */}
+                    <form.Field name="businessType">
+                      {(field) => (
+                        <div className="flex flex-col gap-1.5 mt-2">
+                          <FormLabel className="flex items-center gap-1.5 text-shade-60">
+                            <Store className="h-4 w-4 text-shade-40" />
+                            Business Type / Niche
+                          </FormLabel>
+                          <div className="grid grid-cols-2 gap-3 mt-1">
+                            {[
+                              { label: "Clothing & Fashion", value: "clothing", desc: "Suited for fashion boutiques" },
+                              { label: "Electronics & Tech", value: "electronics", desc: "For specs and tech gear" },
+                              { label: "Beauty & Health", value: "beauty", desc: "Skincare, cosmetics, etc." },
+                              { label: "General Retail", value: "general", desc: "Multi-purpose default layout" },
+                            ].map((b) => (
+                              <label
+                                key={b.value}
+                                className={`flex flex-col p-3 border rounded-lg cursor-pointer transition-all duration-200 ${
+                                  field.state.value === b.value
+                                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                                    : "border-hairline hover:border-shade-40 bg-canvas"
+                                }`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="radio"
+                                    name={field.name}
+                                    value={b.value}
+                                    checked={field.state.value === b.value}
+                                    onChange={() => field.handleChange(b.value)}
+                                    className="sr-only"
+                                  />
+                                  <div
+                                    className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                                      field.state.value === b.value ? "border-primary" : "border-shade-40"
+                                    }`}
+                                  >
+                                    {field.state.value === b.value && (
+                                      <div className="w-2 h-2 rounded-full bg-primary" />
+                                    )}
+                                  </div>
+                                  <span className="font-medium text-ink text-body-md">{b.label}</span>
+                                </div>
+                                <span className="text-micro text-zinc-500 ml-6 mt-1 leading-relaxed font-light">
+                                  {b.desc}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
                       )}
                     </form.Field>
 

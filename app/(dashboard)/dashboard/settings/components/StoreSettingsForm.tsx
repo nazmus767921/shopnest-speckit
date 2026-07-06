@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useForm } from "@tanstack/react-form"
 import { storeSettingsSchema } from "@/lib/validations/settings"
-import { updateStoreSettingsAction } from "@/app/actions/settings"
+import { updateStoreSettingsAction, getAvailableTemplatesAction, applyTemplateAction } from "@/app/actions/settings"
 import { Button } from "@/components/ui/primitives/Button"
 import { Input } from "@/components/ui/primitives/Input"
 import { FormLabel } from "@/components/ui/primitives/FormLabel"
@@ -40,6 +40,7 @@ interface Merchant {
   payDeliveryChargeFirst?: boolean
   bkashWalletNumber?: string | null
   nagadWalletNumber?: string | null
+  template?: string
 }
 
 interface StoreSettingsFormProps {
@@ -81,8 +82,47 @@ const inventorySchema = z.object({
 
 export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettingsFormProps) {
   const [activeTab, setActiveTab] = useState<Tab>("profile")
+  const [templates, setTemplates] = useState<any[]>([])
+  const [loadingTemplates, setLoadingTemplates] = useState(true)
+  const [selectedTemplateToApply, setSelectedTemplateToApply] = useState<string | null>(null)
+  const [isApplying, setIsApplying] = useState(false)
 
+  useEffect(() => {
+    async function fetchTemplates() {
+      try {
+        const res = await getAvailableTemplatesAction()
+        if (res.success && res.templates) {
+          setTemplates(res.templates)
+        } else {
+          toast.error(res.error || "Failed to load templates.")
+        }
+      } catch (err: any) {
+        toast.error("Failed to load templates.")
+      } finally {
+        setLoadingTemplates(false)
+      }
+    }
+    fetchTemplates()
+  }, [])
 
+  const handleConfirmApply = async () => {
+    if (!selectedTemplateToApply) return
+    setIsApplying(true)
+    try {
+      const res = await applyTemplateAction(selectedTemplateToApply)
+      if (res.success) {
+        toast.success(`Successfully switched template to ${templates.find((t) => t.slug === selectedTemplateToApply)?.name}!`)
+        setSelectedTemplateToApply(null)
+        storefrontForm.setFieldValue("template", selectedTemplateToApply)
+      } else {
+        toast.error(res.error || "Failed to switch template.")
+      }
+    } catch (err: any) {
+      toast.error("Failed to switch template.")
+    } finally {
+      setIsApplying(false)
+    }
+  }
 
   // Hero Image upload state
   const [heroFile, setHeroFile] = useState<File | null>(null)
@@ -125,7 +165,7 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
       storeAddress: merchant.storeAddress || "",
       socialLinks: initialSocials,
       customFaqs: initialFaqs,
-      theme: (merchant as any).theme || "default",
+      template: merchant.template || "general",
     },
     onSubmit: async ({ value }) => {
 
@@ -161,7 +201,7 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
           storeAddress: value.storeAddress || null,
           socialLinks: value.socialLinks,
           customFaqs: value.customFaqs,
-          theme: value.theme || "default",
+          template: value.template || "general",
         }
 
         // Validate payload using Zod storefrontLayoutSchema
@@ -854,34 +894,113 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="p-0 flex flex-col gap-5">
-                  {/* Storefront Theme Selector */}
-                  <storefrontForm.Field name="theme">
+                <CardContent className="p-0 flex flex-col gap-8">
+                  {/* Storefront Template Selector */}
+                  <storefrontForm.Field name="template">
                     {(field) => {
-                      const themeOptions = [
-                        { value: "default", label: "Default (SHOP.CO Bold Stark Theme)" },
-                        { value: "cinematic", label: `Cinematic Theme${plan?.slug === "starter" ? " (Upgrade to Growth required)" : ""}` },
-                      ]
                       return (
-                        <div className="flex flex-col gap-1.5">
-                          <FormLabel htmlFor="store-theme">Storefront Theme</FormLabel>
-                          <Select<{ value: string; label: string }>
-                            options={themeOptions}
-                            value={themeOptions.find((o) => o.value === field.state.value) ?? null}
-                            onChange={(opt) => opt && field.handleChange(opt.value)}
-                            renderOption={(opt) => (
-                              <span className="flex items-center justify-between w-full">
-                                <span>{opt.label}</span>
-                                {opt.value === "cinematic" && plan?.slug === "starter" && (
-                                  <span className="text-micro text-amber-600 font-semibold ml-2">Locked</span>
-                                )}
-                              </span>
-                            )}
-                          />
-                          {plan?.slug === "starter" && (
-                            <span className="text-micro text-amber-600 font-semibold mt-1">
-                              Upgrade your plan to Growth or Pro to unlock the premium Cinematic Theme.
-                            </span>
+                        <div className="flex flex-col gap-4">
+                          <div className="flex flex-col gap-1">
+                            <FormLabel>Storefront Template</FormLabel>
+                            <p className="text-caption text-zinc-500 font-light mt-0.5">
+                              Select a template to change the layout, structure, and visual style of your storefront.
+                            </p>
+                          </div>
+
+                          {loadingTemplates ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-2">
+                              <div className="h-64 bg-canvas-cream/50 rounded-2xl animate-pulse border border-hairline-light" />
+                              <div className="h-64 bg-canvas-cream/50 rounded-2xl animate-pulse border border-hairline-light" />
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-2">
+                              {templates.map((tpl) => {
+                                const isActive = field.state.value === tpl.slug
+                                return (
+                                  <div
+                                    key={tpl.slug}
+                                    className={`border rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 bg-white ${
+                                      isActive
+                                        ? "border-emerald-500 ring-2 ring-emerald-500/20"
+                                        : "border-zinc-200 hover:border-zinc-300 hover:shadow-md"
+                                    }`}
+                                  >
+                                    {/* Thumbnail */}
+                                    <div className="relative aspect-[3/2] w-full bg-zinc-50 border-b border-zinc-100 overflow-hidden">
+                                      <img
+                                        src={tpl.slug === "fashion" ? "/images/templates/fashion-thumbnail.png" : "/images/templates/general-thumbnail.png"}
+                                        alt={`${tpl.name} Preview`}
+                                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                                      />
+                                      {tpl.isLocked && (
+                                        <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex flex-col items-center justify-center text-white gap-2 p-4 text-center">
+                                          <Lock className="h-8 w-8 text-amber-400" />
+                                          <span className="font-semibold text-body-md uppercase tracking-wider text-amber-400">Locked</span>
+                                          <span className="text-micro opacity-90 max-w-[200px]">
+                                            Requires Growth or Pro subscription plan.
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    {/* Info */}
+                                    <div className="p-5 flex flex-col gap-4 grow">
+                                      <div className="flex flex-col gap-1">
+                                        <div className="flex items-center justify-between">
+                                          <h4 className="font-display text-body-lg font-bold text-zinc-900">{tpl.name}</h4>
+                                          <div className="flex items-center gap-1.5">
+                                            {tpl.allowedTiers.map((t: string) => (
+                                              <span
+                                                key={t}
+                                                className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                                                  t === "starter"
+                                                    ? "bg-zinc-100 text-zinc-600 border border-zinc-200"
+                                                    : t === "growth"
+                                                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                                    : "bg-indigo-50 text-indigo-700 border border-indigo-200"
+                                                }`}
+                                              >
+                                                {t}
+                                              </span>
+                                            ))}
+                                          </div>
+                                        </div>
+                                        <p className="text-caption text-zinc-500 font-light mt-1">{tpl.description}</p>
+                                      </div>
+
+                                      {/* Action */}
+                                      <div className="mt-auto pt-2">
+                                        {isActive ? (
+                                          <Button
+                                            type="button"
+                                            disabled
+                                            className="w-full bg-emerald-500 text-white rounded-full font-semibold border-none cursor-default py-2"
+                                          >
+                                            Active Template
+                                          </Button>
+                                        ) : tpl.isLocked ? (
+                                          <Button
+                                            type="button"
+                                            disabled
+                                            className="w-full bg-zinc-100 text-zinc-400 rounded-full font-semibold border border-zinc-200 cursor-not-allowed py-2"
+                                          >
+                                            Upgrade to Apply
+                                          </Button>
+                                        ) : (
+                                          <Button
+                                            type="button"
+                                            onClick={() => setSelectedTemplateToApply(tpl.slug)}
+                                            className="w-full bg-zinc-900 hover:bg-zinc-800 text-white rounded-full font-semibold py-2"
+                                          >
+                                            Apply Design
+                                          </Button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
                           )}
                           {field.state.meta.errors.length > 0 && (
                             <p className="text-micro text-red-500">{String(field.state.meta.errors[0])}</p>
@@ -1183,6 +1302,41 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
           />
         )}
       </div>
+
+      {/* Confirmation Dialog Modal */}
+      {selectedTemplateToApply && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl flex flex-col gap-4 border border-zinc-200">
+            <div className="flex flex-col gap-2">
+              <h3 className="font-display text-heading-md font-bold text-ink">Change Store Template</h3>
+              <p className="text-body-md text-zinc-600 font-light">
+                Are you sure you want to switch your store design to the{" "}
+                <strong className="text-zinc-900 font-semibold">
+                  {templates.find((t) => t.slug === selectedTemplateToApply)?.name}
+                </strong>{" "}
+                template? Your active storefront design layout will change immediately.
+              </p>
+            </div>
+            <div className="flex items-center justify-end gap-3 mt-2">
+              <Button
+                variant="outline"
+                onClick={() => setSelectedTemplateToApply(null)}
+                disabled={isApplying}
+                className="rounded-full cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmApply}
+                disabled={isApplying}
+                className="rounded-full bg-ink text-white cursor-pointer"
+              >
+                {isApplying ? "Applying..." : "Confirm & Apply"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

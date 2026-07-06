@@ -94,7 +94,7 @@ describe("VariantSelector Component - Storefront Custom Themes", () => {
 
     // Assert that the active size button gets reversed style (black bg, white text)
     // We expect class names like "bg-primary text-on-primary" or active-pill states
-    expect(smallButton.className).toContain("bg-primary")
-    expect(smallButton.className).toContain("text-on-primary")
+    expect(smallButton.className).toContain("bg-[var(--color-primary)]")
+    expect(smallButton.className).toContain("text-[var(--color-on-primary)]")
   })
 })

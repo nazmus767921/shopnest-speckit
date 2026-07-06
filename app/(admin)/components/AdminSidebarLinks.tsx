@@ -3,7 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Shield, Users, CreditCard, ChevronRight, Layers } from "lucide-react"
+import { Shield, Users, CreditCard, ChevronRight, Layers, LayoutTemplate } from "lucide-react"
 
 export function AdminSidebarLinks() {
   const pathname = usePathname()
@@ -29,6 +29,11 @@ export function AdminSidebarLinks() {
       label: "Plans",
       href: "/admin/plans",
       icon: Layers,
+    },
+    {
+      label: "Templates",
+      href: "/admin/templates",
+      icon: LayoutTemplate,
     },
   ]
 

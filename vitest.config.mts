@@ -6,5 +6,9 @@ export default defineConfig({
     plugins: [tsconfigPaths(), react()],
     test: {
         environment: 'jsdom',
+        env: {
+            NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
+            NEXT_PUBLIC_SUPABASE_ANON_KEY: "mock-key",
+        }
     },
 })

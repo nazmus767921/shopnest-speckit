@@ -10,6 +10,7 @@ export async function createMerchant(data: {
   plan: string
   planId?: string
   trialExpiry: Date
+  template?: string
 }) {
   return await db.transaction(async (tx) => {
     const [merchant] = await tx.insert(merchants).values({
@@ -20,6 +21,7 @@ export async function createMerchant(data: {
       plan: data.plan,
       subscriptionStatus: "trial",
       trialExpiry: data.trialExpiry,
+      template: data.template || "general",
     }).returning()
     
     await tx.insert(subscriptions).values({

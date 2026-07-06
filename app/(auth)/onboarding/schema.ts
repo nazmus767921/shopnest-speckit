@@ -18,4 +18,5 @@ export const onboardingSchema = z.object({
       "Subdomain cannot start or end with a hyphen"
     ),
   plan: z.string().min(1, "Plan is required").default("starter"),
+  businessType: z.string().min(1, "Please select a business type").default("general"),
 })
