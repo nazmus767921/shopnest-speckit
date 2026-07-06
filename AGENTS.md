@@ -9,5 +9,5 @@ Before any Next.js work, find and read the relevant doc in `node_modules/next/di
 
 
 # MUST FOLLOW
-- Do not run build command or `pnpm run build` command without permission. Ask for permission before running.
-- 
+- Do not run build command or `bun run build` command without permission. Ask for permission before running.
+-  use `bun` command to run scripts not `npm` or `pnpm`. `npx` is equal to `bunx`.
