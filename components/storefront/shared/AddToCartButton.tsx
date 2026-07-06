@@ -48,7 +48,7 @@ export function AddToCartButton({ merchantId, product, quantity = 1, size = "sm"
         variant="primary"
         disabled={isOutOfStock}
         onClick={handleAdd}
-        className={`w-10 h-10 min-h-0 p-0 rounded-full flex items-center justify-center bg-black hover:bg-zinc-800 text-white transition-all select-none shrink-0 ${className || ""}`}
+        className={`w-10 h-10 min-h-0 p-0 rounded-[var(--radius-pill)] flex items-center justify-center bg-[var(--color-primary)] hover:opacity-90 text-[var(--color-on-primary)] transition-all select-none shrink-0 ${className || ""}`}
       >
         {added ? (
           <Check className="h-5 w-5 stroke-[2.5]" />
@@ -65,7 +65,7 @@ export function AddToCartButton({ merchantId, product, quantity = 1, size = "sm"
       size={size}
       disabled={isOutOfStock}
       onClick={handleAdd}
-      className={className}
+      className={`bg-[var(--color-primary)] text-[var(--color-on-primary)] hover:opacity-90 rounded-[var(--radius-pill)] ${className || ""}`}
     >
       {added ? (
         <span>Added ✓</span>
@@ -78,4 +78,3 @@ export function AddToCartButton({ merchantId, product, quantity = 1, size = "sm"
     </Button>
   )
 }
-

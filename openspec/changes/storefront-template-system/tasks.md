@@ -20,15 +20,15 @@
 
 ## 4. Shared Building Blocks Extraction
 
-- [ ] 4.1 Create `components/storefront/shared/` directory and move/refactor existing shared logic: `AddToCartButton`, `BuyNowButton`, `QuantityAdjuster` (from CartItemRow), `CartIconButton`
-- [ ] 4.2 Extract `ProductGrid` shared block — accepts products array, column config, and renders using a passed `renderCard` prop or children
-- [ ] 4.3 Extract `ImageGallery` shared block from `StorefrontImageGallery` — gallery with thumbnail strip, suitable for both templates
-- [ ] 4.4 Extract `VariantPicker` shared block from `variant-selector/` — color swatches and size pills with configurable styling
-- [ ] 4.5 Extract `PriceDisplay` shared block — price, compare-at-price, discount badge logic
-- [ ] 4.6 Extract `ReviewSection` shared block from `ProductTabs` — reviews list with summary, usable independently
-- [ ] 4.7 Extract `FilterSidebar` shared block from `ProductFilters` — accordion filters for categories, price, colors, sizes
-- [ ] 4.8 Extract `Breadcrumbs` shared block
-- [ ] 4.9 Extract `NewsletterSignup` shared block from footer newsletter section
+- [x] 4.1 Create `components/storefront/shared/` directory and move/refactor existing shared logic: `AddToCartButton`, `BuyNowButton`, `QuantityAdjuster` (from CartItemRow), `CartIconButton`
+- [x] 4.2 Extract `ProductGrid` shared block — accepts products array, column config, and renders using a passed `renderCard` prop or children
+- [x] 4.3 Extract `ImageGallery` shared block from `StorefrontImageGallery` — gallery with thumbnail strip, suitable for both templates
+- [x] 4.4 Extract `VariantPicker` shared block from `variant-selector/` — color swatches and size pills with configurable styling
+- [x] 4.5 Extract `PriceDisplay` shared block — price, compare-at-price, discount badge logic
+- [x] 4.6 Extract `ReviewSection` shared block from `ProductTabs` — reviews list with summary, usable independently
+- [x] 4.7 Extract `FilterSidebar` shared block from `ProductFilters` — accordion filters for categories, price, colors, sizes
+- [x] 4.8 Extract `Breadcrumbs` shared block
+- [x] 4.9 Extract `NewsletterSignup` shared block from footer newsletter section
 
 ## 5. General Template Module
 

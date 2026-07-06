@@ -1,8 +1,11 @@
 import React from "react"
 import { headers } from "next/headers"
 import type { Metadata } from "next"
+import "@/templates/general/styles.css"
+import "@/templates/fashion/styles.css"
 import { getMerchantById } from "@/db/queries/merchants"
 import { StorefrontNavbar } from "@/components/storefront/StorefrontNavbar"
+import { NewsletterSignup } from "@/components/storefront/shared/NewsletterSignup"
 import { Archivo_Black } from "next/font/google"
 import { Suspense } from "react"
 import { connection } from "next/server"
@@ -98,21 +101,7 @@ async function StorefrontFooterWrapper({ params }: { params: Promise<{ subdomain
       <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col gap-10">
         
         {/* 1. Newsletter Block */}
-        <div className="block-storefront-newsletter flex flex-col md:flex-row items-center justify-between gap-6">
-          <h3 className="text-storefront-display-huge font-bold max-w-md text-white">
-            Stay upto date about our latest offers
-          </h3>
-          <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
-            <input
-              type="email"
-              placeholder="Enter your email address"
-              className="input-storefront-text grow bg-white text-black"
-            />
-            <button className="btn-storefront-primary bg-white text-black hover:bg-white/90">
-              Subscribe to Newsletter
-            </button>
-          </div>
-        </div>
+        <NewsletterSignup />
 
         {/* 2. Link Matrix */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 border-b border-hairline-light pb-10 pt-4">

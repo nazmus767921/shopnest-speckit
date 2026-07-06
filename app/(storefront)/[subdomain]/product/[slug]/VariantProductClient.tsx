@@ -3,10 +3,10 @@
 import { useState, useMemo } from "react";
 import { VariantSelector } from "@/components/storefront/variant-selector/VariantSelector";
 import { VariantSelectorErrorBoundary } from "@/components/storefront/variant-selector/VariantSelectorErrorBoundary";
-import { AddToCartButton } from "@/components/storefront/AddToCartButton";
-import { BuyNowButton } from "@/components/storefront/BuyNowButton";
+import { AddToCartButton } from "@/components/storefront/shared/AddToCartButton";
+import { BuyNowButton } from "@/components/storefront/shared/BuyNowButton";
+import { QuantityAdjuster } from "@/components/storefront/shared/QuantityAdjuster";
 import type { VariantOption, AttributeInfo } from "@/components/storefront/variant-selector/VariantSelector";
-import { Minus, Plus } from "lucide-react";
 import { formatTaka } from "@/lib/utils";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -140,29 +140,14 @@ export function VariantProductClient({
       <div className="flex flex-col gap-4 mt-6">
         <div className="flex flex-col sm:flex-row gap-3 items-center w-full">
           {/* Stepper */}
-          <div className="flex items-center justify-between bg-[#F2F0F1] rounded-full h-12 px-5 gap-4 w-full sm:w-32.5 shrink-0 select-none">
-            <button
-              type="button"
-              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              disabled={quantity <= 1 || !hasSelection}
-              className="p-1 text-ink disabled:opacity-30 disabled:pointer-events-none hover:opacity-75 transition-opacity"
-              aria-label="Decrease quantity"
-            >
-              <Minus className="h-4 w-4 stroke-[2.5]" />
-            </button>
-            <span className="w-6 text-center text-base font-bold text-ink font-sans">
-              {quantity}
-            </span>
-            <button
-              type="button"
-              onClick={() => setQuantity((q) => Math.min(selectedVariant?.stockCount ?? 99, q + 1))}
-              disabled={!hasSelection || quantity >= (selectedVariant?.stockCount ?? 99)}
-              className="p-1 text-ink disabled:opacity-30 disabled:pointer-events-none hover:opacity-75 transition-opacity"
-              aria-label="Increase quantity"
-            >
-              <Plus className="h-4 w-4 stroke-[2.5]" />
-            </button>
-          </div>
+          <QuantityAdjuster
+            quantity={quantity}
+            maxQuantity={selectedVariant?.stockCount ?? 99}
+            onChange={setQuantity}
+            disabled={!hasSelection}
+            className="w-full sm:w-32.5"
+            size="lg"
+          />
 
           {/* Add To Cart */}
           <AddToCartButton

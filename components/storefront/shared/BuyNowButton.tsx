@@ -27,7 +27,7 @@ export function BuyNowButton({ subdomain, product, quantity = 1, size = "sm", cl
 
   return (
     <Button
-      variant="outline-light"
+      variant="outline"
       size={size}
       disabled={isOutOfStock}
       onClick={(e: React.MouseEvent) => {
@@ -35,7 +35,7 @@ export function BuyNowButton({ subdomain, product, quantity = 1, size = "sm", cl
         e.stopPropagation()
         handleBuyNow(product, quantity)
       }}
-      className={className}
+      className={`border-[var(--color-ink)] text-[var(--color-ink)] hover:bg-[var(--color-ink)] hover:text-[var(--color-on-primary)] rounded-[var(--radius-pill)] transition-all ${className || ""}`}
     >
       Buy Now
     </Button>

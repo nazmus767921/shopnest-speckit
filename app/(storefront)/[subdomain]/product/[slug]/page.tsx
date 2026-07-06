@@ -1,13 +1,14 @@
 import React from "react"
 import { headers } from "next/headers"
 import { notFound } from "next/navigation"
-import { ArrowLeft, ChevronRightIcon } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { getPublishedProductBySlug, getPublishedProducts } from "@/db/queries/products"
 import { StorefrontImageGallery } from "@/components/storefront/StorefrontImageGallery"
 import { formatTaka } from "@/lib/utils"
 import type { Metadata } from "next"
-import { AddToCartButton } from "@/components/storefront/AddToCartButton"
-import { BuyNowButton } from "@/components/storefront/BuyNowButton"
+import { AddToCartButton } from "@/components/storefront/shared/AddToCartButton"
+import { BuyNowButton } from "@/components/storefront/shared/BuyNowButton"
+import { Breadcrumbs } from "@/components/storefront/shared/Breadcrumbs"
 import { supabase } from "@/lib/supabase/client"
 import { ProductMetadata } from "@/components/storefront/product-metadata/ProductMetadata"
 import { getMetadataByProductId, getAttributesWithOptionsByProductId, getVariantsWithCombinationsByProductId } from "@/db/queries/variants"
@@ -105,25 +106,14 @@ async function ProductDetailPageContent({ params }: Props) {
     <div className="w-full max-w-7xl mx-auto flex flex-col gap-6 md:gap-8 animate-fade-in">
       {/* Breadcrumb Hierarchy */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
-        <nav className="flex items-center gap-2 font-sans tracking-tighter text-base text-shade-40">
-          <Link prefetch={false} href="/" className="hover:text-ink transition-colors">
-            Home
-          </Link>
-          <ChevronRightIcon className="h-4 w-4" />
-          <Link prefetch={false} href="/products" className="hover:text-ink transition-colors">
-            Shop
-          </Link>
-          {product.category && (
-            <>
-              <ChevronRightIcon className="h-4 w-4" />
-              <span className="hover:text-ink transition-colors cursor-pointer">
-                {product.category.name}
-              </span>
-            </>
-          )}
-          <ChevronRightIcon className="h-4 w-4" />
-          <span className="text-ink font-semibold line-clamp-1">{product.name}</span>
-        </nav>
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Shop", href: "/products" },
+            ...(product.category ? [{ label: product.category.name }] : []),
+            { label: product.name }
+          ]}
+        />
 
         <Link
           href="/"

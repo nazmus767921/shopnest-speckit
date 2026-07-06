@@ -4,8 +4,8 @@ import React, { useState } from "react"
 import { Card } from "@/components/ui"
 import { ImageIcon } from "lucide-react"
 import { supabase } from "@/lib/supabase/client"
-import { formatTaka } from "@/lib/utils"
 import { useCart } from "@/hooks/use-cart"
+import { PriceDisplay } from "@/components/storefront/shared/PriceDisplay"
 import {
   VariantQuickSelectDialog,
   type DialogProduct,
@@ -258,21 +258,11 @@ export function ProductCard({
 
         {/* Price & Add to Cart button row */}
         <div className="flex px-2 items-center justify-between w-full mt-1 gap-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-sans text-base md:text-lg font-bold text-ink">
-              {formatTaka(product.pricePaisa)}
-            </span>
-            {hasDiscount && (
-              <>
-                <span className="font-sans text-xs md:text-sm text-shade-50 line-through">
-                  {formatTaka(originalPricePaisa)}
-                </span>
-                <span className="bg-[var(--color-discount-bg)] text-[var(--color-discount-text)] text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded-full select-none">
-                  -{discountPercent}%
-                </span>
-              </>
-            )}
-          </div>
+          <PriceDisplay
+            pricePaisa={product.pricePaisa}
+            originalPricePaisa={originalPricePaisa}
+            discountPercent={discountPercent}
+          />
 
           {/* Cart trigger — opens dialog for variant products, direct add for simple products */}
           <button
