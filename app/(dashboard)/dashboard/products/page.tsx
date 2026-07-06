@@ -40,6 +40,7 @@ async function ProductsPageContent() {
   const formattedProducts = initialProducts.map((p) => ({
     ...p,
     price: p.pricePaisa / 100,
+    compareAtPrice: p.compareAtPricePaisa ? p.compareAtPricePaisa / 100 : null,
   }))
 
   // Compute storefront base URL using headers to avoid client hydration mismatches

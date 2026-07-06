@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from "react"
 import { ChevronDown, Check, Search, X, Loader2 } from "lucide-react"
+import { useDropdownPosition } from "./useDropdownPosition"
 
 export interface ComboboxProps<T> {
   options: T[]
@@ -43,8 +44,11 @@ export function Combobox<T>({
   const [activeIndex, setActiveIndex] = useState(-1)
   
   const containerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const { flip: dropdownFlip } = useDropdownPosition(triggerRef, isOpen)
 
   // Filter options based on query and searchKeys (bypassed if server-side search is enabled)
   const filteredOptions = useMemo(() => {
@@ -164,6 +168,7 @@ export function Combobox<T>({
     <div ref={containerRef} className={`relative w-full text-body-md ${className}`}>
       {/* Combobox Trigger Button */}
       <button
+        ref={triggerRef}
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen(!isOpen)}
@@ -196,7 +201,11 @@ export function Combobox<T>({
 
       {/* Dropdown Options Portal */}
       {isOpen && (
-        <div className="absolute w-full mt-1 border border-hairline-light rounded-lg bg-canvas-light shadow-lg z-50 overflow-hidden flex flex-col max-h-75 animate-fade-in">
+        <div
+          data-flip={dropdownFlip || undefined}
+          data-testid="combobox-dropdown"
+          className={`${dropdownFlip ? "bottom-full mb-1" : "top-full mt-1"} absolute left-0 min-w-full w-max max-w-[calc(100vw-2rem)] border border-hairline-light rounded-lg bg-canvas-light z-50 overflow-hidden flex flex-col max-h-75 animate-fade-in`}
+        >
           {/* Search bar inside dropdown */}
           <div className="relative border-b border-hairline-light/60 p-2 shrink-0 bg-canvas-cream/10">
             <span className="absolute inset-y-0 left-4 flex items-center text-shade-40">

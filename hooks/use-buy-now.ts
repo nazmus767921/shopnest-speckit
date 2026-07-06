@@ -18,8 +18,8 @@ export function useBuyNow(subdomain: string) {
   const setBuyNow = useCheckoutStore((s) => s.setBuyNow);
   const router = useRouter();
 
-  const handleBuyNow = (item: BuyNowItem) => {
-    setBuyNow(item as any);
+  const handleBuyNow = (item: BuyNowItem, quantity?: number) => {
+    setBuyNow(item as any, quantity);
     router.push("/checkout");
   };
 

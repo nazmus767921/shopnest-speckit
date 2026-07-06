@@ -52,6 +52,7 @@ async function EditProductPageContent({ params }: Props) {
         name: product.name,
         description: product.description,
         pricePaisa: product.pricePaisa,
+        compareAtPricePaisa: product.compareAtPricePaisa,
         stockCount: product.stockCount,
         lowStockThreshold: product.lowStockThreshold,
         isPublished: product.isPublished,

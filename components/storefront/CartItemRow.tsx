@@ -42,9 +42,9 @@ export function CartItemRow({ item, onUpdateQuantity, onRemove }: Props) {
   }
 
   return (
-    <div className="flex items-center gap-4 py-4 border-b border-hairline-light last:border-0">
+    <div className="flex gap-3 md:gap-4 py-4 md:py-5 border-b border-hairline-light last:border-0">
       {/* Thumbnail Image Container */}
-      <div className="h-16 w-16 bg-zinc-50 rounded-lg overflow-hidden border border-hairline-light flex items-center justify-center shrink-0">
+      <div className="h-24 w-24 md:h-28 md:w-28 bg-[#F0EEED] rounded-lg overflow-hidden border border-hairline-light/30 flex items-center justify-center shrink-0">
         {item.imageUrl ? (
           <img
             src={item.imageUrl}
@@ -57,33 +57,56 @@ export function CartItemRow({ item, onUpdateQuantity, onRemove }: Props) {
       </div>
 
       {/* Product Details */}
-      <div className="grow min-w-0">
-        <h3 className="text-body-strong font-semibold text-ink truncate">
-          {item.name}
-        </h3>
-        {item.variantLabel && (
-          <p className="text-caption text-shade-40">{item.variantLabel}</p>
-        )}
-        <p className="text-caption text-shade-50">
-          {formatTaka(item.pricePaisa)} each
+      <div className="grow min-w-0 flex flex-col justify-between py-1">
+        <div>
+          <h3 className="text-base md:text-xl font-bold font-sans text-ink leading-tight truncate">
+            {item.name}
+          </h3>
+          {item.variantLabel && (
+            <div className="mt-1.5 flex flex-col gap-0.5">
+              {item.variantLabel.split(",").map((part) => {
+                const [key, val] = part.split(":")
+                if (!key || !val) return null
+                return (
+                  <p key={part} className="text-xs md:text-sm text-shade-40 font-sans">
+                    <span className="capitalize">{key.trim()}:</span>{" "}
+                    <span className="text-shade-60">{val.trim()}</span>
+                  </p>
+                )
+              })}
+            </div>
+          )}
+        </div>
+        <p className="text-lg md:text-2xl font-bold font-sans text-ink mt-2">
+          {formatTaka(item.pricePaisa)}
         </p>
       </div>
 
-      {/* Stepper and Price */}
-      <div className="flex items-center gap-6 shrink-0">
+      {/* Controls */}
+      <div className="flex flex-col justify-between items-end shrink-0 py-1">
+        {/* Remove Button */}
+        <button
+          type="button"
+          onClick={() => onRemove(item.productId, item.variantId)}
+          className="p-1 text-[#FF3333] hover:text-red-700 transition-colors rounded-full hover:bg-red-50"
+          aria-label={`Remove ${item.name} from cart`}
+        >
+          <Trash2 className="h-5 w-5" />
+        </button>
+
         {/* Quantity Stepper */}
-        <div className="flex items-center border border-hairline-light rounded-full bg-canvas-light overflow-hidden h-9">
+        <div className="flex items-center bg-[#F2F0F1] rounded-full h-9 md:h-10 px-2.5 md:px-4 gap-2.5 md:gap-3 select-none">
           <button
             type="button"
             onClick={() => onUpdateQuantity(item.productId, item.quantity - 1, item.variantId)}
             disabled={item.quantity <= 1}
-            className="px-2.5 h-full text-shade-50 hover:text-ink hover:bg-canvas-cream transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+            className="p-0.5 text-ink disabled:opacity-30 disabled:pointer-events-none hover:opacity-75 transition-opacity"
             aria-label="Decrease quantity"
           >
-            <Minus className="h-3 w-3" />
+            <Minus className="h-4 w-4 stroke-[2.5]" />
           </button>
           
-          <span className="w-8 text-center text-caption font-semibold select-none text-ink">
+          <span className="w-6 text-center text-sm md:text-base font-bold text-ink">
             {item.quantity}
           </span>
 
@@ -91,29 +114,12 @@ export function CartItemRow({ item, onUpdateQuantity, onRemove }: Props) {
             type="button"
             onClick={() => onUpdateQuantity(item.productId, item.quantity + 1, item.variantId)}
             disabled={item.quantity >= item.stockCount}
-            className="px-2.5 h-full text-shade-50 hover:text-ink hover:bg-canvas-cream transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+            className="p-0.5 text-ink disabled:opacity-30 disabled:pointer-events-none hover:opacity-75 transition-opacity"
             aria-label="Increase quantity"
           >
-            <Plus className="h-3 w-3" />
+            <Plus className="h-4 w-4 stroke-[2.5]" />
           </button>
         </div>
-
-        {/* Total Price for this item row */}
-        <div className="w-24 text-right">
-          <span className="text-body-strong font-bold text-ink">
-            {formatTaka(item.pricePaisa * item.quantity)}
-          </span>
-        </div>
-
-        {/* Remove Button */}
-        <button
-          type="button"
-          onClick={() => onRemove(item.productId, item.variantId)}
-          className="p-2 text-shade-40 hover:text-red-600 transition-colors rounded-full hover:bg-red-50"
-          aria-label={`Remove ${item.name} from cart`}
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
       </div>
     </div>
   )

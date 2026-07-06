@@ -15,7 +15,7 @@ export interface CheckoutStoreItem {
 
 interface CheckoutState {
   items: CheckoutStoreItem[]
-  setBuyNow: (item: Omit<CheckoutStoreItem, "quantity">) => void
+  setBuyNow: (item: Omit<CheckoutStoreItem, "quantity">, quantity?: number) => void
   clearCheckoutStore: () => void
 }
 
@@ -23,7 +23,7 @@ export const useCheckoutStore = create<CheckoutState>()(
   persist(
     (set) => ({
       items: [],
-      setBuyNow: (item) => set({ items: [{ ...item, quantity: 1 }] }),
+      setBuyNow: (item, quantity = 1) => set({ items: [{ ...item, quantity }] }),
       clearCheckoutStore: () => set({ items: [] }),
     }),
     {

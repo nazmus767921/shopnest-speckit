@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useTransition } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { Card, Button, AlertDialog } from "@/components/ui"
+import { Card, Button, AlertDialog, Select } from "@/components/ui"
 import { StatusBadge } from "./StatusBadge"
 import {
   Search,
@@ -330,31 +330,44 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
           <div className="flex flex-wrap gap-3 items-center w-full lg:w-auto">
             <div className="flex items-center gap-2 grow sm:grow-0">
               <span className="text-caption text-shade-50 font-medium">Payment:</span>
-              <select
-                value={currentPaymentMethod}
-                onChange={(e) => updateFilters({ paymentMethod: e.target.value })}
+              <Select<{ value: string; label: string }>
+                options={[
+                  { value: "all", label: "All Methods" },
+                  { value: "bkash", label: "bKash" },
+                  { value: "nagad", label: "Nagad" },
+                ]}
+                value={[
+                  { value: "all", label: "All Methods" },
+                  { value: "bkash", label: "bKash" },
+                  { value: "nagad", label: "Nagad" },
+                ].find((o: { value: string; label: string }) => o.value === currentPaymentMethod) ?? null}
+                onChange={(opt: { value: string; label: string } | null) => opt && updateFilters({ paymentMethod: opt.value })}
                 disabled={isPending}
-                className="text-caption border border-hairline-light bg-canvas-light text-ink rounded-full px-4 py-2 min-h-10 outline-none focus:border-shade-60 transition-all grow sm:grow-0 cursor-pointer font-semibold"
-              >
-                <option value="all">All Methods</option>
-                <option value="bkash">bKash</option>
-                <option value="nagad">Nagad</option>
-              </select>
+                getOptionLabel={(o: { value: string; label: string }) => o.label}
+                getOptionValue={(o: { value: string; label: string }) => o.value}
+              />
             </div>
 
             <div className="flex items-center gap-2 grow sm:grow-0">
               <span className="text-caption text-shade-50 font-medium">Sort:</span>
-              <select
-                value={currentSortBy}
-                onChange={(e) => updateFilters({ sortBy: e.target.value })}
+              <Select<{ value: string; label: string }>
+                options={[
+                  { value: "newest", label: "Newest First" },
+                  { value: "oldest", label: "Oldest First" },
+                  { value: "total_desc", label: "Total: High to Low" },
+                  { value: "total_asc", label: "Total: Low to High" },
+                ]}
+                value={[
+                  { value: "newest", label: "Newest First" },
+                  { value: "oldest", label: "Oldest First" },
+                  { value: "total_desc", label: "Total: High to Low" },
+                  { value: "total_asc", label: "Total: Low to High" },
+                ].find((o: { value: string; label: string }) => o.value === currentSortBy) ?? null}
+                onChange={(opt: { value: string; label: string } | null) => opt && updateFilters({ sortBy: opt.value })}
                 disabled={isPending}
-                className="text-caption border border-hairline-light bg-canvas-light text-ink rounded-full px-4 py-2 min-h-10 outline-none focus:border-shade-60 transition-all grow sm:grow-0 cursor-pointer font-semibold"
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="total_desc">Total: High to Low</option>
-                <option value="total_asc">Total: Low to High</option>
-              </select>
+                getOptionLabel={(o: { value: string; label: string }) => o.label}
+                getOptionValue={(o: { value: string; label: string }) => o.value}
+              />
             </div>
           </div>
         </div>

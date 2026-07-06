@@ -44,6 +44,7 @@ interface EditProductTabsProps {
     name: string;
     description: string | null;
     pricePaisa: number;
+    compareAtPricePaisa?: number | null;
     stockCount: number;
     lowStockThreshold: number | null;
     isPublished: boolean;
@@ -71,6 +72,7 @@ export function EditProductTabs({
     name: product.name,
     description: product.description ?? "",
     pricePaisa: product.pricePaisa,
+    compareAtPricePaisa: product.compareAtPricePaisa,
     stockCount: product.stockCount,
     lowStockThreshold: product.lowStockThreshold ?? 5,
     isPublished: product.isPublished,

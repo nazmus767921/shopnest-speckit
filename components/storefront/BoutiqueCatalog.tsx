@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { ProductCard } from "./ProductCard"
+import { ProductCard, type ProductVariant, type ProductAttributeInfo } from "./ProductCard"
 
 interface FormattedProduct {
   id: string
@@ -14,6 +14,8 @@ interface FormattedProduct {
   images: { storagePath: string }[]
   category?: { id: string; name: string } | null
   promotions?: { promotionType: string }[]
+  variants?: ProductVariant[]
+  attributes?: ProductAttributeInfo[]
 }
 
 interface Category {
@@ -27,9 +29,10 @@ interface BoutiqueCatalogProps {
   categories: Category[]
   subdomain: string
   merchantId: string
+  themeClass?: string
 }
 
-export function BoutiqueCatalog({ products, categories, subdomain, merchantId }: BoutiqueCatalogProps) {
+export function BoutiqueCatalog({ products, categories, subdomain, merchantId, themeClass = "storefront-theme-default" }: BoutiqueCatalogProps) {
   const [selectedTabId, setSelectedTabId] = useState<string | null>(null)
 
   // Listen to cross-component tab selection events
@@ -138,6 +141,7 @@ export function BoutiqueCatalog({ products, categories, subdomain, merchantId }:
               product={product}
               subdomain={subdomain}
               merchantId={merchantId}
+              themeClass={themeClass}
             />
           ))}
         </div>

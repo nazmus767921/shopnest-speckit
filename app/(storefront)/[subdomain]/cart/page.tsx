@@ -8,6 +8,7 @@ type Props = {
 }
 
 import { Suspense } from "react"
+import { connection } from "next/server"
 
 export default function CartPage({ params }: Props) {
   return (
@@ -18,6 +19,7 @@ export default function CartPage({ params }: Props) {
 }
 
 async function CartPageContent({ params }: Props) {
+  await connection()
   const { subdomain } = await params
   const headersList = await headers()
   const merchantId = headersList.get("x-merchant-id")

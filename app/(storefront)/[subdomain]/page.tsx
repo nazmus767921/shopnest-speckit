@@ -38,20 +38,58 @@ async function StorefrontPageContent({ params }: Props) {
 
   // Parse custom FAQs
   const parsedFaqs: Array<{ question: string; answer: string }> = merchant?.customFaqs || []
+  const themeClass = `storefront-theme-${merchant?.theme || "default"}`
 
   // Map database structures to matching types
-  const formattedProducts = products.map((p) => ({
-    id: p.id,
-    name: p.name,
-    slug: p.slug,
-    description: p.description,
-    pricePaisa: p.pricePaisa,
-    stockCount: p.stockCount,
-    lowStockThreshold: p.lowStockThreshold,
-    images: p.images.map((img) => ({ storagePath: img.storagePath })),
-    category: p.category ? { id: p.category.id, name: p.category.name } : null,
-    promotions: p.promotions.map((pr) => ({ promotionType: pr.promotionType })),
-  }))
+  const formattedProducts = products.map((p) => {
+    // Build a lookup: attributeOption.id → attribute name
+    // so we can resolve attributeCombination keys without an extra join.
+    const attrNameById: Record<string, string> = {}
+    for (const attr of p.attributes ?? []) {
+      for (const opt of attr.options ?? []) {
+        attrNameById[opt.id] = attr.name
+      }
+    }
+
+    return {
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      description: p.description,
+      pricePaisa: p.pricePaisa,
+      compareAtPricePaisa: p.compareAtPricePaisa,
+      stockCount: p.stockCount,
+      lowStockThreshold: p.lowStockThreshold,
+      images: p.images.map((img) => ({ storagePath: img.storagePath })),
+      category: p.category ? { id: p.category.id, name: p.category.name } : null,
+      promotions: p.promotions.map((pr) => ({ promotionType: pr.promotionType })),
+      // ── Variant data for VariantQuickSelectDialog ──────────────────────────
+      attributes: (p.attributes ?? []).map((attr) => ({
+        name: attr.name,
+        displayType: attr.displayType as "swatch" | "dropdown" | "radio",
+        options: (attr.options ?? []).map((opt) => ({
+          value: opt.value,
+          label: opt.label,
+          swatchColor: opt.swatchColor ?? undefined,
+        })),
+      })),
+      variants: (p.variants ?? []).map((v) => ({
+        id: v.id,
+        sku: v.sku,
+        pricePaisa: v.pricePaisa,
+        compareAtPricePaisa: v.compareAtPricePaisa,
+        stockCount: v.stockCount,
+        isActive: v.isActive,
+        attributeCombination: Object.fromEntries(
+          (v.attributeLinks ?? []).map((link) => [
+            attrNameById[link.attributeOptionId] ?? "",
+            link.attributeOption.value,
+          ])
+        ),
+      })),
+    }
+  })
+
 
   // Extract promotion collections (limit 5 per slider)
   const featuredProductsTotal = formattedProducts.filter((p) => p.promotions?.some((pr) => pr.promotionType === "featured"))
@@ -141,6 +179,7 @@ async function StorefrontPageContent({ params }: Props) {
                 merchantId={merchantId}
                 totalCount={featuredProductsTotal.length}
                 promoType="featured"
+                themeClass={themeClass}
               />
             </div>
           )}
@@ -171,6 +210,7 @@ async function StorefrontPageContent({ params }: Props) {
                 merchantId={merchantId}
                 totalCount={newArrivalProductsTotal.length}
                 promoType="new_arrival"
+                themeClass={themeClass}
               />
             </div>
           )}

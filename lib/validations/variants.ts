@@ -50,6 +50,7 @@ export const saveAttributesSchema = z.object({
 export const variantUpdateSchema = z.object({
   sku: z.string().min(1).optional(),
   pricePaisa: z.int().min(0).nullable().optional(),
+  compareAtPricePaisa: z.int().min(0).nullable().optional(),
   stockCount: z.int().min(0).optional(),
   isActive: z.boolean().optional(),
   lowStockThreshold: z.int().min(0).nullable().optional(),
@@ -98,6 +99,7 @@ export const priceAdjustmentSchema = z.object({
 export const bulkVariantUpdateSchema = z.object({
   variantIds: z.array(z.string().min(1)).min(1, "Select at least one variant"),
   priceAdjustment: priceAdjustmentSchema.optional(),
+  compareAtPriceAdjustment: priceAdjustmentSchema.nullable().optional(),
   stockCount: z.int().min(0).optional(),
   isActive: z.boolean().optional(),
   skuPrefix: z.string().min(1).max(20).optional(),

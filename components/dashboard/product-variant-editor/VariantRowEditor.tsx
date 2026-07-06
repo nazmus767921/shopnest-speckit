@@ -13,6 +13,7 @@ export type VariantRow = {
   sku: string;
   label: string;
   pricePaisa: number | null;
+  compareAtPricePaisa: number | null;
   stockCount: number;
   isActive: boolean;
 };
@@ -181,7 +182,7 @@ export function VariantRowEditor({
   focused = false,
 }: VariantRowEditorProps) {
   const priceDisplay =
-    variant.pricePaisa !== null
+    variant.pricePaisa != null
       ? `৳${(variant.pricePaisa / 100).toFixed(0)}`
       : "Inherit";
 
@@ -210,6 +211,26 @@ export function VariantRowEditor({
       await onUpdate(variant.id, { pricePaisa: paisa });
     },
     [variant.id, variant.pricePaisa, onUpdate],
+  );
+
+  const handleSaveCompareAtPrice = useCallback(
+    async (val: string) => {
+      if (val === "" || val === null || val === undefined) {
+        await onUpdate(variant.id, { compareAtPricePaisa: null });
+        return;
+      }
+      const taka = parseFloat(val);
+      if (isNaN(taka) || taka < 0) {
+        throw new Error("Invalid old price");
+      }
+      const paisa = Math.round(taka * 100);
+      if (paisa === variant.compareAtPricePaisa) return;
+      if (variant.pricePaisa != null && paisa <= variant.pricePaisa) {
+        throw new Error("Old price must be greater than current price");
+      }
+      await onUpdate(variant.id, { compareAtPricePaisa: paisa });
+    },
+    [variant.id, variant.pricePaisa, variant.compareAtPricePaisa, onUpdate],
   );
 
   const handleSaveStock = useCallback(
@@ -283,13 +304,28 @@ export function VariantRowEditor({
         <div className="w-[140px] shrink-0" role="gridcell">
           <span className="text-micro text-shade-40 block leading-tight">Price (৳)</span>
           <InlineCell
-            value={variant.pricePaisa !== null ? (variant.pricePaisa / 100).toFixed(0) : ""}
+            value={variant.pricePaisa != null ? (variant.pricePaisa / 100).toFixed(0) : ""}
             displayValue={priceDisplay}
             onSave={handleSavePrice}
             type="number"
             placeholder="Inherit"
             disabled={disabled}
             label="Price (৳)"
+            leftIcon={<span className="text-shade-50 text-body-md font-medium">৳</span>}
+          />
+        </div>
+
+        {/* Old Price */}
+        <div className="w-[140px] shrink-0" role="gridcell">
+          <span className="text-micro text-shade-40 block leading-tight">Old Price (৳)</span>
+          <InlineCell
+            value={variant.compareAtPricePaisa != null ? (variant.compareAtPricePaisa / 100).toFixed(0) : ""}
+            displayValue={variant.compareAtPricePaisa != null ? `৳${(variant.compareAtPricePaisa / 100).toFixed(0)}` : "None"}
+            onSave={handleSaveCompareAtPrice}
+            type="number"
+            placeholder="None"
+            disabled={disabled}
+            label="Old Price (৳)"
             leftIcon={<span className="text-shade-50 text-body-md font-medium">৳</span>}
           />
         </div>
@@ -322,7 +358,7 @@ export function VariantRowEditor({
             aria-label={variant.isActive ? "Deactivate variant" : "Activate variant"}
           >
             <span
-              className={`h-1.5 w-1.5 rounded-full ${variant.isActive ? "bg-aloe-10/80" : "bg-shade-40"
+              className={`h-1.5 w-1.5 rounded-full ${variant.isActive ? "bg-emerald-600" : "bg-shade-50"
                 }`}
               aria-hidden="true"
             />
@@ -378,16 +414,26 @@ export function VariantRowEditor({
           label="SKU"
         />
 
-        {/* Price + Stock side by side */}
-        <div className="grid grid-cols-2 gap-2">
+        {/* Price + Old Price + Stock side by side */}
+        <div className="grid grid-cols-3 gap-2">
           <InlineCell
-            value={variant.pricePaisa !== null ? (variant.pricePaisa / 100).toFixed(0) : ""}
+            value={variant.pricePaisa != null ? (variant.pricePaisa / 100).toFixed(0) : ""}
             displayValue={priceDisplay}
             onSave={handleSavePrice}
             type="number"
             placeholder="Inherit"
             disabled={disabled}
             label="Price (৳)"
+            leftIcon={<span className="text-shade-50 text-body-md font-medium">৳</span>}
+          />
+          <InlineCell
+            value={variant.compareAtPricePaisa != null ? (variant.compareAtPricePaisa / 100).toFixed(0) : ""}
+            displayValue={variant.compareAtPricePaisa != null ? `৳${(variant.compareAtPricePaisa / 100).toFixed(0)}` : "None"}
+            onSave={handleSaveCompareAtPrice}
+            type="number"
+            placeholder="None"
+            disabled={disabled}
+            label="Old Price"
             leftIcon={<span className="text-shade-50 text-body-md font-medium">৳</span>}
           />
           <InlineCell

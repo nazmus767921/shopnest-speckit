@@ -102,6 +102,7 @@ export const merchants = pgTable("merchants", {
   payDeliveryChargeFirst: boolean("pay_delivery_charge_first").notNull().default(false),
   bkashWalletNumber: text("bkash_wallet_number"),
   nagadWalletNumber: text("nagad_wallet_number"),
+  theme: text("theme").default("default").notNull(),
 }, (table) => [
   index("merchants_owner_id_idx").on(table.ownerId),
   index("merchants_subscription_status_idx").on(table.subscriptionStatus),
@@ -117,6 +118,7 @@ export const products = pgTable("products", {
   slug: text("slug").notNull(),
   description: text("description"),
   pricePaisa: integer("price_paisa").notNull(),
+  compareAtPricePaisa: integer("compare_at_price_paisa"),
   stockCount: integer("stock_count").notNull().default(0),
   lowStockThreshold: integer("low_stock_threshold").notNull().default(5),
   hasVariants: boolean("has_variants").notNull().default(false),
@@ -420,6 +422,7 @@ export const productVariants = pgTable("product_variants", {
     .references(() => products.id, { onDelete: "cascade" }),
   sku: text("sku").notNull(),
   pricePaisa: integer("price_paisa"),
+  compareAtPricePaisa: integer("compare_at_price_paisa"),
   stockCount: integer("stock_count").notNull().default(0),
   lowStockThreshold: integer("low_stock_threshold"),
   isActive: boolean("is_active").notNull().default(true),
