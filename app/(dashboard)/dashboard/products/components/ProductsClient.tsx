@@ -9,7 +9,7 @@ import {
   updateProductStockAction,
   toggleProductPromotionAction
 } from "@/app/actions/products"
-import { Button, Card } from "@/components/ui"
+import { Button, Card, Select } from "@/components/ui"
 import {
   Plus,
   ShoppingBag,
@@ -468,31 +468,46 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               <div className="flex flex-wrap gap-3 items-center w-full lg:w-auto">
                 <div className="flex items-center gap-2 grow sm:grow-0">
                   <span className="text-caption text-shade-50 font-medium">Stock:</span>
-                  <select
-                    value={stockFilter}
-                    onChange={(e) => setStockFilter(e.target.value as any)}
-                    className="text-caption border border-hairline-light bg-canvas-light text-ink rounded-full px-4 py-2 min-h-10 outline-none focus:border-shade-60 transition-all grow sm:grow-0 cursor-pointer font-semibold"
-                  >
-                    <option value="all">All Levels</option>
-                    <option value="in_stock">In Stock</option>
-                    <option value="low_stock">Low Stock</option>
-                    <option value="out_of_stock">Out of Stock</option>
-                  </select>
+                  <Select<{ value: string; label: string }>
+                    options={[
+                      { value: "all", label: "All Levels" },
+                      { value: "in_stock", label: "In Stock" },
+                      { value: "low_stock", label: "Low Stock" },
+                      { value: "out_of_stock", label: "Out of Stock" },
+                    ]}
+                    value={[
+                      { value: "all", label: "All Levels" },
+                      { value: "in_stock", label: "In Stock" },
+                      { value: "low_stock", label: "Low Stock" },
+                      { value: "out_of_stock", label: "Out of Stock" },
+                    ].find((o: { value: string; label: string }) => o.value === stockFilter) ?? null}
+                    onChange={(opt: { value: string; label: string } | null) => opt && setStockFilter(opt.value as any)}
+                    getOptionLabel={(o: { value: string; label: string }) => o.label}
+                    getOptionValue={(o: { value: string; label: string }) => o.value}
+                  />
                 </div>
 
                 <div className="flex items-center gap-2 grow sm:grow-0">
                   <span className="text-caption text-shade-50 font-medium">Sort:</span>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as any)}
-                    className="text-caption border border-hairline-light bg-canvas-light text-ink rounded-full px-4 py-2 min-h-10 outline-none focus:border-shade-60 transition-all grow sm:grow-0 cursor-pointer font-semibold"
-                  >
-                    <option value="newest">Newest First</option>
-                    <option value="price_asc">Price: Low to High</option>
-                    <option value="price_desc">Price: High to Low</option>
-                    <option value="stock_asc">Stock: Low to High</option>
-                    <option value="stock_desc">Stock: High to Low</option>
-                  </select>
+                  <Select<{ value: string; label: string }>
+                    options={[
+                      { value: "newest", label: "Newest First" },
+                      { value: "price_asc", label: "Price: Low to High" },
+                      { value: "price_desc", label: "Price: High to Low" },
+                      { value: "stock_asc", label: "Stock: Low to High" },
+                      { value: "stock_desc", label: "Stock: High to Low" },
+                    ]}
+                    value={[
+                      { value: "newest", label: "Newest First" },
+                      { value: "price_asc", label: "Price: Low to High" },
+                      { value: "price_desc", label: "Price: High to Low" },
+                      { value: "stock_asc", label: "Stock: Low to High" },
+                      { value: "stock_desc", label: "Stock: High to Low" },
+                    ].find((o: { value: string; label: string }) => o.value === sortBy) ?? null}
+                    onChange={(opt: { value: string; label: string } | null) => opt && setSortBy(opt.value as any)}
+                    getOptionLabel={(o: { value: string; label: string }) => o.label}
+                    getOptionValue={(o: { value: string; label: string }) => o.value}
+                  />
                 </div>
               </div>
             </div>

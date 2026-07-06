@@ -32,6 +32,7 @@ const mockVariants: VariantOption[] = [
     id: "v-red-sm",
     sku: "SKU-RED-SM",
     pricePaisa: 100000, // ৳1000.00
+    compareAtPricePaisa: null,
     stockCount: 10,
     isActive: true,
     attributeCombination: { Color: "red", Size: "sm" },
@@ -40,6 +41,7 @@ const mockVariants: VariantOption[] = [
     id: "v-red-md",
     sku: "SKU-RED-MD",
     pricePaisa: 120000, // ৳1200.00
+    compareAtPricePaisa: null,
     stockCount: 5,
     isActive: true,
     attributeCombination: { Color: "red", Size: "md" },

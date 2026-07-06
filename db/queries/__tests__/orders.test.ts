@@ -254,6 +254,7 @@ describe("compareAtPrice — Database Operations TDD", () => {
     mockInsert.mockReturnValue(mockInsertBuilder)
 
     const variantData = {
+      id: "var-123",
       productId: "prod-123",
       merchantId: "merch-123",
       sku: "TEST-VAR-1",

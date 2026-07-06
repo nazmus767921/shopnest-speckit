@@ -7,6 +7,7 @@ import { updateStoreSettingsAction } from "@/app/actions/settings"
 import { Button } from "@/components/ui/primitives/Button"
 import { Input } from "@/components/ui/primitives/Input"
 import { FormLabel } from "@/components/ui/primitives/FormLabel"
+import { Select } from "@/components/ui/primitives/Select"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/layout/Card"
 import { CheckCircle2, AlertCircle, Save, Lock, Smartphone, Landmark, Sliders, LayoutTemplate, Trash2, Plus, UploadCloud, X, Truck, Bell } from "lucide-react"
 import { z } from "zod"
@@ -856,34 +857,38 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                 <CardContent className="p-0 flex flex-col gap-5">
                   {/* Storefront Theme Selector */}
                   <storefrontForm.Field name="theme">
-                    {(field) => (
-                      <div className="flex flex-col gap-1.5">
-                        <FormLabel htmlFor="store-theme">Storefront Theme</FormLabel>
-                        <select
-                          id="store-theme"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                          className="bg-canvas-cream/40 border border-hairline-light focus:border-ink rounded-lg p-2.5 text-body-md"
-                        >
-                          <option value="default">Default (SHOP.CO Bold Stark Theme)</option>
-                          <option
-                            value="cinematic"
-                            disabled={plan?.slug === "starter"}
-                          >
-                            Cinematic Theme {plan?.slug === "starter" ? "(Upgrade to Growth required)" : ""}
-                          </option>
-                        </select>
-                        {plan?.slug === "starter" && (
-                          <span className="text-micro text-amber-600 font-semibold mt-1">
-                            Upgrade your plan to Growth or Pro to unlock the premium Cinematic Theme.
-                          </span>
-                        )}
-                        {field.state.meta.errors.length > 0 && (
-                          <p className="text-micro text-red-500">{String(field.state.meta.errors[0])}</p>
-                        )}
-                      </div>
-                    )}
+                    {(field) => {
+                      const themeOptions = [
+                        { value: "default", label: "Default (SHOP.CO Bold Stark Theme)" },
+                        { value: "cinematic", label: `Cinematic Theme${plan?.slug === "starter" ? " (Upgrade to Growth required)" : ""}` },
+                      ]
+                      return (
+                        <div className="flex flex-col gap-1.5">
+                          <FormLabel htmlFor="store-theme">Storefront Theme</FormLabel>
+                          <Select<{ value: string; label: string }>
+                            options={themeOptions}
+                            value={themeOptions.find((o) => o.value === field.state.value) ?? null}
+                            onChange={(opt) => opt && field.handleChange(opt.value)}
+                            renderOption={(opt) => (
+                              <span className="flex items-center justify-between w-full">
+                                <span>{opt.label}</span>
+                                {opt.value === "cinematic" && plan?.slug === "starter" && (
+                                  <span className="text-micro text-amber-600 font-semibold ml-2">Locked</span>
+                                )}
+                              </span>
+                            )}
+                          />
+                          {plan?.slug === "starter" && (
+                            <span className="text-micro text-amber-600 font-semibold mt-1">
+                              Upgrade your plan to Growth or Pro to unlock the premium Cinematic Theme.
+                            </span>
+                          )}
+                          {field.state.meta.errors.length > 0 && (
+                            <p className="text-micro text-red-500">{String(field.state.meta.errors[0])}</p>
+                          )}
+                        </div>
+                      )
+                    }}
                   </storefrontForm.Field>
 
                   {/* Subtitle Input */}

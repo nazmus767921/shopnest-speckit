@@ -3,10 +3,24 @@
 import { useCallback, useState, useId } from "react";
 import { CheckSquare, Square, X, Percent, Plus, Minus, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/primitives/Input";
+import { Select } from "@/components/ui/primitives/Select";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type PriceAdjustmentType = "fixed" | "percent" | "add_amount";
+
+const PRICE_ADJUSTMENT_OPTIONS = [
+  { value: "fixed", label: "Fixed (৳)" },
+  { value: "percent", label: "%" },
+  { value: "add_amount", label: "+/- ৳" },
+]
+
+const COMPARE_AT_OPTIONS = [
+  { value: "fixed", label: "Fixed (৳)" },
+  { value: "percent", label: "%" },
+  { value: "add_amount", label: "+/- ৳" },
+  { value: "clear", label: "Clear Old Price" },
+]
 
 interface UndoSnapshot {
   variants: Array<{ id: string; pricePaisa: number | null; stockCount: number; isActive: boolean; sku: string }>;
@@ -240,16 +254,15 @@ export function VariantBulkToolbar({
                 Price Adjustment
               </label>
               <div className="grid grid-cols-2 sm:flex gap-1.5">
-                <select
-                  value={priceType}
-                  onChange={(e) => setPriceType(e.target.value as PriceAdjustmentType)}
+                <Select<(typeof PRICE_ADJUSTMENT_OPTIONS)[number]>
+                  options={PRICE_ADJUSTMENT_OPTIONS}
+                  value={PRICE_ADJUSTMENT_OPTIONS.find((o) => o.value === priceType) ?? null}
+                  onChange={(opt) => opt && setPriceType(opt.value as PriceAdjustmentType)}
                   disabled={disabled || saving}
-                  className="rounded-md border border-hairline-light bg-canvas-light px-2 py-2 text-micro text-ink focus:border-ink focus:outline-none w-full sm:w-24"
-                >
-                  <option value="fixed">Fixed (৳)</option>
-                  <option value="percent">%</option>
-                  <option value="add_amount">+/- ৳</option>
-                </select>
+                  getOptionLabel={(o) => o.label}
+                  getOptionValue={(o) => o.value}
+                  className="w-full sm:w-24"
+                />
                 <Input
                   type="number"
                   value={priceValue}
@@ -275,17 +288,15 @@ export function VariantBulkToolbar({
                 Old Price Adjustment
               </label>
               <div className="grid grid-cols-2 sm:flex gap-1.5">
-                <select
-                  value={compareAtPriceType}
-                  onChange={(e) => setCompareAtPriceType(e.target.value as any)}
+                <Select<(typeof COMPARE_AT_OPTIONS)[number]>
+                  options={COMPARE_AT_OPTIONS}
+                  value={COMPARE_AT_OPTIONS.find((o) => o.value === compareAtPriceType) ?? null}
+                  onChange={(opt) => opt && setCompareAtPriceType(opt.value as any)}
                   disabled={disabled || saving}
-                  className="rounded-md border border-hairline-light bg-canvas-light px-2 py-2 text-micro text-ink focus:border-ink focus:outline-none w-full sm:w-24"
-                >
-                  <option value="fixed">Fixed (৳)</option>
-                  <option value="percent">%</option>
-                  <option value="add_amount">+/- ৳</option>
-                  <option value="clear">Clear Old Price</option>
-                </select>
+                  getOptionLabel={(o) => o.label}
+                  getOptionValue={(o) => o.value}
+                  className="w-full sm:w-24"
+                />
                 {compareAtPriceType !== "clear" && (
                   <Input
                     type="number"

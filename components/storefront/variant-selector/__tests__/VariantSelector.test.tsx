@@ -27,12 +27,12 @@ const attributes: AttributeInfo[] = [
 ];
 
 const variants: VariantOption[] = [
-  { id: "v1", sku: "SKU-RED-S", pricePaisa: 10000, stockCount: 5, isActive: true, attributeCombination: { Color: "red", Size: "s" } },
-  { id: "v2", sku: "SKU-RED-M", pricePaisa: 10000, stockCount: 3, isActive: true, attributeCombination: { Color: "red", Size: "m" } },
-  { id: "v3", sku: "SKU-RED-L", pricePaisa: 11000, stockCount: 0, isActive: true, attributeCombination: { Color: "red", Size: "l" } },
-  { id: "v4", sku: "SKU-BLUE-S", pricePaisa: 10000, stockCount: 2, isActive: true, attributeCombination: { Color: "blue", Size: "s" } },
-  { id: "v5", sku: "SKU-BLUE-M", pricePaisa: 10000, stockCount: 7, isActive: false, attributeCombination: { Color: "blue", Size: "m" } },
-  { id: "v6", sku: "SKU-BLUE-L", pricePaisa: 12000, stockCount: 4, isActive: true, attributeCombination: { Color: "blue", Size: "l" } },
+  { id: "v1", sku: "SKU-RED-S", pricePaisa: 10000, compareAtPricePaisa: null, stockCount: 5, isActive: true, attributeCombination: { Color: "red", Size: "s" } },
+  { id: "v2", sku: "SKU-RED-M", pricePaisa: 10000, compareAtPricePaisa: null, stockCount: 3, isActive: true, attributeCombination: { Color: "red", Size: "m" } },
+  { id: "v3", sku: "SKU-RED-L", pricePaisa: 11000, compareAtPricePaisa: null, stockCount: 0, isActive: true, attributeCombination: { Color: "red", Size: "l" } },
+  { id: "v4", sku: "SKU-BLUE-S", pricePaisa: 10000, compareAtPricePaisa: null, stockCount: 2, isActive: true, attributeCombination: { Color: "blue", Size: "s" } },
+  { id: "v5", sku: "SKU-BLUE-M", pricePaisa: 10000, compareAtPricePaisa: null, stockCount: 7, isActive: false, attributeCombination: { Color: "blue", Size: "m" } },
+  { id: "v6", sku: "SKU-BLUE-L", pricePaisa: 12000, compareAtPricePaisa: null, stockCount: 4, isActive: true, attributeCombination: { Color: "blue", Size: "l" } },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -43,8 +43,12 @@ function clickSwatch(name: string) {
 }
 
 function selectDropdown(selectName: string, value: string) {
-  const select = screen.getByRole("combobox", { name: new RegExp(selectName, "i") });
-  fireEvent.change(select, { target: { value } });
+  // Find the Select trigger button by its placeholder text (e.g. "Select Size...")
+  const trigger = screen.getByRole("button", { name: new RegExp(`select ${selectName}`, "i") });
+  fireEvent.click(trigger);
+  // Find and click the desired option in the dropdown by its display label
+  const option = screen.getByText(new RegExp(`^${value}$`, "i"));
+  fireEvent.click(option);
 }
 
 describe("VariantSelector — Selection State", () => {

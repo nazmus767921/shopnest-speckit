@@ -5,7 +5,7 @@ export const productFormSchema = z.object({
   name: z.string().min(2, "Product name must be at least 2 characters."),
   description: z.string(),
   price: z.number().min(0.01, "Price must be greater than zero."),
-  compareAtPrice: z.number().min(0.01, "Old price must be greater than zero.").optional().nullable(),
+  compareAtPrice: z.number().nullable(),
   stockCount: z.number().int().min(0, "Stock count cannot be negative."),
   lowStockThreshold: z.number().int().min(0, "Low stock threshold cannot be negative."),
   isPublished: z.boolean(),

@@ -23,7 +23,7 @@ import {
   Plus,
   Layers
 } from "lucide-react"
-import { Combobox, AlertDialog, Dialog, Button, Badge, Alert } from "@/components/ui"
+import { Combobox, AlertDialog, Dialog, Button, Badge, Alert, Select } from "@/components/ui"
 
 interface MerchantDropdownItem {
   id: string
@@ -679,35 +679,45 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-2.5 w-full md:w-auto md:justify-end">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="text-caption border border-hairline-light rounded-md px-3.5 py-2.5 bg-canvas-light text-ink focus:outline-none focus:ring-1 focus:ring-emerald-700 w-full md:w-36"
-              >
-                <option value="all">All Statuses</option>
-                <option value="verified">Verified</option>
-                <option value="rejected">Rejected</option>
-              </select>
-              <select
-                value={methodFilter}
-                onChange={(e) => setMethodFilter(e.target.value)}
-                className="text-caption border border-hairline-light rounded-md px-3.5 py-2.5 bg-canvas-light text-ink focus:outline-none focus:ring-1 focus:ring-emerald-700 w-full md:w-36"
-              >
-                <option value="all">All Methods</option>
-                <option value="bkash">bKash</option>
-                <option value="nagad">Nagad</option>
-                <option value="bank">Bank Transfer</option>
-              </select>
-              <select
-                value={planFilter}
-                onChange={(e) => setPlanFilter(e.target.value)}
-                className="text-caption border border-hairline-light rounded-md px-3.5 py-2.5 bg-canvas-light text-ink focus:outline-none focus:ring-1 focus:ring-emerald-700 w-full md:w-36"
-              >
-                <option value="all">All Plans</option>
-                {plans.map(p => (
-                  <option key={p.id} value={p.slug}>{p.name}</option>
-                ))}
-              </select>
+              <Select<{ value: string; label: string }>
+                options={[
+                  { value: "all", label: "All Statuses" },
+                  { value: "verified", label: "Verified" },
+                  { value: "rejected", label: "Rejected" },
+                ]}
+                value={[{ value: "all", label: "All Statuses" }, { value: "verified", label: "Verified" }, { value: "rejected", label: "Rejected" }].find((o: { value: string; label: string }) => o.value === statusFilter) ?? null}
+                onChange={(opt: { value: string; label: string } | null) => opt && setStatusFilter(opt.value)}
+                getOptionLabel={(o: { value: string; label: string }) => o.label}
+                getOptionValue={(o: { value: string; label: string }) => o.value}
+                className="w-full md:w-36"
+              />
+              <Select<{ value: string; label: string }>
+                options={[
+                  { value: "all", label: "All Methods" },
+                  { value: "bkash", label: "bKash" },
+                  { value: "nagad", label: "Nagad" },
+                  { value: "bank", label: "Bank Transfer" },
+                ]}
+                value={[{ value: "all", label: "All Methods" }, { value: "bkash", label: "bKash" }, { value: "nagad", label: "Nagad" }, { value: "bank", label: "Bank Transfer" }].find((o: { value: string; label: string }) => o.value === methodFilter) ?? null}
+                onChange={(opt: { value: string; label: string } | null) => opt && setMethodFilter(opt.value)}
+                getOptionLabel={(o: { value: string; label: string }) => o.label}
+                getOptionValue={(o: { value: string; label: string }) => o.value}
+                className="w-full md:w-36"
+              />
+              <Select<{ value: string; label: string }>
+                options={[
+                  { value: "all", label: "All Plans" },
+                  ...plans.map((p: any) => ({ value: p.slug, label: p.name })),
+                ]}
+                value={[
+                  { value: "all", label: "All Plans" },
+                  ...plans.map((p: any) => ({ value: p.slug, label: p.name })),
+                ].find((o: { value: string; label: string }) => o.value === planFilter) ?? null}
+                onChange={(opt: { value: string; label: string } | null) => opt && setPlanFilter(opt.value)}
+                getOptionLabel={(o: { value: string; label: string }) => o.label}
+                getOptionValue={(o: { value: string; label: string }) => o.value}
+                className="w-full md:w-36"
+              />
             </div>
           </div>
 
@@ -1000,16 +1010,21 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                         {/* Payment Method */}
                         <div className="flex flex-col gap-1.5">
                           <span className="text-[10px] font-bold text-shade-40 uppercase tracking-wider">Collection Channel</span>
-                          <select
-                            required
-                            value={paymentMethod}
-                            onChange={(e) => setPaymentMethod(e.target.value)}
-                            className="w-full text-body-md border border-hairline-light rounded-md px-3.5 py-2.5 bg-canvas-light text-ink focus:outline-none focus:ring-1 focus:ring-emerald-700 font-semibold"
-                          >
-                            <option value="bkash">bKash</option>
-                            <option value="nagad">Nagad</option>
-                            <option value="bank">Bank Transfer</option>
-                          </select>
+                          <Select<{ value: string; label: string }>
+                            options={[
+                              { value: "bkash", label: "bKash" },
+                              { value: "nagad", label: "Nagad" },
+                              { value: "bank", label: "Bank Transfer" },
+                            ]}
+                            value={[
+                              { value: "bkash", label: "bKash" },
+                              { value: "nagad", label: "Nagad" },
+                              { value: "bank", label: "Bank Transfer" },
+                            ].find((o: { value: string; label: string }) => o.value === paymentMethod) ?? null}
+                            onChange={(opt: { value: string; label: string } | null) => opt && setPaymentMethod(opt.value)}
+                            getOptionLabel={(o: { value: string; label: string }) => o.label}
+                            getOptionValue={(o: { value: string; label: string }) => o.value}
+                          />
                         </div>
 
                         {/* Transaction ID */}
@@ -1083,19 +1098,22 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
 
                               <div className="flex flex-col gap-1.5 mt-1">
                                 <span className="text-[10px] font-bold text-shade-40 uppercase tracking-wider">New Target Plan</span>
-                                <select
-                                  value={changePlanTargetId}
-                                  onChange={(e) => {
-                                    setChangePlanTargetId(e.target.value)
+                                <Select<{ value: string; label: string }>
+                                  options={[
+                                    { value: "", label: "Select plan..." },
+                                    ...availablePlans.map((p: any) => ({ value: p.id, label: `${p.name} (৳${Math.floor(p.pricePaisa / 100)}/mo)` })),
+                                  ]}
+                                  value={[
+                                    { value: "", label: "Select plan..." },
+                                    ...availablePlans.map((p: any) => ({ value: p.id, label: `${p.name} (৳${Math.floor(p.pricePaisa / 100)}/mo)` })),
+                                  ].find((o: { value: string; label: string }) => o.value === changePlanTargetId) ?? null}
+                                  onChange={(opt: { value: string; label: string } | null) => {
+                                    setChangePlanTargetId(opt?.value ?? "")
                                     setChangePlanViolations([])
                                   }}
-                                  className="w-full text-body-md border border-hairline-light rounded-md px-3.5 py-2.5 bg-canvas-light text-ink focus:outline-none focus:ring-1 focus:ring-emerald-700"
-                                >
-                                  <option value="">Select plan...</option>
-                                  {availablePlans.map(p => (
-                                    <option key={p.id} value={p.id}>{p.name} (৳{Math.floor(p.pricePaisa / 100)}/mo)</option>
-                                  ))}
-                                </select>
+                                  getOptionLabel={(o: { value: string; label: string }) => o.label}
+                                  getOptionValue={(o: { value: string; label: string }) => o.value}
+                                />
                               </div>
 
                               {/* Violations alerts */}

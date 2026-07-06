@@ -11,7 +11,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          "rounded-lg overflow-hidden flex flex-col transition-all duration-200",
+          "rounded-lg flex flex-col transition-all duration-200",
           {
             // card-pricing: canvas-light bg, ink text, hairline border, no shadow
             "bg-canvas-light text-ink border border-hairline-light": variant === "default",

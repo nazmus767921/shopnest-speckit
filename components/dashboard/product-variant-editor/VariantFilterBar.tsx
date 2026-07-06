@@ -2,6 +2,20 @@
 
 import { useCallback, useState, useId, useMemo } from "react";
 import { Search, X } from "lucide-react";
+import { Select } from "@/components/ui/primitives/Select";
+
+const STOCK_OPTIONS = [
+  { value: "all", label: "All Stock" },
+  { value: "in_stock", label: "In Stock (>0)" },
+  { value: "out_of_stock", label: "Out of Stock (0)" },
+  { value: "low_stock", label: "Low Stock (≤10)" },
+]
+
+const STATUS_OPTIONS = [
+  { value: "all", label: "All Status" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+]
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -136,47 +150,42 @@ export function VariantFilterBar({
 
         {/* Stock + Status on same row on mobile */}
         <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
-          <select
-            value={stockFilter}
-            onChange={(e) => handleStockChange(e.target.value as FilterCriteria["stockFilter"])}
+          <Select<(typeof STOCK_OPTIONS)[number]>
+            options={STOCK_OPTIONS}
+            value={STOCK_OPTIONS.find((o) => o.value === stockFilter) ?? null}
+            onChange={(opt) => opt && handleStockChange(opt.value as FilterCriteria["stockFilter"])}
             disabled={disabled}
-            className="rounded-md border border-hairline-light bg-canvas-light px-2.5 py-1.5 text-micro text-ink focus:border-ink focus:outline-none w-full sm:w-auto"
-          >
-            <option value="all">All Stock</option>
-            <option value="in_stock">In Stock (&gt;0)</option>
-            <option value="out_of_stock">Out of Stock (0)</option>
-            <option value="low_stock">Low Stock (≤10)</option>
-          </select>
+            getOptionLabel={(o) => o.label}
+            getOptionValue={(o) => o.value}
+            className="w-full sm:w-auto"
+          />
 
-          <select
-            value={statusFilter}
-            onChange={(e) => handleStatusChange(e.target.value as FilterCriteria["statusFilter"])}
+          <Select<(typeof STATUS_OPTIONS)[number]>
+            options={STATUS_OPTIONS}
+            value={STATUS_OPTIONS.find((o) => o.value === statusFilter) ?? null}
+            onChange={(opt) => opt && handleStatusChange(opt.value as FilterCriteria["statusFilter"])}
             disabled={disabled}
-            className="rounded-md border border-hairline-light bg-canvas-light px-2.5 py-1.5 text-micro text-ink focus:border-ink focus:outline-none w-full sm:w-auto"
-          >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+            getOptionLabel={(o) => o.label}
+            getOptionValue={(o) => o.value}
+            className="w-full sm:w-auto"
+          />
         </div>
 
         {/* Attribute dropdown filters */}
-        {attributes.map((attr) => (
-          <select
-            key={attr.name}
-            value={attributeFilters[attr.name] ?? ""}
-            onChange={(e) => handleAttributeFilter(attr.name, e.target.value)}
-            disabled={disabled}
-            className="rounded-md border border-hairline-light bg-canvas-light px-2.5 py-1.5 text-micro text-ink focus:border-ink focus:outline-none"
-          >
-            <option value="">All {attr.name}</option>
-            {attr.options.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        ))}
+        {attributes.map((attr) => {
+          const attrOptions = [{ value: "", label: `All ${attr.name}` }, ...attr.options]
+          return (
+            <Select<{ value: string; label: string }>
+              key={attr.name}
+              options={attrOptions}
+              value={attrOptions.find((o) => o.value === (attributeFilters[attr.name] ?? "")) ?? null}
+              onChange={(opt) => handleAttributeFilter(attr.name, opt?.value ?? "")}
+              disabled={disabled}
+              getOptionLabel={(o) => o.label}
+              getOptionValue={(o) => o.value}
+            />
+          )
+        })}
 
         {/* Clear button */}
         {hasActiveFilters && (

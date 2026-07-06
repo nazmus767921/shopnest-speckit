@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import { Select } from "@/components/ui/primitives/Select";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -197,32 +198,34 @@ export function VariantSelector({
                 );
               })}
             </div>
-          ) : (
-            <select
-              id={`${instanceId}-${attr.name}`}
-              value={selectedOptions[attr.name] ?? ""}
-              onChange={(e) => handleOptionSelect(attr.name, e.target.value)}
-              disabled={disabled}
-              className="w-full rounded-md border border-hairline-light bg-canvas-light px-4 py-2.5 text-sm text-ink focus:border-shade-40 focus:outline-none"
-            >
-              <option value="">Select {attr.name}...</option>
-              {attr.options.map((opt) => {
-                const isAvailable =
-                  availableOptions[attr.name]?.has(opt.value) ?? true;
-
-                return (
-                  <option
-                    key={opt.value}
-                    value={opt.value}
-                    disabled={!isAvailable}
-                  >
-                    {opt.label}
-                    {!isAvailable ? " (Unavailable)" : ""}
-                  </option>
-                );
-              })}
-            </select>
-          )}
+          ) : (() => {
+            const attrOptions = [
+              { value: "", label: `Select ${attr.name}...` },
+              ...attr.options.map((o: { value: string; label: string }) => ({
+                ...o,
+                unavailable: !(availableOptions[attr.name]?.has(o.value) ?? true),
+              })),
+            ] as ({ value: string; label: string; unavailable?: boolean }[])
+            return (
+              <Select
+                options={attrOptions}
+                value={attrOptions.find((o) => o.value === (selectedOptions[attr.name] ?? "")) ?? null}
+                onChange={(opt) => opt && handleOptionSelect(attr.name, opt.value)}
+                disabled={disabled}
+                getOptionLabel={(o) => o.label}
+                getOptionValue={(o) => o.value}
+                renderOption={(opt) => (
+                  <span className="flex items-center justify-between w-full">
+                    <span>{opt.label}</span>
+                    {opt.unavailable && (
+                      <span className="text-micro text-shade-40 ml-2">Unavailable</span>
+                    )}
+                  </span>
+                )}
+                className="w-full"
+              />
+            )
+          })()}
         </div>
       ))}
       {/* Hidden elements for test assertions */}

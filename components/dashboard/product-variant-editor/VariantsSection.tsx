@@ -261,7 +261,7 @@ export function VariantsSection({
     return (
       <div className="space-y-4" aria-label="Loading variant data">
         {/* Attribute editor skeleton */}
-        <div className="relative overflow-hidden rounded-lg border border-hairline-light bg-canvas-light p-4 sm:p-6">
+        <div className="relative rounded-lg border border-hairline-light bg-canvas-light p-4 sm:p-6">
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-shade-30/60 to-shade-30/20" aria-hidden="true" />
           <div className="flex items-center gap-3 mb-4">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-shade-30/30">
@@ -287,7 +287,7 @@ export function VariantsSection({
         </div>
 
         {/* Variant table skeleton */}
-        <div className="rounded-lg border border-hairline-light bg-canvas-light overflow-hidden">
+        <div className="rounded-lg border border-hairline-light bg-canvas-light">
           <div className="flex items-center gap-3 px-4 sm:px-6 py-3 border-b border-hairline-light bg-canvas-cream/40">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-shade-30/30">
               <div className="h-4 w-4 rounded bg-shade-30/40" />
@@ -316,7 +316,7 @@ export function VariantsSection({
   // ── Error State ──
   if (isError) {
     return (
-      <div className="rounded-lg border border-hairline-light bg-canvas-light overflow-hidden">
+      <div className="rounded-lg border border-hairline-light bg-canvas-light">
         <div className="flex items-center gap-3 px-4 sm:px-6 py-3 border-b border-hairline-light bg-canvas-cream/40">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50">
             <AlertCircle className="h-4 w-4 text-red-400" />
@@ -355,7 +355,7 @@ export function VariantsSection({
       </div>
       <div className="space-y-4">
       {/* ── Attribute Editor ── */}
-      <div className="relative overflow-hidden rounded-lg border border-hairline-light bg-canvas-light p-4 sm:p-6">
+      <div className="relative rounded-lg border border-hairline-light bg-canvas-light p-4 sm:p-6">
         {/* Left accent bar */}
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary/60 to-primary/10" aria-hidden="true" />
 
@@ -420,7 +420,7 @@ export function VariantsSection({
 
       {/* ── Variant Table ── */}
       {hasGeneratedData && (
-        <div className="rounded-lg border border-hairline-light bg-canvas-light overflow-hidden">
+        <div className="rounded-lg border border-hairline-light bg-canvas-light">
           {/* Header row with integrated filters */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 px-4 sm:px-6 py-3 border-b border-hairline-light bg-canvas-cream/40">
             <div className="flex items-center gap-2.5">
