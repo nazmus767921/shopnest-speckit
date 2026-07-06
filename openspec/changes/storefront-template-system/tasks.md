@@ -32,27 +32,27 @@
 
 ## 5. General Template Module
 
-- [ ] 5.1 Create `templates/general/` directory structure with `index.ts` barrel export implementing `TemplateModule`
-- [ ] 5.2 Create `templates/general/styles.css` — extract `.storefront-theme-default` CSS tokens from `globals.css` into `.storefront-template-general` scoped stylesheet
-- [ ] 5.3 Build `templates/general/GeneralHomePage.tsx` — refactor current `page.tsx` home content into template component accepting `HomePageProps`
-- [ ] 5.4 Build `templates/general/GeneralPLP.tsx` — refactor current PLP into template component with filter sidebar + 3-col product grid
-- [ ] 5.5 Build `templates/general/GeneralPDP.tsx` — refactor current PDP into template component with two-column gallery + details layout
-- [ ] 5.6 Build `templates/general/GeneralNavbar.tsx` — refactor `StorefrontNavbar` into general template's navbar (logo, search, cart, category links)
-- [ ] 5.7 Build `templates/general/GeneralFooter.tsx` — refactor current footer from layout.tsx into general template's footer component
-- [ ] 5.8 Build `templates/general/GeneralCartPage.tsx` — refactor `CartClientPage` for use as general template's cart (shared implementation with template tokens)
-- [ ] 5.9 Create template-specific components in `templates/general/components/` (GeneralHeroBanner, GeneralCategoryGrid, GeneralProductCard)
+- [x] 5.1 Create `templates/general/` directory structure with `index.ts` barrel export implementing `TemplateModule`
+- [x] 5.2 Create `templates/general/styles.css` — extract `.storefront-theme-default` CSS tokens from `globals.css` into `.storefront-template-general` scoped stylesheet
+- [x] 5.3 Build `templates/general/GeneralHomePage.tsx` — refactor current `page.tsx` home content into template component accepting `HomePageProps`
+- [x] 5.4 Build `templates/general/GeneralPLP.tsx` — refactor current PLP into template component with filter sidebar + 3-col product grid
+- [x] 5.5 Build `templates/general/GeneralPDP.tsx` — refactor current PDP into template component with two-column gallery + details layout
+- [x] 5.6 Build `templates/general/GeneralNavbar.tsx` — refactor `StorefrontNavbar` into general template's navbar (logo, search, cart, category links)
+- [x] 5.7 Build `templates/general/GeneralFooter.tsx` — refactor current footer from layout.tsx into general template's footer component
+- [x] 5.8 Build `templates/general/GeneralCartPage.tsx` — refactor `CartClientPage` for use as general template's cart (shared implementation with template tokens)
+- [x] 5.9 Create template-specific components in `templates/general/components/` (GeneralHeroBanner, GeneralCategoryGrid, GeneralProductCard)
 - [ ] 5.10 Verify general template renders identically to current storefront (visual regression)
 
 ## 6. Fashion Template Module
 
-- [ ] 6.1 Create `templates/fashion/` directory structure with `index.ts` barrel export implementing `TemplateModule`
-- [ ] 6.2 Create `templates/fashion/styles.css` — fashion template CSS tokens under `.storefront-template-fashion` (editorial typography, dark footer canvas, fashion color palette per DESIGN-fashion.md)
-- [ ] 6.3 Build `templates/fashion/FashionHomePage.tsx` — full-bleed editorial hero, asymmetric category grid, new arrivals carousel, trending lookbook grid, newsletter band
-- [ ] 6.4 Build `templates/fashion/FashionPLP.tsx` — portrait-oriented 3-col product cards, collapsible filter sidebar, no add-to-cart on cards, color swatch indicators
-- [ ] 6.5 Build `templates/fashion/FashionPDP.tsx` — 60/40 gallery+details layout, prominent color swatches as circles, inverted size pills, "Complete the Look" carousel, reviews section
-- [ ] 6.6 Build `templates/fashion/FashionNavbar.tsx` — minimal editorial navbar, centered/left logo, sparse nav items (Shop, New In), search overlay, cart badge
-- [ ] 6.7 Build `templates/fashion/FashionFooter.tsx` — dark canvas footer, display typography newsletter heading, light text on dark, social icons, payment badges
-- [ ] 6.8 Build fashion-specific components in `templates/fashion/components/` (FashionEditorialHero, FashionLookbookCard, FashionColorSwatchRow, FashionProductCard)
+- [x] 6.1 Create `templates/fashion/` directory structure with `index.ts` barrel export implementing `TemplateModule`
+- [x] 6.2 Create `templates/fashion/styles.css` — fashion template CSS tokens under `.storefront-template-fashion` (editorial typography, dark footer canvas, fashion color palette per DESIGN-fashion.md)
+- [x] 6.3 Build `templates/fashion/FashionHomePage.tsx` — full-bleed editorial hero, asymmetric category grid, new arrivals carousel, trending lookbook grid, newsletter band
+- [x] 6.4 Build `templates/fashion/FashionPLP.tsx` — portrait-oriented 3-col product cards, collapsible filter sidebar, no add-to-cart on cards, color swatch indicators
+- [x] 6.5 Build `templates/fashion/FashionPDP.tsx` — 60/40 gallery+details layout, prominent color swatches as circles, inverted size pills, "Complete the Look" carousel, reviews section
+- [x] 6.6 Build `templates/fashion/FashionNavbar.tsx` — minimal editorial navbar, centered/left logo, sparse nav items (Shop, New In), search overlay, cart badge
+- [x] 6.7 Build `templates/fashion/FashionFooter.tsx` — dark canvas footer, display typography newsletter heading, light text on dark, social icons, payment badges
+- [x] 6.8 Build fashion-specific components in `templates/fashion/components/` (FashionEditorialHero, FashionLookbookCard, FashionColorSwatchRow, FashionProductCard)
 - [ ] 6.9 Verify fashion template renders correctly with sample store data against DESIGN-fashion.md specifications
 
 ## 7. Storefront Route Refactoring (Thin Resolvers)

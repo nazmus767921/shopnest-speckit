@@ -1,9 +1,15 @@
-import React from "react"
-import type { TemplateModule } from "../types"
+import { GeneralHomePage } from "./GeneralHomePage"
+import { GeneralPLP } from "./GeneralPLP"
+import { GeneralPDP } from "./GeneralPDP"
+import { GeneralCartPage } from "./GeneralCartPage"
+import { GeneralNavbar } from "./GeneralNavbar"
+import { GeneralFooter } from "./GeneralFooter"
 
-export const HomePage: TemplateModule["HomePage"] = () => React.createElement("div", null, "General Home Page")
-export const PLP: TemplateModule["PLP"] = () => React.createElement("div", null, "General Product Listing Page")
-export const PDP: TemplateModule["PDP"] = () => React.createElement("div", null, "General Product Detail Page")
-export const CartPage: TemplateModule["CartPage"] = () => React.createElement("div", null, "General Cart Page")
-export const Navbar: TemplateModule["Navbar"] = () => React.createElement("div", null, "General Navbar")
-export const Footer: TemplateModule["Footer"] = () => React.createElement("div", null, "General Footer")
+export {
+  GeneralHomePage as HomePage,
+  GeneralPLP as PLP,
+  GeneralPDP as PDP,
+  GeneralCartPage as CartPage,
+  GeneralNavbar as Navbar,
+  GeneralFooter as Footer,
+}

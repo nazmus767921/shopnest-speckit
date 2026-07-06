@@ -1,9 +1,15 @@
-import React from "react"
-import type { TemplateModule } from "../types"
+import { FashionHomePage } from "./FashionHomePage"
+import { FashionPLP } from "./FashionPLP"
+import { FashionPDP } from "./FashionPDP"
+import { FashionCartPage } from "./FashionCartPage"
+import { FashionNavbar } from "./FashionNavbar"
+import { FashionFooter } from "./FashionFooter"
 
-export const HomePage: TemplateModule["HomePage"] = () => React.createElement("div", null, "Fashion Home Page")
-export const PLP: TemplateModule["PLP"] = () => React.createElement("div", null, "Fashion Product Listing Page")
-export const PDP: TemplateModule["PDP"] = () => React.createElement("div", null, "Fashion Product Detail Page")
-export const CartPage: TemplateModule["CartPage"] = () => React.createElement("div", null, "Fashion Cart Page")
-export const Navbar: TemplateModule["Navbar"] = () => React.createElement("div", null, "Fashion Navbar")
-export const Footer: TemplateModule["Footer"] = () => React.createElement("div", null, "Fashion Footer")
+export {
+  FashionHomePage as HomePage,
+  FashionPLP as PLP,
+  FashionPDP as PDP,
+  FashionCartPage as CartPage,
+  FashionNavbar as Navbar,
+  FashionFooter as Footer,
+}
