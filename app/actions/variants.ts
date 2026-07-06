@@ -19,6 +19,7 @@ import { generateVariantMatrix, variantFingerprint, smartMergeVariants } from "@
 import { getMetadataByProductId, getVariantsByProductId, getAttributesByProductId, getOptionsByAttributeId, getAttributesWithOptionsByProductId, getVariantsWithCombinationsByProductId, getVariantImages, createVariantImage, deleteVariantImage } from "@/db/queries/variants";
 import { saveAttributesSchema, variantUpdateSchema, saveMetadataSchema, bulkVariantUpdateSchema, variantImageUploadSchema } from "@/lib/validations/variants";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { syncParentProductStock } from "@/db/queries/products";
 
 async function getAuthenticatedMerchant() {
   const session = await auth.api.getSession({
@@ -74,6 +75,7 @@ export async function saveProductAttributesAction(
         variantId: productVariants.id,
         sku: productVariants.sku,
         pricePaisa: productVariants.pricePaisa,
+        compareAtPricePaisa: productVariants.compareAtPricePaisa,
         stockCount: productVariants.stockCount,
         isActive: productVariants.isActive,
         attrName: productAttributes.name,
@@ -106,6 +108,7 @@ export async function saveProductAttributesAction(
         id: string;
         sku: string;
         pricePaisa: number | null;
+        compareAtPricePaisa: number | null;
         stockCount: number;
         isActive: boolean;
         combination: Record<string, string>;
@@ -117,6 +120,7 @@ export async function saveProductAttributesAction(
           id: row.variantId,
           sku: row.sku,
           pricePaisa: row.pricePaisa,
+          compareAtPricePaisa: row.compareAtPricePaisa,
           stockCount: row.stockCount,
           isActive: row.isActive,
           combination: {},
@@ -130,13 +134,14 @@ export async function saveProductAttributesAction(
     // Build fingerprint → full existing variant data
     const fingerprintToExisting = new Map<
       string,
-      { id: string; sku: string; pricePaisa: number | null; stockCount: number; isActive: boolean }
+      { id: string; sku: string; pricePaisa: number | null; compareAtPricePaisa: number | null; stockCount: number; isActive: boolean }
     >();
     for (const [, ev] of existingVariantMap) {
       fingerprintToExisting.set(variantFingerprint(ev.combination), {
         id: ev.id,
         sku: ev.sku,
         pricePaisa: ev.pricePaisa,
+        compareAtPricePaisa: ev.compareAtPricePaisa,
         stockCount: ev.stockCount,
         isActive: ev.isActive,
       });
@@ -351,6 +356,7 @@ export async function saveProductAttributesAction(
             productId,
             sku: existingData?.sku ?? entry.sku,
             pricePaisa: existingData?.pricePaisa ?? entry.price,
+            compareAtPricePaisa: existingData?.compareAtPricePaisa ?? null,
             stockCount: existingData?.stockCount ?? entry.stockCount,
             isActive: existingData?.isActive ?? entry.isActive,
             sortOrder: baseSortOrder + vIndex + 1,
@@ -384,6 +390,10 @@ export async function saveProductAttributesAction(
           updatedAt: new Date(),
         })
         .where(eq(products.id, productId));
+
+      if (hasAnyAttributes) {
+        await syncParentProductStock(tx, productId);
+      }
     });
 
     revalidatePath(`/dashboard/products/${productId}/edit`);
@@ -431,10 +441,14 @@ export async function updateVariantAction(variantId: string, data: unknown) {
       throw new Error("Variant not found.");
     }
 
-    await db
-      .update(productVariants)
-      .set({ ...parsed.data, updatedAt: new Date() })
-      .where(eq(productVariants.id, variantId));
+    await db.transaction(async (tx) => {
+      await tx
+        .update(productVariants)
+        .set({ ...parsed.data, updatedAt: new Date() })
+        .where(eq(productVariants.id, variantId));
+
+      await syncParentProductStock(tx, existing.productId);
+    });
 
     revalidatePath(`/dashboard/products/${existing.productId}/edit`);
     return { success: true as const, message: "Variant updated." };
@@ -505,6 +519,7 @@ export async function getProductVariantsAction(productId: string) {
         id: v.id,
         sku: v.sku,
         pricePaisa: v.pricePaisa,
+        compareAtPricePaisa: v.compareAtPricePaisa,
         stockCount: v.stockCount,
         isActive: v.isActive,
         sortOrder: v.sortOrder,
@@ -646,13 +661,14 @@ export async function bulkUpdateVariantsAction(data: unknown) {
       throw new Error(parsed.error.issues[0].message);
     }
 
-    const { variantIds, priceAdjustment, stockCount, isActive, skuPrefix } = parsed.data;
+    const { variantIds, priceAdjustment, compareAtPriceAdjustment, stockCount, isActive, skuPrefix } = parsed.data;
 
     // Verify all variants belong to this merchant (fetch one by one)
     const variants: Array<{
       id: string;
       productId: string;
       pricePaisa: number | null;
+      compareAtPricePaisa: number | null;
       sku: string;
     }> = [];
 
@@ -662,6 +678,7 @@ export async function bulkUpdateVariantsAction(data: unknown) {
           id: productVariants.id,
           productId: productVariants.productId,
           pricePaisa: productVariants.pricePaisa,
+          compareAtPricePaisa: productVariants.compareAtPricePaisa,
           sku: productVariants.sku,
         })
         .from(productVariants)
@@ -685,59 +702,85 @@ export async function bulkUpdateVariantsAction(data: unknown) {
     const productId = variants[0]?.productId;
     if (!productId) throw new Error("No variants found.");
 
-    // Apply updates
-    for (const variant of variants) {
-      const updateData: Record<string, unknown> = {};
+    // Apply updates inside transaction
+    await db.transaction(async (tx) => {
+      for (const variant of variants) {
+        const updateData: Record<string, unknown> = {};
 
-      // Price adjustment
-      if (priceAdjustment) {
-        let currentPrice = variant.pricePaisa ?? 0;
-        switch (priceAdjustment.type) {
-          case "fixed":
-            updateData.pricePaisa = Math.max(0, priceAdjustment.value);
-            break;
-          case "percent":
-            updateData.pricePaisa = Math.max(
-              0,
-              Math.round(currentPrice * (1 + priceAdjustment.value / 100)),
+        // Price adjustment
+        if (priceAdjustment) {
+          let currentPrice = variant.pricePaisa ?? 0;
+          switch (priceAdjustment.type) {
+            case "fixed":
+              updateData.pricePaisa = Math.max(0, priceAdjustment.value);
+              break;
+            case "percent":
+              updateData.pricePaisa = Math.max(
+                0,
+                Math.round(currentPrice * (1 + priceAdjustment.value / 100)),
+              );
+              break;
+            case "add_amount":
+              updateData.pricePaisa = Math.max(0, currentPrice + priceAdjustment.value);
+              break;
+          }
+        }
+
+        // Compare-at price adjustment
+        if (compareAtPriceAdjustment === null) {
+          updateData.compareAtPricePaisa = null;
+        } else if (compareAtPriceAdjustment) {
+          let currentComparePrice = variant.compareAtPricePaisa ?? 0;
+          switch (compareAtPriceAdjustment.type) {
+            case "fixed":
+              updateData.compareAtPricePaisa = Math.max(0, compareAtPriceAdjustment.value);
+              break;
+            case "percent":
+              updateData.compareAtPricePaisa = Math.max(
+                0,
+                Math.round(currentComparePrice * (1 + compareAtPriceAdjustment.value / 100)),
+              );
+              break;
+            case "add_amount":
+              updateData.compareAtPricePaisa = Math.max(0, currentComparePrice + compareAtPriceAdjustment.value);
+              break;
+          }
+        }
+
+        // Stock count
+        if (stockCount !== undefined) {
+          updateData.stockCount = stockCount;
+        }
+
+        // Active status
+        if (isActive !== undefined) {
+          updateData.isActive = isActive;
+        }
+
+        // SKU prefix
+        if (skuPrefix) {
+          const currentSku = variant.sku;
+          const parts = currentSku.split("-");
+          parts[0] = skuPrefix;
+          updateData.sku = parts.join("-");
+        }
+
+        if (Object.keys(updateData).length > 0) {
+          await tx
+            .update(productVariants)
+            .set({ ...updateData, updatedAt: new Date() })
+            .where(
+              and(
+                eq(productVariants.id, variant.id),
+                eq(productVariants.merchantId, merchant.id),
+              ),
             );
-            break;
-          case "add_amount":
-            updateData.pricePaisa = Math.max(0, currentPrice + priceAdjustment.value);
-            break;
         }
       }
 
-      // Stock count
-      if (stockCount !== undefined) {
-        updateData.stockCount = stockCount;
-      }
-
-      // Active status
-      if (isActive !== undefined) {
-        updateData.isActive = isActive;
-      }
-
-      // SKU prefix
-      if (skuPrefix) {
-        const currentSku = variant.sku;
-        const parts = currentSku.split("-");
-        parts[0] = skuPrefix;
-        updateData.sku = parts.join("-");
-      }
-
-      if (Object.keys(updateData).length > 0) {
-        await db
-          .update(productVariants)
-          .set({ ...updateData, updatedAt: new Date() })
-          .where(
-            and(
-              eq(productVariants.id, variant.id),
-              eq(productVariants.merchantId, merchant.id),
-            ),
-          );
-      }
-    }
+      // Sync parent stock count
+      await syncParentProductStock(tx, productId);
+    });
 
     revalidatePath(`/dashboard/products/${productId}/edit`);
     return {

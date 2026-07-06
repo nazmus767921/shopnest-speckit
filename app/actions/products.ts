@@ -35,10 +35,11 @@ export async function createProductAction(values: unknown) {
       throw new Error(result.error.issues[0].message)
     }
 
-    const { id, name, description, price, stockCount, lowStockThreshold, isPublished, images, categoryId, promotionTypes } = result.data
+    const { id, name, description, price, compareAtPrice, stockCount, lowStockThreshold, isPublished, images, categoryId, promotionTypes } = result.data
 
     // Convert Taka (decimal/float) to Paisa (integer)
     const pricePaisa = Math.round(price * 100)
+    const compareAtPricePaisa = compareAtPrice ? Math.round(compareAtPrice * 100) : null
 
     await assertPlanLimit(
       merchant.id,
@@ -54,6 +55,7 @@ export async function createProductAction(values: unknown) {
         name,
         description,
         pricePaisa,
+        compareAtPricePaisa,
         stockCount,
         lowStockThreshold,
         isPublished,
@@ -79,10 +81,11 @@ export async function updateProductAction(productId: string, values: unknown) {
       throw new Error(result.error.issues[0].message)
     }
 
-    const { name, description, price, stockCount, lowStockThreshold, isPublished, images, categoryId, promotionTypes } = result.data
+    const { name, description, price, compareAtPrice, stockCount, lowStockThreshold, isPublished, images, categoryId, promotionTypes } = result.data
 
     // Convert Taka (decimal/float) to Paisa (integer)
     const pricePaisa = Math.round(price * 100)
+    const compareAtPricePaisa = compareAtPrice ? Math.round(compareAtPrice * 100) : null
 
     await assertPlanLimit(
       merchant.id,
@@ -98,6 +101,7 @@ export async function updateProductAction(productId: string, values: unknown) {
         name,
         description,
         pricePaisa,
+        compareAtPricePaisa,
         stockCount,
         lowStockThreshold,
         isPublished,
@@ -140,6 +144,7 @@ export async function getProductsAction() {
       products: list.map(p => ({
         ...p,
         price: p.pricePaisa / 100,
+        compareAtPrice: p.compareAtPricePaisa ? p.compareAtPricePaisa / 100 : null,
       }))
     }
   } catch (error: any) {

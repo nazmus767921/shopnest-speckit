@@ -21,6 +21,7 @@ interface BulkToolbarProps {
   onBulkUpdate: (data: {
     variantIds: string[];
     priceAdjustment?: { type: PriceAdjustmentType; value: number };
+    compareAtPriceAdjustment?: { type: PriceAdjustmentType; value: number } | null;
     stockCount?: number;
     isActive?: boolean;
     skuPrefix?: string;
@@ -51,6 +52,10 @@ export function VariantBulkToolbar({
   const [priceType, setPriceType] = useState<PriceAdjustmentType>("fixed");
   const [priceValue, setPriceValue] = useState("");
 
+  // Compare-at price adjustment
+  const [compareAtPriceType, setCompareAtPriceType] = useState<PriceAdjustmentType | "clear">("fixed");
+  const [compareAtPriceValue, setCompareAtPriceValue] = useState("");
+
   // Stock
   const [stockValue, setStockValue] = useState("");
 
@@ -74,6 +79,7 @@ export function VariantBulkToolbar({
       const data: {
         variantIds?: string[];
         priceAdjustment?: { type: PriceAdjustmentType; value: number };
+        compareAtPriceAdjustment?: { type: PriceAdjustmentType; value: number } | null;
         stockCount?: number;
         isActive?: boolean;
         skuPrefix?: string;
@@ -86,6 +92,16 @@ export function VariantBulkToolbar({
           value = Math.round(value * 100);
         }
         data.priceAdjustment = { type: priceType, value };
+      }
+
+      if (compareAtPriceType === "clear") {
+        data.compareAtPriceAdjustment = null;
+      } else if (compareAtPriceValue) {
+        let value = parseFloat(compareAtPriceValue);
+        if (compareAtPriceType === "fixed" || compareAtPriceType === "add_amount") {
+          value = Math.round(value * 100);
+        }
+        data.compareAtPriceAdjustment = { type: compareAtPriceType, value };
       }
 
       if (stockValue) {
@@ -117,7 +133,7 @@ export function VariantBulkToolbar({
     } finally {
       setSaving(false);
     }
-  }, [hasSelection, priceValue, priceType, stockValue, bulkActive, skuPrefix, onBulkUpdate]);
+  }, [hasSelection, priceValue, priceType, compareAtPriceValue, compareAtPriceType, stockValue, bulkActive, skuPrefix, onBulkUpdate]);
 
   if (totalCount === 0) return null;
 
@@ -250,6 +266,46 @@ export function VariantBulkToolbar({
                   : priceType === "percent"
                     ? "Adjust by % (use negative for discount)"
                     : "Add/subtract in ৳ (use - for subtract)"}
+              </p>
+            </div>
+
+            {/* Old Price Adjustment */}
+            <div>
+              <label className="mb-1 block text-micro font-medium text-ink">
+                Old Price Adjustment
+              </label>
+              <div className="grid grid-cols-2 sm:flex gap-1.5">
+                <select
+                  value={compareAtPriceType}
+                  onChange={(e) => setCompareAtPriceType(e.target.value as any)}
+                  disabled={disabled || saving}
+                  className="rounded-md border border-hairline-light bg-canvas-light px-2 py-2 text-micro text-ink focus:border-ink focus:outline-none w-full sm:w-24"
+                >
+                  <option value="fixed">Fixed (৳)</option>
+                  <option value="percent">%</option>
+                  <option value="add_amount">+/- ৳</option>
+                  <option value="clear">Clear Old Price</option>
+                </select>
+                {compareAtPriceType !== "clear" && (
+                  <Input
+                    type="number"
+                    value={compareAtPriceValue}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCompareAtPriceValue(e.target.value)}
+                    placeholder={compareAtPriceType === "percent" ? "+10" : "150"}
+                    disabled={disabled || saving}
+                    min={0}
+                    className="min-h-9 text-micro"
+                  />
+                )}
+              </div>
+              <p className="mt-0.5 text-micro text-shade-40">
+                {compareAtPriceType === "clear"
+                  ? "Clear compare-at price"
+                  : compareAtPriceType === "fixed"
+                    ? "Set exact old price in ৳"
+                    : compareAtPriceType === "percent"
+                      ? "Adjust old price by %"
+                      : "Add/subtract old price in ৳"}
               </p>
             </div>
 

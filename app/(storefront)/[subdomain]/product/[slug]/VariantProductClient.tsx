@@ -16,6 +16,7 @@ export interface StorefrontProduct {
   slug: string;
   name: string;
   pricePaisa: number;
+  compareAtPricePaisa?: number | null;
   stockCount: number;
   imageUrl: string | null;
 }
@@ -29,6 +30,7 @@ interface VariantProductClientProps {
     id: string;
     sku: string;
     pricePaisa: number | null;
+    compareAtPricePaisa: number | null;
     stockCount: number;
     isActive: boolean;
     attributeCombination: Record<string, string>;
@@ -67,6 +69,7 @@ export function VariantProductClient({
         id: v.id,
         sku: v.sku,
         pricePaisa: v.pricePaisa,
+        compareAtPricePaisa: v.compareAtPricePaisa,
         stockCount: v.stockCount,
         isActive: v.isActive,
         attributeCombination: v.attributeCombination,
@@ -92,8 +95,20 @@ export function VariantProductClient({
 
   const hasSelection = selectedVariant !== null;
   const activePricePaisa = selectedVariant?.pricePaisa ?? product.pricePaisa;
-  const discountPercent = 30; // 30% discount simulated
-  const originalPricePaisa = Math.round(activePricePaisa / (1 - discountPercent / 100));
+
+  const activeCompareAtPricePaisa = selectedVariant
+    ? (selectedVariant.compareAtPricePaisa ?? null)
+    : (product.compareAtPricePaisa ?? null);
+
+  const hasComparePrice = activeCompareAtPricePaisa !== null && activeCompareAtPricePaisa > activePricePaisa;
+
+  const discountPercent = hasComparePrice
+    ? Math.round(((activeCompareAtPricePaisa! - activePricePaisa) / activeCompareAtPricePaisa!) * 100)
+    : 30; // default simulated fallback discount
+
+  const originalPricePaisa = hasComparePrice
+    ? activeCompareAtPricePaisa!
+    : Math.round(activePricePaisa / (1 - 30 / 100));
 
   return (
     <div className="flex flex-col gap-4">

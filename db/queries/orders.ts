@@ -2,6 +2,7 @@ import { db } from "@/db"
 import { orders, orderItems, paymentConfirmations, products, merchants, productVariants } from "@/db/schema"
 import { eq, ne, exists, and, inArray, gte, sql, isNull, desc, asc, count, or, like } from "drizzle-orm"
 import { assertPlanLimit } from "@/lib/plans/assertPlan"
+import { syncParentProductStock } from "./products"
 
 export async function createOrder(params: {
   merchantId: string
@@ -60,16 +61,30 @@ export async function createOrder(params: {
 
       // 2. Verify all products exist and check stock_count >= quantity (Invariant 2)
       //    For variant items, check variant stock instead of product stock.
+      const resolvedItems: Array<{
+        productId: string;
+        productName: string;
+        variantId: string | null;
+        variantLabel: string | null;
+        quantity: number;
+        unitPricePaisa: number;
+      }> = []
+
       for (const item of params.items) {
         const product = productRows.find((p) => p.id === item.productId)
         if (!product) {
           throw new Error(`Product not found or unavailable.`)
         }
 
+        let unitPricePaisa = product.pricePaisa
+
         if (item.variantId) {
-          // For variant items, check variant-level stock
+          // For variant items, check variant-level stock and resolve unit price
           const [variant] = await tx
-            .select({ stockCount: productVariants.stockCount })
+            .select({
+              stockCount: productVariants.stockCount,
+              pricePaisa: productVariants.pricePaisa,
+            })
             .from(productVariants)
             .where(
               and(
@@ -87,18 +102,30 @@ export async function createOrder(params: {
           if (variant.stockCount < item.quantity) {
             throw new Error(`"${product.name}" variant is out of stock. Please remove it from your cart and try again.`)
           }
+
+          if (variant.pricePaisa !== null) {
+            unitPricePaisa = variant.pricePaisa
+          }
         } else {
           // For base products, check product-level stock
           if (product.stockCount < item.quantity) {
             throw new Error(`"${product.name}" only has ${product.stockCount} left in stock.`)
           }
         }
+
+        resolvedItems.push({
+          productId: item.productId,
+          productName: product.name,
+          variantId: item.variantId ?? null,
+          variantLabel: item.variantLabel ?? null,
+          quantity: item.quantity,
+          unitPricePaisa,
+        })
       }
 
       // 3. Compute total order cost
-      const itemsSubtotal = params.items.reduce((sum, item) => {
-        const product = productRows.find((p) => p.id === item.productId)!
-        return sum + product.pricePaisa * item.quantity
+      const itemsSubtotal = resolvedItems.reduce((sum, item) => {
+        return sum + item.unitPricePaisa * item.quantity
       }, 0)
 
       const totalPaisa = itemsSubtotal + params.deliveryChargePaisa
@@ -121,33 +148,19 @@ export async function createOrder(params: {
       })
 
       // 5. Insert order items (snapshot product name and unit price — Invariant 3)
-      const orderItemsValues = await Promise.all(params.items.map(async (item) => {
-        const product = productRows.find((p) => p.id === item.productId)!
-
-        // If this is a variant, fetch its price override
-        let unitPricePaisa = product.pricePaisa
-        if (item.variantId) {
-          const [variant] = await tx
-            .select({ pricePaisa: productVariants.pricePaisa })
-            .from(productVariants)
-            .where(eq(productVariants.id, item.variantId))
-          if (variant && variant.pricePaisa !== null) {
-            unitPricePaisa = variant.pricePaisa
-          }
-        }
-
+      const orderItemsValues = resolvedItems.map((item) => {
         return {
           id: crypto.randomUUID(),
           orderId,
           merchantId: params.merchantId,
           productId: item.productId,
-          productName: product.name, // Snapshotted
-          unitPricePaisa, // Snapshotted (Invariant 3) — variant price or base price
+          productName: item.productName, // Snapshotted
+          unitPricePaisa: item.unitPricePaisa, // Snapshotted (Invariant 3) — variant price or base price
           quantity: item.quantity,
-          variantId: item.variantId ?? null,
-          variantLabel: item.variantLabel ?? null,
+          variantId: item.variantId,
+          variantLabel: item.variantLabel,
         }
-      }))
+      })
       await tx.insert(orderItems).values(orderItemsValues)
 
       // 6. Decrement stock counts with a final safety check (Invariant 2)
@@ -172,6 +185,9 @@ export async function createOrder(params: {
           if (updateResult.length === 0) {
             throw new Error("This variant just went out of stock. Please remove it from your cart and try again.")
           }
+
+          // Sync parent product stock
+          await syncParentProductStock(tx, item.productId)
         } else {
           // Decrement base product stock
           const updateResult = await tx
@@ -505,6 +521,9 @@ export async function updateOrderStatus(merchantId: string, orderId: string, new
               eq(productVariants.id, item.variantId),
               eq(productVariants.merchantId, merchantId),
             ))
+
+          // Sync parent product stock
+          await syncParentProductStock(tx, item.productId)
         } else {
           // For base products, restore product stock (symmetrical to createOrder)
           await tx

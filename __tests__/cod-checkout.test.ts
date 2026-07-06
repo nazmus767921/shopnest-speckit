@@ -9,16 +9,45 @@ import { storeSettingsSchema } from "@/lib/validations/settings"
 import { paymentSchema } from "@/lib/validations/checkout"
 
 // Mock Drizzle DB calls
-const { mockReturning, mockWhere, mockSet, mockUpdate, mockInsert, mockFindFirstMerchant, mockFindFirstOrder, mockTransaction, mockQuery } = vi.hoisted(() => {
+const {
+  mockReturning,
+  mockWhere,
+  mockSet,
+  mockUpdate,
+  mockInsert,
+  mockSelect,
+  mockFindFirstMerchant,
+  mockFindFirstOrder,
+  mockTransaction,
+  mockQuery
+} = vi.hoisted(() => {
+  // Helper to create a chainable thenable mock for Drizzle query builder
+  function createMockQueryBuilder(resolvedValue: any) {
+    const builder: any = {
+      select: vi.fn(() => builder),
+      from: vi.fn(() => builder),
+      where: vi.fn(() => builder),
+      for: vi.fn(() => builder),
+      leftJoin: vi.fn(() => builder),
+      orderBy: vi.fn(() => builder),
+      limit: vi.fn(() => builder),
+      set: vi.fn(() => builder),
+      values: vi.fn(() => builder),
+      returning: vi.fn(() => builder),
+      then: vi.fn((onFulfilled) => Promise.resolve(resolvedValue).then(onFulfilled)),
+      catch: vi.fn((onRejected) => Promise.resolve(resolvedValue).catch(onRejected)),
+    }
+    return builder
+  }
+
   const mockReturning = vi.fn().mockImplementation(() => {
-    console.log("mockReturning called! Stack trace:")
-    console.log(new Error().stack)
     return Promise.resolve([{ id: "order-123", status: "delivered" }])
   })
   const mockWhere = vi.fn(() => ({ returning: mockReturning }))
   const mockSet = vi.fn(() => ({ where: mockWhere }))
   const mockUpdate = vi.fn(() => ({ set: mockSet }))
   const mockInsert = vi.fn(() => ({ values: vi.fn().mockResolvedValue([]) }))
+  const mockSelect = vi.fn(() => createMockQueryBuilder([{ totalStock: 5 }]))
   const mockFindFirstMerchant = vi.fn()
   const mockFindFirstOrder = vi.fn()
   const mockQuery = {
@@ -35,13 +64,19 @@ const { mockReturning, mockWhere, mockSet, mockUpdate, mockInsert, mockFindFirst
       findFirst: vi.fn(),
     },
   }
-  const mockTransaction = vi.fn((cb) => cb({ update: mockUpdate, insert: mockInsert, query: mockQuery }))
+  const mockTransaction = vi.fn((cb) => cb({
+    select: mockSelect,
+    update: mockUpdate,
+    insert: mockInsert,
+    query: mockQuery
+  }))
   return {
     mockReturning,
     mockWhere,
     mockSet,
     mockUpdate,
     mockInsert,
+    mockSelect,
     mockFindFirstMerchant,
     mockFindFirstOrder,
     mockTransaction,
@@ -51,6 +86,7 @@ const { mockReturning, mockWhere, mockSet, mockUpdate, mockInsert, mockFindFirst
 
 vi.mock("@/db", () => ({
   db: {
+    select: mockSelect,
     update: mockUpdate,
     insert: mockInsert,
     transaction: mockTransaction,

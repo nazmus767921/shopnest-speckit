@@ -285,6 +285,7 @@ export async function getVariantsWithCombinationsByProductId(productId: string) 
       variantId: productVariants.id,
       sku: productVariants.sku,
       pricePaisa: productVariants.pricePaisa,
+      compareAtPricePaisa: productVariants.compareAtPricePaisa,
       stockCount: productVariants.stockCount,
       isActive: productVariants.isActive,
       sortOrder: productVariants.sortOrder,
@@ -312,6 +313,7 @@ export async function getVariantsWithCombinationsByProductId(productId: string) 
     id: string;
     sku: string;
     pricePaisa: number | null;
+    compareAtPricePaisa: number | null;
     stockCount: number;
     isActive: boolean;
     sortOrder: number;
@@ -324,6 +326,7 @@ export async function getVariantsWithCombinationsByProductId(productId: string) 
         id: row.variantId,
         sku: row.sku,
         pricePaisa: row.pricePaisa,
+        compareAtPricePaisa: row.compareAtPricePaisa,
         stockCount: row.stockCount,
         isActive: row.isActive,
         sortOrder: row.sortOrder,

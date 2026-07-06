@@ -8,6 +8,7 @@ export type VariantOption = {
   id: string;
   sku: string;
   pricePaisa: number | null;
+  compareAtPricePaisa: number | null;
   stockCount: number;
   isActive: boolean;
   attributeCombination: Record<string, string>;

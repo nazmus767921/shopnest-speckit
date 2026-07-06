@@ -23,6 +23,7 @@ export interface DialogProduct {
   name: string;
   imageUrl: string | null;
   pricePaisa: number;
+  compareAtPricePaisa?: number | null;
   stockCount: number;
   attributes: AttributeInfo[];
   variants: VariantOption[];
@@ -168,6 +169,16 @@ export function VariantQuickSelectDialog({
       ? selectedVariant.pricePaisa
       : product?.pricePaisa ?? 0;
 
+  const displayCompareAtPrice = selectedVariant
+    ? (selectedVariant.compareAtPricePaisa ?? null)
+    : (product?.compareAtPricePaisa ?? null);
+
+  const hasComparePrice = displayCompareAtPrice !== null && displayCompareAtPrice > displayPrice;
+
+  const discountPercent = hasComparePrice
+    ? Math.round(((displayCompareAtPrice - displayPrice) / displayCompareAtPrice) * 100)
+    : 0;
+
   const isOutOfStock = product?.stockCount === 0;
   const canAddToCart = !!selectedVariant && !isOutOfStock && !isLoading;
 
@@ -208,9 +219,21 @@ export function VariantQuickSelectDialog({
                 <h2 id="vqsd-title" className="vqsd-product-name text-storefront-heading-sm">
                   {product.name}
                 </h2>
-                <p className="vqsd-price text-storefront-body-lg">
-                  {formatTaka(displayPrice)}
-                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="vqsd-price text-storefront-body-lg font-bold text-ink">
+                    {formatTaka(displayPrice)}
+                  </p>
+                  {hasComparePrice && (
+                    <>
+                      <span className="text-storefront-caption text-shade-40 line-through">
+                        {formatTaka(displayCompareAtPrice)}
+                      </span>
+                      <span className="bg-[#FF33331A] text-[#FF3333] px-2 py-0.5 rounded-full text-[10px] font-bold">
+                        -{discountPercent}%
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 

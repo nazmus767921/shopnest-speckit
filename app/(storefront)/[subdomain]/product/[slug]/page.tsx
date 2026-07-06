@@ -92,6 +92,7 @@ async function ProductDetailPageContent({ params }: Props) {
     slug: product.slug,
     name: product.name,
     pricePaisa: product.pricePaisa,
+    compareAtPricePaisa: product.compareAtPricePaisa,
     stockCount: product.stockCount,
     imageUrl: publicUrl,
   }
@@ -190,12 +191,25 @@ async function ProductDetailPageContent({ params }: Props) {
                 <span className="font-sans text-2xl md:text-3xl font-extrabold text-ink">
                   {formatTaka(product.pricePaisa)}
                 </span>
-                <span className="font-sans text-lg md:text-xl font-bold text-shade-40 line-through">
-                  {formatTaka(Math.round(product.pricePaisa * 1.3))}
-                </span>
-                <span className="bg-[#FF33331A] text-[#FF3333] px-3 py-0.5 rounded-full text-xs md:text-sm font-bold font-sans">
-                  -23%
-                </span>
+                {product.compareAtPricePaisa !== null && product.compareAtPricePaisa > product.pricePaisa ? (
+                  <>
+                    <span className="font-sans text-lg md:text-xl font-bold text-shade-40 line-through">
+                      {formatTaka(product.compareAtPricePaisa)}
+                    </span>
+                    <span className="bg-[#FF33331A] text-[#FF3333] px-3 py-0.5 rounded-full text-xs md:text-sm font-bold font-sans">
+                      -{Math.round(((product.compareAtPricePaisa - product.pricePaisa) / product.compareAtPricePaisa) * 100)}%
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-sans text-lg md:text-xl font-bold text-shade-40 line-through">
+                      {formatTaka(Math.round(product.pricePaisa * 1.3))}
+                    </span>
+                    <span className="bg-[#FF33331A] text-[#FF3333] px-3 py-0.5 rounded-full text-xs md:text-sm font-bold font-sans">
+                      -23%
+                    </span>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -232,6 +246,7 @@ async function ProductDetailPageContent({ params }: Props) {
                   id: v.id,
                   sku: v.sku,
                   pricePaisa: v.pricePaisa,
+                  compareAtPricePaisa: v.compareAtPricePaisa,
                   stockCount: v.stockCount,
                   isActive: v.isActive,
                   attributeCombination: v.attributeCombination,

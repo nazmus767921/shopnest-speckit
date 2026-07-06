@@ -23,6 +23,7 @@ interface FormattedProduct {
   slug: string
   description: string | null
   pricePaisa: number
+  compareAtPricePaisa?: number | null
   stockCount: number
   lowStockThreshold: number
   images: { storagePath: string }[]
@@ -61,10 +62,15 @@ export function ProductCard({
   const idSum = product.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
   const rating = 3.5 + (idSum % 4) * 0.5 // yields 3.5, 4.0, 4.5, 5.0
 
-  // Deterministic discount details
-  const hasDiscount = idSum % 2 === 0
-  const discountPercent = hasDiscount ? (idSum % 3 === 0 ? 30 : 20) : 0
-  const originalPricePaisa = hasDiscount ? Math.round(product.pricePaisa / (1 - discountPercent / 100)) : product.pricePaisa
+  // Deterministic discount details or real compareAtPricePaisa
+  const hasRealComparePrice = product.compareAtPricePaisa !== undefined && product.compareAtPricePaisa !== null && product.compareAtPricePaisa > product.pricePaisa
+  const hasDiscount = hasRealComparePrice || (idSum % 2 === 0)
+  const discountPercent = hasRealComparePrice
+    ? Math.round(((product.compareAtPricePaisa! - product.pricePaisa) / product.compareAtPricePaisa!) * 100)
+    : (hasDiscount ? (idSum % 3 === 0 ? 30 : 20) : 0)
+  const originalPricePaisa = hasRealComparePrice
+    ? product.compareAtPricePaisa!
+    : (hasDiscount ? Math.round(product.pricePaisa / (1 - discountPercent / 100)) : product.pricePaisa)
 
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -78,6 +84,7 @@ export function ProductCard({
         name: product.name,
         imageUrl: publicUrl,
         pricePaisa: product.pricePaisa,
+        compareAtPricePaisa: product.compareAtPricePaisa,
         stockCount: product.stockCount,
         attributes: product.attributes ?? [],
         variants: product.variants ?? [],

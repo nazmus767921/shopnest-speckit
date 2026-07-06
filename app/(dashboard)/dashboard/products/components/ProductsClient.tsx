@@ -30,6 +30,8 @@ interface FormattedProduct {
   id: string
   name: string
   price: number
+  hasVariants: boolean
+  compareAtPrice: number | null
   stockCount: number
   lowStockThreshold: number
   isPublished: boolean
@@ -615,12 +617,30 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                             ৳{product.price.toLocaleString("en-BD", { minimumFractionDigits: 2 })}
                           </td>
                           <td className="p-4 align-middle">
-                            <InlineStockWidget
-                              productId={product.id}
-                              initialStock={product.stockCount}
-                              lowStockThreshold={product.lowStockThreshold}
-                              onSave={(newStock) => handleStockSave(product.id, newStock)}
-                            />
+                            {product.hasVariants ? (
+                              <span
+                                title={
+                                  product.stockCount === 0 ? "Out of stock" :
+                                    product.stockCount <= product.lowStockThreshold ? `Low stock (Threshold: ${product.lowStockThreshold})` :
+                                      "In Stock"
+                                }
+                                className="inline-flex items-center gap-1.5 text-caption bg-canvas-cream border border-hairline px-2 py-1.5 rounded-md font-semibold text-shade-50"
+                              >
+                                <span className={`h-2 w-2 rounded-full shrink-0 ${
+                                  product.stockCount === 0 ? "bg-red-500 animate-pulse" :
+                                    product.stockCount <= product.lowStockThreshold ? "bg-amber-500" :
+                                      "bg-emerald-500"
+                                }`} />
+                                {product.stockCount} (Variants)
+                              </span>
+                            ) : (
+                              <InlineStockWidget
+                                productId={product.id}
+                                initialStock={product.stockCount}
+                                lowStockThreshold={product.lowStockThreshold}
+                                onSave={(newStock) => handleStockSave(product.id, newStock)}
+                              />
+                            )}
                           </td>
                           <td className="p-4 align-middle">
                             <button
@@ -797,12 +817,30 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                       {/* Stock management row */}
                       <div className="flex items-center justify-between border-t border-b border-hairline-light/50 py-3">
                         <span className="text-caption text-shade-50 font-medium">Stock Level:</span>
-                        <InlineStockWidget
-                          productId={product.id}
-                          initialStock={product.stockCount}
-                          lowStockThreshold={product.lowStockThreshold}
-                          onSave={(newStock) => handleStockSave(product.id, newStock)}
-                        />
+                        {product.hasVariants ? (
+                          <span
+                            title={
+                              product.stockCount === 0 ? "Out of stock" :
+                                product.stockCount <= product.lowStockThreshold ? `Low stock (Threshold: ${product.lowStockThreshold})` :
+                                  "In Stock"
+                            }
+                            className="inline-flex items-center gap-1.5 text-caption bg-canvas-cream border border-hairline px-2 py-1.5 rounded-md font-semibold text-shade-50"
+                          >
+                            <span className={`h-2 w-2 rounded-full shrink-0 ${
+                              product.stockCount === 0 ? "bg-red-500 animate-pulse" :
+                                product.stockCount <= product.lowStockThreshold ? "bg-amber-500" :
+                                  "bg-emerald-500"
+                            }`} />
+                            {product.stockCount} (Variants)
+                          </span>
+                        ) : (
+                          <InlineStockWidget
+                            productId={product.id}
+                            initialStock={product.stockCount}
+                            lowStockThreshold={product.lowStockThreshold}
+                            onSave={(newStock) => handleStockSave(product.id, newStock)}
+                          />
+                        )}
                       </div>
 
                       {/* Actions row */}

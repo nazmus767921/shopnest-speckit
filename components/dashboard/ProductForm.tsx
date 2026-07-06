@@ -48,6 +48,7 @@ interface ProductFormProps {
     name: string
     description: string | null
     pricePaisa: number
+    compareAtPricePaisa?: number | null
     stockCount: number
     lowStockThreshold: number
     isPublished: boolean
@@ -107,6 +108,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
       name: initialData?.name || "",
       description: initialData?.description || "",
       price: initialData ? initialData.pricePaisa / 100 : 0,
+      compareAtPrice: initialData?.compareAtPricePaisa ? initialData.compareAtPricePaisa / 100 : null,
       stockCount: initialData?.stockCount ?? 0,
       lowStockThreshold: initialData?.lowStockThreshold ?? 5,
       isPublished: initialData?.isPublished ?? false,
@@ -364,7 +366,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
             />
 
             {/* Price and Stock Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {/* Price */}
               <form.Field
                 name="price"
@@ -391,15 +393,48 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                 )}
               />
 
+              {/* Old Price */}
+              <form.Field
+                name="compareAtPrice"
+                children={(field) => (
+                  <div className="flex flex-col gap-1.5">
+                    <FormLabel htmlFor={field.name}>Old Price (BDT)</FormLabel>
+                    <Input
+                      id={field.name}
+                      type="number"
+                      placeholder="e.g. 150"
+                      leftIcon="৳"
+                      value={field.state.value ?? ""}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : null)}
+                      error={field.state.meta.errors.length > 0}
+                    />
+                    {field.state.meta.errors.length > 0 ? (
+                      <span className="text-caption text-red-500 font-medium mt-0.5">
+                        {getErrorMessage(field.state.meta.errors[0])}
+                      </span>
+                    ) : (
+                      <p className="text-caption text-shade-40">
+                        Optional comparison price.
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+
               {/* Stock count — managed per-variant when product has variants */}
               {hasVariants ? (
                 <div className="flex flex-col gap-1.5">
                   <FormLabel htmlFor="variant-stock">Stock Quantity</FormLabel>
-                  <div className="flex items-center gap-2 rounded-md border border-hairline-light bg-canvas-cream/60 px-3 py-2.5 text-body-md text-shade-40 italic">
-                    Managed per variant
-                  </div>
-                  <p className="text-caption text-shade-40 mt-0.5">
-                    Set individual stock levels for each variant in the Variants tab.
+                  <Input
+                    id="variant-stock"
+                    type="number"
+                    disabled
+                    value={totalVariantStock}
+                    className="bg-shade-10 cursor-not-allowed opacity-75"
+                  />
+                  <p className="text-caption text-amber-600 dark:text-amber-500 font-medium mt-0.5">
+                    Stock is managed via variants
                   </p>
                 </div>
               ) : (

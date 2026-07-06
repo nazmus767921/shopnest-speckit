@@ -23,6 +23,7 @@ interface VariantFromDb {
   id: string;
   sku: string;
   pricePaisa: number | null;
+  compareAtPricePaisa: number | null;
   stockCount: number;
   isActive: boolean;
   sortOrder: number;
@@ -95,7 +96,7 @@ export function VariantsSection({
   const [focusedRowIndex, setFocusedRowIndex] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
   const [undoSnapshot, setUndoSnapshot] = useState<{
-    variants: Array<{ id: string; pricePaisa: number | null; stockCount: number; isActive: boolean; sku: string }>;
+    variants: Array<{ id: string; pricePaisa: number | null; compareAtPricePaisa: number | null; stockCount: number; isActive: boolean; sku: string }>;
     appliedData: any;
   } | null>(null);
   const [filters, setFilters] = useState<FilterCriteria>({
@@ -460,6 +461,7 @@ export function VariantsSection({
                   .map((v: any) => ({
                     id: v.id,
                     pricePaisa: v.pricePaisa,
+                    compareAtPricePaisa: v.compareAtPricePaisa,
                     stockCount: v.stockCount,
                     isActive: v.isActive,
                     sku: v.sku,
@@ -488,6 +490,7 @@ export function VariantsSection({
                 for (const v of undoSnapshot.variants) {
                   await updateVariantAction(v.id, {
                     pricePaisa: v.pricePaisa,
+                    compareAtPricePaisa: v.compareAtPricePaisa,
                     stockCount: v.stockCount,
                     isActive: v.isActive,
                     sku: v.sku,
@@ -525,6 +528,7 @@ export function VariantsSection({
                     sku: variant.sku,
                     label: `Variant #${variant.sortOrder}`,
                     pricePaisa: variant.pricePaisa,
+                    compareAtPricePaisa: variant.compareAtPricePaisa,
                     stockCount: variant.stockCount,
                     isActive: variant.isActive,
                   }}

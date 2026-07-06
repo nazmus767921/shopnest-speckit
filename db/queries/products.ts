@@ -1,7 +1,28 @@
 import { db } from "@/db"
-import { products, productImages, merchants, productPromotions } from "@/db/schema"
-import { eq, and, isNull, desc, count, ilike, or } from "drizzle-orm"
+import { products, productImages, merchants, productPromotions, productVariants } from "@/db/schema"
+import { eq, and, isNull, desc, count, ilike, or, sql } from "drizzle-orm"
 import { assertPlanLimit } from "@/lib/plans/assertPlan"
+
+export async function syncParentProductStock(tx: any, productId: string) {
+  const [sumResult] = await tx
+    .select({ totalStock: sql<number>`COALESCE(SUM(${productVariants.stockCount}), 0)` })
+    .from(productVariants)
+    .where(
+      and(
+        eq(productVariants.productId, productId),
+        eq(productVariants.isActive, true)
+      )
+    )
+  const totalStock = Number(sumResult?.totalStock ?? 0)
+
+  await tx
+    .update(products)
+    .set({ stockCount: totalStock, updatedAt: new Date() })
+    .where(eq(products.id, productId))
+
+  return totalStock
+}
+
 
 // Helper to generate a URL-safe unique slug
 function generateUniqueSlug(name: string): string {
@@ -55,6 +76,7 @@ export async function createProduct(
     name: string
     description?: string
     pricePaisa: number
+    compareAtPricePaisa?: number | null
     stockCount?: number
     lowStockThreshold?: number
     isPublished?: boolean
@@ -90,6 +112,7 @@ export async function createProduct(
         slug,
         description: data.description || null,
         pricePaisa: data.pricePaisa,
+        compareAtPricePaisa: data.compareAtPricePaisa ?? null,
         stockCount: data.stockCount ?? 0,
         lowStockThreshold: data.lowStockThreshold ?? 5,
         isPublished: data.isPublished ?? false,
@@ -131,6 +154,7 @@ export async function updateProduct(
     name?: string
     description?: string
     pricePaisa?: number
+    compareAtPricePaisa?: number | null
     stockCount?: number
     lowStockThreshold?: number
     isPublished?: boolean
@@ -154,6 +178,10 @@ export async function updateProduct(
     updates.slug = generateUniqueSlug(data.name)
   }
 
+  if (existingProduct.hasVariants) {
+    delete updates.stockCount
+  }
+
   return await db.transaction(async (tx) => {
     // Update product details
     const [updatedProduct] = await tx
@@ -166,6 +194,10 @@ export async function updateProduct(
         )
       )
       .returning()
+
+    if (existingProduct.hasVariants) {
+      await syncParentProductStock(tx, productId)
+    }
 
     // Update images if provided
     if (images !== undefined) {

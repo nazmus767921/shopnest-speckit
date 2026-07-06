@@ -57,6 +57,7 @@ async function StorefrontPageContent({ params }: Props) {
       slug: p.slug,
       description: p.description,
       pricePaisa: p.pricePaisa,
+      compareAtPricePaisa: p.compareAtPricePaisa,
       stockCount: p.stockCount,
       lowStockThreshold: p.lowStockThreshold,
       images: p.images.map((img) => ({ storagePath: img.storagePath })),
@@ -76,6 +77,7 @@ async function StorefrontPageContent({ params }: Props) {
         id: v.id,
         sku: v.sku,
         pricePaisa: v.pricePaisa,
+        compareAtPricePaisa: v.compareAtPricePaisa,
         stockCount: v.stockCount,
         isActive: v.isActive,
         attributeCombination: Object.fromEntries(
