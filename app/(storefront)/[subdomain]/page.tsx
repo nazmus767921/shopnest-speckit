@@ -38,7 +38,8 @@ async function StorefrontPageContent({ params }: Props) {
 
   // Parse custom FAQs
   const parsedFaqs: Array<{ question: string; answer: string }> = merchant?.customFaqs || []
-  const themeClass = `storefront-theme-${merchant?.theme || "default"}`
+  const template = merchant?.template || "general"
+  const themeClass = `storefront-theme-${template === "general" ? "default" : template}`
 
   // Map database structures to matching types
   const formattedProducts = products.map((p) => {

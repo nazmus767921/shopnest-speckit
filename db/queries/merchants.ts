@@ -122,7 +122,7 @@ export async function updateStorefrontLayout(
     storeAddress?: string | null
     socialLinks?: Record<string, string> | null
     customFaqs?: Array<{ question: string; answer: string }> | null
-    theme?: string
+    template?: string
   }
 ) {
   const [updated] = await db
@@ -134,7 +134,7 @@ export async function updateStorefrontLayout(
       storeAddress: data.storeAddress,
       socialLinks: data.socialLinks,
       customFaqs: data.customFaqs,
-      theme: data.theme,
+      template: data.template,
     })
     .where(eq(merchants.id, merchantId))
     .returning()

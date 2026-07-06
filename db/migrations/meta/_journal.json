@@ -183,6 +183,13 @@
       "when": 1783273306265,
       "tag": "0025_tan_the_professor",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1783353176225,
+      "tag": "0026_add_store_templates",
+      "breakpoints": true
     }
   ]
 }

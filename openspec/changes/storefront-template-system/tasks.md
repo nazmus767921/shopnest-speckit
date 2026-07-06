@@ -1,22 +1,22 @@
 ## 1. Database & Schema Foundation
 
-- [ ] 1.1 Create Supabase migration: add `store_templates` table (id, slug, name, description, preview_image_url, business_types JSONB, allowed_tiers JSONB, is_active, is_default, sort_order, created_at, updated_at) with RLS policies (public read, superadmin write)
-- [ ] 1.2 Create Supabase migration: rename `merchants.theme` column to `merchants.template`, migrate values (`"default"` → `"general"`, `"cinematic"` → `"general"`)
-- [ ] 1.3 Seed `store_templates` with two rows: `general` (is_default=true, allowed_tiers=["starter","growth","pro"], business_types=["general","electronics","beauty","food"]) and `fashion` (allowed_tiers=["growth","pro"], business_types=["clothing","accessories","shoes"])
-- [ ] 1.4 Add `storeTemplates` Drizzle schema definition in `db/schema.ts` and update `merchants` table to use `template` column instead of `theme`
-- [ ] 1.5 Write DB query functions: `getActiveTemplates()`, `getTemplatesForTier(tier)`, `getTemplateBySlug(slug)`, `resolveTemplateForBusinessType(businessType, tier)` in `db/queries/templates.ts`
-- [ ] 1.6 Write tests for template query functions (resolve logic, tier filtering, fallback chain)
+- [x] 1.1 Create Supabase migration: add `store_templates` table (id, slug, name, description, preview_image_url, business_types JSONB, allowed_tiers JSONB, is_active, is_default, sort_order, created_at, updated_at) with RLS policies (public read, superadmin write)
+- [x] 1.2 Create Supabase migration: rename `merchants.theme` column to `merchants.template`, migrate values (`"default"` → `"general"`, `"cinematic"` → `"general"`)
+- [x] 1.3 Seed `store_templates` with two rows: `general` (is_default=true, allowed_tiers=["starter","growth","pro"], business_types=["general","electronics","beauty","food"]) and `fashion` (allowed_tiers=["growth","pro"], business_types=["clothing","accessories","shoes"])
+- [x] 1.4 Add `storeTemplates` Drizzle schema definition in `db/schema.ts` and update `merchants` table to use `template` column instead of `theme`
+- [x] 1.5 Write DB query functions: `getActiveTemplates()`, `getTemplatesForTier(tier)`, `getTemplateBySlug(slug)`, `resolveTemplateForBusinessType(businessType, tier)` in `db/queries/templates.ts`
+- [x] 1.6 Write tests for template query functions (resolve logic, tier filtering, fallback chain)
 
 ## 2. Template Data Contract & Registry
 
-- [ ] 2.1 Create `templates/types.ts` with `TemplateModule`, `HomePageProps`, `PLPProps`, `PDPProps`, `CartPageProps`, `NavbarProps`, `FooterProps`, and `StoreData` interfaces
-- [ ] 2.2 Create `templates/registry.ts` with `getTemplate(slug)` function that returns the matching module or falls back to general
-- [ ] 2.3 Write tests for template registry (valid slug resolution, unknown slug fallback, type contract validation)
+- [x] 2.1 Create `templates/types.ts` with `TemplateModule`, `HomePageProps`, `PLPProps`, `PDPProps`, `CartPageProps`, `NavbarProps`, `FooterProps`, and `StoreData` interfaces
+- [x] 2.2 Create `templates/registry.ts` with `getTemplate(slug)` function that returns the matching module or falls back to general
+- [x] 2.3 Write tests for template registry (valid slug resolution, unknown slug fallback, type contract validation)
 
 ## 3. Per-Template DESIGN.md Files
 
-- [ ] 3.1 Create `designmd/DESIGN-general.md` — extract and document the complete design system from current `.storefront-theme-default` CSS tokens (colors, typography, spacing, component styles, do's/don'ts)
-- [ ] 3.2 Create `designmd/DESIGN-fashion.md` — define the fashion template's complete design system (editorial typography, color palette, spacing philosophy, component tokens, lookbook aesthetics, do's/don'ts)
+- [x] 3.1 Create `designmd/DESIGN-general.md` — extract and document the complete design system from current `.storefront-theme-default` CSS tokens (colors, typography, spacing, component styles, do's/don't)
+- [x] 3.2 Create `designmd/DESIGN-fashion.md` — define the fashion template's complete design system (editorial typography, color palette, spacing philosophy, component tokens, lookbook aesthetics, do's/don'ts)
 
 ## 4. Shared Building Blocks Extraction
 

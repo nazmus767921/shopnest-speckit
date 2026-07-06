@@ -72,12 +72,12 @@ export async function updateStorefrontLayoutAction(values: unknown) {
       throw new Error(result.error.issues[0].message)
     }
 
-    const { heroImageUrl, subtitle, storeDescription, storeAddress, socialLinks, customFaqs, theme } = result.data
+    const { heroImageUrl, subtitle, storeDescription, storeAddress, socialLinks, customFaqs, template } = result.data
 
     // Invariant 7: Subscription plan limits are checked on the server-side
     const plan = await getMerchantPlan(merchant.id)
-    if (theme === "cinematic" && plan?.slug === "starter") {
-      throw new Error("Upgrade your subscription to use premium themes.")
+    if (template === "fashion" && plan?.slug === "starter") {
+      throw new Error("Upgrade your subscription to use premium templates.")
     }
 
     const updated = await updateStorefrontLayout(merchant.id, {
@@ -87,7 +87,7 @@ export async function updateStorefrontLayoutAction(values: unknown) {
       storeAddress: storeAddress || null,
       socialLinks: socialLinks || null,
       customFaqs: customFaqs || null,
-      theme,
+      template,
     })
 
     revalidatePath("/dashboard/settings")

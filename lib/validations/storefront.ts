@@ -19,7 +19,7 @@ export const storefrontLayoutSchema = z.object({
   storeAddress: z.string().max(200, "Address must be under 200 characters.").optional().nullable().or(z.literal("")),
   socialLinks: socialLinksSchema.optional(),
   customFaqs: z.array(faqItemSchema).max(8, "Maximum 8 FAQs allowed.").optional(),
-  theme: z.enum(["default", "cinematic"]).default("default"),
+  template: z.string().default("general"),
 })
 
 export type StorefrontLayoutValues = z.infer<typeof storefrontLayoutSchema>

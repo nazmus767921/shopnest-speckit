@@ -43,7 +43,8 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
   const headersList = await headers()
   const merchantId = headersList.get("x-merchant-id") || ""
   const merchant = merchantId ? await getMerchantById(merchantId) : null
-  const theme = merchant?.theme || "default"
+  const template = merchant?.template || "general"
+  const theme = template === "general" ? "default" : template
 
   return (
     <div className={`storefront-theme-${theme} ${archivoBlack.variable} min-h-screen flex flex-col font-sans`}>

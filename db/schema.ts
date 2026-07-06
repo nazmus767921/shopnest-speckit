@@ -102,7 +102,7 @@ export const merchants = pgTable("merchants", {
   payDeliveryChargeFirst: boolean("pay_delivery_charge_first").notNull().default(false),
   bkashWalletNumber: text("bkash_wallet_number"),
   nagadWalletNumber: text("nagad_wallet_number"),
-  theme: text("theme").default("default").notNull(),
+  template: text("template").default("general").notNull(),
 }, (table) => [
   index("merchants_owner_id_idx").on(table.ownerId),
   index("merchants_subscription_status_idx").on(table.subscriptionStatus),
@@ -862,3 +862,19 @@ export const notificationPreferencesRelations = relations(notificationPreference
     references: [merchants.id],
   }),
 }))
+
+export const storeTemplates = pgTable("store_templates", {
+  id: text("id").primaryKey(),
+  slug: text("slug").unique().notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  previewImageUrl: text("preview_image_url"),
+  businessTypes: jsonb("business_types").$type<string[]>().default([]).notNull(),
+  allowedTiers: jsonb("allowed_tiers").$type<string[]>().default(["starter", "growth", "pro"]).notNull(),
+  isActive: boolean("is_active").default(false).notNull(),
+  isDefault: boolean("is_default").default(false).notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}).enableRLS()
+
