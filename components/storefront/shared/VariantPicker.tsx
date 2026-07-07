@@ -30,6 +30,7 @@ interface VariantPickerProps {
   variants: VariantOption[]
   basePricePaisa: number
   onVariantSelect: (variant: VariantOption | null) => void
+  onSelectionChange?: (selectedOptions: Record<string, string>) => void
   disabled?: boolean
   // Configurable styling
   swatchShape?: "circle" | "square"
@@ -42,6 +43,7 @@ export function VariantPicker({
   variants,
   basePricePaisa,
   onVariantSelect,
+  onSelectionChange,
   disabled = false,
   swatchShape = "circle",
   swatchSizeClassName = "h-10 w-10",
@@ -103,6 +105,9 @@ export function VariantPicker({
       }
 
       setSelectedOptions(next)
+      if (onSelectionChange) {
+        onSelectionChange(next)
+      }
 
       // Check if full selection is made
       if (Object.keys(next).length === attributes.length) {
@@ -118,7 +123,7 @@ export function VariantPicker({
         onVariantSelect(null)
       }
     },
-    [selectedOptions, attributes.length, variants, onVariantSelect]
+    [selectedOptions, attributes.length, variants, onVariantSelect, onSelectionChange]
   )
 
   // Price to display

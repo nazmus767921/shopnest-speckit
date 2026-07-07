@@ -4,6 +4,8 @@ import { getPublishedProducts } from "@/db/queries/products"
 import { getMerchantById } from "@/db/queries/merchants"
 import { getTemplate } from "@/templates/registry"
 import { type CategoryWithProducts } from "@/templates/types"
+import { getStorefrontSections } from "@/db/queries/storefront-sections"
+import { defaultStorefrontSections } from "@/lib/storefront-sections/defaults"
 import { Suspense } from "react"
 import { connection } from "next/server"
 
@@ -117,6 +119,11 @@ async function StorefrontPageContent({ params }: Props) {
     customFaqs: merchant?.customFaqs || null,
   }
 
+  let sections = merchantId ? await getStorefrontSections(merchantId) : []
+  if (!sections || sections.length === 0) {
+    sections = defaultStorefrontSections as any
+  }
+
   const templateModule = getTemplate(template)
 
   return (
@@ -125,6 +132,7 @@ async function StorefrontPageContent({ params }: Props) {
       featuredProducts={featuredProducts}
       newArrivals={newArrivalProducts}
       categories={categories}
+      sections={sections as any}
     />
   )
 }

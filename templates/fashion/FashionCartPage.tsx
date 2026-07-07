@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react"
 import { ShoppingCart, ArrowLeft, AlertTriangle, Tag, ArrowRight } from "lucide-react"
 import { useCart } from "@/hooks/use-cart"
-import { CartItemRow } from "@/components/storefront/CartItemRow"
+import { FashionCartItemRow } from "./components/FashionCartItemRow"
 import { type CartItem } from "@/lib/cart/cart-store"
 import { Card } from "@/components/ui"
 import { formatTaka } from "@/lib/utils"
@@ -92,7 +92,7 @@ export function FashionCartPage({ store }: CartPageProps) {
   const isEmpty = items.length === 0
 
   return (
-    <div className="flex flex-col gap-6 md:gap-8 w-full max-w-7xl mx-auto animate-fade-in px-4 md:px-8">
+    <div className="flex flex-col gap-6 md:gap-8 w-full max-w-10xl mx-auto animate-fade-in px-4 md:px-8">
       {/* Breadcrumbs */}
       <Breadcrumbs
         items={[
@@ -117,35 +117,35 @@ export function FashionCartPage({ store }: CartPageProps) {
       </div>
 
       {isEmpty ? (
-        /* Empty State */
-        <Card variant="default" className="border border-[var(--color-hairline-warm)] p-12 flex flex-col items-center justify-center text-center gap-6 min-h-64 bg-[var(--color-canvas-light)] max-w-md mx-auto w-full mt-6 rounded-[var(--radius-lg)]">
-          <div className="w-16 h-16 rounded-full bg-[var(--color-surface-product)] flex items-center justify-center text-[var(--color-ink)] border border-[var(--color-hairline-warm)]">
-            <ShoppingCart className="h-8 w-8 stroke-[1.2]" />
+        /* Elegant Minimalist Empty State */
+        <div className="border border-[var(--color-hairline-warm)] py-24 px-6 flex flex-col items-center justify-center text-center gap-6 min-h-[350px] bg-[var(--color-surface-product)]/20 max-w-lg mx-auto w-full mt-6 rounded-2xl">
+          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-[var(--color-ink)] border border-[var(--color-hairline-warm)] shrink-0">
+            <ShoppingCart className="h-5 w-5 stroke-[1.2] text-zinc-400" />
           </div>
-          <div className="flex flex-col gap-2">
-            <h2 className="font-display text-2xl text-[var(--color-ink)]">
-              Your Bag is Empty
+          <div className="flex flex-col gap-3 max-w-sm">
+            <h2 className="font-display text-2xl md:text-3xl font-light uppercase tracking-[0.15em] text-[var(--color-ink)]">
+              Your Bag is Vacant
             </h2>
-            <p className="text-sm font-sans text-[var(--color-shade-50)]">
-              Looks like you haven't added any products to your bag yet.
+            <p className="text-[11px] font-sans text-zinc-400 tracking-wider uppercase leading-relaxed">
+              Explore our boutique catalog to find your next signature silhouette.
             </p>
           </div>
           <button
             onClick={() => { window.location.href = "/" }}
-            className="btn-storefront-primary py-4 px-8 border-none font-sans uppercase text-xs tracking-wider font-semibold"
+            className="mt-2 px-8 py-3.5 bg-black hover:bg-zinc-800 text-white rounded-full font-sans text-[10px] font-bold tracking-wider uppercase transition-colors cursor-pointer border-none"
           >
-            Browse Products
+            Return to Shop
           </button>
-        </Card>
+        </div>
       ) : (
         /* Cart Layout */
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
           {/* Items List */}
           <div className="lg:col-span-2 flex flex-col gap-4">
-            <div className="border border-[var(--color-hairline-warm)] rounded-[var(--radius-lg)] bg-[var(--color-canvas-light)] p-4 md:p-5">
-              <div className="flex flex-col divide-y divide-[var(--color-hairline-warm)]">
+            <div className="border border-[var(--color-hairline-warm)]/70 rounded-2xl bg-white p-5 md:p-6">
+              <div className="flex flex-col divide-y divide-[var(--color-hairline-warm)]/60">
                 {enrichedItems.map((item: CartItem) => (
-                  <CartItemRow
+                  <FashionCartItemRow
                     key={item.variantId ?? item.productId}
                     item={item}
                     onUpdateQuantity={updateQuantity}
@@ -158,12 +158,12 @@ export function FashionCartPage({ store }: CartPageProps) {
 
           {/* Order Summary */}
           <div className="flex flex-col gap-4">
-            <div className="border border-[var(--color-hairline-warm)] rounded-[var(--radius-lg)] p-4 md:p-5 sticky top-24 bg-[var(--color-canvas-light)] flex flex-col">
-              <h2 className="text-xl md:text-2xl font-display font-normal text-[var(--color-ink)] mb-6 uppercase">
+            <div className="border border-[var(--color-hairline-warm)]/70 rounded-2xl p-6 md:p-8 sticky top-24 bg-[var(--color-surface-product)]/10 flex flex-col">
+              <h2 className="text-lg md:text-xl font-display font-normal text-[var(--color-ink)] mb-6 uppercase tracking-wider">
                 Order Summary
               </h2>
 
-              <div className="flex flex-col gap-4 text-sm text-[var(--color-shade-40)] font-sans font-light">
+              <div className="flex flex-col gap-4 text-xs text-zinc-500 font-sans tracking-wide uppercase">
                 <div className="flex justify-between items-center">
                   <span>Subtotal</span>
                   <span className="font-semibold text-[var(--color-ink)]">
@@ -172,9 +172,9 @@ export function FashionCartPage({ store }: CartPageProps) {
                 </div>
                 
                 {discountPercent > 0 && (
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center text-[var(--color-discount-text)]">
                     <span>Discount (-{discountPercent}%)</span>
-                    <span className="font-semibold text-[var(--color-discount-text)]">
+                    <span className="font-semibold">
                       -{formatTaka(discountPaisa)}
                     </span>
                   </div>
@@ -187,66 +187,63 @@ export function FashionCartPage({ store }: CartPageProps) {
                   </span>
                 </div>
 
-                <div className="h-px bg-[var(--color-hairline-warm)] my-2" />
+                <div className="h-px bg-[var(--color-hairline-warm)]/60 my-2" />
 
-                <div className="flex justify-between items-center text-base font-semibold text-[var(--color-ink)]">
+                <div className="flex justify-between items-center text-sm font-semibold text-[var(--color-ink)]">
                   <span>Total</span>
-                  <span className="text-lg md:text-xl font-bold">
+                  <span className="text-base md:text-lg font-bold">
                     {formatTaka(totalPaisa)}
                   </span>
                 </div>
               </div>
 
-              {/* Promo Code Input */}
-              <div className="mt-6 flex flex-col gap-2">
-                <div className="flex gap-3">
-                  <div className="flex-1 flex items-center bg-[var(--color-surface-product)] rounded-[var(--radius-pill)] px-4 h-12 gap-2 border border-transparent focus-within:border-[var(--color-ink)]/20">
-                    <Tag className="h-5 w-5 text-[var(--color-shade-50)] shrink-0" />
-                    <input
-                      type="text"
-                      placeholder="Add promo code"
-                      value={promoInput}
-                      onChange={(e) => setPromoInput(e.target.value)}
-                      className="bg-transparent border-none outline-none text-sm text-[var(--color-ink)] w-full placeholder:text-[var(--color-shade-50)] font-sans"
-                    />
-                  </div>
+              {/* Minimalist Inline Promo Code Input */}
+              <div className="mt-6 flex flex-col gap-1.5">
+                <div className="flex items-center justify-between border-b border-zinc-200 focus-within:border-black py-2.5 gap-4">
+                  <input
+                    type="text"
+                    placeholder="ENTER PROMO CODE"
+                    value={promoInput}
+                    onChange={(e) => setPromoInput(e.target.value)}
+                    className="bg-transparent border-none outline-none text-xs text-[var(--color-ink)] w-full placeholder:text-zinc-400 font-sans tracking-wider"
+                  />
                   <button
                     type="button"
                     onClick={handleApplyPromo}
-                    className="btn-storefront-primary px-6 md:px-8 h-12 text-xs font-semibold border-none uppercase tracking-wide"
+                    className="text-xs font-bold font-sans uppercase tracking-wider text-black hover:text-zinc-650 transition-colors border-none bg-transparent cursor-pointer shrink-0"
                   >
                     Apply
                   </button>
                 </div>
                 {promoError && (
-                  <p className="text-red-500 text-xs mt-1 ml-4 font-sans">{promoError}</p>
+                  <p className="text-red-500 text-[10px] mt-1 font-sans uppercase tracking-wider">{promoError}</p>
                 )}
                 {appliedPromoCode && (
-                  <p className="text-emerald-600 text-xs mt-1 ml-4 font-sans">
-                    ✓ Promo code <strong>{appliedPromoCode}</strong> applied (20% off)
+                  <p className="text-emerald-600 text-[10px] mt-1 font-sans uppercase tracking-wider font-semibold">
+                    ✓ Code {appliedPromoCode} Applied (20% Off)
                   </p>
                 )}
               </div>
 
               {/* Unavailable items warning */}
               {hasUnavailableItems && (
-                <div className="flex items-start gap-2 p-3 rounded-[var(--radius-sm)] bg-red-50 border border-red-200 mt-4 font-sans" role="alert">
+                <div className="flex items-start gap-2.5 p-4 rounded-xl bg-red-50 border border-red-200 mt-6 font-sans" role="alert">
                   <AlertTriangle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
-                  <p className="text-xs text-red-700">
+                  <p className="text-xs text-red-700 leading-normal">
                     Some items are no longer available.{" "}
-                    <strong>Remove them to proceed to checkout.</strong>
+                    <strong>Please remove them to checkout.</strong>
                   </p>
                 </div>
               )}
 
-              <div className="mt-6">
+              <div className="mt-8">
                 <button
                   disabled={hasUnavailableItems}
                   onClick={() => { window.location.href = `/checkout?deliveryCharge=${deliveryPaisa}&discount=${discountPaisa}` }}
-                  className="w-full btn-storefront-primary font-sans font-medium uppercase tracking-wider text-xs flex items-center justify-center gap-2 h-14 border-none hover:opacity-90 disabled:opacity-50 disabled:pointer-events-none transition-opacity"
+                  className="w-full h-14 bg-black hover:bg-zinc-800 text-white rounded-full font-sans font-bold uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 border-none hover:opacity-90 disabled:opacity-50 disabled:pointer-events-none transition-opacity cursor-pointer"
                 >
                   <span>Go to Checkout</span>
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4 stroke-[1.5]" />
                 </button>
               </div>
             </div>

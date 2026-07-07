@@ -14,7 +14,7 @@ import type { VariantOption, AttributeInfo } from "./variant-selector/VariantSel
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-export interface ProductVariant extends VariantOption {}
+export interface ProductVariant extends VariantOption { }
 export type ProductAttributeInfo = AttributeInfo
 
 interface FormattedProduct {
@@ -80,15 +80,15 @@ export function ProductCard({
 
   const dialogProduct: DialogProduct | null = hasVariants
     ? {
-        id: product.id,
-        name: product.name,
-        imageUrl: publicUrl,
-        pricePaisa: product.pricePaisa,
-        compareAtPricePaisa: product.compareAtPricePaisa,
-        stockCount: product.stockCount,
-        attributes: product.attributes ?? [],
-        variants: product.variants ?? [],
-      }
+      id: product.id,
+      name: product.name,
+      imageUrl: publicUrl,
+      pricePaisa: product.pricePaisa,
+      compareAtPricePaisa: product.compareAtPricePaisa,
+      stockCount: product.stockCount,
+      attributes: product.attributes ?? [],
+      variants: product.variants ?? [],
+    }
     : null
 
   const handleAddToCart = async (variantId: string, quantity: number) => {
@@ -167,7 +167,7 @@ export function ProductCard({
   return (
     <>
       <Card
-        className="flex flex-col bg-white overflow-hidden group transition-all duration-300 relative gap-3 w-full border-none shadow-none"
+        className="flex p-2 flex-col bg-white overflow-hidden group transition-all duration-300 relative gap-3 w-full border-none shadow-none"
       >
         <a href={`/product/${product.slug}`} className="flex flex-col gap-3 w-full cursor-pointer">
           {/* Image Container with light gray background (#F0EEED) */}

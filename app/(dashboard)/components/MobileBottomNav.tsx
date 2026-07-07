@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
+  LayoutTemplate,
   ShoppingBag,
   Tag,
   Percent,
@@ -138,8 +139,20 @@ export function MobileBottomNav({
               </button>
             </div>
 
-            {/* Navigation Options inside Drawer */}
             <div className="flex flex-col gap-2">
+              <Link
+                href="/dashboard/templates"
+                onClick={() => setIsDrawerOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-full text-body-md transition-colors ${
+                  pathname.startsWith("/dashboard/templates")
+                    ? "bg-primary text-on-primary font-semibold"
+                    : "text-shade-70 hover:bg-canvas-cream font-medium"
+                }`}
+              >
+                <LayoutTemplate className="h-5 w-5" />
+                <span>Templates</span>
+              </Link>
+
               <Link
                 href="/dashboard/categories"
                 onClick={() => setIsDrawerOpen(false)}

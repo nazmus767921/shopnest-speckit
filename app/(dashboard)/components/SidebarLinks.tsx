@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
+  LayoutTemplate,
   ShoppingBag,
   Tag,
   Settings,
@@ -44,6 +45,11 @@ export function SidebarLinks() {
     {
       label: "Storefront",
       items: [
+        {
+          label: "Templates",
+          href: "/dashboard/templates",
+          icon: LayoutTemplate,
+        },
         {
           label: "Products",
           href: "/dashboard/products",

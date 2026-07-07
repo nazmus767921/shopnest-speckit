@@ -65,13 +65,13 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
   }
 
   return (
-    <div className={`storefront-template-${template} ${archivoBlack.variable} min-h-screen flex flex-col font-sans`}>
+    <div className={`storefront-template-${template} ${archivoBlack.variable} min-h-screen flex flex-col font-sans overflow-x-hidden`}>
       {/* Dynamic Template Header */}
       <templateModule.Navbar store={store} subdomain={subdomain} />
 
       {/* Main Content Area */}
-      <main className="grow py-8 md:py-12 px-4 md:px-8">
-        <div className="max-w-7xl mx-auto">{children}</div>
+      <main className={`grow px-4 md:px-8 ${template === "fashion" ? "pt-[81px] pb-16 md:pt-[89px] md:pb-24" : "py-8 md:py-12"}`}>
+        <div className={`${template === "fashion" ? "max-w-10xl" : "max-w-7xl"} mx-auto`}>{children}</div>
       </main>
 
       {/* Dynamic Template Footer */}

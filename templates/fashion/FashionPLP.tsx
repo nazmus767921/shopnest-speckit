@@ -4,11 +4,10 @@ import React from "react"
 import Link from "next/link"
 import { PackageOpen } from "lucide-react"
 import { Card } from "@/components/ui"
-import { ProductFilters } from "@/components/storefront/ProductFilters"
-import { ProductGrid } from "@/components/storefront/shared/ProductGrid"
-import { FashionProductCard } from "./components/FashionProductCard"
+import { FashionProductFilters } from "./components/FashionProductFilters"
+import { ProductCard } from "@/components/storefront/ProductCard"
 import { type PLPProps } from "../types"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 
 export function FashionPLP({
   store,
@@ -18,6 +17,7 @@ export function FashionPLP({
   pagination
 }: PLPProps) {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const search = searchParams.get("search")
   const categoryId = searchParams.get("category")
   const price = searchParams.get("price")
@@ -51,76 +51,52 @@ export function FashionPLP({
         </p>
       </div>
 
-      {/* Search Input Bar (Editorial Form) */}
-      <div className="w-full flex justify-between items-center gap-4 bg-[var(--color-canvas-light)] p-5 rounded-[var(--radius-lg)] border border-[var(--color-hairline-warm)]">
-        <form method="GET" className="w-full flex gap-3 max-w-xl">
-          <input
-            name="search"
-            defaultValue={search || ""}
-            placeholder="Search catalog..."
-            className="input-storefront-text grow bg-[var(--color-surface-product)] text-[var(--color-ink)] border border-transparent focus:border-[var(--color-ink)]/20 px-5 py-3 text-sm rounded-[var(--radius-pill)] outline-none font-sans"
-          />
-          {categoryId && <input type="hidden" name="category" value={categoryId} />}
-          {price && <input type="hidden" name="price" value={price} />}
-          {color && <input type="hidden" name="color" value={color} />}
-          {size && <input type="hidden" name="size" value={size} />}
-          <button type="submit" className="bg-[var(--color-primary)] text-[var(--color-on-primary)] hover:opacity-90 font-sans font-medium text-xs uppercase tracking-wide px-8 py-3 rounded-[var(--radius-pill)] border-none transition-opacity">
-            Search
-          </button>
-        </form>
+      {/* Search & Horizontal Filters (Horizontal on Desktop, Slide Drawer on Mobile) */}
+      <FashionProductFilters
+        categories={categories}
+        activeCategory={categoryId}
+        activePrice={price}
+        activeColor={color}
+        activeSize={size}
+      />
 
-        {search && (
-          <Link
-            href="/products"
-            className="text-[11px] font-bold text-[var(--color-discount-text)] uppercase tracking-wider hover:underline font-sans"
-          >
-            Clear Search
-          </Link>
-        )}
-      </div>
-
-      {/* Two Column Layout: Sidebar + Grid */}
-      <div className="flex flex-col md:flex-row gap-8 items-start w-full">
-        {/* Accordion Filter Sidebar */}
-        <ProductFilters
-          categories={categories}
-          activeCategory={categoryId}
-          activePrice={price}
-          activeColor={color}
-          activeSize={size}
-        />
-
-        {/* Products Grid */}
-        <div className="grow w-full">
-          {products.length === 0 ? (
-            /* Empty State */
-            <Card variant="default" className="border border-[var(--color-hairline-warm)] p-12 flex flex-col items-center justify-center text-center gap-6 min-h-64 bg-[var(--color-canvas-light)] w-full rounded-[var(--radius-lg)]">
-              <div className="w-16 h-16 rounded-full bg-[var(--color-surface-product)] flex items-center justify-center text-[var(--color-ink)] border border-[var(--color-hairline-warm)]">
-                <PackageOpen className="h-8 w-8 stroke-[1.2]" />
-              </div>
-              <div className="flex flex-col gap-2">
-                <h2 className="font-display text-2xl text-[var(--color-ink)]">
-                  No Items Found
-                </h2>
-                <p className="text-sm font-sans text-[var(--color-shade-50)]">
-                  Adjust your search or clear filters to view catalog collections.
-                </p>
-              </div>
-            </Card>
-          ) : (
-            <div className="flex flex-col gap-8 animate-fade-in">
-              <ProductGrid
-                products={products}
-                columns={{ mobile: 1, sm: 2, md: 3, lg: 3 }}
-                renderCard={(product) => (
-                  <FashionProductCard
-                    key={product.id}
+      {/* Products Display (Staggered 3-column on Desktop/Tablet, 1-column list on Mobile) */}
+      <div className="w-full">
+        {products.length === 0 ? (
+          /* Elegant Minimalist Empty State */
+          <div className="border border-[var(--color-hairline-warm)] py-24 px-6 flex flex-col items-center justify-center text-center gap-6 min-h-[350px] bg-[var(--color-surface-product)]/20 w-full rounded-2xl">
+            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-[var(--color-ink)] border border-[var(--color-hairline-warm)] shrink-0">
+              <PackageOpen className="h-5 w-5 stroke-[1.2] text-zinc-400" />
+            </div>
+            <div className="flex flex-col gap-3 max-w-sm">
+              <h2 className="font-display text-2xl md:text-3xl font-light uppercase tracking-[0.1em] text-[var(--color-ink)]">
+                No Items Found
+              </h2>
+              <p className="text-[11px] font-sans text-zinc-400 tracking-wider uppercase leading-relaxed">
+                We couldn't find any items matching your current filters or search terms.
+              </p>
+            </div>
+            <button
+              onClick={() => router.push(window.location.pathname)}
+              className="mt-2 px-8 py-3 bg-black hover:bg-zinc-800 text-white rounded-full font-sans text-[10px] font-bold tracking-wider uppercase transition-colors cursor-pointer border-none"
+            >
+              Clear All Filters
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-8 animate-fade-in">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,360px),360px))] gap-8 md:gap-y-16">
+              {products.map((product) => (
+                <div key={product.id}>
+                  <ProductCard
                     product={product}
                     subdomain={store.subdomain}
                     merchantId={store.id}
+                    themeClass="storefront-theme-fashion"
                   />
-                )}
-              />
+                </div>
+              ))}
+            </div>
 
               {/* Numbered Pagination */}
               {pagination.totalPages > 1 && (
@@ -170,8 +146,7 @@ export function FashionPLP({
                 </div>
               )}
             </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   )

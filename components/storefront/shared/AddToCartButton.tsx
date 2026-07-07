@@ -21,13 +21,14 @@ interface Props {
   size?: "sm" | "md" | "lg"
   className?: string
   iconOnly?: boolean
+  disabled?: boolean
 }
 
-export function AddToCartButton({ merchantId, product, quantity = 1, size = "sm", className, iconOnly = false }: Props) {
+export function AddToCartButton({ merchantId, product, quantity = 1, size = "sm", className, iconOnly = false, disabled }: Props) {
   const { addItem, updateQuantity } = useCart(merchantId)
   const [added, setAdded] = useState(false)
 
-  const isOutOfStock = product.stockCount === 0
+  const isOutOfStock = product.stockCount === 0 || disabled
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault()

@@ -16,6 +16,7 @@ interface VariantSelectorProps {
   variants: VariantOption[]
   basePricePaisa: number
   onVariantSelect: (variant: VariantOption | null) => void
+  onSelectionChange?: (selectedOptions: Record<string, string>) => void
   disabled?: boolean
 }
 
@@ -24,6 +25,7 @@ export function VariantSelector({
   variants,
   basePricePaisa,
   onVariantSelect,
+  onSelectionChange,
   disabled = false
 }: VariantSelectorProps) {
   return (
@@ -32,6 +34,7 @@ export function VariantSelector({
       variants={variants}
       basePricePaisa={basePricePaisa}
       onVariantSelect={onVariantSelect}
+      onSelectionChange={onSelectionChange}
       disabled={disabled}
       swatchShape="circle"
       swatchSizeClassName="h-10 w-10"

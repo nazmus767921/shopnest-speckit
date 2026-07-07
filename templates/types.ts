@@ -1,4 +1,5 @@
 import React from "react"
+import { StorefrontSection } from "@/lib/storefront-sections/types"
 
 export interface StoreData {
   id: string
@@ -69,11 +70,13 @@ export interface PaginationState {
   pageSize: number
 }
 
+
 export interface HomePageProps {
   store: StoreData
   featuredProducts: Product[]
   categories: CategoryWithProducts[]
   newArrivals: Product[]
+  sections?: StorefrontSection[]
 }
 
 export interface PLPProps {

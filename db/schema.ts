@@ -108,6 +108,23 @@ export const merchants = pgTable("merchants", {
   index("merchants_subscription_status_idx").on(table.subscriptionStatus),
 ]).enableRLS()
 
+
+export const storefrontSections = pgTable("storefront_sections", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  merchantId: text("merchant_id")
+    .notNull()
+    .references(() => merchants.id, { onDelete: "cascade" }),
+  sectionKey: text("section_key").notNull(),
+  content: jsonb("content").notNull().default('{}'),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isVisible: boolean("is_visible").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("storefront_sections_merchant_id_section_key_unique_idx").on(table.merchantId, table.sectionKey),
+  index("storefront_sections_merchant_id_idx").on(table.merchantId),
+]).enableRLS()
+
 export const products = pgTable("products", {
   id: text("id").primaryKey(),
   merchantId: text("merchant_id")
@@ -657,6 +674,14 @@ export const merchantsRelations = relations(merchants, ({ one, many }) => ({
   productVariants: many(productVariants),
   variantImages: many(variantImages),
   productMetadata: many(productMetadata),
+  storefrontSections: many(storefrontSections),
+}))
+
+export const storefrontSectionsRelations = relations(storefrontSections, ({ one }) => ({
+  merchant: one(merchants, {
+    fields: [storefrontSections.merchantId],
+    references: [merchants.id],
+  }),
 }))
 
 export const productsRelations = relations(products, ({ one, many }) => ({

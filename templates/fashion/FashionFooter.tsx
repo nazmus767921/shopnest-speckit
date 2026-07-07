@@ -10,16 +10,8 @@ export function FashionFooter({ store }: FooterProps) {
 
   return (
     <footer className="w-full mt-24 bg-[var(--color-primary)] text-[var(--color-on-primary)] border-t border-[var(--color-primary)]">
-      <div className="max-w-7xl mx-auto px-8 py-16 flex flex-col gap-14">
+      <div className="max-w-10xl mx-auto px-8 py-16 flex flex-col gap-14">
         
-        {/* 1. Elegant Newsletter Band */}
-        <NewsletterSignup
-          title="Sign up to our editorial newsletter"
-          placeholder="Enter email address"
-          buttonText="Subscribe"
-          className="border-b border-[var(--color-on-primary)]/10 pb-12"
-        />
-
         {/* 2. Brand Identity & Grid Links */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 border-b border-[var(--color-on-primary)]/10 pb-12 pt-4">
           <div className="flex flex-col gap-5 md:col-span-1">

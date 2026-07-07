@@ -10,7 +10,7 @@ import { AddToCartButton } from "@/components/storefront/shared/AddToCartButton"
 import { BuyNowButton } from "@/components/storefront/shared/BuyNowButton"
 import { ProductGrid } from "@/components/storefront/shared/ProductGrid"
 import { ProductTabs } from "@/components/storefront/ProductTabs"
-import { VariantProductClient } from "@/app/(storefront)/[subdomain]/product/[slug]/VariantProductClient"
+import { FashionVariantProductClient } from "./components/FashionVariantProductClient"
 import { FashionProductCard } from "./components/FashionProductCard"
 import { type PDPProps } from "../types"
 
@@ -30,7 +30,7 @@ export function FashionPDP({ store, product, relatedProducts }: PDPProps) {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex flex-col gap-6 md:gap-10 animate-fade-in px-4 md:px-8">
+    <div className="w-full max-w-10xl mx-auto flex flex-col gap-6 md:gap-10 animate-fade-in px-4 md:px-8">
       {/* Breadcrumb Hierarchy */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
         <Breadcrumbs
@@ -52,10 +52,10 @@ export function FashionPDP({ store, product, relatedProducts }: PDPProps) {
         </Link>
       </div>
 
-      {/* 60/40 Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-16 pt-4 items-start">
-        {/* Gallery column (60% equivalent -> 3/5 cols) */}
-        <div className="lg:col-span-3 w-full">
+      {/* 5/7 (12-column) Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 pt-4 items-start">
+        {/* Gallery column (5/12 columns) */}
+        <div className="lg:col-span-5 w-full">
           <ImageGallery
             images={product.images}
             productName={product.name}
@@ -64,8 +64,8 @@ export function FashionPDP({ store, product, relatedProducts }: PDPProps) {
           />
         </div>
 
-        {/* Details column (40% equivalent -> 2/5 cols) */}
-        <div className="lg:col-span-2 flex flex-col justify-start">
+        {/* Details column (7/12 columns) */}
+        <div className="lg:col-span-7 flex flex-col justify-start">
           <div className="flex flex-col gap-5">
             {/* Status indicators */}
             {isLowStock && (
@@ -123,7 +123,7 @@ export function FashionPDP({ store, product, relatedProducts }: PDPProps) {
           {/* Actions: Variant selector or AddToCart */}
           <div className="mt-auto flex flex-col gap-4">
             {hasVariants ? (
-              <VariantProductClient
+              <FashionVariantProductClient
                 merchantId={store.id}
                 subdomain={store.subdomain}
                 product={cartProduct}
