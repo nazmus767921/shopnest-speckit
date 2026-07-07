@@ -6,18 +6,22 @@ This capability defines the requirements and behavior for the custom storefront 
 ## Requirements
 
 ### Requirement: Scoped Storefront Styling Override
-The system MUST isolate storefront styling and design tokens by scoping them under a `.storefront-theme-default` or `.storefront-theme-cinematic` wrapper class. The system SHALL override the default CSS variables for background, text, borders, colors, and border radii within this wrapper, leaving other parts of the application (e.g. dashboards) unaffected.
+The system MUST replace `.storefront-theme-default` and `.storefront-theme-cinematic` CSS wrapper classes with `.storefront-template-<slug>` classes (e.g., `.storefront-template-general`, `.storefront-template-fashion`). Each template's CSS custom properties SHALL be defined in a per-template stylesheet rather than in `globals.css`. The system SHALL scope template styles so they do not affect dashboard or admin pages.
 
-#### Scenario: Rendering storefront page
+#### Scenario: Rendering storefront page with template class
 - **WHEN** the user accesses any page under the storefront subdomain route
-- **THEN** the page container inherits the active theme class (`.storefront-theme-default` or `.storefront-theme-cinematic`), and styles like backgrounds, text colors, and font families resolve to that theme's design tokens.
+- **THEN** the page container receives the class `storefront-template-<slug>` matching the merchant's active template, and CSS custom properties resolve to that template's design tokens.
 
 ### Requirement: Storefront Font Integration
-The system MUST load and utilize `Archivo Black` as the display font for all storefront display-level headers and `Inter` for body/UI text under `.storefront-theme-default`, avoiding the Neue Haas Grotesk display fonts used in the root design system.
+The system MUST allow each template to define its own display and body font families. The general template SHALL use `Archivo Black` as the display font and `Inter` for body text. The fashion template SHALL define its own font configuration in its DESIGN.md file. Font loading MUST occur at the layout level based on the resolved template.
 
-#### Scenario: Displaying storefront header
-- **WHEN** the storefront top navigation and page titles are rendered
-- **THEN** the text uses the `Archivo Black` display font and maps to the defined typography headers.
+#### Scenario: Displaying storefront header with template fonts
+- **WHEN** the storefront navbar and page titles are rendered for a store using the general template
+- **THEN** the text uses `Archivo Black` for display headings and `Inter` for body text.
+
+#### Scenario: Displaying storefront header with fashion template fonts
+- **WHEN** the storefront navbar and page titles are rendered for a store using the fashion template
+- **THEN** the text uses the font families defined in `designmd/DESIGN-fashion.md`.
 
 ### Requirement: Storefront Product Detail Page Layout
 The system MUST render the Product Detail Page (PDP) according to the storefront PRD, including breadcrumbs, image gallery, circular color swatch selectors, active state black-pill size selectors, quantity selector adjustment row, and verified checkmarks on review cards.
@@ -45,12 +49,12 @@ The Cart page MUST render a split column layout on desktop and stacked layout on
 - **THEN** the Order Summary card calculates subtotal, discounts (in red text), free delivery fee, and shows the Go to Checkout pill button.
 
 ### Requirement: Storefront Theme Selection and Subscription Enforcement
-The system MUST support multiple themes for the storefront (`default` and `cinematic`). The system MUST allow the merchant to select their theme from the store settings dashboard page. The settings form and the backend update validation SHALL restrict the selection of premium themes (e.g. `cinematic`) to merchants with the `growth` subscription plan.
+The system MUST replace the CSS-only theme system (`merchants.theme` with values `"default"` / `"cinematic"`) with a full template module system (`merchants.template` with values matching `store_templates.slug`). The settings form SHALL display a visual template gallery instead of a theme dropdown. Template selection SHALL be restricted by subscription tier as defined in `store_templates.allowed_tiers`, replacing the previous hardcoded `"cinematic"` → `"growth"` restriction.
 
-#### Scenario: Starter plan merchant selects premium theme
-- **WHEN** a merchant on the "starter" plan attempts to select the "cinematic" theme on the settings page
-- **THEN** the settings page disables the theme selection control, shows an upgrade warning badge, and the backend rejects any update containing "cinematic" as the theme value.
+#### Scenario: Starter plan merchant views template gallery
+- **WHEN** a merchant on the "starter" plan opens the template settings page
+- **THEN** the page displays a visual gallery of all active templates, with templates outside the merchant's tier shown as locked with an upgrade prompt, replacing the previous theme dropdown.
 
-#### Scenario: Growth plan merchant selects premium theme
-- **WHEN** a merchant on the "growth" plan selects the "cinematic" theme on the settings page and clicks save
-- **THEN** the database is updated with `theme = 'cinematic'` and the storefront pages render using the cinematic design tokens.
+#### Scenario: Growth plan merchant selects premium template
+- **WHEN** a merchant on the "growth" plan selects the "fashion" template from the gallery and confirms
+- **THEN** the database is updated with `template = 'fashion'` and the storefront pages render using the fashion template's page components and design tokens.

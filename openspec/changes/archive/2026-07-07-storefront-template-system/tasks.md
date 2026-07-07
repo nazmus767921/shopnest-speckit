@@ -41,7 +41,7 @@
 - [x] 5.7 Build `templates/general/GeneralFooter.tsx` — refactor current footer from layout.tsx into general template's footer component
 - [x] 5.8 Build `templates/general/GeneralCartPage.tsx` — refactor `CartClientPage` for use as general template's cart (shared implementation with template tokens)
 - [x] 5.9 Create template-specific components in `templates/general/components/` (GeneralHeroBanner, GeneralCategoryGrid, GeneralProductCard)
-- [ ] 5.10 Verify general template renders identically to current storefront (visual regression)
+- [x] 5.10 Verify general template renders identically to current storefront (visual regression)
 
 ## 6. Fashion Template Module
 
@@ -53,7 +53,7 @@
 - [x] 6.6 Build `templates/fashion/FashionNavbar.tsx` — minimal editorial navbar, centered/left logo, sparse nav items (Shop, New In), search overlay, cart badge
 - [x] 6.7 Build `templates/fashion/FashionFooter.tsx` — dark canvas footer, display typography newsletter heading, light text on dark, social icons, payment badges
 - [x] 6.8 Build fashion-specific components in `templates/fashion/components/` (FashionEditorialHero, FashionLookbookCard, FashionColorSwatchRow, FashionProductCard)
-- [ ] 6.9 Verify fashion template renders correctly with sample store data against DESIGN-fashion.md specifications
+- [x] 6.9 Verify fashion template renders correctly with sample store data against DESIGN-fashion.md specifications
 
 ## 7. Storefront Route Refactoring (Thin Resolvers)
 
