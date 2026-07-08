@@ -1,12 +1,30 @@
 "use client"
 
 import React from "react"
+import Link from "next/link"
 import { NewsletterSignup } from "@/components/storefront/shared/NewsletterSignup"
 import { type FooterProps } from "../types"
 
-export function GeneralFooter({ store }: FooterProps) {
+export function GeneralFooter({ store, menu }: FooterProps) {
   const parsedSocialLinks: Record<string, string> = store.socialLinks || {}
   const hasSocialLinks = Object.values(parsedSocialLinks).some((url) => !!url)
+
+  const menuItems = menu?.items || []
+
+  // Resolve link hrefs
+  const resolveHref = (item: any) => {
+    if (item.type === "url") return item.url || "#"
+    if (item.type === "page") return `/pages/${item.page?.slug || ""}`
+    if (item.type === "category") return `/products?category=${item.category?.slug || ""}`
+    if (item.type === "product") return `/products/${item.product?.slug || ""}`
+    return "#"
+  }
+
+  // Build menu tree (1-level nesting)
+  const topLevelItems = menuItems.filter((item: any) => !item.parentId)
+  const getChildren = (parentId: string) => menuItems.filter((item: any) => item.parentId === parentId)
+
+  const hasCustomMenu = topLevelItems.length > 0
 
   return (
     <footer className="w-full mt-12 bg-zinc-50 border-t border-[var(--color-hairline-light)]">
@@ -63,43 +81,77 @@ export function GeneralFooter({ store }: FooterProps) {
             )}
           </div>
 
-          {/* Utility Columns */}
-          <div className="flex flex-col gap-4">
-            <span className="text-storefront-body-strong font-bold uppercase tracking-wider text-[var(--color-ink)]">Company</span>
-            <ul className="flex flex-col gap-2.5 text-storefront-body-md text-[var(--color-shade-40)]">
-              <li><a href="#" className="hover:text-[var(--color-ink)]">About</a></li>
-              <li><a href="#" className="hover:text-[var(--color-ink)]">Features</a></li>
-              <li><a href="#" className="hover:text-[var(--color-ink)]">Works</a></li>
-              <li><a href="#" className="hover:text-[var(--color-ink)]">Career</a></li>
-            </ul>
-          </div>
-          <div className="flex flex-col gap-4">
-            <span className="text-storefront-body-strong font-bold uppercase tracking-wider text-[var(--color-ink)]">Help</span>
-            <ul className="flex flex-col gap-2.5 text-storefront-body-md text-[var(--color-shade-40)]">
-              <li><a href="#" className="hover:text-[var(--color-ink)]">Customer Support</a></li>
-              <li><a href="#" className="hover:text-[var(--color-ink)]">Delivery Details</a></li>
-              <li><a href="#" className="hover:text-[var(--color-ink)]">Terms & Conditions</a></li>
-              <li><a href="#" className="hover:text-[var(--color-ink)]">Privacy Policy</a></li>
-            </ul>
-          </div>
-          <div className="flex flex-col gap-4">
-            <span className="text-storefront-body-strong font-bold uppercase tracking-wider text-[var(--color-ink)]">FAQ</span>
-            <ul className="flex flex-col gap-2.5 text-storefront-body-md text-[var(--color-shade-40)]">
-              <li><a href="#" className="hover:text-[var(--color-ink)]">Account</a></li>
-              <li><a href="#" className="hover:text-[var(--color-ink)]">Manage Deliveries</a></li>
-              <li><a href="#" className="hover:text-[var(--color-ink)]">Orders</a></li>
-              <li><a href="#" className="hover:text-[var(--color-ink)]">Payments</a></li>
-            </ul>
-          </div>
-          <div className="flex flex-col gap-4">
-            <span className="text-storefront-body-strong font-bold uppercase tracking-wider text-[var(--color-ink)]">Resources</span>
-            <ul className="flex flex-col gap-2.5 text-storefront-body-md text-[var(--color-shade-40)]">
-              <li><a href="#" className="hover:text-[var(--color-ink)]">Free eBooks</a></li>
-              <li><a href="#" className="hover:text-[var(--color-ink)]">Development Tutorial</a></li>
-              <li><a href="#" className="hover:text-[var(--color-ink)]">How to - Blog</a></li>
-              <li><a href="#" className="hover:text-[var(--color-ink)]">Youtube Playlist</a></li>
-            </ul>
-          </div>
+          {/* Dynamic Columns */}
+          {hasCustomMenu ? (
+            topLevelItems.map((col: any) => {
+              const children = getChildren(col.id)
+              return (
+                <div key={col.id} className="flex flex-col gap-4">
+                  <span className="text-storefront-body-strong font-bold uppercase tracking-wider text-[var(--color-ink)]">
+                    {col.label}
+                  </span>
+                  <ul className="flex flex-col gap-2.5 text-storefront-body-md text-[var(--color-shade-40)]">
+                    {children.map((child: any) => {
+                      const href = resolveHref(child)
+                      return (
+                        <li key={child.id}>
+                          {href === "#" ? (
+                            <span className="text-[var(--color-shade-30)] select-none cursor-default font-light">
+                              {child.label}
+                            </span>
+                          ) : (
+                            <Link href={href} className="hover:text-[var(--color-ink)] transition-colors">
+                              {child.label}
+                            </Link>
+                          )}
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              )
+            })
+          ) : (
+            <>
+              {/* Utility Columns */}
+              <div className="flex flex-col gap-4">
+                <span className="text-storefront-body-strong font-bold uppercase tracking-wider text-[var(--color-ink)]">Company</span>
+                <ul className="flex flex-col gap-2.5 text-storefront-body-md text-[var(--color-shade-40)]">
+                  <li><Link href="/products" className="hover:text-[var(--color-ink)]">About</Link></li>
+                  <li><Link href="/products" className="hover:text-[var(--color-ink)]">Features</Link></li>
+                  <li><a href="#" className="hover:text-[var(--color-ink)]">Works</a></li>
+                  <li><a href="#" className="hover:text-[var(--color-ink)]">Career</a></li>
+                </ul>
+              </div>
+              <div className="flex flex-col gap-4">
+                <span className="text-storefront-body-strong font-bold uppercase tracking-wider text-[var(--color-ink)]">Help</span>
+                <ul className="flex flex-col gap-2.5 text-storefront-body-md text-[var(--color-shade-40)]">
+                  <li><a href="#" className="hover:text-[var(--color-ink)]">Customer Support</a></li>
+                  <li><a href="#" className="hover:text-[var(--color-ink)]">Delivery Details</a></li>
+                  <li><a href="#" className="hover:text-[var(--color-ink)]">Terms & Conditions</a></li>
+                  <li><a href="#" className="hover:text-[var(--color-ink)]">Privacy Policy</a></li>
+                </ul>
+              </div>
+              <div className="flex flex-col gap-4">
+                <span className="text-storefront-body-strong font-bold uppercase tracking-wider text-[var(--color-ink)]">FAQ</span>
+                <ul className="flex flex-col gap-2.5 text-storefront-body-md text-[var(--color-shade-40)]">
+                  <li><a href="#" className="hover:text-[var(--color-ink)]">Account</a></li>
+                  <li><a href="#" className="hover:text-[var(--color-ink)]">Manage Deliveries</a></li>
+                  <li><Link href="/orders" className="hover:text-[var(--color-ink)]">Orders</Link></li>
+                  <li><a href="#" className="hover:text-[var(--color-ink)]">Payments</a></li>
+                </ul>
+              </div>
+              <div className="flex flex-col gap-4">
+                <span className="text-storefront-body-strong font-bold uppercase tracking-wider text-[var(--color-ink)]">Resources</span>
+                <ul className="flex flex-col gap-2.5 text-storefront-body-md text-[var(--color-shade-40)]">
+                  <li><a href="#" className="hover:text-[var(--color-ink)]">Free eBooks</a></li>
+                  <li><a href="#" className="hover:text-[var(--color-ink)]">Development Tutorial</a></li>
+                  <li><a href="#" className="hover:text-[var(--color-ink)]">How to - Blog</a></li>
+                  <li><a href="#" className="hover:text-[var(--color-ink)]">Youtube Playlist</a></li>
+                </ul>
+              </div>
+            </>
+          )}
         </div>
 
         {/* 3. Bottom copyright and payment badges */}

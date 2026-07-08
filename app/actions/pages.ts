@@ -35,7 +35,7 @@ export async function createPageAction(values: unknown) {
       ...result.data,
     })
 
-    revalidateTag(`merchant-${merchant.id}-pages`)
+    revalidateTag(`merchant-${merchant.id}-pages`, "max")
     revalidatePath("/dashboard/pages")
     revalidatePath("/", "layout")
     return { success: true, page }
@@ -55,9 +55,9 @@ export async function updatePageAction(id: string, values: unknown) {
 
     const page = await updatePage(merchant.id, id, result.data)
 
-    revalidateTag(`merchant-${merchant.id}-pages`)
+    revalidateTag(`merchant-${merchant.id}-pages`, "max")
     if (result.data.slug) {
-      revalidateTag(`page-${merchant.id}-${result.data.slug}`)
+      revalidateTag(`page-${merchant.id}-${result.data.slug}`, "max")
     }
     revalidatePath("/dashboard/pages")
     revalidatePath(`/dashboard/pages/${id}`)
@@ -73,7 +73,7 @@ export async function deletePageAction(id: string) {
     const merchant = await getAuthenticatedMerchant()
     await deletePage(merchant.id, id)
 
-    revalidateTag(`merchant-${merchant.id}-pages`)
+    revalidateTag(`merchant-${merchant.id}-pages`, "max")
     revalidatePath("/dashboard/pages")
     revalidatePath("/", "layout")
     return { success: true }

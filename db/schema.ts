@@ -940,3 +940,66 @@ export const storeTemplates = pgTable("store_templates", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }).enableRLS()
 
+export const menus = pgTable("menus", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  merchantId: text("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  slug: text("slug").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("menus_merchant_id_idx").on(table.merchantId),
+  uniqueIndex("menus_merchant_slug_idx").on(table.merchantId, table.slug),
+]).enableRLS()
+
+export const menuItems = pgTable("menu_items", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  menuId: text("menu_id").notNull().references(() => menus.id, { onDelete: "cascade" }),
+  parentId: text("parent_id").references((): any => menuItems.id, { onDelete: "cascade" }),
+  label: text("label").notNull(),
+  type: text("type").$type<"url" | "page" | "category" | "product">().notNull(),
+  referenceId: text("reference_id"),
+  url: text("url"),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("menu_items_menu_id_idx").on(table.menuId),
+  index("menu_items_parent_id_idx").on(table.parentId),
+]).enableRLS()
+
+export const menusRelations = relations(menus, ({ one, many }) => ({
+  merchant: one(merchants, {
+    fields: [menus.merchantId],
+    references: [merchants.id],
+  }),
+  items: many(menuItems),
+}))
+
+export const menuItemsRelations = relations(menuItems, ({ one, many }) => ({
+  menu: one(menus, {
+    fields: [menuItems.menuId],
+    references: [menus.id],
+  }),
+  parent: one(menuItems, {
+    fields: [menuItems.parentId],
+    references: [menuItems.id],
+    relationName: "nested_items",
+  }),
+  children: many(menuItems, {
+    relationName: "nested_items",
+  }),
+  page: one(pages, {
+    fields: [menuItems.referenceId],
+    references: [pages.id],
+  }),
+  category: one(categories, {
+    fields: [menuItems.referenceId],
+    references: [categories.id],
+  }),
+  product: one(products, {
+    fields: [menuItems.referenceId],
+    references: [products.id],
+  }),
+}))
+

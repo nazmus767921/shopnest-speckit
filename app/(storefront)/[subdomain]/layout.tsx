@@ -4,6 +4,7 @@ import type { Metadata } from "next"
 import "@/templates/general/styles.css"
 import "@/templates/fashion/styles.css"
 import { getMerchantById } from "@/db/queries/merchants"
+import { getCachedMenuBySlug } from "@/db/queries/navigation"
 import { getTemplate } from "@/templates/registry"
 import { Archivo_Black } from "next/font/google"
 import { Suspense } from "react"
@@ -68,10 +69,14 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
 
   const themeVars = getThemeVariables(store.themeSettings)
 
+  // Fetch menus dynamically with fallbacks handled inside template
+  const mainMenu = merchantId ? await getCachedMenuBySlug(merchantId, "main-menu") : null
+  const footerMenu = merchantId ? await getCachedMenuBySlug(merchantId, "footer-menu") : null
+
   return (
     <div style={themeVars} className={`storefront-template-${template} ${archivoBlack.variable} min-h-screen flex flex-col font-sans overflow-x-hidden`}>
       {/* Dynamic Template Header */}
-      <templateModule.Navbar store={store} subdomain={subdomain} />
+      <templateModule.Navbar store={store} subdomain={subdomain} menu={mainMenu} />
 
       {/* Main Content Area */}
       <main className={`grow px-4 md:px-8 ${template === "fashion" ? "pt-[81px] pb-16 md:pt-[89px] md:pb-24" : "py-8 md:py-12"}`}>
@@ -79,7 +84,7 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
       </main>
 
       {/* Dynamic Template Footer */}
-      <templateModule.Footer store={store} />
+      <templateModule.Footer store={store} menu={footerMenu} />
     </div>
   )
 }

@@ -14,6 +14,7 @@ import {
   Percent,
   FolderTree,
   FileText,
+  Menu,
 } from "lucide-react"
 
 interface NavItem {
@@ -55,6 +56,11 @@ export function SidebarLinks() {
           label: "Pages",
           href: "/dashboard/pages",
           icon: FileText,
+        },
+        {
+          label: "Navigation",
+          href: "/dashboard/settings/navigation",
+          icon: Menu,
         },
         {
           label: "Products",

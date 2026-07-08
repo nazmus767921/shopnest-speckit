@@ -204,6 +204,13 @@
       "when": 1783454173427,
       "tag": "0028_dynamic_templates_v2",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1783479465225,
+      "tag": "0029_add_storefront_navigation_menus",
+      "breakpoints": true
     }
   ]
 }

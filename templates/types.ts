@@ -114,10 +114,12 @@ export interface CartPageProps {
 export interface NavbarProps {
   store: StoreData
   subdomain: string
+  menu?: any
 }
 
 export interface FooterProps {
   store: StoreData
+  menu?: any
 }
 
 export interface StandardPageProps {
