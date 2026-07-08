@@ -2,16 +2,18 @@
 
 import React, { useState, useEffect } from "react"
 import { TemplatePicker } from "./TemplatePicker"
-import { applyTemplateAction } from "@/app/actions/settings"
+import { applyTemplateAction, updateThemeSettingsAction } from "@/app/actions/settings"
 import { saveStorefrontSectionsAction, seedDefaultSectionsAction } from "@/app/actions/storefront-sections"
 import { toast } from "@/components/ui/feedback/Toast"
 import { Button } from "@/components/ui/primitives/Button"
 import { Save, ChevronDown, ChevronUp, GripVertical, Trash2, Plus } from "lucide-react"
+import { Select } from "@/components/ui/primitives/Select"
 import { 
   HeroEditor, 
   AnnouncementBarEditor, 
-  CategoryShowcaseEditor, 
-  AboutEditor 
+  CategoryShowcaseEditor,
+  AboutEditor,
+  ProductGridEditor
 } from "./SectionEditors"
 import { StorefrontSection } from "@/lib/storefront-sections/types"
 import { defaultStorefrontSections } from "@/lib/storefront-sections/defaults"
@@ -20,12 +22,18 @@ interface TemplatesPageClientProps {
   templates: any[]
   currentTemplate: string
   initialSections: StorefrontSection[]
+  initialThemeSettings?: any
 }
 
-export function TemplatesPageClient({ templates, currentTemplate, initialSections }: TemplatesPageClientProps) {
+export function TemplatesPageClient({ templates, currentTemplate, initialSections, initialThemeSettings }: TemplatesPageClientProps) {
   const [selectedTemplate, setSelectedTemplate] = useState(currentTemplate)
   const [sections, setSections] = useState<any[]>(initialSections)
+  const [themeSettings, setThemeSettings] = useState<any>(initialThemeSettings || {
+    colors: { primary: "#000000", secondary: "#4b5563", background: "#ffffff", text: "#000000" },
+    layout: { borderRadius: "md" }
+  })
   const [isSaving, setIsSaving] = useState(false)
+  const [isSavingTheme, setIsSavingTheme] = useState(false)
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
 
   useEffect(() => {
@@ -64,7 +72,6 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
 
   const handleSaveSections = async () => {
     setIsSaving(true)
-    // Update sortOrder based on current array index
     const orderedSections = sections.map((sec, index) => ({
       ...sec,
       sortOrder: index
@@ -80,6 +87,17 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
     setIsSaving(false)
   }
 
+  const handleSaveThemeSettings = async () => {
+    setIsSavingTheme(true)
+    const res = await updateThemeSettingsAction(themeSettings)
+    if (res.success) {
+      toast.success("Theme settings saved successfully.")
+    } else {
+      toast.error(res.error || "Failed to save theme settings.")
+    }
+    setIsSavingTheme(false)
+  }
+
   const renderEditorForSection = (section: any, onChange: (newContent: any) => void) => {
     switch (section.sectionKey) {
       case "hero":
@@ -90,6 +108,11 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
         return <CategoryShowcaseEditor content={section.content} onChange={onChange} />
       case "about":
         return <AboutEditor content={section.content} onChange={onChange} />
+      case "product_grid_featured":
+      case "product_grid_new_arrivals":
+      case "product_grid_exclusive":
+      case "product_grid":
+        return <ProductGridEditor content={section.content} onChange={onChange} />
       default:
         return <div className="text-sm text-zinc-500">No editor available for {section.sectionKey}</div>
     }
@@ -123,6 +146,36 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
     }
   }
 
+  const handleAddSection = (sectionKey: string) => {
+    // Find default content if it exists
+    const defaultSec = defaultStorefrontSections.find(s => s.sectionKey === sectionKey)
+    const newSection = {
+      sectionKey,
+      content: defaultSec ? defaultSec.content : {},
+      sortOrder: sections.length,
+      isVisible: true,
+      isNew: true // just a marker so it doesn't have an ID yet
+    }
+    setSections([...sections, newSection])
+    setExpandedSection(sections.length.toString())
+  }
+
+  const handleDeleteSection = (index: number) => {
+    const newSections = [...sections]
+    newSections.splice(index, 1)
+    setSections(newSections)
+  }
+
+  const AVAILABLE_SECTIONS = [
+    { key: "hero", label: "Hero Banner" },
+    { key: "announcement_bar", label: "Announcement Bar" },
+    { key: "category_showcase", label: "Category Showcase" },
+    { key: "about", label: "About Section" },
+    { key: "product_grid_featured", label: "Featured Products" },
+    { key: "product_grid_new_arrivals", label: "New Arrivals" },
+    { key: "product_grid_exclusive", label: "Exclusive Products" },
+  ]
+
   return (
     <div className="flex flex-col gap-10 pb-20">
       {/* Template Picker Section */}
@@ -136,18 +189,125 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
         />
       </section>
 
+      {/* Theme Settings Section */}
+      <section className="flex flex-col gap-6">
+        <div className="flex items-center justify-between border-b border-hairline-light pb-2">
+          <h2 className="text-heading-sm font-bold text-ink">Global Theme Settings</h2>
+          <Button 
+            onClick={handleSaveThemeSettings} 
+            disabled={isSavingTheme}
+            className="flex items-center gap-2 rounded-full"
+          >
+            <Save className="w-4 h-4" />
+            {isSavingTheme ? "Saving..." : "Save Settings"}
+          </Button>
+        </div>
+
+        <div className="bg-canvas-cream/20 border border-hairline-light p-6 rounded-2xl flex flex-col gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Colors */}
+            <div className="flex flex-col gap-4">
+              <h3 className="font-semibold text-body-md text-ink">Colors</h3>
+              
+              <div className="flex flex-col gap-3">
+                {['primary', 'secondary', 'background', 'text'].map((colorKey) => (
+                  <div key={colorKey} className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-shade-75 capitalize">{colorKey} Color</label>
+                    <div className="flex items-center gap-2">
+                      <input 
+                        type="color" 
+                        value={themeSettings.colors?.[colorKey] || "#000000"} 
+                        onChange={(e) => setThemeSettings({
+                          ...themeSettings,
+                          colors: { ...themeSettings.colors, [colorKey]: e.target.value }
+                        })}
+                        className="w-8 h-8 rounded cursor-pointer border-0 p-0 bg-transparent"
+                      />
+                      <input 
+                        type="text"
+                        value={themeSettings.colors?.[colorKey] || "#000000"}
+                        onChange={(e) => setThemeSettings({
+                          ...themeSettings,
+                          colors: { ...themeSettings.colors, [colorKey]: e.target.value }
+                        })}
+                        className="w-24 px-2 py-1 border border-hairline-light rounded text-sm uppercase"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Layout */}
+            <div className="flex flex-col gap-4">
+              <h3 className="font-semibold text-body-md text-ink">Layout & Styling</h3>
+              
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-shade-75">Border Radius</label>
+                {(() => {
+                  const RADIUS_OPTIONS = [
+                    { value: "none", label: "None (Sharp)" },
+                    { value: "sm", label: "Small (Slightly rounded)" },
+                    { value: "md", label: "Medium (Standard)" },
+                    { value: "lg", label: "Large (Rounded)" },
+                    { value: "full", label: "Full (Pill/Circular)" }
+                  ];
+                  const currentVal = themeSettings.layout?.borderRadius || "md";
+                  const currentOpt = RADIUS_OPTIONS.find(o => o.value === currentVal) || RADIUS_OPTIONS[2];
+                  
+                  return (
+                    <Select
+                      options={RADIUS_OPTIONS}
+                      value={currentOpt}
+                      onChange={(opt) => {
+                        if (opt) {
+                          setThemeSettings({
+                            ...themeSettings,
+                            layout: { ...themeSettings.layout, borderRadius: opt.value }
+                          })
+                        }
+                      }}
+                      getOptionLabel={(opt) => opt.label}
+                      getOptionValue={(opt) => opt.value}
+                    />
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Homepage Sections Editor */}
       <section className="flex flex-col gap-6">
         <div className="flex items-center justify-between border-b border-hairline-light pb-2">
           <h2 className="text-heading-sm font-bold text-ink">Homepage Sections Editor</h2>
-          <Button 
-            onClick={handleSaveSections} 
-            disabled={isSaving}
-            className="flex items-center gap-2 rounded-full"
-          >
-            <Save className="w-4 h-4" />
-            {isSaving ? "Saving..." : "Save Sections"}
-          </Button>
+          <div className="flex items-center gap-3">
+            <div className="w-56">
+              <Select
+                options={AVAILABLE_SECTIONS.filter(s => !sections.some(sec => sec.sectionKey === s.key))}
+                value={null}
+                onChange={(option) => {
+                  if (option) {
+                    handleAddSection(option.key)
+                  }
+                }}
+                getOptionLabel={(opt) => opt.label}
+                getOptionValue={(opt) => opt.key}
+                placeholder="+ Add Section"
+                noOptionsMessage="All sections added"
+                className="!py-0"
+              />
+            </div>
+            <Button 
+              onClick={handleSaveSections} 
+              disabled={isSaving}
+              className="flex items-center gap-2 rounded-full"
+            >
+              <Save className="w-4 h-4" />
+              {isSaving ? "Saving..." : "Save Sections"}
+            </Button>
+          </div>
         </div>
 
         <div className="bg-canvas-cream/20 border border-hairline-light p-6 rounded-2xl flex flex-col gap-4">
@@ -181,6 +341,14 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                         />
                         Visible
                       </label>
+                      <button 
+                        type="button" 
+                        onClick={() => handleDeleteSection(index)}
+                        className="p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded"
+                        title="Remove section"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                       <button 
                         type="button" 
                         onClick={() => setExpandedSection(isExpanded ? null : index.toString())}

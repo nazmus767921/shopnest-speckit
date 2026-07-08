@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth/auth"
-import { getMerchantByOwnerId, updateStoreSettings, updateStorefrontLayout } from "@/db/queries/merchants"
+import { getMerchantByOwnerId, updateStoreSettings, updateStorefrontLayout, updateThemeSettings } from "@/db/queries/merchants"
 import { storeSettingsSchema } from "@/lib/validations/settings"
 import { storefrontLayoutSchema } from "@/lib/validations/storefront"
 import { revalidatePath } from "next/cache"
@@ -156,8 +156,23 @@ export async function applyTemplateAction(templateSlug: string) {
 
     revalidatePath("/dashboard/settings")
     return { success: true, merchant: updated }
-  } catch (error: any) {
-    return { success: false, error: error.message || "Failed to apply template." }
+  } catch (err: any) {
+    return { success: false, error: err instanceof Error ? err.message : "Failed to apply template" }
   }
 }
 
+export async function updateThemeSettingsAction(themeSettings: any) {
+  try {
+    const merchant = await getAuthenticatedMerchant()
+    await updateThemeSettings(merchant.id, themeSettings)
+    
+    // Purge everything related to this merchant from cache
+    revalidatePath("/dashboard/templates")
+    revalidatePath("/", "layout") // Revalidate entire app to ensure storefront picks it up
+    
+    return { success: true }
+  } catch (err: any) {
+    console.error("Failed to update theme settings", err)
+    return { success: false, error: err.message || "Failed to update theme settings" }
+  }
+}

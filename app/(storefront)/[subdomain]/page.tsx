@@ -31,80 +31,6 @@ async function StorefrontPageContent({ params }: Props) {
   const template = headersList.get("x-merchant-template") || "general"
 
   const merchant = merchantId ? await getMerchantById(merchantId) : null
-  const products = merchantId ? await getPublishedProducts(merchantId) : []
-
-  const formattedProducts = products.map((p) => {
-    const attrNameById: Record<string, string> = {}
-    for (const attr of p.attributes ?? []) {
-      for (const opt of attr.options ?? []) {
-        attrNameById[opt.id] = attr.name
-      }
-    }
-
-    return {
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      description: p.description,
-      pricePaisa: p.pricePaisa,
-      compareAtPricePaisa: p.compareAtPricePaisa,
-      stockCount: p.stockCount,
-      lowStockThreshold: p.lowStockThreshold,
-      images: p.images.map((img) => ({ storagePath: img.storagePath })),
-      category: p.category ? { id: p.category.id, name: p.category.name } : null,
-      promotions: p.promotions.map((pr) => ({ promotionType: pr.promotionType })),
-      attributes: (p.attributes ?? []).map((attr) => ({
-        name: attr.name,
-        displayType: attr.displayType as "swatch" | "dropdown" | "radio",
-        options: (attr.options ?? []).map((opt) => ({
-          value: opt.value,
-          label: opt.label,
-          swatchColor: opt.swatchColor ?? undefined,
-        })),
-      })),
-      variants: (p.variants ?? []).map((v) => ({
-        id: v.id,
-        sku: v.sku,
-        pricePaisa: v.pricePaisa,
-        compareAtPricePaisa: v.compareAtPricePaisa,
-        stockCount: v.stockCount,
-        isActive: v.isActive,
-        attributeCombination: Object.fromEntries(
-          (v.attributeLinks ?? []).map((link) => [
-            attrNameById[link.attributeOptionId] ?? "",
-            link.attributeOption.value,
-          ])
-        ),
-      })),
-    }
-  })
-
-  const featuredProducts = formattedProducts.filter((p) =>
-    p.promotions?.some((pr) => pr.promotionType === "featured")
-  ).slice(0, 5)
-
-  const newArrivalProducts = formattedProducts.filter((p) =>
-    p.promotions?.some((pr) => pr.promotionType === "new_arrival")
-  ).slice(0, 5)
-
-  // Construct CategoryWithProducts array from products
-  const categoriesMap = new Map<string, CategoryWithProducts>()
-  for (const product of formattedProducts) {
-    if (product.category) {
-      const cat = product.category
-      if (!categoriesMap.has(cat.id)) {
-        categoriesMap.set(cat.id, {
-          id: cat.id,
-          name: cat.name,
-          slug: cat.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-          description: null,
-          products: []
-        })
-      }
-      categoriesMap.get(cat.id)!.products.push(product)
-    }
-  }
-  const categories = Array.from(categoriesMap.values())
 
   const store = {
     id: merchant?.id || "",
@@ -129,9 +55,6 @@ async function StorefrontPageContent({ params }: Props) {
   return (
     <templateModule.HomePage
       store={store}
-      featuredProducts={featuredProducts}
-      newArrivals={newArrivalProducts}
-      categories={categories}
       sections={sections as any}
     />
   )

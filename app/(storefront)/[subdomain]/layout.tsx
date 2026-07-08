@@ -8,6 +8,7 @@ import { getTemplate } from "@/templates/registry"
 import { Archivo_Black } from "next/font/google"
 import { Suspense } from "react"
 import { connection } from "next/server"
+import { getThemeVariables } from "@/lib/theme"
 
 const archivoBlack = Archivo_Black({
   weight: "400",
@@ -62,10 +63,13 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
     address: merchant?.storeAddress || null,
     socialLinks: merchant?.socialLinks || null,
     customFaqs: merchant?.customFaqs || null,
+    themeSettings: merchant?.themeSettings || null,
   }
 
+  const themeVars = getThemeVariables(store.themeSettings)
+
   return (
-    <div className={`storefront-template-${template} ${archivoBlack.variable} min-h-screen flex flex-col font-sans overflow-x-hidden`}>
+    <div style={themeVars} className={`storefront-template-${template} ${archivoBlack.variable} min-h-screen flex flex-col font-sans overflow-x-hidden`}>
       {/* Dynamic Template Header */}
       <templateModule.Navbar store={store} subdomain={subdomain} />
 

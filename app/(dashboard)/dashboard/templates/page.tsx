@@ -74,6 +74,7 @@ async function TemplatesPageContent() {
       templates={mappedTemplates} 
       currentTemplate={merchant.template || "general"} 
       initialSections={sections as any}
+      initialThemeSettings={merchant.themeSettings as any}
     />
   )
 }

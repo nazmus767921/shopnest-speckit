@@ -27,7 +27,7 @@ export function BrandStory({ content }: { content: AboutContent }) {
           {buttonText && (
             <div className="pt-4">
               <Link href={buttonLink || "/about"}>
-                <button className="h-12 px-10 rounded-full border border-zinc-300 hover:border-black text-ink bg-transparent font-sans font-semibold text-xs uppercase tracking-[0.15em] transition-colors duration-300 cursor-pointer select-none">
+                <button className="h-12 px-10 rounded-[var(--radius)] border border-shade-30 hover:border-ink text-ink bg-transparent font-sans font-semibold text-xs uppercase tracking-[0.15em] transition-colors duration-300 cursor-pointer select-none">
                   {buttonText}
                 </button>
               </Link>
@@ -38,7 +38,7 @@ export function BrandStory({ content }: { content: AboutContent }) {
         {/* Image Content Column */}
         <div className="flex-[0.9] w-full order-1 md:order-2">
           {imageUrl ? (
-            <div className="relative aspect-[3/4] w-full max-w-lg mx-auto md:ml-auto overflow-hidden rounded-2xl border border-[var(--color-hairline-warm)]/40 bg-[var(--color-surface-product)]">
+            <div className="relative aspect-[3/4] w-full max-w-lg mx-auto md:ml-auto overflow-hidden rounded-[var(--radius)] border border-[var(--color-hairline-warm)]/40 bg-[var(--color-surface-product)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src={imageUrl} 
@@ -47,7 +47,7 @@ export function BrandStory({ content }: { content: AboutContent }) {
               />
             </div>
           ) : (
-            <div className="relative aspect-[3/4] w-full max-w-lg mx-auto md:ml-auto bg-[var(--color-surface-product)] border border-[var(--color-hairline-warm)]/40 rounded-2xl flex items-center justify-center">
+            <div className="relative aspect-[3/4] w-full max-w-lg mx-auto md:ml-auto bg-[var(--color-surface-product)] border border-[var(--color-hairline-warm)]/40 rounded-[var(--radius)] flex items-center justify-center">
               <span className="text-zinc-400 font-sans text-xs tracking-widest uppercase font-light">Boutique Story</span>
             </div>
           )}

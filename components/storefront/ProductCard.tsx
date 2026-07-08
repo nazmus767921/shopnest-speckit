@@ -276,7 +276,7 @@ export function ProductCard({
                   ? `Select options for ${product.name}`
                   : `Add ${product.name} to cart`
             }
-            className="w-9 h-9 min-h-0 p-0 rounded-full flex items-center justify-center bg-black hover:bg-zinc-800 text-white transition-all select-none shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            className="w-9 h-9 min-h-0 p-0 rounded-[var(--radius)] flex items-center justify-center bg-primary hover:opacity-90 text-on-primary transition-all select-none shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

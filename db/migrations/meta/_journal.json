@@ -197,6 +197,13 @@
       "when": 1783387155547,
       "tag": "0027_add_storefront_sections",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1783454173427,
+      "tag": "0028_dynamic_templates_v2",
+      "breakpoints": true
     }
   ]
 }

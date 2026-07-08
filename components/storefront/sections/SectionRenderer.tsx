@@ -4,13 +4,15 @@ import { FullBleedHero } from "./FullBleedHero"
 import { AnnouncementMarquee } from "./AnnouncementMarquee"
 import { CategoryMosaic } from "./CategoryMosaic"
 import { BrandStory } from "./BrandStory"
+import { DynamicProductGrid } from "./DynamicProductGrid"
 
 interface SectionRendererProps {
   sections: StorefrontSection[]
   merchantId: string
+  subdomain: string
 }
 
-export function SectionRenderer({ sections, merchantId }: SectionRendererProps) {
+export function SectionRenderer({ sections, merchantId, subdomain }: SectionRendererProps) {
   // Sort sections by sortOrder just in case they aren't already sorted
   const sortedSections = [...sections].sort((a, b) => a.sortOrder - b.sortOrder)
   
@@ -50,6 +52,19 @@ export function SectionRenderer({ sections, merchantId }: SectionRendererProps) 
                 key={section.id || "about"} 
                 content={section.content as any} 
               />
+            )
+          case "product_grid":
+          case "product_grid_featured":
+          case "product_grid_new_arrivals":
+          case "product_grid_exclusive":
+            return (
+              <Suspense key={section.id || section.sectionKey} fallback={<div className="h-96 w-full animate-pulse bg-zinc-100" />}>
+                <DynamicProductGrid 
+                  content={section.content as any} 
+                  merchantId={merchantId}
+                  subdomain={subdomain}
+                />
+              </Suspense>
             )
           default:
             return null // Unknown section, ignore

@@ -28,6 +28,12 @@ export type AboutContent = {
   buttonLink?: string
 }
 
+export type ProductGridContent = {
+  title: string
+  gridType: 'new_arrivals' | 'featured' | 'exclusive' | 'manual_selection'
+  productIds?: string[] // Used when gridType is manual_selection
+}
+
 // A discriminated union could be used, but since the JSONB is loosely typed at the DB level,
 // we provide a generic or combined type for frontend flexibility.
 export type StorefrontSectionContent =
@@ -35,6 +41,7 @@ export type StorefrontSectionContent =
   | AnnouncementBarContent
   | CategoryShowcaseContent
   | AboutContent
+  | ProductGridContent
 
 export type StorefrontSection = {
   id: string

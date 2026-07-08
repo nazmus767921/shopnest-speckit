@@ -8,7 +8,8 @@ import {
   HeroContent, 
   AnnouncementBarContent, 
   CategoryShowcaseContent, 
-  AboutContent 
+  AboutContent,
+  ProductGridContent
 } from "@/lib/storefront-sections/types"
 
 export function HeroEditor({ content, onChange }: { content: HeroContent, onChange: (c: HeroContent) => void }) {
@@ -177,6 +178,37 @@ export function AboutEditor({ content, onChange }: { content: AboutContent, onCh
           onChange={(e) => onChange({ ...content, buttonLink: e.target.value })}
           placeholder="/about"
         />
+      </div>
+    </div>
+  )
+}
+
+export function ProductGridEditor({ content, onChange }: { content: ProductGridContent, onChange: (c: ProductGridContent) => void }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1.5">
+        <FormLabel>Title</FormLabel>
+        <Input 
+          value={content.title || ""}
+          onChange={(e) => onChange({ ...content, title: e.target.value })}
+          placeholder="Featured Products"
+        />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <FormLabel>Grid Type</FormLabel>
+        <select
+          value={content.gridType || "featured"}
+          onChange={(e) => onChange({ ...content, gridType: e.target.value as any })}
+          className="h-10 px-3 bg-canvas-cream/40 border-hairline-light rounded-lg border outline-none focus:border-ink"
+        >
+          <option value="featured">Featured</option>
+          <option value="new_arrivals">New Arrivals</option>
+          <option value="exclusive">Exclusive</option>
+          <option value="manual_selection">Manual Selection</option>
+        </select>
+      </div>
+      <div className="p-3 bg-zinc-50 border border-zinc-100 rounded-lg text-micro text-zinc-500">
+        Note: The products displayed are based on the product promotion type set in your inventory.
       </div>
     </div>
   )

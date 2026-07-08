@@ -103,9 +103,38 @@ export const merchants = pgTable("merchants", {
   bkashWalletNumber: text("bkash_wallet_number"),
   nagadWalletNumber: text("nagad_wallet_number"),
   template: text("template").default("general").notNull(),
+  themeSettings: jsonb("theme_settings").$type<{
+    colors?: {
+      primary?: string
+      secondary?: string
+      background?: string
+      text?: string
+    }
+    typography?: {
+      headingFont?: string
+      bodyFont?: string
+    }
+    layout?: {
+      borderRadius?: 'none' | 'sm' | 'md' | 'lg' | 'full'
+    }
+  }>(),
 }, (table) => [
   index("merchants_owner_id_idx").on(table.ownerId),
   index("merchants_subscription_status_idx").on(table.subscriptionStatus),
+]).enableRLS()
+
+export const pages = pgTable("pages", {
+  id: text("id").primaryKey(),
+  merchantId: text("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  slug: text("slug").notNull(),
+  title: text("title").notNull(),
+  content: text("content"),
+  isPublished: boolean("is_published").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("pages_merchant_id_idx").on(table.merchantId),
+  uniqueIndex("pages_merchant_slug_idx").on(table.merchantId, table.slug),
 ]).enableRLS()
 
 
@@ -657,6 +686,7 @@ export const merchantsRelations = relations(merchants, ({ one, many }) => ({
     fields: [merchants.ownerId],
     references: [user.id],
   }),
+  pages: many(pages),
   products: many(products),
   orders: many(orders),
   orderItems: many(orderItems),
@@ -884,6 +914,13 @@ export const notificationQueueRelations = relations(notificationQueue, ({ one })
 export const notificationPreferencesRelations = relations(notificationPreferences, ({ one }) => ({
   merchant: one(merchants, {
     fields: [notificationPreferences.merchantId],
+    references: [merchants.id],
+  }),
+}))
+
+export const pagesRelations = relations(pages, ({ one }) => ({
+  merchant: one(merchants, {
+    fields: [pages.merchantId],
     references: [merchants.id],
   }),
 }))

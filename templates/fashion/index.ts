@@ -4,6 +4,7 @@ import { FashionPDP } from "./FashionPDP"
 import { FashionCartPage } from "./FashionCartPage"
 import { FashionNavbar } from "./FashionNavbar"
 import { FashionFooter } from "./FashionFooter"
+import { FashionStandardPage } from "./FashionStandardPage"
 
 export {
   FashionHomePage as HomePage,
@@ -12,4 +13,5 @@ export {
   FashionCartPage as CartPage,
   FashionNavbar as Navbar,
   FashionFooter as Footer,
+  FashionStandardPage as StandardPage,
 }

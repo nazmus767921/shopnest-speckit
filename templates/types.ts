@@ -1,11 +1,28 @@
 import React from "react"
 import { StorefrontSection } from "@/lib/storefront-sections/types"
 
+export interface ThemeSettings {
+  colors?: {
+    primary?: string
+    secondary?: string
+    background?: string
+    text?: string
+  }
+  typography?: {
+    headingFont?: string
+    bodyFont?: string
+  }
+  layout?: {
+    borderRadius?: 'none' | 'sm' | 'md' | 'lg' | 'full'
+  }
+}
+
 export interface StoreData {
   id: string
   name: string
   subdomain: string
   template: string
+  themeSettings?: ThemeSettings | null
   heroImageUrl: string | null
   subtitle: string | null
   description: string | null
@@ -73,10 +90,7 @@ export interface PaginationState {
 
 export interface HomePageProps {
   store: StoreData
-  featuredProducts: Product[]
-  categories: CategoryWithProducts[]
-  newArrivals: Product[]
-  sections?: StorefrontSection[]
+  sections: StorefrontSection[]
 }
 
 export interface PLPProps {
@@ -106,6 +120,17 @@ export interface FooterProps {
   store: StoreData
 }
 
+export interface StandardPageProps {
+  store: StoreData
+  page: {
+    id: string
+    title: string
+    content: string
+    metaTitle?: string | null
+    metaDescription?: string | null
+  }
+}
+
 export interface TemplateModule {
   HomePage: React.ComponentType<HomePageProps>
   PLP: React.ComponentType<PLPProps>
@@ -113,4 +138,5 @@ export interface TemplateModule {
   CartPage: React.ComponentType<CartPageProps>
   Navbar: React.ComponentType<NavbarProps>
   Footer: React.ComponentType<FooterProps>
+  StandardPage: React.ComponentType<StandardPageProps>
 }

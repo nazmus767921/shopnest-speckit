@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Percent,
   FolderTree,
+  FileText,
 } from "lucide-react"
 
 interface NavItem {
@@ -49,6 +50,11 @@ export function SidebarLinks() {
           label: "Templates",
           href: "/dashboard/templates",
           icon: LayoutTemplate,
+        },
+        {
+          label: "Pages",
+          href: "/dashboard/pages",
+          icon: FileText,
         },
         {
           label: "Products",

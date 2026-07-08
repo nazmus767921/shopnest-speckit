@@ -57,4 +57,31 @@ export const defaultStorefrontSections = [
     sortOrder: 3,
     isVisible: true,
   },
+  {
+    sectionKey: "product_grid_featured",
+    content: {
+      title: "Featured Products",
+      gridType: "featured"
+    },
+    sortOrder: 4,
+    isVisible: true,
+  },
+  {
+    sectionKey: "product_grid_new_arrivals",
+    content: {
+      title: "New Arrivals",
+      gridType: "new_arrivals"
+    },
+    sortOrder: 5,
+    isVisible: true,
+  },
+  {
+    sectionKey: "product_grid_exclusive",
+    content: {
+      title: "Exclusive Collection",
+      gridType: "exclusive"
+    },
+    sortOrder: 6,
+    isVisible: false,
+  }
 ]

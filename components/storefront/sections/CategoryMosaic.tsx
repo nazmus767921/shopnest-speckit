@@ -30,7 +30,7 @@ export async function CategoryMosaic({ content, merchantId }: { content: Categor
               <Link 
                 key={category.id} 
                 href={`/products?category=${category.slug}`}
-                className={`group relative overflow-hidden rounded-xl bg-zinc-200 flex-1 hover:flex-[3] transition-[flex] duration-700 ease-out flex items-end p-8`}
+                className={`group relative overflow-hidden rounded-[var(--radius)] bg-shade-30 flex-1 hover:flex-[3] transition-[flex] duration-700 ease-out flex items-end p-8`}
               >
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-700" />
@@ -56,7 +56,7 @@ export async function CategoryMosaic({ content, merchantId }: { content: Categor
               <Link 
                 key={category.id} 
                 href={`/products?category=${category.slug}`}
-                className="group relative overflow-hidden rounded-xl bg-[var(--color-surface-product)] p-8 min-h-[220px] flex flex-col justify-between hover:bg-[var(--color-surface-hover)] transition-all duration-300 border border-[var(--color-hairline-warm)]/10 hover:border-[var(--color-hairline-warm)]/30"
+                className="group relative overflow-hidden rounded-[var(--radius)] bg-[var(--color-surface-product)] p-8 min-h-[220px] flex flex-col justify-between hover:bg-[var(--color-surface-hover)] transition-all duration-300 border border-[var(--color-hairline-warm)]/10 hover:border-[var(--color-hairline-warm)]/30"
               >
                 <div className="text-zinc-500 font-sans text-xs font-light tracking-widest tabular-nums">
                   0{idx + 1}

@@ -174,7 +174,7 @@ export function FashionCartPage({ store }: CartPageProps) {
                 {discountPercent > 0 && (
                   <div className="flex justify-between items-center text-[var(--color-discount-text)]">
                     <span>Discount (-{discountPercent}%)</span>
-                    <span className="font-semibold">
+                    <span className="font-semibold text-[var(--color-ink)]">
                       -{formatTaka(discountPaisa)}
                     </span>
                   </div>
@@ -240,7 +240,7 @@ export function FashionCartPage({ store }: CartPageProps) {
                 <button
                   disabled={hasUnavailableItems}
                   onClick={() => { window.location.href = `/checkout?deliveryCharge=${deliveryPaisa}&discount=${discountPaisa}` }}
-                  className="w-full h-14 bg-black hover:bg-zinc-800 text-white rounded-full font-sans font-bold uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 border-none hover:opacity-90 disabled:opacity-50 disabled:pointer-events-none transition-opacity cursor-pointer"
+                  className="w-full h-14 bg-[var(--color-primary)] hover:opacity-90 text-[var(--color-primary-foreground)] rounded-[var(--radius)] font-sans font-bold uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 border-none disabled:opacity-50 disabled:pointer-events-none transition-opacity cursor-pointer"
                 >
                   <span>Go to Checkout</span>
                   <ArrowRight className="h-4 w-4 stroke-[1.5]" />

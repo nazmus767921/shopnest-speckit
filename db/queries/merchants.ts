@@ -144,3 +144,11 @@ export async function updateStorefrontLayout(
   return updated
 }
 
+export async function updateThemeSettings(merchantId: string, themeSettings: any) {
+  const [updated] = await db
+    .update(merchants)
+    .set({ themeSettings })
+    .where(eq(merchants.id, merchantId))
+    .returning()
+  return updated
+}

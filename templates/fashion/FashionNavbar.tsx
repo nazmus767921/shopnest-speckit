@@ -71,7 +71,7 @@ export function FashionNavbar({ store, subdomain }: NavbarProps) {
             <Link
               href="/"
               onClick={() => setIsOpen(false)}
-              className="text-xs font-sans tracking-[0.2em] uppercase text-zinc-500 hover:text-ink font-light"
+              className="text-xs font-sans tracking-[0.2em] uppercase text-zinc-500 hover:text-primary font-light"
             >
               Home
             </Link>
@@ -82,8 +82,8 @@ export function FashionNavbar({ store, subdomain }: NavbarProps) {
                 onClick={() => setIsOpen(false)}
                 className={`text-xs font-sans tracking-[0.2em] uppercase py-2 transition-colors ${
                   isActive(link.href)
-                    ? "text-ink font-medium"
-                    : "text-zinc-500 hover:text-ink font-light"
+                    ? "text-primary font-medium"
+                    : "text-zinc-500 hover:text-primary font-light"
                 }`}
               >
                 {link.name}

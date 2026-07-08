@@ -17,7 +17,7 @@ export function FashionCartItemRow({ item, onUpdateQuantity, onRemove }: Props) 
   if (item.isUnavailable) {
     return (
       <div className="flex items-center gap-4 py-5 border-b border-[var(--color-hairline-warm)]/60 last:border-0 opacity-60">
-        <div className="h-20 w-15 bg-zinc-100 rounded-lg overflow-hidden border border-zinc-200/50 flex items-center justify-center shrink-0">
+        <div className="h-20 w-15 bg-zinc-100 rounded-[var(--radius)] overflow-hidden border border-zinc-200/50 flex items-center justify-center shrink-0">
           <ImageIcon className="h-5 w-5 text-zinc-400 stroke-[1.2]" />
         </div>
         <div className="grow min-w-0">
@@ -34,7 +34,7 @@ export function FashionCartItemRow({ item, onUpdateQuantity, onRemove }: Props) 
         <button
           type="button"
           onClick={() => onRemove(item.productId, item.variantId)}
-          className="px-4 py-2 text-[10px] font-bold font-sans text-red-500 border border-red-200 rounded-full hover:bg-red-50 hover:border-red-300 transition-colors uppercase tracking-wider shrink-0 cursor-pointer"
+          className="px-4 py-2 text-[10px] font-bold font-sans text-red-500 border border-red-200 rounded-[var(--radius)] hover:bg-red-50 hover:border-red-300 transition-colors uppercase tracking-wider shrink-0 cursor-pointer"
         >
           Remove
         </button>
@@ -45,7 +45,7 @@ export function FashionCartItemRow({ item, onUpdateQuantity, onRemove }: Props) 
   return (
     <div className="flex gap-4 py-6 border-b border-[var(--color-hairline-warm)]/60 last:border-0 items-start select-none">
       {/* Tall aspect-[3/4] Thumbnail Image Container */}
-      <div className="h-28 w-21 bg-[var(--color-surface-product)] rounded-lg overflow-hidden border border-[var(--color-hairline-warm)]/40 flex items-center justify-center shrink-0 aspect-[3/4] relative">
+      <div className="h-28 w-21 bg-[var(--color-surface-product)] rounded-[var(--radius)] overflow-hidden border border-[var(--color-hairline-warm)]/40 flex items-center justify-center shrink-0 aspect-[3/4] relative">
         {item.imageUrl ? (
           <img
             src={item.imageUrl}
@@ -85,7 +85,7 @@ export function FashionCartItemRow({ item, onUpdateQuantity, onRemove }: Props) 
             type="button"
             disabled={item.quantity <= 1}
             onClick={() => onUpdateQuantity(item.productId, item.quantity - 1, item.variantId)}
-            className="w-7 h-7 rounded-full border border-zinc-200 hover:border-black flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none bg-white text-zinc-550 hover:text-black"
+            className="w-7 h-7 rounded-[var(--radius)] border border-shade-30 hover:border-ink flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none bg-canvas-light text-shade-50 hover:text-ink"
             aria-label="Decrease quantity"
           >
             <Minus className="h-3 w-3 stroke-[1.5]" />
@@ -97,7 +97,7 @@ export function FashionCartItemRow({ item, onUpdateQuantity, onRemove }: Props) 
             type="button"
             disabled={item.stockCount !== null && item.quantity >= item.stockCount}
             onClick={() => onUpdateQuantity(item.productId, item.quantity + 1, item.variantId)}
-            className="w-7 h-7 rounded-full border border-zinc-200 hover:border-black flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none bg-white text-zinc-550 hover:text-black"
+            className="w-7 h-7 rounded-[var(--radius)] border border-shade-30 hover:border-ink flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none bg-canvas-light text-shade-50 hover:text-ink"
             aria-label="Increase quantity"
           >
             <Plus className="h-3 w-3 stroke-[1.5]" />
@@ -111,7 +111,7 @@ export function FashionCartItemRow({ item, onUpdateQuantity, onRemove }: Props) 
         <button
           type="button"
           onClick={() => onRemove(item.productId, item.variantId)}
-          className="p-1.5 text-zinc-400 hover:text-black transition-colors rounded-full hover:bg-zinc-100 cursor-pointer border-none bg-transparent"
+          className="p-1.5 text-shade-40 hover:text-ink transition-colors rounded-[var(--radius)] hover:bg-canvas-cream cursor-pointer border-none bg-transparent"
           aria-label={`Remove ${item.name} from cart`}
         >
           <Trash2 className="h-4 w-4 stroke-[1.5]" />
