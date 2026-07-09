@@ -14,7 +14,14 @@ import { Label as FormLabel } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CustomCombobox } from "@/components/ui/custom/combobox"
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+  ComboboxEmpty,
+} from "@/components/ui/combobox"
 import { UploadCloud, X, Loader2, ArrowLeft, ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import {
   AlertDialog,
@@ -95,6 +102,24 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
     },
     staleTime: 60_000,
   })
+
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const filteredCategories = React.useMemo(() => {
+    if (!searchQuery) return categories
+    return categories.filter((cat) =>
+      cat.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  }, [categories, searchQuery])
+
+  React.useEffect(() => {
+    if (initialData?.categoryId && categories.length > 0) {
+      const cat = categories.find((c) => c.id === initialData.categoryId)
+      if (cat) {
+        setSearchQuery(cat.name)
+      }
+    }
+  }, [categories, initialData])
 
   const moveImage = (index: number, direction: "left" | "right") => {
     const newIndex = direction === "left" ? index - 1 : index + 1
@@ -475,20 +500,33 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
               <form.Field
                 name="categoryId"
                 children={(field) => {
-                  const selectedCategory = categories.find((cat) => cat.id === field.state.value) || null
                   return (
                     <div className="flex flex-col gap-1.5">
                       <FormLabel>Category</FormLabel>
-                      <CustomCombobox
+                      <Combobox
                         value={field.state.value || ""}
                         onValueChange={(val) => field.handleChange(val || null)}
-                        items={categories}
-                        getItemValue={(cat) => cat.id}
-                        getItemLabel={(cat) => cat.name}
-                        renderOption={(cat) => cat.name}
-                        placeholder="Select a category..."
-                        emptyTitle="No categories found."
-                      />
+                        inputValue={searchQuery}
+                        onInputValueChange={(val) => setSearchQuery(val)}
+                        itemToStringLabel={(val) => {
+                          const cat = categories.find((c) => c.id === val)
+                          return cat ? cat.name : ""
+                        }}
+                      >
+                        <ComboboxInput placeholder="Select a category..." className="w-full" />
+                        <ComboboxContent>
+                          <ComboboxList>
+                            {filteredCategories.map((cat) => (
+                              <ComboboxItem key={cat.id} value={cat.id}>
+                                {cat.name}
+                              </ComboboxItem>
+                            ))}
+                            {filteredCategories.length === 0 && (
+                              <ComboboxEmpty>No categories found.</ComboboxEmpty>
+                            )}
+                          </ComboboxList>
+                        </ComboboxContent>
+                      </Combobox>
                       {field.state.meta.errors.length > 0 && (
                         <span className="text-xs text-destructive font-medium">
                           {getErrorMessage(field.state.meta.errors[0])}
