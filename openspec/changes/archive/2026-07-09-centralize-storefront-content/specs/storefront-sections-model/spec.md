@@ -1,9 +1,4 @@
-# storefront-sections-model
-
-## Purpose
-This capability defines the universal section-based content model for storefront homepages. It provides the database table, typed content schemas, CRUD queries, Zod validation, default content seeding, and server actions that enable merchants to manage homepage sections independently of which template they use.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: storefront_sections Database Table
 The system MUST maintain a `storefront_sections` table with columns: `id` (UUID PK, auto-generated), `merchant_id` (text FK → merchants, NOT NULL, CASCADE on delete), `section_key` (text NOT NULL — one of "hero", "announcement_bar", "category_showcase", "about", "faq", "footer"), `content` (JSONB NOT NULL), `sort_order` (integer NOT NULL DEFAULT 0), `is_visible` (boolean NOT NULL DEFAULT true), `created_at` (timestamptz DEFAULT now()), `updated_at` (timestamptz DEFAULT now()). A UNIQUE constraint on `(merchant_id, section_key)` MUST ensure each merchant has at most one row per section key. The table MUST have RLS enabled and an index on `merchant_id`.
@@ -45,14 +40,3 @@ When a merchant's homepage sections are first initialized (on first visit to the
 #### Scenario: Idempotent seeding
 - **WHEN** section seeding runs for a merchant who already has all 6 sections
 - **THEN** no new rows are inserted and existing content is not overwritten.
-
-### Requirement: Section CRUD Server Actions
-The system MUST provide server actions for: (1) fetching all sections for the authenticated merchant (with merchant_id from auth session), (2) updating section content and visibility in batch (receiving an array of section updates and persisting them in a single transaction), (3) toggling a single section's visibility. All server actions MUST enforce merchant_id from `auth.api.getSession()`, never from client input.
-
-#### Scenario: Batch-saving section updates
-- **WHEN** a merchant saves all sections from the Templates page editor
-- **THEN** the server action receives an array of {section_key, content, is_visible} updates, validates each against the appropriate Zod schema, and upserts all rows in a single database transaction.
-
-#### Scenario: Unauthorized section access
-- **WHEN** a request to update sections is made without a valid authenticated session
-- **THEN** the server action returns an authentication error and no database changes occur.

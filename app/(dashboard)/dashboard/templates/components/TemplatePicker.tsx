@@ -40,7 +40,7 @@ export function TemplatePicker({ templates, loading, selectedTemplate, onSelect 
             className={`border rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 bg-white ${
               isActive
                 ? "border-emerald-500 ring-2 ring-emerald-500/20"
-                : "border-zinc-200 hover:border-zinc-300 hover:shadow-md"
+                : "border-zinc-200 hover:border-zinc-300"
             }`}
           >
             {/* Thumbnail */}

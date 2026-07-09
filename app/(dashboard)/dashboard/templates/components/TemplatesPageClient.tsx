@@ -13,7 +13,9 @@ import {
   AnnouncementBarEditor, 
   CategoryShowcaseEditor,
   AboutEditor,
-  ProductGridEditor
+  ProductGridEditor,
+  FaqEditor,
+  FooterEditor
 } from "./SectionEditors"
 import { StorefrontSection } from "@/lib/storefront-sections/types"
 import { defaultStorefrontSections } from "@/lib/storefront-sections/defaults"
@@ -45,8 +47,23 @@ interface TemplatesPageClientProps {
 
 export function TemplatesPageClient({ templates, currentTemplate, initialSections, initialThemeSettings }: TemplatesPageClientProps) {
   const [selectedTemplate, setSelectedTemplate] = useState(currentTemplate)
+  // Helper to ensure footer exists for backward compatibility with existing stores
+  const getSectionsWithFooter = (secs: any[]) => {
+    if (secs.length === 0) return secs
+    if (secs.some(s => s.sectionKey === "footer")) return secs
+    const defaultFooter = defaultStorefrontSections.find(s => s.sectionKey === "footer")
+    return [...secs, {
+      id: `new-footer-${Date.now()}`,
+      sectionKey: "footer",
+      content: defaultFooter?.content || {},
+      sortOrder: 9999,
+      isVisible: true,
+      isNew: true
+    }]
+  }
+
   const [baselineSections, setBaselineSections] = useState<any[]>(initialSections)
-  const [sections, setSections] = useState<any[]>(initialSections)
+  const [sections, setSections] = useState<any[]>(getSectionsWithFooter(initialSections))
   
   const defaultTheme = {
     colors: { primary: "#000000", secondary: "#4b5563", background: "#ffffff", text: "#000000" },
@@ -147,6 +164,10 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
       case "product_grid_exclusive":
       case "product_grid":
         return <ProductGridEditor content={section.content} onChange={onChange} />
+      case "faq":
+        return <FaqEditor content={section.content} onChange={onChange} />
+      case "footer":
+        return <FooterEditor content={section.content} onChange={onChange} />
       default:
         return <div className="text-sm text-zinc-500">No editor available for {section.sectionKey}</div>
     }
@@ -169,9 +190,19 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
     
     if (over && active.id !== over.id) {
       setSections((items) => {
-        const oldIndex = items.findIndex((i) => i.id ? i.id === active.id : i.sectionKey === active.id)
-        const newIndex = items.findIndex((i) => i.id ? i.id === over.id : i.sectionKey === over.id)
-        return arrayMove(items, oldIndex, newIndex)
+        const oldIndex = items.findIndex((i) => (i.id || i.sectionKey) === active.id)
+        const newIndex = items.findIndex((i) => (i.id || i.sectionKey) === over.id)
+        
+        let newItems = arrayMove(items, oldIndex, newIndex)
+        
+        // Ensure footer is always last
+        const footerIndex = newItems.findIndex(i => i.sectionKey === "footer")
+        if (footerIndex !== -1 && footerIndex !== newItems.length - 1) {
+          const footerItem = newItems.splice(footerIndex, 1)[0]
+          newItems.push(footerItem)
+        }
+        
+        return newItems
       })
     }
   }
@@ -186,7 +217,17 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
       isVisible: true,
       isNew: true
     }
-    setSections([...sections, newSection])
+    
+    setSections(prev => {
+      const footerIndex = prev.findIndex(s => s.sectionKey === "footer")
+      if (footerIndex !== -1) {
+        const newSections = [...prev]
+        newSections.splice(footerIndex, 0, newSection)
+        return newSections
+      }
+      return [...prev, newSection]
+    })
+    
     setExpandedSection(newSection.id || newSection.sectionKey)
   }
 
@@ -204,6 +245,8 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
     { key: "product_grid_featured", label: "Featured Products" },
     { key: "product_grid_new_arrivals", label: "New Arrivals" },
     { key: "product_grid_exclusive", label: "Exclusive Products" },
+    { key: "faq", label: "FAQ Section" },
+    { key: "footer", label: "Footer" }
   ]
 
   return (
@@ -213,7 +256,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
       <div className="lg:col-span-5 flex flex-col gap-6">
         
         {/* Accordion 1: Active Theme */}
-        <div className="border border-hairline-light rounded-3xl bg-white shadow-sm">
+        <div className="border border-hairline-light rounded-3xl bg-white">
           <button 
             className={`w-full flex items-center justify-between p-6 hover:bg-zinc-50/50 transition-colors ${activeAccordion === 'template' ? 'border-b border-hairline-light rounded-t-[23px]' : 'rounded-[23px]'}`}
             onClick={() => setActiveAccordion(activeAccordion === 'template' ? '' : 'template')}
@@ -243,7 +286,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
         </div>
 
         {/* Accordion 2: Global Theme Settings */}
-        <div className="border border-hairline-light rounded-3xl bg-white shadow-sm">
+        <div className="border border-hairline-light rounded-3xl bg-white">
           <div className={`w-full flex items-center justify-between p-6 transition-colors ${activeAccordion === 'theme' ? 'border-b border-hairline-light bg-zinc-50/50 rounded-t-[23px]' : 'hover:bg-zinc-50/50 rounded-[23px]'}`}>
             <button 
               className="flex items-center gap-4 flex-1 text-left"
@@ -266,7 +309,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                 <Button 
                   onClick={handleSaveThemeSettings} 
                   disabled={isSavingTheme || !hasUnsavedTheme}
-                  className={`rounded-full shadow-sm ${hasUnsavedTheme ? 'bg-amber-500 hover:bg-amber-600 text-white border-transparent' : ''}`}
+                  className={`rounded-full ${hasUnsavedTheme ? 'bg-amber-500 hover:bg-amber-600 text-white border-transparent' : ''}`}
                 >
                   {isSavingTheme ? "Saving..." : "Save"}
                 </Button>
@@ -287,7 +330,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                     {['primary', 'secondary', 'background', 'text'].map((colorKey) => (
                       <div key={colorKey} className="flex items-center justify-between">
                         <label className="text-sm font-medium text-shade-75 capitalize">{colorKey} Color</label>
-                        <div className="flex items-center gap-2 bg-white border border-hairline-light p-1 rounded-full shadow-sm pl-2">
+                        <div className="flex items-center gap-2 bg-white border border-hairline-light p-1 rounded-full pl-2">
                           <input 
                             type="text"
                             value={themeSettings.colors?.[colorKey] || "#000000"}
@@ -355,7 +398,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
         </div>
 
         {/* Accordion 3: Homepage Sections Editor */}
-        <div className="border border-hairline-light rounded-3xl bg-white shadow-sm">
+        <div className="border border-hairline-light rounded-3xl bg-white">
           <div className={`w-full flex items-center justify-between p-6 transition-colors ${activeAccordion === 'sections' ? 'border-b border-hairline-light bg-zinc-50/50 rounded-t-[23px]' : 'hover:bg-zinc-50/50 rounded-[23px]'}`}>
             <button 
               className="flex items-center gap-4 flex-1 text-left"
@@ -378,7 +421,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                 <Button 
                   onClick={handleSaveSections} 
                   disabled={isSaving || !hasUnsavedSections}
-                  className={`rounded-full shadow-sm ${hasUnsavedSections ? 'bg-amber-500 hover:bg-amber-600 text-white border-transparent' : ''}`}
+                  className={`rounded-full ${hasUnsavedSections ? 'bg-amber-500 hover:bg-amber-600 text-white border-transparent' : ''}`}
                 >
                   {isSaving ? "Saving..." : "Save"}
                 </Button>
@@ -439,6 +482,8 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                           onToggleVisibility={() => toggleSectionVisibility(index)}
                           onDelete={() => handleDeleteSection(index)}
                           renderEditor={() => renderEditorForSection(section, (newContent) => updateSectionContent(index, newContent))}
+                          isDraggable={section.sectionKey !== "footer"}
+                          isDeletable={section.sectionKey !== "footer"}
                         />
                       )
                     })}

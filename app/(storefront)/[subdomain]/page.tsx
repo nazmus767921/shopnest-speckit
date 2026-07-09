@@ -37,12 +37,6 @@ async function StorefrontPageContent({ params }: Props) {
     name: merchant?.name || "Boutique Store",
     subdomain: merchant?.subdomain || subdomain,
     template,
-    heroImageUrl: merchant?.heroImageUrl || null,
-    subtitle: merchant?.subtitle || null,
-    description: merchant?.storeDescription || null,
-    address: merchant?.storeAddress || null,
-    socialLinks: merchant?.socialLinks || null,
-    customFaqs: merchant?.customFaqs || null,
   }
 
   let sections = merchantId ? await getStorefrontSections(merchantId) : []

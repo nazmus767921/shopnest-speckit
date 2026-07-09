@@ -5,8 +5,9 @@ import Link from "next/link"
 import { NewsletterSignup } from "@/components/storefront/shared/NewsletterSignup"
 import { type FooterProps } from "../types"
 
-export function FashionFooter({ store, menu }: FooterProps) {
-  const parsedSocialLinks: Record<string, string> = store.socialLinks || {}
+export function FashionFooter({ store, menu, footerSection }: FooterProps) {
+  const content = footerSection?.content || {}
+  const parsedSocialLinks: Record<string, string> = content.socialLinks || {}
   const hasSocialLinks = Object.values(parsedSocialLinks).some((url) => !!url)
 
   const menuItems = menu?.items || []
@@ -36,9 +37,9 @@ export function FashionFooter({ store, menu }: FooterProps) {
             <span className="font-display text-3xl font-normal tracking-wide uppercase">
               {store.name}
             </span>
-            <p className="text-xs text-[var(--color-on-primary)]/75 leading-relaxed font-sans font-light">
-              {store.description || "Curated seasonal selections. Elevating everyday boutique wear with high-quality, timeless fashion garments."}
-            </p>
+            <p className="text-base text-zinc-400 font-sans font-light leading-relaxed">
+            {content.storeDescription || "Curated seasonal selections. Elevating everyday boutique wear with high-quality, timeless fashion garments."}
+          </p>
             {hasSocialLinks && (
               <div className="flex items-center gap-3">
                 {parsedSocialLinks.facebook && (
@@ -124,8 +125,8 @@ export function FashionFooter({ store, menu }: FooterProps) {
         </div>
 
         {/* 3. Bottom Credits */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 font-sans text-[11px] tracking-wider text-[var(--color-on-primary)]/60">
-          <p>© 2026 {store.name}. Powered by ShopNest. {store.address}</p>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-12 border-t border-zinc-800 text-sm font-sans font-light text-zinc-500">
+          <p>{content.copyrightText || `© 2026 ${store.name}. Powered by ShopNest.`} {content.storeAddress || ""}</p>
           <div className="flex items-center gap-6">
             <a href="#" className="hover:text-[var(--color-on-primary)] transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-[var(--color-on-primary)] transition-colors">Terms of Service</a>

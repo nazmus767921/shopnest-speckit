@@ -8,8 +8,6 @@ import { SectionRenderer } from "@/components/storefront/sections/SectionRendere
 import { type HomePageProps } from "../types"
 
 export function FashionHomePage({ store, sections = [] }: HomePageProps) {
-  const parsedFaqs = store.customFaqs || []
-
   return (
     <div className="flex flex-col animate-fade-in pb-32">
 
@@ -42,30 +40,6 @@ export function FashionHomePage({ store, sections = [] }: HomePageProps) {
           Browse Catalog
         </Link>
       </div>
-
-      {/* FAQs Accordion */}
-      {parsedFaqs.length > 0 && (
-            <section className="flex flex-col gap-16 pt-16 max-w-3xl mx-auto w-full">
-              <h2 className="font-sans text-3xl md:text-4xl text-center text-ink font-light tracking-tight">
-                Common Questions
-              </h2>
-              <div className="flex flex-col divide-y divide-zinc-200">
-                {parsedFaqs.map((faq, i) => (
-                  <details key={i} className="group py-6 cursor-pointer">
-                    <summary className="flex items-center justify-between font-medium text-lg text-ink list-none font-sans">
-                      <span>{faq.question}</span>
-                      <span className="text-zinc-400 group-open:rotate-45 transition-transform duration-300 text-2xl font-light leading-none select-none">
-                        +
-                      </span>
-                    </summary>
-                    <p className="mt-6 text-base text-zinc-500 font-sans font-light leading-relaxed animate-fade-in pr-8">
-                      {faq.answer}
-                    </p>
-                  </details>
-                ))}
-              </div>
-            </section>
-          )}
     </div>
   )
 }

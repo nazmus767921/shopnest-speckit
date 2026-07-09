@@ -6,6 +6,8 @@ import "@/templates/fashion/styles.css"
 import { getMerchantById } from "@/db/queries/merchants"
 import { getCachedMenuBySlug } from "@/db/queries/navigation"
 import { getTemplate } from "@/templates/registry"
+import { getStorefrontSections } from "@/db/queries/storefront-sections"
+import { defaultStorefrontSections } from "@/lib/storefront-sections/defaults"
 import { Archivo_Black } from "next/font/google"
 import { Suspense } from "react"
 import { connection } from "next/server"
@@ -58,13 +60,16 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
     name: merchant?.name || "Boutique Store",
     subdomain: merchant?.subdomain || subdomain,
     template,
-    heroImageUrl: merchant?.heroImageUrl || null,
-    subtitle: merchant?.subtitle || null,
-    description: merchant?.storeDescription || null,
-    address: merchant?.storeAddress || null,
-    socialLinks: merchant?.socialLinks || null,
-    customFaqs: merchant?.customFaqs || null,
     themeSettings: merchant?.themeSettings || null,
+  }
+
+  let sections = merchantId ? await getStorefrontSections(merchantId) : []
+  if (!sections || sections.length === 0) {
+    sections = defaultStorefrontSections as any
+  }
+  let footerSection = sections.find((s: any) => s.sectionKey === "footer")
+  if (!footerSection) {
+    footerSection = defaultStorefrontSections.find(s => s.sectionKey === "footer")
   }
 
   const themeVars = getThemeVariables(store.themeSettings)
@@ -84,7 +89,7 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
       </main>
 
       {/* Dynamic Template Footer */}
-      <templateModule.Footer store={store} menu={footerMenu} />
+      <templateModule.Footer store={store} menu={footerMenu} footerSection={footerSection} />
     </div>
   )
 }

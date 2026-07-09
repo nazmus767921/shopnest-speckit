@@ -38,4 +38,20 @@ export const storefrontSectionInputSchema = z.object({
   isVisible: z.boolean().default(true),
 })
 
+export const faqContentSchema = z.object({
+  heading: z.string().optional(),
+  questions: z.array(z.object({
+    question: z.string().min(1, "Question is required"),
+    answer: z.string().min(1, "Answer is required")
+  })).default([]),
+})
+
+export const footerContentSchema = z.object({
+  storeDescription: z.string().optional(),
+  storeAddress: z.string().optional(),
+  socialLinks: z.record(z.string(), z.string()).optional(),
+  showPaymentBadges: z.boolean().default(true),
+  copyrightText: z.string().optional(),
+})
+
 export const updateStorefrontSectionsSchema = z.array(storefrontSectionInputSchema)

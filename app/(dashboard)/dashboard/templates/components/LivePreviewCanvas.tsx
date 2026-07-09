@@ -101,7 +101,7 @@ export function LivePreviewCanvas({ sections, themeSettings }: LivePreviewCanvas
         <h2 className="text-heading-sm font-bold text-ink">Live Preview</h2>
         <span className="text-xs font-medium px-2 py-1 bg-zinc-100 text-zinc-500 rounded-full">Mini-Canvas</span>
       </div>
-      <div className="relative w-full aspect-[9/16] max-h-[800px] bg-white border border-hairline-light rounded-[32px] shadow-sm overflow-hidden flex flex-col ring-8 ring-zinc-50/50">
+      <div className="relative w-full aspect-[9/16] max-h-[800px] bg-white border border-hairline-light rounded-[32px] overflow-hidden flex flex-col ring-8 ring-zinc-50/50">
         {/* Fake Browser Header */}
         <div className="w-full h-12 bg-zinc-50 border-b border-hairline-light flex items-center px-6 gap-2 shrink-0">
           <div className="flex gap-1.5">

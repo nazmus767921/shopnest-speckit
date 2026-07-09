@@ -2,9 +2,9 @@
 
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth/auth"
-import { getMerchantByOwnerId, updateStoreSettings, updateStorefrontLayout, updateThemeSettings } from "@/db/queries/merchants"
+import { getMerchantByOwnerId, updateStoreSettings, updateMerchantTemplate, updateThemeSettings } from "@/db/queries/merchants"
 import { storeSettingsSchema } from "@/lib/validations/settings"
-import { storefrontLayoutSchema } from "@/lib/validations/storefront"
+
 import { revalidatePath } from "next/cache"
 
 import { getMerchantPlan } from "@/lib/plans/getPlan"
@@ -63,39 +63,7 @@ export async function updateStoreSettingsAction(values: unknown) {
   }
 }
 
-export async function updateStorefrontLayoutAction(values: unknown) {
-  try {
-    const merchant = await getAuthenticatedMerchant()
-    const result = storefrontLayoutSchema.safeParse(values)
 
-    if (!result.success) {
-      throw new Error(result.error.issues[0].message)
-    }
-
-    const { heroImageUrl, subtitle, storeDescription, storeAddress, socialLinks, customFaqs, template } = result.data
-
-    // Invariant 7: Subscription plan limits are checked on the server-side
-    const plan = await getMerchantPlan(merchant.id)
-    if (template === "fashion" && plan?.slug === "starter") {
-      throw new Error("Upgrade your subscription to use premium templates.")
-    }
-
-    const updated = await updateStorefrontLayout(merchant.id, {
-      heroImageUrl: heroImageUrl || null,
-      subtitle: subtitle || null,
-      storeDescription: storeDescription || null,
-      storeAddress: storeAddress || null,
-      socialLinks: socialLinks || null,
-      customFaqs: customFaqs || null,
-      template,
-    })
-
-    revalidatePath("/dashboard/settings")
-    return { success: true, merchant: updated }
-  } catch (error: any) {
-    return { success: false, error: error.message || "Failed to update storefront layout." }
-  }
-}
 
 export async function getAvailableTemplatesAction() {
   try {
@@ -144,15 +112,7 @@ export async function applyTemplateAction(templateSlug: string) {
       throw new Error(`Your current plan does not support the ${template.name} template. Please upgrade.`)
     }
 
-    const updated = await updateStorefrontLayout(merchant.id, {
-      heroImageUrl: merchant.heroImageUrl,
-      subtitle: merchant.subtitle,
-      storeDescription: merchant.storeDescription,
-      storeAddress: merchant.storeAddress,
-      socialLinks: merchant.socialLinks,
-      customFaqs: merchant.customFaqs,
-      template: templateSlug,
-    })
+    const updated = await updateMerchantTemplate(merchant.id, templateSlug)
 
     revalidatePath("/dashboard/settings")
     return { success: true, merchant: updated }

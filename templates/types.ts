@@ -23,12 +23,6 @@ export interface StoreData {
   subdomain: string
   template: string
   themeSettings?: ThemeSettings | null
-  heroImageUrl: string | null
-  subtitle: string | null
-  description: string | null
-  address: string | null
-  socialLinks: Record<string, string> | null
-  customFaqs: Array<{ question: string; answer: string }> | null
 }
 
 export interface Product {
@@ -105,6 +99,7 @@ export interface PDPProps {
   store: StoreData
   product: Product
   relatedProducts: Product[]
+  faqs?: Array<{ question: string; answer: string }>
 }
 
 export interface CartPageProps {
@@ -120,6 +115,7 @@ export interface NavbarProps {
 export interface FooterProps {
   store: StoreData
   menu?: any
+  footerSection?: any
 }
 
 export interface StandardPageProps {

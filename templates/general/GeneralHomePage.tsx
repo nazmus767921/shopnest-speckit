@@ -6,21 +6,12 @@ import { PackageOpen, Sparkles, Flame } from "lucide-react"
 import { Card } from "@/components/ui"
 import { ProductSlider } from "@/components/storefront/ProductSlider"
 import { type HomePageProps } from "../types"
-import { GeneralHeroBanner } from "./components/GeneralHeroBanner"
 
 import { SectionRenderer } from "@/components/storefront/sections/SectionRenderer"
 
 export function GeneralHomePage({ store, sections = [] }: HomePageProps) {
-  const parsedFaqs = store.customFaqs || []
-
   return (
     <div className="flex flex-col gap-12 max-w-7xl mx-auto animate-fade-in px-4 sm:px-6 lg:px-8">
-      <GeneralHeroBanner
-        name={store.name}
-        subtitle={store.subtitle}
-        heroImageUrl={store.heroImageUrl}
-      />
-
       <SectionRenderer sections={sections} merchantId={store.id} subdomain={store.subdomain} />
 
       {sections.length === 0 && (
@@ -47,30 +38,6 @@ export function GeneralHomePage({ store, sections = [] }: HomePageProps) {
           Shop All Products
         </Link>
       </div>
-
-          {/* FAQs Accordion */}
-          {parsedFaqs.length > 0 && (
-            <section className="flex flex-col gap-6 border-t border-[var(--color-hairline-light)] pt-10">
-              <h2 className="text-storefront-heading-lg font-semibold text-[var(--color-ink)] uppercase tracking-tight">
-                Frequently Asked Questions
-              </h2>
-              <div className="flex flex-col divide-y divide-[var(--color-hairline-light)] border border-[var(--color-hairline-light)] rounded-[var(--radius-md)] overflow-hidden bg-[var(--color-canvas-light)]">
-                {parsedFaqs.map((faq, i) => (
-                  <details key={i} className="group p-5 cursor-pointer">
-                    <summary className="flex items-center justify-between font-semibold text-storefront-body-strong text-[var(--color-ink)] list-none">
-                      <span>{faq.question}</span>
-                      <span className="text-[var(--color-shade-40)] group-open:rotate-45 transition-transform duration-250 text-xl leading-none select-none">
-                        +
-                      </span>
-                    </summary>
-                    <p className="mt-3 text-storefront-body-md text-[var(--color-shade-50)] font-light leading-relaxed animate-fade-in">
-                      {faq.answer}
-                    </p>
-                  </details>
-                ))}
-              </div>
-            </section>
-          )}
     </div>
   )
 }

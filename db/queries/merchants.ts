@@ -115,29 +115,13 @@ export async function updateStoreSettings(
   return updated
 }
 
-export async function updateStorefrontLayout(
+export async function updateMerchantTemplate(
   merchantId: string,
-  data: {
-    heroImageUrl?: string | null
-    subtitle?: string | null
-    storeDescription?: string | null
-    storeAddress?: string | null
-    socialLinks?: Record<string, string> | null
-    customFaqs?: Array<{ question: string; answer: string }> | null
-    template?: string
-  }
+  template: string
 ) {
   const [updated] = await db
     .update(merchants)
-    .set({
-      heroImageUrl: data.heroImageUrl,
-      subtitle: data.subtitle,
-      storeDescription: data.storeDescription,
-      storeAddress: data.storeAddress,
-      socialLinks: data.socialLinks,
-      customFaqs: data.customFaqs,
-      template: data.template,
-    })
+    .set({ template })
     .where(eq(merchants.id, merchantId))
     .returning()
 

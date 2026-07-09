@@ -83,5 +83,26 @@ export const defaultStorefrontSections = [
     },
     sortOrder: 6,
     isVisible: false,
+  },
+  {
+    sectionKey: "faq",
+    content: {
+      heading: "Frequently Asked Questions",
+      questions: [
+        { question: "What is your return policy?", answer: "We offer a 30-day return policy for unused items." },
+        { question: "How long does shipping take?", answer: "Orders are typically processed within 24 hours and delivered within 2-3 business days." }
+      ]
+    },
+    sortOrder: 7,
+    isVisible: true,
+  },
+  {
+    sectionKey: "footer",
+    content: {
+      storeDescription: "We are committed to providing the best quality products and exceptional customer service.",
+      showPaymentBadges: true,
+    },
+    sortOrder: 9999,
+    isVisible: true,
   }
 ]

@@ -5,6 +5,7 @@ import { AnnouncementMarquee } from "./AnnouncementMarquee"
 import { CategoryMosaic } from "./CategoryMosaic"
 import { BrandStory } from "./BrandStory"
 import { DynamicProductGrid } from "./DynamicProductGrid"
+import { FaqSection } from "./FaqSection"
 
 interface SectionRendererProps {
   sections: StorefrontSection[]
@@ -65,6 +66,13 @@ export function SectionRenderer({ sections, merchantId, subdomain }: SectionRend
                   subdomain={subdomain}
                 />
               </Suspense>
+            )
+          case "faq":
+            return (
+              <FaqSection
+                key={section.id || "faq"}
+                content={section.content as any}
+              />
             )
           default:
             return null // Unknown section, ignore

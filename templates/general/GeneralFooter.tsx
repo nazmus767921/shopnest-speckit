@@ -5,8 +5,9 @@ import Link from "next/link"
 import { NewsletterSignup } from "@/components/storefront/shared/NewsletterSignup"
 import { type FooterProps } from "../types"
 
-export function GeneralFooter({ store, menu }: FooterProps) {
-  const parsedSocialLinks: Record<string, string> = store.socialLinks || {}
+export function GeneralFooter({ store, menu, footerSection }: FooterProps) {
+  const content = footerSection?.content || {}
+  const parsedSocialLinks: Record<string, string> = content.socialLinks || {}
   const hasSocialLinks = Object.values(parsedSocialLinks).some((url) => !!url)
 
   const menuItems = menu?.items || []
@@ -41,7 +42,7 @@ export function GeneralFooter({ store, menu }: FooterProps) {
               {store.name}
             </span>
             <p className="text-storefront-body-md text-[var(--color-shade-40)]">
-              {store.description || "We have clothes that suit your style and which you're proud to wear. From women's to men's."}
+              {content.storeDescription || "We have clothes that suit your style and which you're proud to wear. From women's to men's."}
             </p>
             {hasSocialLinks && (
               <div className="flex items-center gap-3">
@@ -157,7 +158,7 @@ export function GeneralFooter({ store, menu }: FooterProps) {
         {/* 3. Bottom copyright and payment badges */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-storefront-caption text-[var(--color-shade-40)]">
-            © 2026 {store.name}. Powered by ShopNest. {store.address}
+            {content.copyrightText || `© 2026 ${store.name}. Powered by ShopNest.`} {content.storeAddress || ""}
           </p>
           <div className="flex items-center gap-2 select-none grayscale opacity-80">
             <span className="bg-white border border-[var(--color-hairline-light)] rounded px-2.5 py-1 text-[9px] font-bold text-[var(--color-ink)] tracking-widest">VISA</span>

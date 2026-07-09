@@ -91,12 +91,6 @@ export const merchants = pgTable("merchants", {
   nagadNumber: text("nagad_number"),
   phoneNumber: text("phone_number"),
   lowStockThresholdDefault: integer("low_stock_threshold_default").notNull().default(5),
-  heroImageUrl: text("hero_image_url"),
-  subtitle: text("subtitle"),
-  storeDescription: text("store_description"),
-  storeAddress: text("store_address"),
-  socialLinks: jsonb("social_links").$type<Record<string, string>>(), // jsonb: { facebook?, instagram?, whatsapp?, tiktok? }
-  customFaqs: jsonb("custom_faqs").$type<Array<{ question: string; answer: string }>>(), // jsonb: Array<{ question, answer }>
   telegramChatId: text("telegram_chat_id"), // Opt-in Telegram Chat ID for order notifications
   codEnabled: boolean("cod_enabled").notNull().default(false),
   payDeliveryChargeFirst: boolean("pay_delivery_charge_first").notNull().default(false),

@@ -9,7 +9,7 @@ const mockGetTemplateBySlug = vi.fn()
 const mockResolveTemplateForBusinessType = vi.fn()
 const mockGetMerchantPlan = vi.fn()
 const mockGetMerchantByOwnerId = vi.fn()
-const mockUpdateStorefrontLayout = vi.fn()
+const mockUpdateMerchantTemplate = vi.fn()
 const mockGetSession = vi.fn()
 
 const mockDbFindFirst = vi.fn()
@@ -34,7 +34,7 @@ vi.mock("@/lib/plans/getPlan", () => ({
 
 vi.mock("@/db/queries/merchants", () => ({
   getMerchantByOwnerId: (id: string) => mockGetMerchantByOwnerId(id),
-  updateStorefrontLayout: (id: string, data: any) => mockUpdateStorefrontLayout(id, data),
+  updateMerchantTemplate: (id: string, template: string) => mockUpdateMerchantTemplate(id, template),
 }))
 
 vi.mock("@/lib/auth/auth", () => ({
@@ -105,11 +105,11 @@ describe("Templates Server Actions", () => {
         allowedTiers: ["growth", "pro"],
         isActive: true,
       })
-      mockUpdateStorefrontLayout.mockResolvedValue({ id: "merchant-123", template: "fashion" })
+      mockUpdateMerchantTemplate.mockResolvedValue({ id: "merchant-123", template: "fashion" })
 
       const res = await applyTemplateAction("fashion")
       expect(res.success).toBe(true)
-      expect(mockUpdateStorefrontLayout).toHaveBeenCalled()
+      expect(mockUpdateMerchantTemplate).toHaveBeenCalled()
     })
 
     it("should reject applying template if merchant plan is not in allowedTiers", async () => {
@@ -127,7 +127,7 @@ describe("Templates Server Actions", () => {
       const res = await applyTemplateAction("fashion")
       expect(res.success).toBe(false)
       expect(res.error).toContain("does not support")
-      expect(mockUpdateStorefrontLayout).not.toHaveBeenCalled()
+      expect(mockUpdateMerchantTemplate).not.toHaveBeenCalled()
     })
   })
 

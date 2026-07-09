@@ -14,7 +14,7 @@ import { ProductTabs } from "@/components/storefront/ProductTabs"
 import { VariantProductClient } from "@/app/(storefront)/[subdomain]/product/[slug]/VariantProductClient"
 import { type PDPProps } from "../types"
 
-export function GeneralPDP({ store, product, relatedProducts }: PDPProps) {
+export function GeneralPDP({ store, product, relatedProducts, faqs }: PDPProps) {
   const isOutOfStock = product.stockCount === 0
   const isLowStock = !isOutOfStock && product.stockCount <= product.lowStockThreshold
   const hasVariants = product.variants && product.variants.length > 0
@@ -163,7 +163,7 @@ export function GeneralPDP({ store, product, relatedProducts }: PDPProps) {
       <ProductTabs
         description={product.description || ""}
         metadata={[]}
-        faqs={store.customFaqs || []}
+        faqs={faqs || []}
       />
 
       {/* Related Products: You Might Also Like */}
