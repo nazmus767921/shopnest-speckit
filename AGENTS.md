@@ -25,8 +25,8 @@ Before any Next.js work, find and read the relevant doc in `node_modules/next/di
     5. Subdomain Immutable: `merchants.subdomain` rejects UPDATE after INSERT.
     6. Email Non-blocking: Email dispatch wrapped in try/catch (best-effort delivery).
     7. Limits Enforced Server-side: Subscription plan limits checked in Server Actions/API routes.
-    8. UI Primitives Only: Composed from `components/ui`, extending with DESIGN.md tokens if needed.
-    9. DESIGN.md First: No shadows, pill buttons only (`rounded-full`), tailored colors (e.g., bg-primary, text-ink), two-track canvas polarity. Banned: raw Tailwind grays/blues, shadow-* classes, and bare rounded.
+    8. UI Primitives Only: Composed from Shadcn UI components under `components/ui/`.
+    9. Shadcn UI First: Adopt Shadcn UI default design system and components. Avoid building custom components unless necessary.
     10. Payment Snapshot Priority: Use `payment.featuresAtPaymentTime` to resolve grand-fathered features/limits; use warnings, not hard-blocks during verification.
 
 # Security & Secrets:

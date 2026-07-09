@@ -1,22 +1,17 @@
 import * as React from "react"
-import { cn } from "@/lib/utils"
+import { Label } from "../label"
 
-export interface FormLabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {}
+export interface FormLabelProps extends React.ComponentPropsWithoutRef<typeof Label> {}
 
-const FormLabel = React.forwardRef<HTMLLabelElement, FormLabelProps>(
+export const FormLabel = React.forwardRef<HTMLLabelElement, FormLabelProps>(
   ({ className, ...props }, ref) => {
     return (
-      <label
+      <Label
         ref={ref}
-        className={cn(
-          "text-caption font-medium text-shade-70 select-none",
-          className
-        )}
+        className={className}
         {...props}
       />
     )
   }
 )
 FormLabel.displayName = "FormLabel"
-
-export { FormLabel }
