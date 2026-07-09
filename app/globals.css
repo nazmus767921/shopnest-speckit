@@ -247,6 +247,14 @@
   animation: fade-in 0.2s ease-out forwards;
 }
 
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    STOREFRONT REDESIGN SCALES & THEMES
    ───────────────────────────────────────────────────────────────────────────── */

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { Menu, X, ShoppingBag, ChevronDown } from "lucide-react"
 import { CartIconButton } from "@/components/storefront/shared/CartIconButton"
 import { type NavbarProps } from "../types"
+import { Sheet } from "@/components/ui/layout/Sheet"
 
 export function GeneralNavbar({ store, subdomain, menu }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -190,9 +191,8 @@ export function GeneralNavbar({ store, subdomain, menu }: NavbarProps) {
         </div>
       </div>
  
-      {/* Mobile Menu Panel */}
-      {isOpen && (
-        <div className="md:hidden border-t border-[var(--color-hairline-light)] bg-[var(--color-canvas-light)] animate-fade-in absolute left-0 right-0 p-6 flex flex-col gap-5 shadow-sm max-h-[80vh] overflow-y-auto z-40">
+      <Sheet isOpen={isOpen} onClose={() => setIsOpen(false)} side="right">
+        <div className="flex flex-col gap-5 w-full p-2">
           <div className="flex flex-col gap-4">
             <Link
               href="/"
@@ -232,13 +232,13 @@ export function GeneralNavbar({ store, subdomain, menu }: NavbarProps) {
               ))
             )}
           </div>
-          <div className="border-t border-[var(--color-hairline-light)] pt-4 flex items-center justify-between">
+          <div className="border-t border-[var(--color-hairline-light)] pt-4 flex items-center justify-between pl-3">
             <span className="tag-storefront-discount font-semibold">
               Active Storefront
             </span>
           </div>
         </div>
-      )}
+      </Sheet>
     </header>
   )
 }

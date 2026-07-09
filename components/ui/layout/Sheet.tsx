@@ -12,6 +12,7 @@ interface SheetProps {
   side?: SheetSide
   title?: string
   description?: string
+  footer?: React.ReactNode
   children: React.ReactNode
   className?: string
 }
@@ -22,6 +23,7 @@ export function Sheet({
   side = "smart",
   title,
   description,
+  footer,
   children,
   className = "",
 }: SheetProps) {
@@ -88,7 +90,7 @@ export function Sheet({
 
   return createPortal(
     <div 
-      className={`fixed inset-0 z-[100] flex bg-black/40 backdrop-blur-xs select-text animate-fade-in ${containerClasses}`}
+      className={`fixed inset-0 z-[9999] flex bg-black/40 backdrop-blur-xs select-text animate-fade-in ${containerClasses}`}
       onClick={onClose}
     >
       <div
@@ -121,9 +123,19 @@ export function Sheet({
         </button>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div 
+          className="flex-1 overflow-y-auto p-6 scrollbar-hide overscroll-contain touch-pan-y"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
           {children}
         </div>
+
+        {/* Footer section (fixed at bottom of sheet) */}
+        {footer && (
+          <div className="p-6 border-t border-hairline-light shrink-0">
+            {footer}
+          </div>
+        )}
       </div>
     </div>,
     document.body

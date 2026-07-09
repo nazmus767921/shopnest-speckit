@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui"
 import { Menu, X } from "lucide-react"
+import { Sheet } from "@/components/ui/layout/Sheet"
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
@@ -50,41 +51,39 @@ export function Navbar() {
       </div>
 
       {/* Mobile Navigation Drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 w-full bg-canvas-night border-b border-white/5 py-6 px-6">
-          <div className="flex flex-col gap-4 w-full">
-            <Link
-              href="#features"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-body-md text-shade-40 hover:text-on-primary transition-colors duration-200 py-2 border-b border-white/5"
-            >
-              Features
-            </Link>
-            <Link
-              href="#pricing"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-body-md text-shade-40 hover:text-on-primary transition-colors duration-200 py-2 border-b border-white/5"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="#faq"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-body-md text-shade-40 hover:text-on-primary transition-colors duration-200 py-2 border-b border-white/5"
-            >
-              FAQ
-            </Link>
-            <div className="flex flex-col gap-2 pt-4">
-              <Button variant="ghost" size="sm" className="w-full justify-center" onClick={() => setMobileMenuOpen(false)} as={Link} href="/login">
-                Log in
-              </Button>
-              <Button variant="outline-dark" size="sm" className="w-full justify-center" onClick={() => setMobileMenuOpen(false)} as={Link} href="/register">
-                Start Free Trial
-              </Button>
-            </div>
+      <Sheet isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} side="right">
+        <div className="flex flex-col gap-4 w-full p-4">
+          <Link
+            href="#features"
+            onClick={() => setMobileMenuOpen(false)}
+            className="text-body-md text-shade-40 hover:text-ink transition-colors duration-200 py-2 border-b border-hairline-light"
+          >
+            Features
+          </Link>
+          <Link
+            href="#pricing"
+            onClick={() => setMobileMenuOpen(false)}
+            className="text-body-md text-shade-40 hover:text-ink transition-colors duration-200 py-2 border-b border-hairline-light"
+          >
+            Pricing
+          </Link>
+          <Link
+            href="#faq"
+            onClick={() => setMobileMenuOpen(false)}
+            className="text-body-md text-shade-40 hover:text-ink transition-colors duration-200 py-2 border-b border-hairline-light"
+          >
+            FAQ
+          </Link>
+          <div className="flex flex-col gap-3 pt-4">
+            <Button variant="ghost" size="sm" className="w-full justify-center" onClick={() => setMobileMenuOpen(false)} as={Link} href="/login">
+              Log in
+            </Button>
+            <Button variant="primary" size="sm" className="w-full justify-center text-on-primary bg-primary border-primary" onClick={() => setMobileMenuOpen(false)} as={Link} href="/register">
+              Start Free Trial
+            </Button>
           </div>
         </div>
-      )}
+      </Sheet>
     </header>
   )
 }

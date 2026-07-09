@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/primitives/Button"
 import { Card } from "@/components/ui/layout/Card"
 import { FormLabel } from "@/components/ui/primitives/FormLabel"
 import { Input } from "@/components/ui/primitives/Input"
-import { resetMenuToDefaultsAction, saveMenuItemsAction } from "@/app/actions/navigation"
+import { saveMenuItemsAction, resetMenuToDefaultsAction } from "@/app/actions/navigation"
 import { menuItemSchema } from "@/lib/validations/navigation"
+import { Sheet } from "@/components/ui/layout/Sheet"
 
 interface NavigationClientProps {
   merchantId: string
@@ -561,153 +562,134 @@ export function NavigationClient({
       </div>
 
       {/* Floating Right Slide-over Link Editor Drawer Overlay */}
-      {isDrawerOpen && (
-        <>
-          {/* Drawer backdrop overlay */}
-          <div 
-            className="fixed inset-0 bg-zinc-950/20 backdrop-blur-sm z-50 transition-opacity duration-300 animate-fade-in"
-            onClick={closeDrawer}
-          />
+      <Sheet 
+        isOpen={isDrawerOpen} 
+        onClose={closeDrawer} 
+        side="right" 
+        title={editingItemId ? "Edit Menu Link" : "Add Menu Link"}
+      >
+        <form onSubmit={handleDrawerFormSubmit} className="flex flex-col gap-5 flex-1 justify-between h-full">
+          <div className="flex flex-col gap-5">
+            {itemError && (
+              <div className="p-3 bg-red-50 text-red-700 border border-red-100 rounded-xl text-micro font-medium">
+                {itemError}
+              </div>
+            )}
 
-          {/* Drawer Panel content */}
-          <div className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-[var(--color-canvas-light)] border-l border-[var(--color-hairline-light)] p-6 flex flex-col gap-6 shadow-2xl z-50 transform transition-transform duration-300 animate-slide-in-right overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-[var(--color-hairline-light)] pb-4">
-              <h3 className="text-body-strong font-semibold text-[var(--color-ink)] flex items-center gap-2">
-                <Link2 className="h-4.5 w-4.5 text-primary" />
-                {editingItemId ? "Edit Menu Link" : "Add Menu Link"}
-              </h3>
-              <button 
-                onClick={closeDrawer}
-                className="p-1.5 hover:bg-canvas-dark text-shade-50 hover:text-[var(--color-ink)] rounded-full transition-all border-none bg-transparent cursor-pointer"
-              >
-                <X className="h-5 w-5" />
-              </button>
+            <div className="flex flex-col gap-1.5">
+              <FormLabel htmlFor="itemLabel">Link Label</FormLabel>
+              <Input
+                id="itemLabel"
+                placeholder="e.g. Shop All, Our Story"
+                value={itemLabel}
+                onChange={(e) => setItemLabel(e.target.value)}
+                required
+              />
             </div>
 
-            <form onSubmit={handleDrawerFormSubmit} className="flex flex-col gap-5 flex-1 justify-between">
-              <div className="flex flex-col gap-5">
-                {itemError && (
-                  <div className="p-3 bg-red-50 text-red-700 border border-red-100 rounded-xl text-micro font-medium">
-                    {itemError}
-                  </div>
-                )}
+            <div className="flex flex-col gap-1.5">
+              <FormLabel htmlFor="itemType">Link Destination Type</FormLabel>
+              <select
+                id="itemType"
+                value={itemType}
+                onChange={(e) => {
+                  setItemType(e.target.value as any)
+                  setItemReferenceId("")
+                  setItemUrl("")
+                }}
+                className="w-full text-caption border border-[var(--color-hairline-light)] rounded-xl px-3 py-3 bg-[var(--color-canvas-light)] text-[var(--color-ink)] outline-none focus:border-shade-60 transition-all font-sans"
+              >
+                <option value="text-only">Text Only / Category Header (No link)</option>
+                <option value="url">Custom URL</option>
+                <option value="page">Standard Page</option>
+                <option value="category">Category Collection</option>
+                <option value="product">Product Page</option>
+              </select>
+            </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <FormLabel htmlFor="itemLabel">Link Label</FormLabel>
-                  <Input
-                    id="itemLabel"
-                    placeholder="e.g. Shop All, Our Story"
-                    value={itemLabel}
-                    onChange={(e) => setItemLabel(e.target.value)}
-                    required
-                  />
-                </div>
+            {itemType === "url" && (
+              <div className="flex flex-col gap-1.5">
+                <FormLabel htmlFor="itemUrl">URL Link Destination</FormLabel>
+                <Input
+                  id="itemUrl"
+                  placeholder="e.g. /custom-route or https://..."
+                  value={itemUrl}
+                  onChange={(e) => setItemUrl(e.target.value)}
+                />
+              </div>
+            )}
 
-                <div className="flex flex-col gap-1.5">
-                  <FormLabel htmlFor="itemType">Link Destination Type</FormLabel>
-                  <select
-                    id="itemType"
-                    value={itemType}
-                    onChange={(e) => {
-                      setItemType(e.target.value as any)
-                      setItemReferenceId("")
-                      setItemUrl("")
-                    }}
-                    className="w-full text-caption border border-[var(--color-hairline-light)] rounded-xl px-3 py-3 bg-[var(--color-canvas-light)] text-[var(--color-ink)] outline-none focus:border-shade-60 transition-all font-sans"
-                  >
-                    <option value="text-only">Text Only / Category Header (No link)</option>
-                    <option value="url">Custom URL</option>
-                    <option value="page">Standard Page</option>
-                    <option value="category">Category Collection</option>
-                    <option value="product">Product Page</option>
-                  </select>
-                </div>
-
-                {itemType === "url" && (
-                  <div className="flex flex-col gap-1.5">
-                    <FormLabel htmlFor="itemUrl">URL Link Destination</FormLabel>
-                    <Input
-                      id="itemUrl"
-                      placeholder="e.g. /custom-route or https://..."
-                      value={itemUrl}
-                      onChange={(e) => setItemUrl(e.target.value)}
-                    />
-                  </div>
-                )}
-
-                {itemType !== "url" && itemType !== "text-only" && (
-                  <div className="flex flex-col gap-1.5">
-                    <FormLabel htmlFor="itemRef">Choose target resource</FormLabel>
-                    <select
-                      id="itemRef"
-                      value={itemReferenceId}
-                      onChange={(e) => setItemReferenceId(e.target.value)}
-                      className="w-full text-caption border border-[var(--color-hairline-light)] rounded-xl px-3 py-3 bg-[var(--color-canvas-light)] text-[var(--color-ink)] outline-none focus:border-shade-60 transition-all font-sans"
-                      required
-                    >
-                      <option value="">-- Choose target --</option>
-                      {itemType === "page" &&
-                        pages.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.title} ({p.slug})
-                          </option>
-                        ))}
-                      {itemType === "category" &&
-                        categories.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name} ({c.slug})
-                          </option>
-                        ))}
-                      {itemType === "product" &&
-                        products.map((pr) => (
-                          <option key={pr.id} value={pr.id}>
-                            {pr.name} ({pr.slug})
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                )}
-
-                {/* Nesting: Parent selector */}
-                <div className="flex flex-col gap-1.5">
-                  <FormLabel htmlFor="itemParent">Parent Link (Optional nesting)</FormLabel>
-                  <select
-                    id="itemParent"
-                    value={itemParentId}
-                    onChange={(e) => setItemParentId(e.target.value)}
-                    className="w-full text-caption border border-[var(--color-hairline-light)] rounded-xl px-3 py-3 bg-[var(--color-canvas-light)] text-[var(--color-ink)] outline-none focus:border-shade-60 transition-all font-sans"
-                  >
-                    <option value="">None (Top-level Link)</option>
-                    {potentialParents.map((parent) => (
-                      <option key={parent.id} value={parent.id}>
-                        {parent.label}
+            {itemType !== "url" && itemType !== "text-only" && (
+              <div className="flex flex-col gap-1.5">
+                <FormLabel htmlFor="itemRef">Choose target resource</FormLabel>
+                <select
+                  id="itemRef"
+                  value={itemReferenceId}
+                  onChange={(e) => setItemReferenceId(e.target.value)}
+                  className="w-full text-caption border border-[var(--color-hairline-light)] rounded-xl px-3 py-3 bg-[var(--color-canvas-light)] text-[var(--color-ink)] outline-none focus:border-shade-60 transition-all font-sans"
+                  required
+                >
+                  <option value="">-- Choose target --</option>
+                  {itemType === "page" &&
+                    pages.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.title} ({p.slug})
                       </option>
                     ))}
-                  </select>
-                </div>
+                  {itemType === "category" &&
+                    categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({c.slug})
+                      </option>
+                    ))}
+                  {itemType === "product" &&
+                    products.map((pr) => (
+                      <option key={pr.id} value={pr.id}>
+                        {pr.name} ({pr.slug})
+                      </option>
+                    ))}
+                </select>
               </div>
+            )}
 
-              <div className="flex gap-3 border-t border-[var(--color-hairline-light)] pt-4 mt-6">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={closeDrawer}
-                  className="rounded-full w-full justify-center text-caption py-3 border-[var(--color-hairline-light)]"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  className="rounded-full w-full justify-center text-caption py-3"
-                >
-                  {editingItemId ? "Save Changes" : "Add Link"}
-                </Button>
-              </div>
-            </form>
+            {/* Nesting: Parent selector */}
+            <div className="flex flex-col gap-1.5">
+              <FormLabel htmlFor="itemParent">Parent Link (Optional nesting)</FormLabel>
+              <select
+                id="itemParent"
+                value={itemParentId}
+                onChange={(e) => setItemParentId(e.target.value)}
+                className="w-full text-caption border border-[var(--color-hairline-light)] rounded-xl px-3 py-3 bg-[var(--color-canvas-light)] text-[var(--color-ink)] outline-none focus:border-shade-60 transition-all font-sans"
+              >
+                <option value="">None (Top-level Link)</option>
+                {potentialParents.map((parent) => (
+                  <option key={parent.id} value={parent.id}>
+                    {parent.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        </>
-      )}
+
+          <div className="flex gap-3 border-t border-[var(--color-hairline-light)] pt-4 mt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeDrawer}
+              className="rounded-full w-full justify-center text-caption py-3 border-[var(--color-hairline-light)]"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              className="rounded-full w-full justify-center text-caption py-3"
+            >
+              {editingItemId ? "Save Changes" : "Add Link"}
+            </Button>
+          </div>
+        </form>
+      </Sheet>
 
     </div>
   )

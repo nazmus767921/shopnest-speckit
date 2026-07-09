@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ChevronDown, ChevronUp, Filter, X, Search } from "lucide-react"
+import { Sheet } from "@/components/ui/layout/Sheet"
 
 interface Category {
   id: string
@@ -348,176 +349,162 @@ export function FashionProductFilters({
       </div>
 
       {/* Mobile Drawer Overlay */}
-      {drawerOpen && (
-        <div className="fixed inset-0 bg-black/45 z-100 animate-fade-in md:hidden flex justify-end">
-          <div className="w-[320px] h-full bg-[var(--color-canvas-warm)] flex flex-col justify-between relative shadow-2xl animate-slide-up duration-300">
-            {/* Drawer Header */}
-            <div className="flex items-center justify-between border-b border-zinc-200/60 p-5 shrink-0 bg-white">
-              <span className="font-sans text-xs uppercase tracking-[0.2em] font-bold text-ink">Filters</span>
+      <Sheet 
+        isOpen={drawerOpen} 
+        onClose={() => setDrawerOpen(false)} 
+        side="right" 
+        title="Filters"
+        footer={
+          <div className="flex flex-col gap-3 w-full">
+            <button
+              onClick={() => setDrawerOpen(false)}
+              className="w-full py-4 text-xs font-semibold font-sans uppercase tracking-[0.2em] bg-black text-white rounded-full hover:bg-zinc-800 transition-colors cursor-pointer border-none"
+            >
+              Apply Filters
+            </button>
+            {hasActiveFilters && (
               <button
-                onClick={() => setDrawerOpen(false)}
-                className="p-1 rounded hover:bg-zinc-100 text-ink cursor-pointer border-none bg-transparent"
-                aria-label="Close Filter Panel"
+                onClick={clearAllFilters}
+                className="w-full py-2.5 text-xs font-semibold font-sans uppercase tracking-[0.1em] text-zinc-500 hover:text-black transition-colors cursor-pointer border-none bg-transparent"
               >
-                <X className="h-5 w-5 stroke-[1.2]" />
+                Clear All Filters
               </button>
-            </div>
-
-            {/* Drawer Body (Vertical Accordions) */}
-            <div className="overflow-y-auto grow p-5 flex flex-col gap-6 select-none">
-              
-              {/* Category Section */}
-              <div className="border-b border-zinc-200/60 pb-4">
-                <button
-                  onClick={() => toggleMobileSection("categories")}
-                  className="flex items-center justify-between w-full text-xs font-bold font-sans uppercase tracking-[0.1em] text-ink cursor-pointer border-none bg-transparent py-2"
-                >
-                  <span>Category</span>
-                  {mobileSections.categories ? <ChevronUp className="h-4 w-4 stroke-[1.5]" /> : <ChevronDown className="h-4 w-4 stroke-[1.5]" />}
-                </button>
-                {mobileSections.categories && (
-                  <div className="flex flex-col gap-2.5 pt-2 pl-1.5">
+            )}
+          </div>
+        }
+      >
+        <div className="w-full bg-[var(--color-canvas-warm)] flex flex-col gap-4 select-none pb-4 -m-6 p-6">
+          {/* Category Section */}
+            <div className="border-b border-zinc-200/60 pb-4">
+              <button
+                onClick={() => toggleMobileSection("categories")}
+                className="flex items-center justify-between w-full text-xs font-bold font-sans uppercase tracking-[0.1em] text-ink cursor-pointer border-none bg-transparent py-2"
+              >
+                <span>Category</span>
+                {mobileSections.categories ? <ChevronUp className="h-4 w-4 stroke-[1.5]" /> : <ChevronDown className="h-4 w-4 stroke-[1.5]" />}
+              </button>
+              {mobileSections.categories && (
+                <div className="flex flex-col gap-2.5 pt-2 pl-1.5">
+                  <button
+                    onClick={() => handleFilterChange("category", "")}
+                    className={`text-left text-xs font-sans py-1.5 transition-colors border-none bg-transparent cursor-pointer ${
+                      !activeCategory ? "text-black font-bold" : "text-zinc-500"
+                    }`}
+                  >
+                    All Categories
+                  </button>
+                  {categories.map((cat) => (
                     <button
-                      onClick={() => handleFilterChange("category", "")}
+                      key={cat.id}
+                      onClick={() => handleFilterChange("category", cat.id)}
                       className={`text-left text-xs font-sans py-1.5 transition-colors border-none bg-transparent cursor-pointer ${
-                        !activeCategory ? "text-black font-bold" : "text-zinc-500"
+                        activeCategory === cat.id ? "text-black font-bold" : "text-zinc-500"
                       }`}
                     >
-                      All Categories
+                      {cat.name}
                     </button>
-                    {categories.map((cat) => (
-                      <button
-                        key={cat.id}
-                        onClick={() => handleFilterChange("category", cat.id)}
-                        className={`text-left text-xs font-sans py-1.5 transition-colors border-none bg-transparent cursor-pointer ${
-                          activeCategory === cat.id ? "text-black font-bold" : "text-zinc-500"
-                        }`}
-                      >
-                        {cat.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Price Section */}
-              <div className="border-b border-zinc-200/60 pb-4">
-                <button
-                  onClick={() => toggleMobileSection("price")}
-                  className="flex items-center justify-between w-full text-xs font-bold font-sans uppercase tracking-[0.1em] text-ink cursor-pointer border-none bg-transparent py-2"
-                >
-                  <span>Price Range</span>
-                  {mobileSections.price ? <ChevronUp className="h-4 w-4 stroke-[1.5]" /> : <ChevronDown className="h-4 w-4 stroke-[1.5]" />}
-                </button>
-                {mobileSections.price && (
-                  <div className="flex flex-col gap-2.5 pt-2 pl-1.5">
-                    {priceOptions.map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => handleFilterChange("price", opt.value)}
-                        className={`text-left text-xs font-sans py-1.5 transition-colors border-none bg-transparent cursor-pointer ${
-                          (activePrice || "") === opt.value ? "text-black font-bold" : "text-zinc-500"
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Color Section */}
-              <div className="border-b border-zinc-200/60 pb-4">
-                <button
-                  onClick={() => toggleMobileSection("colors")}
-                  className="flex items-center justify-between w-full text-xs font-bold font-sans uppercase tracking-[0.1em] text-ink cursor-pointer border-none bg-transparent py-2"
-                >
-                  <span>Color</span>
-                  {mobileSections.colors ? <ChevronUp className="h-4 w-4 stroke-[1.5]" /> : <ChevronDown className="h-4 w-4 stroke-[1.5]" />}
-                </button>
-                {mobileSections.colors && (
-                  <div className="flex flex-wrap gap-3 pt-3 pl-1">
-                    {colorOptions.map((color) => {
-                      const isActive = activeColor === color.value
-                      return (
-                        <button
-                          key={color.value}
-                          type="button"
-                          onClick={() => handleFilterChange("color", isActive ? "" : color.value)}
-                          className={`h-8 w-8 rounded-full border relative transition-transform cursor-pointer shrink-0 ${
-                            isActive ? "scale-110 border-black ring-1 ring-black" : "border-zinc-200"
-                          }`}
-                          style={{ backgroundColor: color.hex }}
-                          title={color.name}
-                          aria-label={`Color ${color.name}`}
-                          aria-selected={isActive}
-                        >
-                          {isActive && (
-                            <span className="absolute inset-0 flex items-center justify-center text-white mix-blend-difference font-bold text-xs">
-                              ✓
-                            </span>
-                          )}
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Size Section */}
-              <div className="border-b border-zinc-200/60 pb-4">
-                <button
-                  onClick={() => toggleMobileSection("sizes")}
-                  className="flex items-center justify-between w-full text-xs font-bold font-sans uppercase tracking-[0.1em] text-ink cursor-pointer border-none bg-transparent py-2"
-                >
-                  <span>Size</span>
-                  {mobileSections.sizes ? <ChevronUp className="h-4 w-4 stroke-[1.5]" /> : <ChevronDown className="h-4 w-4 stroke-[1.5]" />}
-                </button>
-                {mobileSections.sizes && (
-                  <div className="grid grid-cols-4 gap-2 pt-3 pl-1">
-                    {sizeOptions.map((size) => {
-                      const isActive = activeSize === size
-                      return (
-                        <button
-                          key={size}
-                          type="button"
-                          onClick={() => handleFilterChange("size", isActive ? "" : size)}
-                          className={`rounded-lg py-2.5 text-center text-xs font-semibold border transition-all cursor-pointer ${
-                            isActive
-                              ? "bg-black text-white border-black"
-                              : "border-zinc-200 bg-white text-black"
-                          }`}
-                        >
-                          {size}
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
-
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Drawer Footer Actions */}
-            <div className="p-5 border-t border-zinc-200/60 flex flex-col gap-3 bg-white shrink-0">
+            {/* Price Section */}
+            <div className="border-b border-zinc-200/60 pb-4">
               <button
-                onClick={() => setDrawerOpen(false)}
-                className="w-full py-4 text-xs font-semibold font-sans uppercase tracking-[0.2em] bg-black text-white rounded-full hover:bg-zinc-800 transition-colors cursor-pointer border-none"
+                onClick={() => toggleMobileSection("price")}
+                className="flex items-center justify-between w-full text-xs font-bold font-sans uppercase tracking-[0.1em] text-ink cursor-pointer border-none bg-transparent py-2"
               >
-                Apply Filters
+                <span>Price Range</span>
+                {mobileSections.price ? <ChevronUp className="h-4 w-4 stroke-[1.5]" /> : <ChevronDown className="h-4 w-4 stroke-[1.5]" />}
               </button>
-              {hasActiveFilters && (
-                <button
-                  onClick={clearAllFilters}
-                  className="w-full py-2.5 text-xs font-semibold font-sans uppercase tracking-[0.1em] text-zinc-500 hover:text-black transition-colors cursor-pointer border-none bg-transparent"
-                >
-                  Clear All Filters
-                </button>
+              {mobileSections.price && (
+                <div className="flex flex-col gap-2.5 pt-2 pl-1.5">
+                  {priceOptions.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => handleFilterChange("price", opt.value)}
+                      className={`text-left text-xs font-sans py-1.5 transition-colors border-none bg-transparent cursor-pointer ${
+                        (activePrice || "") === opt.value ? "text-black font-bold" : "text-zinc-500"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Color Section */}
+            <div className="border-b border-zinc-200/60 pb-4">
+              <button
+                onClick={() => toggleMobileSection("colors")}
+                className="flex items-center justify-between w-full text-xs font-bold font-sans uppercase tracking-[0.1em] text-ink cursor-pointer border-none bg-transparent py-2"
+              >
+                <span>Color</span>
+                {mobileSections.colors ? <ChevronUp className="h-4 w-4 stroke-[1.5]" /> : <ChevronDown className="h-4 w-4 stroke-[1.5]" />}
+              </button>
+              {mobileSections.colors && (
+                <div className="flex flex-wrap gap-3 pt-3 pl-1">
+                  {colorOptions.map((color) => {
+                    const isActive = activeColor === color.value
+                    return (
+                      <button
+                        key={color.value}
+                        type="button"
+                        onClick={() => handleFilterChange("color", isActive ? "" : color.value)}
+                        className={`h-8 w-8 rounded-full border relative transition-transform cursor-pointer shrink-0 ${
+                          isActive ? "scale-110 border-black ring-1 ring-black" : "border-zinc-200"
+                        }`}
+                        style={{ backgroundColor: color.hex }}
+                        title={color.name}
+                        aria-label={`Color ${color.name}`}
+                        aria-selected={isActive}
+                      >
+                        {isActive && (
+                          <span className="absolute inset-0 flex items-center justify-center text-white mix-blend-difference font-bold text-xs">
+                            ✓
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Size Section */}
+            <div className="border-b border-zinc-200/60 pb-4">
+              <button
+                onClick={() => toggleMobileSection("sizes")}
+                className="flex items-center justify-between w-full text-xs font-bold font-sans uppercase tracking-[0.1em] text-ink cursor-pointer border-none bg-transparent py-2"
+              >
+                <span>Size</span>
+                {mobileSections.sizes ? <ChevronUp className="h-4 w-4 stroke-[1.5]" /> : <ChevronDown className="h-4 w-4 stroke-[1.5]" />}
+              </button>
+              {mobileSections.sizes && (
+                <div className="grid grid-cols-4 gap-2 pt-3 pl-1">
+                  {sizeOptions.map((size) => {
+                    const isActive = activeSize === size
+                    return (
+                      <button
+                        key={size}
+                        type="button"
+                        onClick={() => handleFilterChange("size", isActive ? "" : size)}
+                        className={`rounded-lg py-2.5 text-center text-xs font-semibold border transition-all cursor-pointer ${
+                          isActive
+                            ? "bg-black text-white border-black"
+                            : "border-zinc-200 bg-white text-black"
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    )
+                  })}
+                </div>
               )}
             </div>
           </div>
-        </div>
-      )}
+      </Sheet>
     </div>
   )
 }

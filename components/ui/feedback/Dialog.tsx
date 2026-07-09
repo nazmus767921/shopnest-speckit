@@ -53,7 +53,7 @@ export function Dialog({
 
   return createPortal(
     <div 
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-xs select-text animate-fade-in pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-xs select-text animate-fade-in pb-[calc(env(safe-area-inset-bottom)+1rem)]"
       onClick={onClose}
     >
       <Card

@@ -169,7 +169,7 @@ function ToastContainer({ toasts, dismiss }: { toasts: ToastItem[]; dismiss: (id
   if (toasts.length === 0) return null
 
   return (
-    <div className="fixed top-6 right-6 z-100 flex flex-col gap-3 max-w-sm w-full pointer-events-none select-none">
+    <div className="fixed top-6 right-6 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none select-none">
       {toasts.map((t) => (
         <ToastCard key={t.id} toast={t} dismiss={dismiss} />
       ))}

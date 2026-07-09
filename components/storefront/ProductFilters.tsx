@@ -4,6 +4,7 @@ import React, { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Filter, X } from "lucide-react"
 import { FilterSidebar } from "./shared/FilterSidebar"
+import { Sheet } from "@/components/ui/layout/Sheet"
 
 interface Category {
   id: string
@@ -74,31 +75,19 @@ export function ProductFilters({
         />
       </div>
 
-      {/* Mobile overlay / Drawer */}
-      {mobileOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 animate-fade-in md:hidden flex justify-end">
-          <div className="w-[300px] h-full bg-white flex flex-col relative animate-slide-in">
-            <button
-              onClick={() => setMobileOpen(false)}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-zinc-100 text-ink z-10 cursor-pointer border-none"
-              aria-label="Close filters"
-            >
-              <X className="h-6 w-6" />
-            </button>
-            <div className="overflow-y-auto h-full p-4 pt-12">
-              <FilterSidebar
-                categories={categories}
-                activeCategory={activeCategory}
-                activePrice={activePrice}
-                activeColor={activeColor}
-                activeSize={activeSize}
-                onFilterChange={handleFilterChange}
-                onClearAll={clearAllFilters}
-              />
-            </div>
-          </div>
+      <Sheet isOpen={mobileOpen} onClose={() => setMobileOpen(false)} side="right" title="Filter Products">
+        <div className="px-2 py-4 -m-6 p-6">
+          <FilterSidebar
+            categories={categories}
+            activeCategory={activeCategory}
+            activePrice={activePrice}
+            activeColor={activeColor}
+            activeSize={activeSize}
+            onFilterChange={handleFilterChange}
+            onClearAll={clearAllFilters}
+          />
         </div>
-      )}
+      </Sheet>
     </>
   )
 }

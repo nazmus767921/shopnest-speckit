@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { Menu, X, ChevronDown } from "lucide-react"
 import { CartIconButton } from "@/components/storefront/shared/CartIconButton"
 import { type NavbarProps } from "../types"
+import { Sheet } from "@/components/ui/layout/Sheet"
 
 export function FashionNavbar({ store, subdomain, menu }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -190,57 +191,47 @@ export function FashionNavbar({ store, subdomain, menu }: NavbarProps) {
       </div>
 
       {/* Mobile Drawer (Overlay backdrop) */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 top-[81px] bg-zinc-900/10 backdrop-blur-sm z-40 md:hidden animate-fade-in"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
-
-      {/* Mobile Side Menu */}
-      {isOpen && (
-        <div className="fixed top-[81px] right-0 bottom-0 w-80 bg-white border-l border-zinc-100 p-8 flex flex-col gap-8 shadow-xl z-50 md:hidden animate-slide-in-right overflow-y-auto">
-          <div className="flex flex-col gap-6 items-center text-center">
-            <Link
-              href="/"
-              onClick={() => setIsOpen(false)}
-              className="text-xs font-sans tracking-[0.2em] uppercase text-zinc-500 hover:text-primary font-light"
-            >
-              Home
-            </Link>
-            
-            {hasCustomMenu ? (
-              topLevelItems.map((item: any) => {
-                const children = getChildren(item.id)
-                return (
-                  <MobileMenuItem
-                    key={item.id}
-                    item={item}
-                    childrenItems={children}
-                    resolveHref={resolveHref}
-                    setIsOpen={setIsOpen}
-                  />
-                )
-              })
-            ) : (
-              navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`text-xs font-sans tracking-[0.2em] uppercase py-2 transition-colors ${
-                    isActive(link.href)
-                      ? "text-primary font-medium"
-                      : "text-zinc-500 hover:text-primary font-light"
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              ))
-            )}
-          </div>
+      <Sheet isOpen={isOpen} onClose={() => setIsOpen(false)} side="right">
+        <div className="flex flex-col gap-6 items-center text-center p-4">
+          <Link
+            href="/"
+            onClick={() => setIsOpen(false)}
+            className="text-xs font-sans tracking-[0.2em] uppercase text-zinc-500 hover:text-primary font-light"
+          >
+            Home
+          </Link>
+          
+          {hasCustomMenu ? (
+            topLevelItems.map((item: any) => {
+              const children = getChildren(item.id)
+              return (
+                <MobileMenuItem
+                  key={item.id}
+                  item={item}
+                  childrenItems={children}
+                  resolveHref={resolveHref}
+                  setIsOpen={setIsOpen}
+                />
+              )
+            })
+          ) : (
+            navLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className={`text-xs font-sans tracking-[0.2em] uppercase py-2 transition-colors ${
+                  isActive(link.href)
+                    ? "text-primary font-medium"
+                    : "text-zinc-500 hover:text-primary font-light"
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))
+          )}
         </div>
-      )}
+      </Sheet>
     </header>
   )
 }
