@@ -6,7 +6,7 @@ import { applyTemplateAction, updateThemeSettingsAction } from "@/app/actions/se
 import { saveStorefrontSectionsAction, seedDefaultSectionsAction } from "@/app/actions/storefront-sections"
 import { toast } from "@/components/ui/feedback/Toast"
 import { Button } from "@/components/ui/primitives/Button"
-import { Save, ChevronDown, ChevronUp, GripVertical, Trash2, Plus } from "lucide-react"
+import { Save, ChevronDown, ChevronRight, LayoutTemplate, Palette, LayoutList } from "lucide-react"
 import { Select } from "@/components/ui/primitives/Select"
 import { 
   HeroEditor, 
@@ -17,6 +17,24 @@ import {
 } from "./SectionEditors"
 import { StorefrontSection } from "@/lib/storefront-sections/types"
 import { defaultStorefrontSections } from "@/lib/storefront-sections/defaults"
+import { LivePreviewCanvas } from "./LivePreviewCanvas"
+import { DraggableSectionItem } from "./DraggableSectionItem"
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
 
 interface TemplatesPageClientProps {
   templates: any[]
@@ -27,18 +45,35 @@ interface TemplatesPageClientProps {
 
 export function TemplatesPageClient({ templates, currentTemplate, initialSections, initialThemeSettings }: TemplatesPageClientProps) {
   const [selectedTemplate, setSelectedTemplate] = useState(currentTemplate)
+  const [baselineSections, setBaselineSections] = useState<any[]>(initialSections)
   const [sections, setSections] = useState<any[]>(initialSections)
-  const [themeSettings, setThemeSettings] = useState<any>(initialThemeSettings || {
+  
+  const defaultTheme = {
     colors: { primary: "#000000", secondary: "#4b5563", background: "#ffffff", text: "#000000" },
     layout: { borderRadius: "md" }
-  })
+  }
+  const [baselineTheme, setBaselineTheme] = useState<any>(initialThemeSettings || defaultTheme)
+  const [themeSettings, setThemeSettings] = useState<any>(initialThemeSettings || defaultTheme)
+  
+  const hasUnsavedSections = JSON.stringify(sections) !== JSON.stringify(baselineSections)
+  const hasUnsavedTheme = JSON.stringify(themeSettings) !== JSON.stringify(baselineTheme)
+  
   const [isSaving, setIsSaving] = useState(false)
   const [isSavingTheme, setIsSavingTheme] = useState(false)
+  
+  // Accordion state
+  const [activeAccordion, setActiveAccordion] = useState<string>("sections") // "template", "theme", "sections"
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   useEffect(() => {
     if (initialSections.length === 0) {
-      // If no sections, offer to seed defaults
       handleSeedDefaults()
     }
   }, [initialSections])
@@ -47,12 +82,9 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
     setIsSaving(true)
     const res = await seedDefaultSectionsAction()
     if (res.success && res.seeded) {
-      // Re-hydrate state from defaults (in real app, we might reload or fetch)
       setSections(defaultStorefrontSections)
       toast.success("Default sections loaded.")
-    } else if (res.success) {
-      // Already has sections
-    } else {
+    } else if (!res.success) {
       toast.error(res.error || "Failed to load default sections.")
     }
     setIsSaving(false)
@@ -81,6 +113,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
     if (res.success) {
       toast.success("Homepage sections saved successfully.")
       setSections(orderedSections)
+      setBaselineSections(orderedSections)
     } else {
       toast.error(res.error || "Failed to save sections.")
     }
@@ -92,6 +125,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
     const res = await updateThemeSettingsAction(themeSettings)
     if (res.success) {
       toast.success("Theme settings saved successfully.")
+      setBaselineTheme(themeSettings)
     } else {
       toast.error(res.error || "Failed to save theme settings.")
     }
@@ -130,34 +164,30 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
     setSections(newSections)
   }
 
-  const moveSection = (index: number, direction: 'up' | 'down') => {
-    if (direction === 'up' && index > 0) {
-      const newSections = [...sections]
-      const temp = newSections[index]
-      newSections[index] = newSections[index - 1]
-      newSections[index - 1] = temp
-      setSections(newSections)
-    } else if (direction === 'down' && index < sections.length - 1) {
-      const newSections = [...sections]
-      const temp = newSections[index]
-      newSections[index] = newSections[index + 1]
-      newSections[index + 1] = temp
-      setSections(newSections)
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    
+    if (over && active.id !== over.id) {
+      setSections((items) => {
+        const oldIndex = items.findIndex((i) => i.id ? i.id === active.id : i.sectionKey === active.id)
+        const newIndex = items.findIndex((i) => i.id ? i.id === over.id : i.sectionKey === over.id)
+        return arrayMove(items, oldIndex, newIndex)
+      })
     }
   }
 
   const handleAddSection = (sectionKey: string) => {
-    // Find default content if it exists
     const defaultSec = defaultStorefrontSections.find(s => s.sectionKey === sectionKey)
     const newSection = {
+      id: `new-${Date.now()}`,
       sectionKey,
       content: defaultSec ? defaultSec.content : {},
       sortOrder: sections.length,
       isVisible: true,
-      isNew: true // just a marker so it doesn't have an ID yet
+      isNew: true
     }
     setSections([...sections, newSection])
-    setExpandedSection(sections.length.toString())
+    setExpandedSection(newSection.id || newSection.sectionKey)
   }
 
   const handleDeleteSection = (index: number) => {
@@ -177,200 +207,258 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
   ]
 
   return (
-    <div className="flex flex-col gap-10 pb-20">
-      {/* Template Picker Section */}
-      <section className="flex flex-col gap-4">
-        <h2 className="text-heading-sm font-bold text-ink border-b border-hairline-light pb-2">Active Theme</h2>
-        <TemplatePicker 
-          templates={templates} 
-          loading={false} 
-          selectedTemplate={selectedTemplate} 
-          onSelect={handleApplyTemplate} 
-        />
-      </section>
-
-      {/* Theme Settings Section */}
-      <section className="flex flex-col gap-6">
-        <div className="flex items-center justify-between border-b border-hairline-light pb-2">
-          <h2 className="text-heading-sm font-bold text-ink">Global Theme Settings</h2>
-          <Button 
-            onClick={handleSaveThemeSettings} 
-            disabled={isSavingTheme}
-            className="flex items-center gap-2 rounded-full"
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-20 items-start">
+      
+      {/* Left Pane: Controls */}
+      <div className="lg:col-span-5 flex flex-col gap-6">
+        
+        {/* Accordion 1: Active Theme */}
+        <div className="border border-hairline-light rounded-3xl bg-white shadow-sm">
+          <button 
+            className={`w-full flex items-center justify-between p-6 hover:bg-zinc-50/50 transition-colors ${activeAccordion === 'template' ? 'border-b border-hairline-light rounded-t-[23px]' : 'rounded-[23px]'}`}
+            onClick={() => setActiveAccordion(activeAccordion === 'template' ? '' : 'template')}
           >
-            <Save className="w-4 h-4" />
-            {isSavingTheme ? "Saving..." : "Save Settings"}
-          </Button>
-        </div>
-
-        <div className="bg-canvas-cream/20 border border-hairline-light p-6 rounded-2xl flex flex-col gap-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Colors */}
-            <div className="flex flex-col gap-4">
-              <h3 className="font-semibold text-body-md text-ink">Colors</h3>
-              
-              <div className="flex flex-col gap-3">
-                {['primary', 'secondary', 'background', 'text'].map((colorKey) => (
-                  <div key={colorKey} className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-shade-75 capitalize">{colorKey} Color</label>
-                    <div className="flex items-center gap-2">
-                      <input 
-                        type="color" 
-                        value={themeSettings.colors?.[colorKey] || "#000000"} 
-                        onChange={(e) => setThemeSettings({
-                          ...themeSettings,
-                          colors: { ...themeSettings.colors, [colorKey]: e.target.value }
-                        })}
-                        className="w-8 h-8 rounded cursor-pointer border-0 p-0 bg-transparent"
-                      />
-                      <input 
-                        type="text"
-                        value={themeSettings.colors?.[colorKey] || "#000000"}
-                        onChange={(e) => setThemeSettings({
-                          ...themeSettings,
-                          colors: { ...themeSettings.colors, [colorKey]: e.target.value }
-                        })}
-                        className="w-24 px-2 py-1 border border-hairline-light rounded text-sm uppercase"
-                      />
-                    </div>
-                  </div>
-                ))}
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600">
+                <LayoutTemplate className="w-5 h-5" />
+              </div>
+              <div className="flex flex-col items-start">
+                <h2 className="text-heading-sm font-bold text-ink">Active Theme</h2>
+                <p className="text-sm text-shade-50">Select your storefront layout</p>
               </div>
             </div>
-
-            {/* Layout */}
-            <div className="flex flex-col gap-4">
-              <h3 className="font-semibold text-body-md text-ink">Layout & Styling</h3>
-              
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-shade-75">Border Radius</label>
-                {(() => {
-                  const RADIUS_OPTIONS = [
-                    { value: "none", label: "None (Sharp)" },
-                    { value: "sm", label: "Small (Slightly rounded)" },
-                    { value: "md", label: "Medium (Standard)" },
-                    { value: "lg", label: "Large (Rounded)" },
-                    { value: "full", label: "Full (Pill/Circular)" }
-                  ];
-                  const currentVal = themeSettings.layout?.borderRadius || "md";
-                  const currentOpt = RADIUS_OPTIONS.find(o => o.value === currentVal) || RADIUS_OPTIONS[2];
-                  
-                  return (
-                    <Select
-                      options={RADIUS_OPTIONS}
-                      value={currentOpt}
-                      onChange={(opt) => {
-                        if (opt) {
-                          setThemeSettings({
-                            ...themeSettings,
-                            layout: { ...themeSettings.layout, borderRadius: opt.value }
-                          })
-                        }
-                      }}
-                      getOptionLabel={(opt) => opt.label}
-                      getOptionValue={(opt) => opt.value}
-                    />
-                  );
-                })()}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Homepage Sections Editor */}
-      <section className="flex flex-col gap-6">
-        <div className="flex items-center justify-between border-b border-hairline-light pb-2">
-          <h2 className="text-heading-sm font-bold text-ink">Homepage Sections Editor</h2>
-          <div className="flex items-center gap-3">
-            <div className="w-56">
-              <Select
-                options={AVAILABLE_SECTIONS.filter(s => !sections.some(sec => sec.sectionKey === s.key))}
-                value={null}
-                onChange={(option) => {
-                  if (option) {
-                    handleAddSection(option.key)
-                  }
-                }}
-                getOptionLabel={(opt) => opt.label}
-                getOptionValue={(opt) => opt.key}
-                placeholder="+ Add Section"
-                noOptionsMessage="All sections added"
-                className="!py-0"
+            {activeAccordion === 'template' ? <ChevronDown className="w-5 h-5 text-zinc-400" /> : <ChevronRight className="w-5 h-5 text-zinc-400" />}
+          </button>
+          
+          {activeAccordion === 'template' && (
+            <div className="p-6 bg-zinc-50/30 rounded-b-[23px]">
+              <TemplatePicker 
+                templates={templates} 
+                loading={false} 
+                selectedTemplate={selectedTemplate} 
+                onSelect={handleApplyTemplate} 
               />
             </div>
-            <Button 
-              onClick={handleSaveSections} 
-              disabled={isSaving}
-              className="flex items-center gap-2 rounded-full"
+          )}
+        </div>
+
+        {/* Accordion 2: Global Theme Settings */}
+        <div className="border border-hairline-light rounded-3xl bg-white shadow-sm">
+          <div className={`w-full flex items-center justify-between p-6 transition-colors ${activeAccordion === 'theme' ? 'border-b border-hairline-light bg-zinc-50/50 rounded-t-[23px]' : 'hover:bg-zinc-50/50 rounded-[23px]'}`}>
+            <button 
+              className="flex items-center gap-4 flex-1 text-left"
+              onClick={() => setActiveAccordion(activeAccordion === 'theme' ? '' : 'theme')}
             >
-              <Save className="w-4 h-4" />
-              {isSaving ? "Saving..." : "Save Sections"}
-            </Button>
+              <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600 relative">
+                <Palette className="w-5 h-5" />
+                {hasUnsavedTheme && <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white"></span>}
+              </div>
+              <div className="flex flex-col items-start">
+                <h2 className="text-heading-sm font-bold text-ink flex items-center gap-2">
+                  Global Theme Settings
+                  {hasUnsavedTheme && <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full uppercase tracking-wider">Unsaved</span>}
+                </h2>
+                <p className="text-sm text-shade-50">Colors and typography</p>
+              </div>
+            </button>
+            <div className="flex items-center gap-4">
+              {activeAccordion === 'theme' && (
+                <Button 
+                  onClick={handleSaveThemeSettings} 
+                  disabled={isSavingTheme || !hasUnsavedTheme}
+                  className={`rounded-full shadow-sm ${hasUnsavedTheme ? 'bg-amber-500 hover:bg-amber-600 text-white border-transparent' : ''}`}
+                >
+                  {isSavingTheme ? "Saving..." : "Save"}
+                </Button>
+              )}
+              <button onClick={() => setActiveAccordion(activeAccordion === 'theme' ? '' : 'theme')}>
+                {activeAccordion === 'theme' ? <ChevronDown className="w-5 h-5 text-zinc-400" /> : <ChevronRight className="w-5 h-5 text-zinc-400" />}
+              </button>
+            </div>
           </div>
-        </div>
-
-        <div className="bg-canvas-cream/20 border border-hairline-light p-6 rounded-2xl flex flex-col gap-4">
-          <p className="text-sm text-shade-50">
-            Customize the content for your selected template. Sections will be rendered in the order shown below.
-          </p>
-
-          <div className="flex flex-col gap-3">
-            {sections.map((section, index) => {
-              const isExpanded = expandedSection === index.toString()
-              return (
-                <div key={index} className="border border-zinc-200 rounded-xl overflow-hidden bg-white">
-                  {/* Accordion Header */}
-                  <div className="flex items-center justify-between p-4 bg-zinc-50 border-b border-zinc-100">
-                    <div className="flex items-center gap-3">
-                      <div className="flex flex-col">
-                        <button type="button" onClick={() => moveSection(index, 'up')} disabled={index === 0} className="text-zinc-400 hover:text-zinc-700 disabled:opacity-30"><ChevronUp className="w-4 h-4" /></button>
-                        <button type="button" onClick={() => moveSection(index, 'down')} disabled={index === sections.length - 1} className="text-zinc-400 hover:text-zinc-700 disabled:opacity-30"><ChevronDown className="w-4 h-4" /></button>
+          
+          {activeAccordion === 'theme' && (
+            <div className="p-6 bg-zinc-50/30 flex flex-col gap-8 rounded-b-[23px]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Colors */}
+                <div className="flex flex-col gap-4">
+                  <h3 className="font-semibold text-body-md text-ink">Colors</h3>
+                  <div className="flex flex-col gap-3">
+                    {['primary', 'secondary', 'background', 'text'].map((colorKey) => (
+                      <div key={colorKey} className="flex items-center justify-between">
+                        <label className="text-sm font-medium text-shade-75 capitalize">{colorKey} Color</label>
+                        <div className="flex items-center gap-2 bg-white border border-hairline-light p-1 rounded-full shadow-sm pl-2">
+                          <input 
+                            type="text"
+                            value={themeSettings.colors?.[colorKey] || "#000000"}
+                            onChange={(e) => setThemeSettings({
+                              ...themeSettings,
+                              colors: { ...themeSettings.colors, [colorKey]: e.target.value }
+                            })}
+                            className="w-16 bg-transparent border-none p-0 text-xs uppercase font-medium focus:ring-0 text-zinc-600"
+                          />
+                          <div className="relative w-6 h-6 rounded-full overflow-hidden border border-hairline-light">
+                            <input 
+                              type="color" 
+                              value={themeSettings.colors?.[colorKey] || "#000000"} 
+                              onChange={(e) => setThemeSettings({
+                                ...themeSettings,
+                                colors: { ...themeSettings.colors, [colorKey]: e.target.value }
+                              })}
+                              className="absolute -top-2 -left-2 w-10 h-10 cursor-pointer border-0 p-0"
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <span className="font-semibold text-body-md text-ink capitalize">
-                        {section.sectionKey.replace("_", " ")}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-zinc-600">
-                        <input 
-                          type="checkbox" 
-                          checked={section.isVisible} 
-                          onChange={() => toggleSectionVisibility(index)} 
-                          className="rounded text-primary focus:ring-primary"
-                        />
-                        Visible
-                      </label>
-                      <button 
-                        type="button" 
-                        onClick={() => handleDeleteSection(index)}
-                        className="p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded"
-                        title="Remove section"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                      <button 
-                        type="button" 
-                        onClick={() => setExpandedSection(isExpanded ? null : index.toString())}
-                        className="p-1 text-zinc-500 hover:bg-zinc-200 rounded"
-                      >
-                        {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-                      </button>
-                    </div>
+                    ))}
                   </div>
-
-                  {/* Accordion Body */}
-                  {isExpanded && (
-                    <div className="p-6">
-                      {renderEditorForSection(section, (newContent) => updateSectionContent(index, newContent))}
-                    </div>
-                  )}
                 </div>
-              )
-            })}
-          </div>
+
+                {/* Layout */}
+                <div className="flex flex-col gap-4">
+                  <h3 className="font-semibold text-body-md text-ink">Layout & Styling</h3>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-shade-75">Border Radius</label>
+                    {(() => {
+                      const RADIUS_OPTIONS = [
+                        { value: "none", label: "None (Sharp)" },
+                        { value: "sm", label: "Small (Slightly rounded)" },
+                        { value: "md", label: "Medium (Standard)" },
+                        { value: "lg", label: "Large (Rounded)" },
+                        { value: "full", label: "Full (Pill/Circular)" }
+                      ];
+                      const currentVal = themeSettings.layout?.borderRadius || "md";
+                      const currentOpt = RADIUS_OPTIONS.find(o => o.value === currentVal) || RADIUS_OPTIONS[2];
+                      
+                      return (
+                        <Select
+                          options={RADIUS_OPTIONS}
+                          value={currentOpt}
+                          onChange={(opt) => {
+                            if (opt) {
+                              setThemeSettings({
+                                ...themeSettings,
+                                layout: { ...themeSettings.layout, borderRadius: opt.value }
+                              })
+                            }
+                          }}
+                          getOptionLabel={(opt) => opt.label}
+                          getOptionValue={(opt) => opt.value}
+                        />
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      </section>
+
+        {/* Accordion 3: Homepage Sections Editor */}
+        <div className="border border-hairline-light rounded-3xl bg-white shadow-sm">
+          <div className={`w-full flex items-center justify-between p-6 transition-colors ${activeAccordion === 'sections' ? 'border-b border-hairline-light bg-zinc-50/50 rounded-t-[23px]' : 'hover:bg-zinc-50/50 rounded-[23px]'}`}>
+            <button 
+              className="flex items-center gap-4 flex-1 text-left"
+              onClick={() => setActiveAccordion(activeAccordion === 'sections' ? '' : 'sections')}
+            >
+              <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600 relative">
+                <LayoutList className="w-5 h-5" />
+                {hasUnsavedSections && <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white"></span>}
+              </div>
+              <div className="flex flex-col items-start">
+                <h2 className="text-heading-sm font-bold text-ink flex items-center gap-2">
+                  Homepage Sections
+                  {hasUnsavedSections && <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full uppercase tracking-wider">Unsaved</span>}
+                </h2>
+                <p className="text-sm text-shade-50">Manage content blocks</p>
+              </div>
+            </button>
+            <div className="flex items-center gap-4">
+              {activeAccordion === 'sections' && (
+                <Button 
+                  onClick={handleSaveSections} 
+                  disabled={isSaving || !hasUnsavedSections}
+                  className={`rounded-full shadow-sm ${hasUnsavedSections ? 'bg-amber-500 hover:bg-amber-600 text-white border-transparent' : ''}`}
+                >
+                  {isSaving ? "Saving..." : "Save"}
+                </Button>
+              )}
+              <button onClick={() => setActiveAccordion(activeAccordion === 'sections' ? '' : 'sections')}>
+                {activeAccordion === 'sections' ? <ChevronDown className="w-5 h-5 text-zinc-400" /> : <ChevronRight className="w-5 h-5 text-zinc-400" />}
+              </button>
+            </div>
+          </div>
+          
+          {activeAccordion === 'sections' && (
+            <div className="p-6 bg-zinc-50/30 flex flex-col gap-6 rounded-b-[23px]">
+              
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-shade-50 max-w-[200px]">
+                  Drag to reorder sections.
+                </p>
+                <div className="w-48">
+                  <Select
+                    options={AVAILABLE_SECTIONS.filter(s => !sections.some(sec => sec.sectionKey === s.key))}
+                    value={null}
+                    onChange={(option) => {
+                      if (option) {
+                        handleAddSection(option.key)
+                      }
+                    }}
+                    getOptionLabel={(opt) => opt.label}
+                    getOptionValue={(opt) => opt.key}
+                    placeholder="+ Add Section"
+                    noOptionsMessage="All sections added"
+                    className="!py-0"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <DndContext 
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext 
+                    items={sections.map(s => s.id || s.sectionKey)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {sections.map((section, index) => {
+                      const id = section.id || section.sectionKey
+                      const isExpanded = expandedSection === id
+                      
+                      return (
+                        <DraggableSectionItem 
+                          key={id}
+                          id={id}
+                          section={section}
+                          index={index}
+                          isExpanded={isExpanded}
+                          onToggleExpand={() => setExpandedSection(isExpanded ? null : id)}
+                          onToggleVisibility={() => toggleSectionVisibility(index)}
+                          onDelete={() => handleDeleteSection(index)}
+                          renderEditor={() => renderEditorForSection(section, (newContent) => updateSectionContent(index, newContent))}
+                        />
+                      )
+                    })}
+                  </SortableContext>
+                </DndContext>
+              </div>
+            </div>
+          )}
+        </div>
+        
+      </div>
+
+      {/* Right Pane: Live Preview Canvas */}
+      <div className="lg:col-span-7">
+        <LivePreviewCanvas 
+          sections={sections} 
+          themeSettings={themeSettings} 
+        />
+      </div>
+
     </div>
   )
 }

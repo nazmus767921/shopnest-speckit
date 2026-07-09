@@ -5,3 +5,5 @@ export { FormLabel } from "./FormLabel"
 export { Input } from "./Input"
 export { Select } from "./Select"
 export { Textarea } from "./Textarea"
+export { RichTextEditor } from "./RichTextEditor"
+

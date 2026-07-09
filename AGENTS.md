@@ -45,3 +45,4 @@ Before any Next.js work, find and read the relevant doc in `node_modules/next/di
 # MUST FOLLOW
 - Do not run build command or `bun run build` , `bun build` or dev server (`bun dev`) command without permission. Ask for permission before running.
 -  use `bun` command to run scripts not `npm` or `pnpm`. `npx` is equal to `bunx`.
+- All primitives like input, select, textarea, button, sheet, dialog, confirmation dialog, dropdown, table, menu, toast, tooltip, popover, badge, avatar, card etc must use custom components from `components/ui/`. If not available then ask if you should create one.

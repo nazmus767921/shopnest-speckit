@@ -18,7 +18,7 @@ import { Suspense } from "react"
 
 export default function TemplatesPage() {
   return (
-    <div className="flex-1 w-full max-w-6xl mx-auto space-y-8 animate-fade-in p-6">
+    <div className="flex-1 w-full space-y-8 animate-fade-in p-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-heading-xl font-bold text-ink">Storefront Templates</h1>
         <p className="text-body-md text-shade-50">

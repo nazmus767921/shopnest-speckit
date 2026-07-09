@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import { Card } from "@/components/ui"
 import { X } from "lucide-react"
 
@@ -19,6 +20,12 @@ export function Dialog({
   description,
   children,
 }: DialogProps) {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   // Prevent background scrolling when open
   useEffect(() => {
     if (isOpen) {
@@ -42,11 +49,11 @@ export function Dialog({
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [isOpen, onClose])
 
-  if (!isOpen) return null
+  if (!isOpen || !mounted) return null
 
-  return (
+  return createPortal(
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs select-text animate-fade-in"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-xs select-text animate-fade-in pb-[calc(env(safe-area-inset-bottom)+1rem)]"
       onClick={onClose}
     >
       <Card
@@ -79,6 +86,7 @@ export function Dialog({
           {children}
         </div>
       </Card>
-    </div>
+    </div>,
+    document.body
   )
 }

@@ -4,6 +4,7 @@ import React from "react"
 import { Input } from "@/components/ui/primitives/Input"
 import { FormLabel } from "@/components/ui/primitives/FormLabel"
 import { Select } from "@/components/ui/primitives/Select"
+import { Textarea } from "@/components/ui/primitives/Textarea"
 import { 
   HeroContent, 
   AnnouncementBarContent, 
@@ -119,14 +120,11 @@ export function CategoryShowcaseEditor({ content, onChange }: { content: Categor
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Layout</FormLabel>
-        <select
-          value={content.layout || "grid"}
-          onChange={(e) => onChange({ ...content, layout: e.target.value as "grid" | "mosaic" })}
-          className="h-10 px-3 bg-canvas-cream/40 border-hairline-light rounded-lg border outline-none focus:border-ink"
-        >
-          <option value="grid">Grid</option>
-          <option value="mosaic">Mosaic</option>
-        </select>
+        <Select
+          options={[{label: "Grid", value: "grid"}, {label: "Mosaic", value: "mosaic"}]}
+          value={{label: content.layout === "mosaic" ? "Mosaic" : "Grid", value: content.layout || "grid"}}
+          onChange={(opt) => onChange({ ...content, layout: (opt as any).value as "grid" | "mosaic" })}
+        />
       </div>
       <div className="p-3 bg-zinc-50 border border-zinc-100 rounded-lg text-micro text-zinc-500">
         Note: Selecting specific categories is not yet implemented in this editor. It will display all active categories by default.
@@ -148,11 +146,10 @@ export function AboutEditor({ content, onChange }: { content: AboutContent, onCh
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Description</FormLabel>
-        <textarea
+        <Textarea
           value={content.description || ""}
           onChange={(e) => onChange({ ...content, description: e.target.value })}
           placeholder="Our story..."
-          className="min-h-24 p-3 bg-canvas-cream/40 border border-hairline-light rounded-lg text-body-md text-ink outline-none focus:ring-1 focus:ring-ink"
         />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -196,16 +193,21 @@ export function ProductGridEditor({ content, onChange }: { content: ProductGridC
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Grid Type</FormLabel>
-        <select
-          value={content.gridType || "featured"}
-          onChange={(e) => onChange({ ...content, gridType: e.target.value as any })}
-          className="h-10 px-3 bg-canvas-cream/40 border-hairline-light rounded-lg border outline-none focus:border-ink"
-        >
-          <option value="featured">Featured</option>
-          <option value="new_arrivals">New Arrivals</option>
-          <option value="exclusive">Exclusive</option>
-          <option value="manual_selection">Manual Selection</option>
-        </select>
+        <Select
+          options={[
+            {label: "Featured", value: "featured"},
+            {label: "New Arrivals", value: "new_arrivals"},
+            {label: "Exclusive", value: "exclusive"},
+            {label: "Manual Selection", value: "manual_selection"}
+          ]}
+          value={{
+            label: content.gridType === "new_arrivals" ? "New Arrivals" :
+                   content.gridType === "exclusive" ? "Exclusive" :
+                   content.gridType === "manual_selection" ? "Manual Selection" : "Featured",
+            value: content.gridType || "featured"
+          }}
+          onChange={(opt) => onChange({ ...content, gridType: (opt as any).value })}
+        />
       </div>
       <div className="p-3 bg-zinc-50 border border-zinc-100 rounded-lg text-micro text-zinc-500">
         Note: The products displayed are based on the product promotion type set in your inventory.

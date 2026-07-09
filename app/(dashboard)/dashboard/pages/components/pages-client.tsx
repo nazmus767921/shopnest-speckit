@@ -76,16 +76,16 @@ export function PagesClient({ initialPages, merchantId }: PagesClientProps) {
           />
         </div>
 
-        <Link href="/dashboard/pages/new" passHref legacyBehavior>
-          <Button
-            id="create-page-btn"
-            variant="primary"
-            className="flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center rounded-full"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Create Page</span>
-          </Button>
-        </Link>
+        <Button
+          as={Link}
+          href="/dashboard/pages/new"
+          id="create-page-btn"
+          variant="primary"
+          className="flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center rounded-full"
+        >
+          <Plus className="h-4 w-4" />
+          <span>Create Page</span>
+        </Button>
       </div>
 
       {pages.length === 0 ? (
@@ -103,146 +103,70 @@ export function PagesClient({ initialPages, merchantId }: PagesClientProps) {
           <p className="text-caption text-shade-50 font-light max-w-sm mt-2 mb-6">
             Create standard pages like "About Us" or "Shipping Policy" to provide more information to your customers.
           </p>
-          <Link href="/dashboard/pages/new" passHref legacyBehavior>
-            <Button
-              id="create-first-page-btn"
-              variant="primary"
-              className="rounded-full"
-            >
-              Create First Page
-            </Button>
-          </Link>
+          <Button
+            as={Link}
+            href="/dashboard/pages/new"
+            id="create-first-page-btn"
+            variant="primary"
+            className="rounded-full"
+          >
+            Create First Page
+          </Button>
         </Card>
       ) : (
-        <div className="flex flex-col gap-4">
-          {/* Desktop Table View (>= md viewports) */}
-          <div className="hidden md:block border border-hairline-light rounded-2xl bg-canvas-light overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead className="border-b border-hairline-light bg-canvas-cream/30">
-                <tr>
-                  <th className="px-5 py-3 text-micro font-bold text-shade-40 uppercase tracking-wider">
-                    Title
-                  </th>
-                  <th className="px-5 py-3 text-micro font-bold text-shade-40 uppercase tracking-wider">
-                    Slug
-                  </th>
-                  <th className="px-5 py-3 text-micro font-bold text-shade-40 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-5 py-3 text-micro font-bold text-shade-40 uppercase tracking-wider text-right">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-hairline-light">
-                {filteredPages.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="px-5 py-8 text-center text-caption text-shade-40 italic">
-                      No matching pages found.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredPages.map((page) => (
-                    <tr key={page.id} className="hover:bg-canvas-cream/10 transition-colors">
-                      {/* Title */}
-                      <td className="px-5 py-3.5 text-body-strong font-semibold text-ink">
-                        {page.title}
-                      </td>
-
-                      {/* Slug */}
-                      <td className="px-5 py-3.5 text-caption text-shade-60 font-mono">
-                        {page.slug}
-                      </td>
-
-                      {/* Status */}
-                      <td className="px-5 py-3.5">
-                        <Badge variant={page.isPublished ? "mint" : "shade"}>
-                          {page.isPublished ? "Published" : "Draft"}
-                        </Badge>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="px-5 py-3.5 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link href={`/dashboard/pages/${page.id}`} passHref legacyBehavior>
-                            <button
-                              className="p-1.5 hover:bg-canvas-cream rounded-md transition-colors text-shade-50 hover:text-ink cursor-pointer"
-                              title="Edit Page"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </button>
-                          </Link>
-                          <button
-                            onClick={() => handleDelete(page.id, page.title)}
-                            disabled={deleteMutation.isPending}
-                            className="p-1.5 hover:bg-red-50 rounded-md transition-colors text-shade-50 hover:text-red-600 cursor-pointer disabled:opacity-50"
-                            title="Delete Page"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile Cards View (< md viewports) */}
-          <div className="grid grid-cols-1 gap-4 md:hidden">
-            {filteredPages.length === 0 ? (
-              <div className="text-center p-8 text-caption text-shade-40 italic bg-canvas-light border border-hairline-light rounded-2xl">
-                No matching pages found.
-              </div>
-            ) : (
-              filteredPages.map((page) => (
-                <Card
-                  key={page.id}
-                  className="flex flex-col border border-hairline-light bg-canvas-light p-4 gap-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex flex-col gap-1 min-w-0">
-                      <h3 className="text-body-strong font-bold text-ink truncate">
-                        {page.title}
-                      </h3>
-                      <span className="text-caption text-shade-50 font-mono truncate">
-                        {page.slug}
-                      </span>
-                    </div>
-
-                    <Badge variant={page.isPublished ? "mint" : "shade"} className="shrink-0 font-medium">
+        <div className="flex flex-col gap-3">
+          {filteredPages.length === 0 ? (
+            <div className="text-center p-8 text-caption text-shade-40 italic bg-canvas-light border border-hairline-light rounded-2xl">
+              No matching pages found.
+            </div>
+          ) : (
+            filteredPages.map((page) => (
+              <div 
+                key={page.id} 
+                className="group relative flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:p-5 border border-transparent bg-canvas-light hover:border-hairline-light hover:shadow-[0_4px_12px_rgba(0,0,0,0.02)] rounded-2xl transition-all"
+              >
+                <Link href={`/dashboard/pages/${page.id}`} className="absolute inset-0 z-0 rounded-2xl" />
+                
+                <div className="flex flex-col gap-1 min-w-0 flex-1 z-10 pointer-events-none">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-body-strong font-semibold text-ink truncate">
+                      {page.title}
+                    </h3>
+                    <Badge variant={page.isPublished ? "mint" : "shade"} className="shrink-0 font-medium h-5 text-[10px] uppercase tracking-wider">
                       {page.isPublished ? "Published" : "Draft"}
                     </Badge>
                   </div>
+                  <span className="text-caption text-shade-50 font-mono truncate">
+                    /{page.slug}
+                  </span>
+                </div>
 
-                  <div className="flex gap-3 border-t border-hairline-light/50 pt-3 mt-1">
-                    <Link href={`/dashboard/pages/${page.id}`} passHref legacyBehavior>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 justify-center items-center gap-1.5 py-2 min-h-10 cursor-pointer"
-                      >
-                        <Pencil className="h-4 w-4 text-shade-50" />
-                        <span>Edit</span>
-                      </Button>
-                    </Link>
+                <div className="flex md:opacity-0 md:-translate-x-2 md:group-hover:opacity-100 md:group-hover:translate-x-0 transition-all duration-200 ease-out gap-2 mt-2 md:mt-0 z-10">
+                  <Button
+                    as={Link}
+                    href={`/dashboard/pages/${page.id}`}
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 md:flex-none justify-center items-center gap-1.5 rounded-full py-1.5 h-8 bg-canvas-cream hover:bg-canvas-light cursor-pointer"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    <span className="md:hidden">Edit</span>
+                  </Button>
 
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(page.id, page.title)}
-                      disabled={deleteMutation.isPending}
-                      className="flex-1 justify-center items-center gap-1.5 py-2 min-h-10 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 hover:text-red-700 cursor-pointer disabled:opacity-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      <span>Delete</span>
-                    </Button>
-                  </div>
-                </Card>
-              ))
-            )}
-          </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDelete(page.id, page.title)}
+                    disabled={deleteMutation.isPending}
+                    className="flex-1 md:flex-none justify-center items-center gap-1.5 rounded-full py-1.5 h-8 bg-canvas-cream hover:bg-red-50 hover:text-red-600 hover:border-red-200 cursor-pointer disabled:opacity-50 transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span className="md:hidden">Delete</span>
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       )}
 
