@@ -3,13 +3,21 @@
 import React, { useState, useEffect } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { Plus, Trash2, ArrowUp, ArrowDown, ChevronRight, Menu, Save, RotateCcw, X, Edit, Link2 } from "lucide-react"
-import { Button } from "@/components/ui/primitives/Button"
-import { Card } from "@/components/ui/layout/Card"
-import { FormLabel } from "@/components/ui/primitives/FormLabel"
-import { Input } from "@/components/ui/primitives/Input"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Label as FormLabel } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { saveMenuItemsAction, resetMenuToDefaultsAction } from "@/app/actions/navigation"
 import { menuItemSchema } from "@/lib/validations/navigation"
-import { Sheet } from "@/components/ui/layout/Sheet"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
+import { cn } from "@/lib/utils"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface NavigationClientProps {
   merchantId: string
@@ -41,10 +49,8 @@ export function NavigationClient({
     initialMenus.length > 0 ? initialMenus[0].id : null
   )
 
-  // Menu Items state (flat array)
   const [items, setItems] = useState<LocalMenuItem[]>([])
 
-  // Drawer Edit Form State
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
   const [itemLabel, setItemLabel] = useState("")
@@ -57,7 +63,6 @@ export function NavigationClient({
   const [globalError, setGlobalError] = useState<string | null>(null)
   const [globalSuccess, setGlobalSuccess] = useState<string | null>(null)
 
-  // Reconstruct hierarchy on selectedMenuId or menus updates
   useEffect(() => {
     if (!selectedMenuId) {
       setItems([])
@@ -65,11 +70,9 @@ export function NavigationClient({
     }
     const currentMenu = menus.find((m) => m.id === selectedMenuId)
     if (currentMenu && currentMenu.items) {
-      // Correctly group and sort children under parents
       const parents = currentMenu.items.filter((it: any) => !it.parentId)
       const children = currentMenu.items.filter((it: any) => !!it.parentId)
 
-      // Sort parents and children by position
       parents.sort((a: any, b: any) => a.position - b.position)
 
       const sortedList: LocalMenuItem[] = []
@@ -110,7 +113,6 @@ export function NavigationClient({
     setEditingItemId(item.id)
     setItemLabel(item.label)
     
-    // Map text-only type back from saved url
     if (item.type === "url" && item.url === "#") {
       setItemType("text-only")
       setItemUrl("")
@@ -124,7 +126,6 @@ export function NavigationClient({
     setIsDrawerOpen(true)
   }
 
-  // Mutations
   const resetMenuMutation = useMutation({
     mutationFn: async (id: string) => {
       const res = await resetMenuToDefaultsAction(id)
@@ -141,7 +142,6 @@ export function NavigationClient({
   const saveItemsMutation = useMutation({
     mutationFn: async () => {
       if (!selectedMenuId) return
-      // Validate all items using Zod before submitting
       for (const item of items) {
         const val = menuItemSchema.safeParse(item)
         if (!val.success) {
@@ -167,7 +167,6 @@ export function NavigationClient({
     },
   })
 
-  // Submit Menu Item Form inside Drawer
   const handleDrawerFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setItemError(null)
@@ -187,10 +186,9 @@ export function NavigationClient({
       type: isTextOnly ? "url" : itemType,
       referenceId: (!isTextOnly && itemType !== "url") ? itemReferenceId : null,
       url: isTextOnly ? "#" : (itemType === "url" ? itemUrl : null),
-      position: items.length, // Temporary
+      position: items.length,
     }
 
-    // Validate using Zod schema
     const val = menuItemSchema.safeParse(rawItem)
     if (!val.success) {
       setItemError(val.error.issues[0].message)
@@ -198,7 +196,6 @@ export function NavigationClient({
     }
 
     if (editingItemId) {
-      // Edit existing
       const updated = items.map((it) =>
         it.id === editingItemId
           ? {
@@ -211,10 +208,8 @@ export function NavigationClient({
             }
           : it
       )
-      // Re-index tree
       rebuildFlatListFromHierarchy(updated)
     } else {
-      // Add new item
       const updated = [...items, { ...rawItem, type: rawItem.type as any }]
       rebuildFlatListFromHierarchy(updated)
     }
@@ -224,13 +219,11 @@ export function NavigationClient({
 
   const handleDeleteItem = (id: string) => {
     if (confirm("Are you sure you want to delete this link? Deleting a parent link will also delete all of its nested sub-links.")) {
-      // Filter out this item and any children belonging to this item
       const remaining = items.filter((it) => it.id !== id && it.parentId !== id)
       rebuildFlatListFromHierarchy(remaining)
     }
   }
 
-  // Hierarchical Up/Down Moving
   const moveParent = (parentId: string, direction: "up" | "down") => {
     const parentList = items.filter((it) => !it.parentId)
     const idx = parentList.findIndex((p) => p.id === parentId)
@@ -238,7 +231,6 @@ export function NavigationClient({
     const nextIdx = direction === "up" ? idx - 1 : idx + 1
     if (nextIdx < 0 || nextIdx >= parentList.length) return
 
-    // Swap parents
     const temp = parentList[idx]
     parentList[idx] = parentList[nextIdx]
     parentList[nextIdx] = temp
@@ -254,7 +246,6 @@ export function NavigationClient({
     const nextIdx = direction === "up" ? idx - 1 : idx + 1
     if (nextIdx < 0 || nextIdx >= childList.length) return
 
-    // Swap children
     const temp = childList[idx]
     childList[idx] = childList[nextIdx]
     childList[nextIdx] = temp
@@ -262,7 +253,6 @@ export function NavigationClient({
     rebuildFlatListFromHierarchy(items, parentList, { [parentId]: childList })
   }
 
-  // Re-flat list and assign sequential positions
   const rebuildFlatListFromHierarchy = (
     baseItems: LocalMenuItem[],
     customParentsOrder?: LocalMenuItem[],
@@ -293,18 +283,42 @@ export function NavigationClient({
   const parents = items.filter((it) => !it.parentId)
   const getChildren = (parentId: string) => items.filter((it) => it.parentId === parentId)
 
-  // Potential parents (only top-level links that are not the item being edited)
   const potentialParents = items.filter(
     (it) => !it.parentId && it.id !== editingItemId
   )
 
+  const typeOptions = [
+    { value: "text-only", label: "Text Only / Category Header (No link)" },
+    { value: "url", label: "Custom URL" },
+    { value: "page", label: "Standard Page" },
+    { value: "category", label: "Category Collection" },
+    { value: "product", label: "Product Page" },
+  ]
+  const selectedTypeOpt = typeOptions.find(o => o.value === itemType) || null
+
+  const refOptions =
+    itemType === "page"
+      ? pages.map((p) => ({ value: p.id, label: `${p.title} (${p.slug})` }))
+      : itemType === "category"
+      ? categories.map((c) => ({ value: c.id, label: `${c.name} (${c.slug})` }))
+      : itemType === "product"
+      ? products.map((pr) => ({ value: pr.id, label: `${pr.name} (${pr.slug})` }))
+      : []
+  const selectedRefOpt = refOptions.find(o => o.value === itemReferenceId) || null
+
+  const parentOptions = [
+    { value: "none", label: "None (Top-level Link)" },
+    ...potentialParents.map((parent) => ({ value: parent.id, label: parent.label }))
+  ]
+  const selectedParentOpt = parentOptions.find(o => o.value === (itemParentId || "none")) || null
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative items-start text-foreground">
       
       {/* Left: Menus List Card */}
       <div className="flex flex-col gap-6">
-        <Card className="p-6 flex flex-col gap-6 border-[var(--color-hairline-light)] bg-[var(--color-canvas-light)] shadow-none">
-          <h2 className="text-body-strong font-semibold text-[var(--color-ink)] border-b border-[var(--color-hairline-light)] pb-4">
+        <Card className="p-6 flex flex-col gap-6 border-border bg-card shadow-none rounded-xl">
+          <h2 className="text-base font-semibold text-foreground border-b border-border pb-4">
             Navigation Settings
           </h2>
 
@@ -313,14 +327,15 @@ export function NavigationClient({
               <button
                 key={m.id}
                 onClick={() => setSelectedMenuId(m.id)}
-                className={`w-full text-left px-4 py-3.5 rounded-xl text-caption transition-all flex items-center justify-between border ${
+                className={cn(
+                  "w-full text-left px-4 py-3 rounded-lg text-sm transition-all flex items-center justify-between border",
                   selectedMenuId === m.id
                     ? "bg-primary/5 text-primary border-primary/20 font-medium"
-                    : "border-transparent text-shade-60 hover:bg-canvas-dark"
-                }`}
+                    : "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
               >
                 <span>{m.name}</span>
-                <span className="text-[10px] bg-canvas-dark text-shade-50 px-2 py-0.5 rounded-full font-mono font-light uppercase tracking-wider">
+                <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-mono uppercase tracking-wider">
                   {m.slug}
                 </span>
               </button>
@@ -334,22 +349,22 @@ export function NavigationClient({
         {selectedMenu ? (
           <>
             {globalError && (
-              <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-xl text-caption">
+              <div className="p-4 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-sm">
                 {globalError}
               </div>
             )}
             {globalSuccess && (
-              <div className="p-4 bg-green-50 text-green-700 border border-green-200 rounded-xl text-caption">
+              <div className="p-4 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 rounded-lg text-sm">
                 {globalSuccess}
               </div>
             )}
 
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-heading-md font-semibold text-[var(--color-ink)] tracking-tight">
+                <h2 className="text-lg font-semibold text-foreground tracking-tight">
                   {selectedMenu.name} Links
                 </h2>
-                <p className="text-caption text-shade-50 font-light mt-0.5">
+                <p className="text-sm text-muted-foreground font-light mt-0.5">
                   Configure dynamic links, dropdown nesting, or text category headers.
                 </p>
               </div>
@@ -362,7 +377,7 @@ export function NavigationClient({
                       resetMenuMutation.mutate(selectedMenu.id)
                     }
                   }}
-                  className="text-primary hover:text-primary-dark border-primary/20 hover:bg-primary/5 rounded-full flex items-center gap-1.5 text-micro font-medium"
+                  className="rounded-md flex items-center gap-1.5 text-xs font-medium"
                   disabled={resetMenuMutation.isPending}
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
@@ -370,10 +385,9 @@ export function NavigationClient({
                 </Button>
 
                 <Button
-                  variant="primary"
                   onClick={() => saveItemsMutation.mutate()}
                   disabled={saveItemsMutation.isPending}
-                  className="rounded-full px-5 py-2 text-caption font-semibold flex items-center gap-2"
+                  className="rounded-md px-5 py-2 text-sm font-semibold flex items-center gap-2"
                 >
                   <Save className="h-4 w-4" />
                   <span>{saveItemsMutation.isPending ? "Saving..." : "Save Changes"}</span>
@@ -386,22 +400,22 @@ export function NavigationClient({
               {parents.map((parent, parentIdx) => {
                 const childrenItems = getChildren(parent.id)
                 return (
-                  <Card key={parent.id} className="p-5 border-[var(--color-hairline-light)] bg-[var(--color-canvas-light)] shadow-none flex flex-col gap-4 relative overflow-hidden group">
+                  <Card key={parent.id} className="p-5 border-border bg-card shadow-none flex flex-col gap-4 rounded-xl relative overflow-hidden group">
                     
                     {/* Parent row item */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Menu className="h-4 w-4 text-shade-30 shrink-0" />
+                        <Menu className="h-4 w-4 text-muted-foreground/40 shrink-0" />
                         <div className="flex flex-col">
-                          <span className="text-caption font-semibold text-[var(--color-ink)] flex items-center gap-2">
+                          <span className="text-sm font-semibold text-foreground flex items-center gap-2">
                             {parent.label}
                             {parent.type === "url" && parent.url === "#" && (
-                              <span className="text-[9px] bg-shade-20 text-shade-60 px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold font-mono">
+                              <span className="text-[9px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold font-mono">
                                 Text Header
                               </span>
                             )}
                           </span>
-                          <span className="text-micro text-shade-40 leading-none mt-1">
+                          <span className="text-xs text-muted-foreground leading-none mt-1">
                             {parent.type === "url" && parent.url === "#"
                               ? "Category label header (no hyperlink)"
                               : parent.type === "url"
@@ -419,17 +433,19 @@ export function NavigationClient({
 
                       <div className="flex items-center gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
                         <button
+                          type="button"
                           onClick={() => moveParent(parent.id, "up")}
                           disabled={parentIdx === 0}
-                          className="p-1.5 text-shade-40 hover:text-[var(--color-ink)] disabled:opacity-20 rounded-lg hover:bg-canvas-dark cursor-pointer border-none bg-transparent"
+                          className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-20 rounded-lg hover:bg-muted cursor-pointer border-none bg-transparent"
                           title="Move Parent Up"
                         >
                           <ArrowUp className="h-3.5 w-3.5" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => moveParent(parent.id, "down")}
                           disabled={parentIdx === parents.length - 1}
-                          className="p-1.5 text-shade-40 hover:text-[var(--color-ink)] disabled:opacity-20 rounded-lg hover:bg-canvas-dark cursor-pointer border-none bg-transparent"
+                          className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-20 rounded-lg hover:bg-muted cursor-pointer border-none bg-transparent"
                           title="Move Parent Down"
                         >
                           <ArrowDown className="h-3.5 w-3.5" />
@@ -438,21 +454,23 @@ export function NavigationClient({
                         <Button
                           variant="outline"
                           onClick={() => openAddDrawer(parent.id)}
-                          className="text-micro px-2.5 py-1 rounded-full text-primary border-primary/10 hover:bg-primary/5 flex items-center gap-1"
+                          className="text-xs px-2.5 py-1 rounded-full flex items-center gap-1"
                         >
                           <Plus className="h-3 w-3" /> Child Link
                         </Button>
 
                         <button
+                          type="button"
                           onClick={() => openEditDrawer(parent)}
-                          className="p-1.5 text-shade-40 hover:text-primary rounded-lg hover:bg-primary/5 cursor-pointer border-none bg-transparent"
+                          className="p-1.5 text-muted-foreground hover:text-primary rounded-lg hover:bg-primary/5 cursor-pointer border-none bg-transparent"
                           title="Edit Parent"
                         >
                           <Edit className="h-3.5 w-3.5" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleDeleteItem(parent.id)}
-                          className="p-1.5 text-shade-40 hover:text-red-600 rounded-lg hover:bg-red-50 cursor-pointer border-none bg-transparent"
+                          className="p-1.5 text-muted-foreground hover:text-destructive rounded-lg hover:bg-destructive/10 cursor-pointer border-none bg-transparent"
                           title="Delete Parent"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -462,21 +480,21 @@ export function NavigationClient({
 
                     {/* Children sub-list */}
                     {childrenItems.length > 0 && (
-                      <div className="ml-6 pl-4 border-l-2 border-l-[var(--color-hairline-light)] flex flex-col gap-3 pt-2">
+                      <div className="ml-6 pl-4 border-l-2 border-border flex flex-col gap-3 pt-2">
                         {childrenItems.map((child, childIdx) => (
-                          <div key={child.id} className="flex items-center justify-between py-2.5 px-3 bg-canvas-dark/40 border border-[var(--color-hairline-light)] rounded-xl relative group/child">
+                          <div key={child.id} className="flex items-center justify-between py-2.5 px-3 bg-muted/20 border border-border rounded-lg relative group/child">
                             <div className="flex items-center gap-3">
-                              <ChevronRight className="h-3.5 w-3.5 text-shade-30 shrink-0" />
+                              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/45 shrink-0" />
                               <div className="flex flex-col">
-                                <span className="text-micro font-medium text-[var(--color-ink)] flex items-center gap-2">
+                                <span className="text-xs font-medium text-foreground flex items-center gap-2">
                                   {child.label}
                                   {child.type === "url" && child.url === "#" && (
-                                    <span className="text-[8px] bg-shade-20 text-shade-50 px-1.5 py-0.5 rounded font-mono font-semibold">
+                                    <span className="text-[8px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded font-mono font-semibold">
                                       Text Header
                                     </span>
                                   )}
                                 </span>
-                                <span className="text-[10px] text-shade-40 leading-none mt-1">
+                                <span className="text-[10px] text-muted-foreground leading-none mt-1">
                                   {child.type === "url" && child.url === "#"
                                     ? "Label label header (no hyperlink)"
                                     : child.type === "url"
@@ -494,32 +512,36 @@ export function NavigationClient({
 
                             <div className="flex items-center gap-1 opacity-70 group-hover/child:opacity-100 transition-opacity">
                               <button
+                                type="button"
                                 onClick={() => moveChild(child.id, parent.id, "up")}
                                 disabled={childIdx === 0}
-                                className="p-1 text-shade-40 hover:text-[var(--color-ink)] disabled:opacity-20 rounded hover:bg-canvas-dark cursor-pointer border-none bg-transparent"
+                                className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-20 rounded hover:bg-muted cursor-pointer border-none bg-transparent"
                                 title="Move Child Up"
                               >
                                 <ArrowUp className="h-3.5 w-3.5" />
                               </button>
                               <button
+                                type="button"
                                 onClick={() => moveChild(child.id, parent.id, "down")}
                                 disabled={childIdx === childrenItems.length - 1}
-                                className="p-1 text-shade-40 hover:text-[var(--color-ink)] disabled:opacity-20 rounded hover:bg-canvas-dark cursor-pointer border-none bg-transparent"
+                                className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-20 rounded hover:bg-muted cursor-pointer border-none bg-transparent"
                                 title="Move Child Down"
                               >
                                 <ArrowDown className="h-3.5 w-3.5" />
                               </button>
 
                               <button
+                                type="button"
                                 onClick={() => openEditDrawer(child)}
-                                className="p-1 text-shade-40 hover:text-primary rounded hover:bg-primary/5 cursor-pointer border-none bg-transparent"
+                                className="p-1 text-muted-foreground hover:text-primary rounded hover:bg-primary/5 cursor-pointer border-none bg-transparent"
                                 title="Edit Child"
                               >
                                 <Edit className="h-3.5 w-3.5" />
                               </button>
                               <button
+                                type="button"
                                 onClick={() => handleDeleteItem(child.id)}
-                                className="p-1 text-shade-40 hover:text-red-600 rounded hover:bg-red-50 cursor-pointer border-none bg-transparent"
+                                className="p-1 text-muted-foreground hover:text-destructive rounded hover:bg-destructive/10 cursor-pointer border-none bg-transparent"
                                 title="Delete Child"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
@@ -534,7 +556,7 @@ export function NavigationClient({
               })}
 
               {parents.length === 0 && (
-                <div className="text-center py-16 border-2 border-dashed border-[var(--color-hairline-light)] rounded-2xl text-caption text-shade-40 bg-canvas-dark/20">
+                <div className="text-center py-16 border border-dashed border-border rounded-xl text-sm text-muted-foreground bg-muted/10">
                   This menu has no links yet. Click "Add Top Level Link" below to begin.
                 </div>
               )}
@@ -543,18 +565,18 @@ export function NavigationClient({
             <Button
               variant="outline"
               onClick={() => openAddDrawer()}
-              className="w-full py-4 border-dashed border-[var(--color-hairline-light)] text-caption text-primary hover:bg-primary/5 rounded-2xl flex items-center justify-center gap-2"
+              className="w-full py-4 border-dashed border-border text-sm text-primary hover:bg-primary/5 rounded-xl flex items-center justify-center gap-2"
             >
               <Plus className="h-4 w-4" />
               <span>Add Top Level Link</span>
             </Button>
           </>
         ) : (
-          <Card className="p-12 flex flex-col items-center justify-center text-center border border-hairline-light bg-canvas-light rounded-2xl h-96 shadow-none">
-            <h3 className="font-display text-heading-md font-semibold text-[var(--color-ink)]">
+          <Card className="p-12 flex flex-col items-center justify-center text-center border border-border bg-card rounded-xl h-96 shadow-none">
+            <h3 className="text-lg font-semibold text-foreground">
               Navigation Setup
             </h3>
-            <p className="text-caption text-shade-50 font-light mt-1.5 max-w-sm">
+            <p className="text-sm text-muted-foreground font-light mt-1.5 max-w-sm">
               Please select either Main Menu or Footer Menu on the left to configure.
             </p>
           </Card>
@@ -562,133 +584,127 @@ export function NavigationClient({
       </div>
 
       {/* Floating Right Slide-over Link Editor Drawer Overlay */}
-      <Sheet 
-        isOpen={isDrawerOpen} 
-        onClose={closeDrawer} 
-        side="right" 
-        title={editingItemId ? "Edit Menu Link" : "Add Menu Link"}
-      >
-        <form onSubmit={handleDrawerFormSubmit} className="flex flex-col gap-5 flex-1 justify-between h-full">
-          <div className="flex flex-col gap-5">
-            {itemError && (
-              <div className="p-3 bg-red-50 text-red-700 border border-red-100 rounded-xl text-micro font-medium">
-                {itemError}
-              </div>
-            )}
+      <Sheet open={isDrawerOpen} onOpenChange={(open) => !open && closeDrawer()}>
+        <SheetContent side="right" className="sm:max-w-md flex flex-col h-full gap-0 p-0">
+          <SheetHeader className="p-6 border-b border-border">
+            <SheetTitle>{editingItemId ? "Edit Menu Link" : "Add Menu Link"}</SheetTitle>
+            <SheetDescription>
+              Configure the details of this navigation link.
+            </SheetDescription>
+          </SheetHeader>
+          <form onSubmit={handleDrawerFormSubmit} className="flex flex-col flex-1 min-h-0 text-foreground">
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-5">
+              {itemError && (
+                <div className="p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-xs font-medium">
+                  {itemError}
+                </div>
+              )}
 
-            <div className="flex flex-col gap-1.5">
-              <FormLabel htmlFor="itemLabel">Link Label</FormLabel>
-              <Input
-                id="itemLabel"
-                placeholder="e.g. Shop All, Our Story"
-                value={itemLabel}
-                onChange={(e) => setItemLabel(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <FormLabel htmlFor="itemType">Link Destination Type</FormLabel>
-              <select
-                id="itemType"
-                value={itemType}
-                onChange={(e) => {
-                  setItemType(e.target.value as any)
-                  setItemReferenceId("")
-                  setItemUrl("")
-                }}
-                className="w-full text-caption border border-[var(--color-hairline-light)] rounded-xl px-3 py-3 bg-[var(--color-canvas-light)] text-[var(--color-ink)] outline-none focus:border-shade-60 transition-all font-sans"
-              >
-                <option value="text-only">Text Only / Category Header (No link)</option>
-                <option value="url">Custom URL</option>
-                <option value="page">Standard Page</option>
-                <option value="category">Category Collection</option>
-                <option value="product">Product Page</option>
-              </select>
-            </div>
-
-            {itemType === "url" && (
               <div className="flex flex-col gap-1.5">
-                <FormLabel htmlFor="itemUrl">URL Link Destination</FormLabel>
+                <FormLabel htmlFor="itemLabel">Link Label</FormLabel>
                 <Input
-                  id="itemUrl"
-                  placeholder="e.g. /custom-route or https://..."
-                  value={itemUrl}
-                  onChange={(e) => setItemUrl(e.target.value)}
+                  id="itemLabel"
+                  placeholder="e.g. Shop All, Our Story"
+                  value={itemLabel}
+                  onChange={(e) => setItemLabel(e.target.value)}
+                  required
                 />
               </div>
-            )}
 
-            {itemType !== "url" && itemType !== "text-only" && (
               <div className="flex flex-col gap-1.5">
-                <FormLabel htmlFor="itemRef">Choose target resource</FormLabel>
-                <select
-                  id="itemRef"
-                  value={itemReferenceId}
-                  onChange={(e) => setItemReferenceId(e.target.value)}
-                  className="w-full text-caption border border-[var(--color-hairline-light)] rounded-xl px-3 py-3 bg-[var(--color-canvas-light)] text-[var(--color-ink)] outline-none focus:border-shade-60 transition-all font-sans"
-                  required
+                <FormLabel htmlFor="itemType">Link Destination Type</FormLabel>
+                <Select
+                  value={itemType}
+                  onValueChange={(val) => {
+                    setItemType(val as any)
+                    setItemReferenceId("")
+                    setItemUrl("")
+                  }}
                 >
-                  <option value="">-- Choose target --</option>
-                  {itemType === "page" &&
-                    pages.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.title} ({p.slug})
-                      </option>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select destination type..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {typeOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
                     ))}
-                  {itemType === "category" &&
-                    categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name} ({c.slug})
-                      </option>
-                    ))}
-                  {itemType === "product" &&
-                    products.map((pr) => (
-                      <option key={pr.id} value={pr.id}>
-                        {pr.name} ({pr.slug})
-                      </option>
-                    ))}
-                </select>
+                  </SelectContent>
+                </Select>
               </div>
-            )}
 
-            {/* Nesting: Parent selector */}
-            <div className="flex flex-col gap-1.5">
-              <FormLabel htmlFor="itemParent">Parent Link (Optional nesting)</FormLabel>
-              <select
-                id="itemParent"
-                value={itemParentId}
-                onChange={(e) => setItemParentId(e.target.value)}
-                className="w-full text-caption border border-[var(--color-hairline-light)] rounded-xl px-3 py-3 bg-[var(--color-canvas-light)] text-[var(--color-ink)] outline-none focus:border-shade-60 transition-all font-sans"
-              >
-                <option value="">None (Top-level Link)</option>
-                {potentialParents.map((parent) => (
-                  <option key={parent.id} value={parent.id}>
-                    {parent.label}
-                  </option>
-                ))}
-              </select>
+              {itemType === "url" && (
+                <div className="flex flex-col gap-1.5">
+                  <FormLabel htmlFor="itemUrl">URL Link Destination</FormLabel>
+                  <Input
+                    id="itemUrl"
+                    placeholder="e.g. /custom-route or https://..."
+                    value={itemUrl}
+                    onChange={(e) => setItemUrl(e.target.value)}
+                  />
+                </div>
+              )}
+
+              {itemType !== "url" && itemType !== "text-only" && (
+                <div className="flex flex-col gap-1.5">
+                  <FormLabel htmlFor="itemRef">Choose target resource</FormLabel>
+                  <Select
+                    value={itemReferenceId}
+                    onValueChange={setItemReferenceId}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Choose target..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {refOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-1.5">
+                <FormLabel htmlFor="itemParent">Parent Link (Optional nesting)</FormLabel>
+                <Select
+                  value={itemParentId || "none"}
+                  onValueChange={(val) => setItemParentId(val === "none" ? "" : val)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select parent link..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {parentOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </div>
 
-          <div className="flex gap-3 border-t border-[var(--color-hairline-light)] pt-4 mt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={closeDrawer}
-              className="rounded-full w-full justify-center text-caption py-3 border-[var(--color-hairline-light)]"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              className="rounded-full w-full justify-center text-caption py-3"
-            >
-              {editingItemId ? "Save Changes" : "Add Link"}
-            </Button>
-          </div>
-        </form>
+            <div className="p-6 border-t border-border bg-muted/20 flex gap-3 mt-auto">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={closeDrawer}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1"
+              >
+                {editingItemId ? "Save Changes" : "Add Link"}
+              </Button>
+            </div>
+          </form>
+        </SheetContent>
       </Sheet>
 
     </div>

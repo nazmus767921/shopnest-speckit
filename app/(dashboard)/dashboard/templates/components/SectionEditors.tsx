@@ -1,10 +1,16 @@
 "use client"
 
 import React from "react"
-import { Input } from "@/components/ui/primitives/Input"
-import { FormLabel } from "@/components/ui/primitives/FormLabel"
-import { Select } from "@/components/ui/primitives/Select"
-import { Textarea } from "@/components/ui/primitives/Textarea"
+import { Input } from "@/components/ui/input"
+import { Label as FormLabel } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { 
   HeroContent, 
   AnnouncementBarContent, 
@@ -14,18 +20,19 @@ import {
   FaqContent,
   FooterContent
 } from "@/lib/storefront-sections/types"
-import { Button } from "@/components/ui/primitives/Button"
+import { Button } from "@/components/ui/button"
 import { Trash2, Plus } from "lucide-react"
 
 export function HeroEditor({ content, onChange }: { content: HeroContent, onChange: (c: HeroContent) => void }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 text-foreground">
       <div className="flex flex-col gap-1.5">
         <FormLabel>Title</FormLabel>
         <Input 
           value={content.title || ""}
           onChange={(e) => onChange({ ...content, title: e.target.value })}
           placeholder="Hero Title"
+          className="rounded-lg bg-background border-border"
         />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -34,6 +41,7 @@ export function HeroEditor({ content, onChange }: { content: HeroContent, onChan
           value={content.subtitle || ""}
           onChange={(e) => onChange({ ...content, subtitle: e.target.value })}
           placeholder="Hero Subtitle"
+          className="rounded-lg bg-background border-border"
         />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -42,6 +50,7 @@ export function HeroEditor({ content, onChange }: { content: HeroContent, onChan
           value={content.buttonText || ""}
           onChange={(e) => onChange({ ...content, buttonText: e.target.value })}
           placeholder="e.g. Shop Now"
+          className="rounded-lg bg-background border-border"
         />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -50,6 +59,7 @@ export function HeroEditor({ content, onChange }: { content: HeroContent, onChan
           value={content.buttonLink || ""}
           onChange={(e) => onChange({ ...content, buttonLink: e.target.value })}
           placeholder="/products"
+          className="rounded-lg bg-background border-border"
         />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -58,6 +68,7 @@ export function HeroEditor({ content, onChange }: { content: HeroContent, onChan
           value={content.imageUrl || ""}
           onChange={(e) => onChange({ ...content, imageUrl: e.target.value })}
           placeholder="https://..."
+          className="rounded-lg bg-background border-border"
         />
       </div>
     </div>
@@ -66,13 +77,14 @@ export function HeroEditor({ content, onChange }: { content: HeroContent, onChan
 
 export function AnnouncementBarEditor({ content, onChange }: { content: AnnouncementBarContent, onChange: (c: AnnouncementBarContent) => void }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 text-foreground">
       <div className="flex flex-col gap-1.5">
         <FormLabel>Announcement Text</FormLabel>
         <Input 
           value={content.text || ""}
           onChange={(e) => onChange({ ...content, text: e.target.value })}
           placeholder="Free shipping!"
+          className="rounded-lg bg-background border-border"
         />
       </div>
       <div className="grid grid-cols-2 gap-4">
@@ -83,11 +95,12 @@ export function AnnouncementBarEditor({ content, onChange }: { content: Announce
               type="color" 
               value={content.backgroundColor || "#000000"} 
               onChange={(e) => onChange({ ...content, backgroundColor: e.target.value })}
-              className="w-10 h-10 p-1 rounded bg-transparent"
+              className="w-10 h-10 p-1 rounded-lg border border-border cursor-pointer bg-background"
             />
             <Input 
               value={content.backgroundColor || "#000000"}
               onChange={(e) => onChange({ ...content, backgroundColor: e.target.value })}
+              className="rounded-lg bg-background border-border"
             />
           </div>
         </div>
@@ -98,11 +111,12 @@ export function AnnouncementBarEditor({ content, onChange }: { content: Announce
               type="color" 
               value={content.textColor || "#ffffff"} 
               onChange={(e) => onChange({ ...content, textColor: e.target.value })}
-              className="w-10 h-10 p-1 rounded bg-transparent"
+              className="w-10 h-10 p-1 rounded-lg border border-border cursor-pointer bg-background"
             />
             <Input 
               value={content.textColor || "#ffffff"}
               onChange={(e) => onChange({ ...content, textColor: e.target.value })}
+              className="rounded-lg bg-background border-border"
             />
           </div>
         </div>
@@ -113,24 +127,32 @@ export function AnnouncementBarEditor({ content, onChange }: { content: Announce
 
 export function CategoryShowcaseEditor({ content, onChange }: { content: CategoryShowcaseContent, onChange: (c: CategoryShowcaseContent) => void }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 text-foreground">
       <div className="flex flex-col gap-1.5">
         <FormLabel>Title</FormLabel>
         <Input 
           value={content.title || ""}
           onChange={(e) => onChange({ ...content, title: e.target.value })}
           placeholder="Shop by Category"
+          className="rounded-lg bg-background border-border"
         />
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Layout</FormLabel>
         <Select
-          options={[{label: "Grid", value: "grid"}, {label: "Mosaic", value: "mosaic"}]}
-          value={{label: content.layout === "mosaic" ? "Mosaic" : "Grid", value: content.layout || "grid"}}
-          onChange={(opt) => onChange({ ...content, layout: (opt as any).value as "grid" | "mosaic" })}
-        />
+          value={content.layout || "grid"}
+          onValueChange={(val) => onChange({ ...content, layout: val as "grid" | "mosaic" })}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Layout" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="grid">Grid</SelectItem>
+            <SelectItem value="mosaic">Mosaic</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-      <div className="p-3 bg-zinc-50 border border-zinc-100 rounded-lg text-micro text-zinc-500">
+      <div className="p-3 bg-muted/30 border border-border rounded-lg text-xs text-muted-foreground">
         Note: Selecting specific categories is not yet implemented in this editor. It will display all active categories by default.
       </div>
     </div>
@@ -139,13 +161,14 @@ export function CategoryShowcaseEditor({ content, onChange }: { content: Categor
 
 export function AboutEditor({ content, onChange }: { content: AboutContent, onChange: (c: AboutContent) => void }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 text-foreground">
       <div className="flex flex-col gap-1.5">
         <FormLabel>Title</FormLabel>
         <Input 
           value={content.title || ""}
           onChange={(e) => onChange({ ...content, title: e.target.value })}
           placeholder="About Us"
+          className="rounded-lg bg-background border-border"
         />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -154,6 +177,7 @@ export function AboutEditor({ content, onChange }: { content: AboutContent, onCh
           value={content.description || ""}
           onChange={(e) => onChange({ ...content, description: e.target.value })}
           placeholder="Our story..."
+          className="rounded-lg bg-background border-border"
         />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -162,6 +186,7 @@ export function AboutEditor({ content, onChange }: { content: AboutContent, onCh
           value={content.imageUrl || ""}
           onChange={(e) => onChange({ ...content, imageUrl: e.target.value })}
           placeholder="https://..."
+          className="rounded-lg bg-background border-border"
         />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -170,6 +195,7 @@ export function AboutEditor({ content, onChange }: { content: AboutContent, onCh
           value={content.buttonText || ""}
           onChange={(e) => onChange({ ...content, buttonText: e.target.value })}
           placeholder="Read More"
+          className="rounded-lg bg-background border-border"
         />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -178,6 +204,7 @@ export function AboutEditor({ content, onChange }: { content: AboutContent, onCh
           value={content.buttonLink || ""}
           onChange={(e) => onChange({ ...content, buttonLink: e.target.value })}
           placeholder="/about"
+          className="rounded-lg bg-background border-border"
         />
       </div>
     </div>
@@ -186,34 +213,34 @@ export function AboutEditor({ content, onChange }: { content: AboutContent, onCh
 
 export function ProductGridEditor({ content, onChange }: { content: ProductGridContent, onChange: (c: ProductGridContent) => void }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 text-foreground">
       <div className="flex flex-col gap-1.5">
         <FormLabel>Title</FormLabel>
         <Input 
           value={content.title || ""}
           onChange={(e) => onChange({ ...content, title: e.target.value })}
           placeholder="Featured Products"
+          className="rounded-lg bg-background border-border"
         />
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Grid Type</FormLabel>
         <Select
-          options={[
-            {label: "Featured", value: "featured"},
-            {label: "New Arrivals", value: "new_arrivals"},
-            {label: "Exclusive", value: "exclusive"},
-            {label: "Manual Selection", value: "manual_selection"}
-          ]}
-          value={{
-            label: content.gridType === "new_arrivals" ? "New Arrivals" :
-                   content.gridType === "exclusive" ? "Exclusive" :
-                   content.gridType === "manual_selection" ? "Manual Selection" : "Featured",
-            value: content.gridType || "featured"
-          }}
-          onChange={(opt) => onChange({ ...content, gridType: (opt as any).value })}
-        />
+          value={content.gridType || "featured"}
+          onValueChange={(val) => onChange({ ...content, gridType: val as any })}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Grid Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="featured">Featured</SelectItem>
+            <SelectItem value="new_arrivals">New Arrivals</SelectItem>
+            <SelectItem value="exclusive">Exclusive</SelectItem>
+            <SelectItem value="manual_selection">Manual Selection</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-      <div className="p-3 bg-zinc-50 border border-zinc-100 rounded-lg text-micro text-zinc-500">
+      <div className="p-3 bg-muted/30 border border-border rounded-lg text-xs text-muted-foreground">
         Note: The products displayed are based on the product promotion type set in your inventory.
       </div>
     </div>
@@ -224,13 +251,14 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
   const items = content.items || []
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 text-foreground">
       <div className="flex flex-col gap-1.5">
         <FormLabel>Title</FormLabel>
         <Input 
           value={content.title || ""}
           onChange={(e) => onChange({ ...content, title: e.target.value })}
           placeholder="Frequently Asked Questions"
+          className="rounded-lg bg-background border-border"
         />
       </div>
       
@@ -254,7 +282,7 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
         </div>
         
         {items.map((item, idx) => (
-          <div key={idx} className="flex gap-3 items-start border border-hairline-light p-4 rounded-xl bg-white">
+          <div key={idx} className="flex gap-3 items-start border border-border p-4 rounded-xl bg-card">
             <div className="flex flex-col gap-3 flex-1">
               <Input 
                 value={item.question}
@@ -264,6 +292,7 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
                   onChange({ ...content, items: newItems })
                 }}
                 placeholder="Question"
+                className="rounded-lg bg-background border-border"
               />
               <Textarea 
                 value={item.answer}
@@ -274,6 +303,7 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
                 }}
                 placeholder="Answer"
                 rows={2}
+                className="rounded-lg bg-background border-border"
               />
             </div>
             <button
@@ -283,14 +313,14 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
                 newItems.splice(idx, 1)
                 onChange({ ...content, items: newItems })
               }}
-              className="text-zinc-400 hover:text-red-500 p-2"
+              className="text-muted-foreground/60 hover:text-destructive p-2 cursor-pointer transition-colors"
             >
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
         ))}
         {items.length === 0 && (
-          <p className="text-sm text-zinc-500 italic">No FAQs added yet.</p>
+          <p className="text-sm text-muted-foreground italic">No FAQs added yet.</p>
         )}
       </div>
     </div>
@@ -300,7 +330,7 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
 export function FooterEditor({ content, onChange }: { content: FooterContent, onChange: (c: FooterContent) => void }) {
   const links = content.socialLinks || {}
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 text-foreground">
       <div className="flex flex-col gap-1.5">
         <FormLabel>Store Description</FormLabel>
         <Textarea 
@@ -308,6 +338,7 @@ export function FooterEditor({ content, onChange }: { content: FooterContent, on
           onChange={(e) => onChange({ ...content, storeDescription: e.target.value })}
           placeholder="Brief description for the footer..."
           rows={2}
+          className="rounded-lg bg-background border-border"
         />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -317,6 +348,7 @@ export function FooterEditor({ content, onChange }: { content: FooterContent, on
           onChange={(e) => onChange({ ...content, storeAddress: e.target.value })}
           placeholder="123 Main St..."
           rows={2}
+          className="rounded-lg bg-background border-border"
         />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -325,6 +357,7 @@ export function FooterEditor({ content, onChange }: { content: FooterContent, on
           value={content.copyrightText || ""}
           onChange={(e) => onChange({ ...content, copyrightText: e.target.value })}
           placeholder="© 2026 StoreName"
+          className="rounded-lg bg-background border-border"
         />
       </div>
       
@@ -335,21 +368,25 @@ export function FooterEditor({ content, onChange }: { content: FooterContent, on
             value={links.facebook || ""}
             onChange={(e) => onChange({ ...content, socialLinks: { ...links, facebook: e.target.value } })}
             placeholder="Facebook URL"
+            className="rounded-lg bg-background border-border"
           />
           <Input 
             value={links.instagram || ""}
             onChange={(e) => onChange({ ...content, socialLinks: { ...links, instagram: e.target.value } })}
             placeholder="Instagram URL"
+            className="rounded-lg bg-background border-border"
           />
           <Input 
             value={links.whatsapp || ""}
             onChange={(e) => onChange({ ...content, socialLinks: { ...links, whatsapp: e.target.value } })}
             placeholder="WhatsApp Number"
+            className="rounded-lg bg-background border-border"
           />
           <Input 
             value={links.tiktok || ""}
             onChange={(e) => onChange({ ...content, socialLinks: { ...links, tiktok: e.target.value } })}
             placeholder="TikTok URL"
+            className="rounded-lg bg-background border-border"
           />
         </div>
       </div>

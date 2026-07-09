@@ -24,8 +24,8 @@ async function PagesPageContent() {
 
   if (!merchant) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <p className="text-shade-50">Merchant account not found.</p>
+      <div className="flex items-center justify-center min-h-64 text-foreground">
+        <p className="text-muted-foreground">Merchant account not found.</p>
       </div>
     )
   }
@@ -33,12 +33,12 @@ async function PagesPageContent() {
   const initialPages = await getPages(merchant.id)
 
   return (
-    <div className="flex flex-col gap-8 animate-fade-in">
-      <div className="pb-2 border-b border-hairline-light">
-        <h1 className="font-display text-heading-xl tracking-tight text-ink font-semibold leading-none">
+    <div className="flex flex-col gap-8 animate-fade-in text-foreground">
+      <div className="pb-2 border-b border-border">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground leading-none">
           Pages
         </h1>
-        <p className="text-caption text-shade-50 font-light mt-1">
+        <p className="text-sm text-muted-foreground font-light mt-1">
           Manage standard rich text pages like About Us, Contact, and Policies.
         </p>
       </div>
@@ -50,12 +50,12 @@ async function PagesPageContent() {
 
 function PagesSkeleton() {
   return (
-    <div className="flex flex-col gap-8 animate-pulse">
-      <div className="pb-2 border-b border-hairline-light">
-        <div className="h-8 w-48 bg-shade-30 rounded-full" />
-        <div className="h-4 w-64 bg-shade-30 rounded-full mt-2" />
+    <div className="flex flex-col gap-8 animate-pulse text-foreground">
+      <div className="pb-2 border-b border-border">
+        <div className="h-8 w-48 bg-muted rounded-full" />
+        <div className="h-4 w-64 bg-muted rounded-full mt-2" />
       </div>
-      <div className="bg-canvas-light border border-hairline-light rounded-lg p-6 h-64 w-full" />
+      <div className="bg-card border border-border rounded-xl p-6 h-64 w-full" />
     </div>
   )
 }

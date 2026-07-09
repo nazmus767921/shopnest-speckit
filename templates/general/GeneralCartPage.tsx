@@ -118,7 +118,7 @@ export function GeneralCartPage({ store }: CartPageProps) {
 
       {isEmpty ? (
         /* Empty State */
-        <Card variant="default" className="border border-[var(--color-hairline-light)] p-12 flex flex-col items-center justify-center text-center gap-6 min-h-64 bg-[var(--color-canvas-light)] max-w-md mx-auto w-full mt-6 rounded-[var(--radius-md)]">
+        <Card className="border border-[var(--color-hairline-light)] p-12 flex flex-col items-center justify-center text-center gap-6 min-h-64 bg-[var(--color-canvas-light)] max-w-md mx-auto w-full mt-6 rounded-[var(--radius-md)]">
           <div className="w-16 h-16 rounded-[var(--radius-pill)] bg-[var(--color-surface-secondary)] flex items-center justify-center text-[var(--color-ink)] border border-[var(--color-hairline-light)]">
             <ShoppingCart className="h-8 w-8 stroke-[1.5]" />
           </div>

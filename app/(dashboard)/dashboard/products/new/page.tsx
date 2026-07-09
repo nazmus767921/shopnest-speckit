@@ -5,7 +5,6 @@ import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { getMerchantPlan } from "@/lib/plans/getPlan"
 import { ProductForm } from "@/components/dashboard/ProductForm"
 import { redirect } from "next/navigation"
-
 import { Suspense } from "react"
 
 export default function NewProductPage() {
@@ -32,7 +31,6 @@ async function NewProductPageContent() {
   const maxImages = plan?.features.max_images_per_product ?? 5
   const imageSizeLimitMb = plan?.features.image_size_limit_mb ?? 2
 
-  // Pre-generate a UUID for the product to scope images uploaded by the client
   const preGeneratedId = crypto.randomUUID()
 
   return (
@@ -47,13 +45,12 @@ async function NewProductPageContent() {
 
 function NewProductSkeleton() {
   return (
-    <div className="flex flex-col gap-8 animate-pulse">
-      <div className="pb-2 border-b border-hairline-light">
-        <div className="h-8 w-48 bg-shade-30 rounded-full" />
-        <div className="h-4 w-64 bg-shade-30 rounded-full mt-2" />
+    <div className="flex flex-col gap-8 animate-pulse text-foreground">
+      <div className="pb-2 border-b border-border">
+        <div className="h-8 w-48 bg-muted rounded-full" />
+        <div className="h-4 w-64 bg-muted rounded-full mt-2" />
       </div>
-      <div className="bg-canvas-light border border-hairline-light rounded-lg p-6 h-96 w-full" />
+      <div className="bg-card border border-border rounded-xl p-6 h-96 w-full" />
     </div>
   )
 }
-

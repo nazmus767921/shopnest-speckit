@@ -3,10 +3,11 @@
 import { useCallback, useState, useEffect, useRef } from "react";
 import type { VariantUpdateInput } from "@/lib/validations/variants";
 import { VariantImageUpload } from "./VariantImageUpload";
-import { Input } from "@/components/ui/primitives/Input";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Check, X, ChevronDown, ChevronUp, ImageIcon } from "lucide-react";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
+import { cn } from "@/lib/utils";
 
 export type VariantRow = {
   id: string;
@@ -105,14 +106,14 @@ function InlineCell({
 
   const flashBorderClass =
     flash === "success"
-      ? "ring-2 ring-green-500"
+      ? "ring-2 ring-emerald-500"
       : flash === "error"
-        ? "ring-2 ring-red-500"
+        ? "ring-2 ring-destructive"
         : "";
 
   return (
-    <div ref={containerRef} className="relative">
-      <span className="block sm:hidden text-micro text-shade-40 mb-1">{label}</span>
+    <div ref={containerRef} className="relative text-foreground">
+      <span className="block sm:hidden text-xs text-muted-foreground mb-1">{label}</span>
 
       {editing ? (
         <div className={flashBorderClass}>
@@ -127,8 +128,7 @@ function InlineCell({
               placeholder={placeholder}
               min={0}
               step={1}
-              leftIcon={leftIcon}
-              className="min-h-9 text-body-md"
+              className="min-h-9 text-sm"
             />
           ) : (
             <Input
@@ -139,12 +139,12 @@ function InlineCell({
               onBlur={handleSave}
               disabled={disabled || saving}
               placeholder={placeholder}
-              className="min-h-9 text-body-md"
+              className="min-h-9 text-sm"
             />
           )}
           {saving && (
             <div className="absolute right-2 top-1/2 -translate-y-1/2">
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-shade-40" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
             </div>
           )}
         </div>
@@ -153,17 +153,22 @@ function InlineCell({
           type="button"
           onClick={startEdit}
           disabled={disabled}
-          className={`w-full rounded-md border border-transparent px-2.5 py-1.5 text-left text-body-md transition-colors hover:border-hairline-light hover:bg-canvas-cream disabled:cursor-not-allowed ${flash === "success"
-            ? "ring-2 ring-green-500 bg-green-50"
-            : flash === "error"
-              ? "ring-2 ring-red-500 bg-red-50"
-              : ""
-            } ${displayValue === "Inherit" || displayValue === ""
-              ? "text-shade-40"
-              : "text-ink"
-            }`}
+          className={cn(
+            "w-full rounded-md border border-transparent px-2.5 py-1.5 text-left text-sm transition-colors hover:border-border hover:bg-muted disabled:cursor-not-allowed cursor-pointer",
+            flash === "success"
+              ? "ring-2 ring-emerald-500 bg-emerald-500/10 text-emerald-700"
+              : flash === "error"
+                ? "ring-2 ring-destructive bg-destructive/10 text-destructive"
+                : "",
+            displayValue === "Inherit" || displayValue === ""
+              ? "text-muted-foreground"
+              : "text-foreground font-medium"
+          )}
         >
-          {displayValue}
+          <span className="flex items-center gap-1">
+            {leftIcon && <span className="opacity-70">{leftIcon}</span>}
+            <span>{displayValue}</span>
+          </span>
         </button>
       )}
     </div>
@@ -201,7 +206,6 @@ export function VariantRowEditor({
         await onUpdate(variant.id, { pricePaisa: null });
         return;
       }
-      // Input is in taka — convert to paisa for DB
       const taka = parseFloat(val);
       if (isNaN(taka) || taka < 0) {
         throw new Error("Invalid price");
@@ -253,10 +257,14 @@ export function VariantRowEditor({
 
   return (
     <div
-      className={`rounded-lg border transition-all ${variant.isActive
-        ? "border-hairline-light bg-canvas-light"
-        : "border-hairline-light bg-canvas-cream/50 opacity-75"
-        } ${selected ? "ring-2 ring-primary/30" : ""} ${focused ? "ring-2 ring-primary/20" : ""}`}
+      className={cn(
+        "rounded-lg border transition-all text-foreground",
+        variant.isActive
+          ? "border-border bg-card"
+          : "border-border bg-muted/40 opacity-75",
+        selected ? "ring-2 ring-primary/30" : "",
+        focused ? "ring-2 ring-primary/20" : ""
+      )}
       role="row"
       data-row-index={rowIndex}
       tabIndex={focused ? 0 : -1}
@@ -267,21 +275,15 @@ export function VariantRowEditor({
       <div className="hidden sm:flex items-center gap-2 px-3 py-2">
         {/* Checkbox + Label */}
         <div className="flex items-center gap-2 w-[110px] shrink-0" role="gridcell">
-          <label
-            className="flex items-center cursor-pointer"
+          <Checkbox
+            checked={selected}
+            onCheckedChange={(checked) => onSelectChange?.(!!checked)}
+            aria-label={`Select variant ${variant.sku}`}
             onClick={(e) => e.stopPropagation()}
-          >
-            <input
-              type="checkbox"
-              checked={selected}
-              onChange={(e) => onSelectChange?.(e.target.checked)}
-              className="h-4 w-4 rounded border-hairline-light accent-ink"
-              aria-label={`Select variant ${variant.sku}`}
-            />
-          </label>
-          <div className="min-w-0">
-            <span className="text-micro text-shade-40 block leading-tight">Label</span>
-            <span className="text-body-md text-ink font-medium truncate block leading-7">
+          />
+          <div className="min-w-0 ml-1">
+            <span className="text-xs text-muted-foreground block leading-tight">Label</span>
+            <span className="text-sm text-foreground font-semibold truncate block leading-7">
               {variant.label}
             </span>
           </div>
@@ -289,7 +291,7 @@ export function VariantRowEditor({
 
         {/* SKU */}
         <div className="flex-1 min-w-0" role="gridcell">
-          <span className="text-micro text-shade-40 block leading-tight">SKU</span>
+          <span className="text-xs text-muted-foreground block leading-tight">SKU</span>
           <InlineCell
             value={variant.sku}
             displayValue={variant.sku}
@@ -302,7 +304,7 @@ export function VariantRowEditor({
 
         {/* Price */}
         <div className="w-[140px] shrink-0" role="gridcell">
-          <span className="text-micro text-shade-40 block leading-tight">Price (৳)</span>
+          <span className="text-xs text-muted-foreground block leading-tight">Price (৳)</span>
           <InlineCell
             value={variant.pricePaisa != null ? (variant.pricePaisa / 100).toFixed(0) : ""}
             displayValue={priceDisplay}
@@ -311,13 +313,13 @@ export function VariantRowEditor({
             placeholder="Inherit"
             disabled={disabled}
             label="Price (৳)"
-            leftIcon={<span className="text-shade-50 text-body-md font-medium">৳</span>}
+            leftIcon={<span className="text-muted-foreground text-sm font-semibold">৳</span>}
           />
         </div>
 
         {/* Old Price */}
         <div className="w-[140px] shrink-0" role="gridcell">
-          <span className="text-micro text-shade-40 block leading-tight">Old Price (৳)</span>
+          <span className="text-xs text-muted-foreground block leading-tight">Old Price (৳)</span>
           <InlineCell
             value={variant.compareAtPricePaisa != null ? (variant.compareAtPricePaisa / 100).toFixed(0) : ""}
             displayValue={variant.compareAtPricePaisa != null ? `৳${(variant.compareAtPricePaisa / 100).toFixed(0)}` : "None"}
@@ -326,13 +328,13 @@ export function VariantRowEditor({
             placeholder="None"
             disabled={disabled}
             label="Old Price (৳)"
-            leftIcon={<span className="text-shade-50 text-body-md font-medium">৳</span>}
+            leftIcon={<span className="text-muted-foreground text-sm font-semibold">৳</span>}
           />
         </div>
 
         {/* Stock */}
         <div className="w-[110px] shrink-0" role="gridcell">
-          <span className="text-micro text-shade-40 block leading-tight">Stock</span>
+          <span className="text-xs text-muted-foreground block leading-tight">Stock</span>
           <InlineCell
             value={variant.stockCount.toString()}
             displayValue={variant.stockCount.toString()}
@@ -344,67 +346,54 @@ export function VariantRowEditor({
           />
         </div>
 
-        {/* Status — click to toggle */}
-        <div className="w-[80px] shrink-0" role="gridcell">
-          <span className="text-micro text-shade-40 block leading-tight">Status</span>
-          <button
-            type="button"
+        {/* Status */}
+        <div className="w-[85px] shrink-0 text-right" role="gridcell">
+          <span className="text-xs text-muted-foreground block leading-tight pr-2">Status</span>
+          <Badge
+            variant={variant.isActive ? "default" : "secondary"}
             onClick={handleToggleStatus}
-            disabled={disabled}
-            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-micro font-medium leading-tight transition-colors hover:opacity-80 disabled:cursor-not-allowed ${variant.isActive
-              ? "bg-aloe-10/60 text-shade-70"
-              : "bg-shade-30/50 text-shade-50"
-              }`}
-            aria-label={variant.isActive ? "Deactivate variant" : "Activate variant"}
+            className="cursor-pointer"
           >
             <span
-              className={`h-1.5 w-1.5 rounded-full ${variant.isActive ? "bg-emerald-600" : "bg-shade-50"
-                }`}
+              className={cn(
+                "h-1.5 w-1.5 rounded-full mr-1.5",
+                variant.isActive ? "bg-primary-foreground" : "bg-muted-foreground"
+              )}
               aria-hidden="true"
             />
-            {variant.isActive ? "Active" : "Inactive"}
-          </button>
+            <span>{variant.isActive ? "Active" : "Inactive"}</span>
+          </Badge>
         </div>
       </div>
 
       {/* ── Mobile: stacked card layout ── */}
       <div className="sm:hidden px-3 py-3 space-y-3" role="gridcell">
-        {/* Header row: checkbox + label + status */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
-            <label className="flex items-center cursor-pointer shrink-0">
-              <input
-                type="checkbox"
-                checked={selected}
-                onChange={(e) => onSelectChange?.(e.target.checked)}
-                className="h-4 w-4 rounded border-hairline-light accent-ink"
-                aria-label={`Select variant ${variant.sku}`}
-              />
-            </label>
-            <span className="text-body-md text-ink font-medium truncate">
+            <Checkbox
+              checked={selected}
+              onCheckedChange={(checked) => onSelectChange?.(!!checked)}
+              aria-label={`Select variant ${variant.sku}`}
+              onClick={(e) => e.stopPropagation()}
+            />
+            <span className="text-sm font-semibold text-foreground truncate ml-1">
               {variant.label}
             </span>
           </div>
-          <button
-            type="button"
+          <Badge
+            variant={variant.isActive ? "default" : "secondary"}
             onClick={handleToggleStatus}
-            disabled={disabled}
-            className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-micro font-medium shrink-0 transition-all hover:scale-105 active:scale-95 disabled:cursor-not-allowed ${variant.isActive
-              ? "bg-aloe-10/70 text-shade-70"
-              : "bg-shade-30/60 text-shade-50"
-              }`}
-            aria-label={variant.isActive ? "Deactivate variant" : "Activate variant"}
+            className="cursor-pointer font-semibold shrink-0"
           >
             {variant.isActive ? (
-              <Check className="h-3 w-3" />
+              <Check className="h-3 w-3 mr-1" />
             ) : (
-              <X className="h-3 w-3" />
+              <X className="h-3 w-3 mr-1" />
             )}
-            {variant.isActive ? "Active" : "Inactive"}
-          </button>
+            <span>{variant.isActive ? "Active" : "Inactive"}</span>
+          </Badge>
         </div>
 
-        {/* SKU (full width) */}
         <InlineCell
           value={variant.sku}
           displayValue={variant.sku}
@@ -414,7 +403,6 @@ export function VariantRowEditor({
           label="SKU"
         />
 
-        {/* Price + Old Price + Stock side by side */}
         <div className="grid grid-cols-3 gap-2">
           <InlineCell
             value={variant.pricePaisa != null ? (variant.pricePaisa / 100).toFixed(0) : ""}
@@ -424,7 +412,7 @@ export function VariantRowEditor({
             placeholder="Inherit"
             disabled={disabled}
             label="Price (৳)"
-            leftIcon={<span className="text-shade-50 text-body-md font-medium">৳</span>}
+            leftIcon={<span className="text-muted-foreground text-xs font-semibold">৳</span>}
           />
           <InlineCell
             value={variant.compareAtPricePaisa != null ? (variant.compareAtPricePaisa / 100).toFixed(0) : ""}
@@ -434,7 +422,7 @@ export function VariantRowEditor({
             placeholder="None"
             disabled={disabled}
             label="Old Price"
-            leftIcon={<span className="text-shade-50 text-body-md font-medium">৳</span>}
+            leftIcon={<span className="text-muted-foreground text-xs font-semibold">৳</span>}
           />
           <InlineCell
             value={variant.stockCount.toString()}
@@ -449,19 +437,19 @@ export function VariantRowEditor({
       </div>
 
       {/* ── Variant Images (expandable) ── */}
-      <div className="border-t border-hairline-light/50">
+      <div className="border-t border-border/50">
         <button
           type="button"
           onClick={() => setShowImages(!showImages)}
-          className="flex w-full items-center gap-1.5 px-3 py-1.5 text-micro text-shade-40 hover:text-ink hover:bg-canvas-cream/50 transition-colors"
+          className="flex w-full items-center gap-1.5 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors cursor-pointer border-none bg-transparent"
           aria-expanded={showImages}
         >
-          <ImageIcon className="h-3 w-3" />
+          <ImageIcon className="h-3.5 w-3.5" />
           <span>Images</span>
           {showImages ? (
-            <ChevronUp className="h-3 w-3 ml-auto" />
+            <ChevronUp className="h-3.5 w-3.5 ml-auto opacity-70" />
           ) : (
-            <ChevronDown className="h-3 w-3 ml-auto" />
+            <ChevronDown className="h-3.5 w-3.5 ml-auto opacity-70" />
           )}
         </button>
 

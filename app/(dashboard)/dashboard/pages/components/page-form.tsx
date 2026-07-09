@@ -6,23 +6,23 @@ import { useRouter } from "next/navigation"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { pageSchema, PageFormValues } from "@/lib/validations/pages"
 import { createPageAction, updatePageAction } from "@/app/actions/pages"
-import { Button } from "@/components/ui/primitives/Button"
-import { Input } from "@/components/ui/primitives/Input"
-import { FormLabel } from "@/components/ui/primitives/FormLabel"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label as FormLabel } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
 
 const RichTextEditor = dynamic(
-  () => import("@/components/ui/primitives/RichTextEditor").then((mod) => mod.RichTextEditor),
+  () => import("@/components/ui/RichTextEditor").then((mod) => mod.RichTextEditor),
   {
     ssr: false,
     loading: () => (
-      <div className="w-full min-h-[350px] border border-hairline-light rounded-md bg-canvas-cream animate-pulse" />
+      <div className="w-full min-h-[350px] border border-border rounded-md bg-muted animate-pulse" />
     )
   }
 )
-
 
 interface PageFormProps {
   initialData?: PageFormValues & { id?: string }
@@ -81,28 +81,28 @@ export function PageForm({ initialData }: PageFormProps) {
         e.preventDefault()
         form.handleSubmit()
       }}
-      className="flex flex-col relative w-full"
+      className="flex flex-col relative w-full text-foreground"
     >
       {error && (
-        <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg text-caption mx-4 sm:mx-6 lg:mx-8 mb-4">
+        <div className="p-4 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-sm mx-4 sm:mx-6 lg:mx-8 mb-4">
           {error}
         </div>
       )}
 
       {/* Sticky Header */}
-      <div className="sticky top-0 z-40 flex items-center justify-between px-6 py-4 bg-canvas-cream/80 backdrop-blur-md border-b border-hairline-light -mx-4 sm:-mx-6 lg:-mx-8 mb-8 lg:mb-12">
+      <div className="sticky top-0 z-40 flex items-center justify-between px-6 py-4 bg-muted/80 backdrop-blur-md border-b border-border -mx-4 sm:-mx-6 lg:-mx-8 mb-8 lg:mb-12">
         <div className="flex items-center gap-4">
           <Link
             href="/dashboard/pages"
-            className="flex items-center justify-center w-8 h-8 rounded-full text-shade-50 hover:bg-canvas-light hover:text-ink transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
           </Link>
           <div className="flex flex-col">
-            <span className="text-body-strong font-semibold text-ink leading-none">
+            <span className="text-base font-semibold leading-none">
               {isEditing ? "Edit Page" : "Create Page"}
             </span>
-            <span className="text-[10px] text-shade-40 mt-1 uppercase tracking-wider font-medium">
+            <span className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider font-medium">
               {mutation.isPending ? "Saving..." : (isEditing ? "Saved" : "Unsaved")}
             </span>
           </div>
@@ -113,8 +113,7 @@ export function PageForm({ initialData }: PageFormProps) {
             {(isSubmitting) => (
               <Button
                 type="submit"
-                variant="primary"
-                className="rounded-full px-6"
+                className="rounded-md px-6"
                 disabled={isSubmitting || mutation.isPending}
               >
                 {isSubmitting || mutation.isPending ? "Publishing..." : "Publish"}
@@ -137,10 +136,10 @@ export function PageForm({ initialData }: PageFormProps) {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
-                  className="w-full text-heading-2xl md:text-heading-3xl font-display font-semibold text-ink placeholder-shade-30 bg-transparent border-none outline-none focus:ring-0 p-0"
+                  className="w-full text-3xl md:text-4xl font-bold text-foreground placeholder-muted-foreground/30 bg-transparent border-none outline-none focus:ring-0 p-0"
                 />
                 {field.state.meta.errors.length > 0 && (
-                  <span className="text-[10px] text-red-600">{String(field.state.meta.errors[0])}</span>
+                  <span className="text-[10px] text-destructive">{String(field.state.meta.errors[0])}</span>
                 )}
               </div>
             )}
@@ -156,7 +155,7 @@ export function PageForm({ initialData }: PageFormProps) {
                   placeholder="Start writing..."
                 />
                 {field.state.meta.errors.length > 0 && (
-                  <span className="text-[10px] text-red-600">{String(field.state.meta.errors[0])}</span>
+                  <span className="text-[10px] text-destructive">{String(field.state.meta.errors[0])}</span>
                 )}
               </div>
             )}
@@ -165,8 +164,8 @@ export function PageForm({ initialData }: PageFormProps) {
 
         {/* Right column: 30% Settings Sidebar */}
         <div className="w-full lg:w-80 flex flex-col gap-6 shrink-0 lg:sticky lg:top-32 h-fit">
-          <div className="flex flex-col gap-6 p-6 rounded-2xl bg-canvas-light border border-hairline-light">
-            <h3 className="text-micro font-bold text-shade-40 uppercase tracking-wider">
+          <div className="flex flex-col gap-6 p-6 rounded-xl bg-card border border-border">
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
               Page Settings
             </h3>
             
@@ -180,13 +179,13 @@ export function PageForm({ initialData }: PageFormProps) {
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
-                    className="bg-canvas-cream"
+                    className="bg-muted/30 border-border rounded-lg"
                   />
-                  <p className="text-micro text-shade-40 leading-snug mt-1">
+                  <p className="text-xs text-muted-foreground leading-snug mt-1">
                     The URL path for this page (e.g. /pages/about-us)
                   </p>
                   {field.state.meta.errors.length > 0 && (
-                    <span className="text-[10px] text-red-600">{String(field.state.meta.errors[0])}</span>
+                    <span className="text-[10px] text-destructive">{String(field.state.meta.errors[0])}</span>
                   )}
                 </div>
               )}
@@ -194,18 +193,15 @@ export function PageForm({ initialData }: PageFormProps) {
 
             <form.Field name="isPublished">
               {(field) => (
-                <div className="flex items-center justify-between pt-4 border-t border-hairline-light">
+                <div className="flex items-center justify-between pt-4 border-t border-border">
                   <div className="flex flex-col">
                     <FormLabel htmlFor="isPublished" className="mb-1 cursor-pointer">Published Status</FormLabel>
-                    <span className="text-micro text-shade-40">Make this page visible online</span>
+                    <span className="text-xs text-muted-foreground">Make this page visible online</span>
                   </div>
-                  <input
+                  <Switch
                     id="isPublished"
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-hairline-light text-primary focus:ring-primary cursor-pointer"
                     checked={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.checked)}
-                    onBlur={field.handleBlur}
+                    onCheckedChange={(checked) => field.handleChange(checked)}
                   />
                 </div>
               )}

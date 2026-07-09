@@ -34,7 +34,6 @@ async function EditProductPageContent({ params }: Props) {
     redirect("/onboarding")
   }
 
-  // Fetch product securely, enforcing the merchant_id filter
   const product = await getProductById(merchant.id, id)
   if (!product) {
     notFound()
@@ -71,12 +70,12 @@ async function EditProductPageContent({ params }: Props) {
 
 function EditProductSkeleton() {
   return (
-    <div className="flex flex-col gap-8 animate-pulse">
-      <div className="pb-2 border-b border-hairline-light">
-        <div className="h-8 w-48 bg-shade-30 rounded-full" />
-        <div className="h-4 w-64 bg-shade-30 rounded-full mt-2" />
+    <div className="flex flex-col gap-8 animate-pulse text-foreground">
+      <div className="pb-2 border-b border-border">
+        <div className="h-8 w-48 bg-muted rounded-full" />
+        <div className="h-4 w-64 bg-muted rounded-full mt-2" />
       </div>
-      <div className="bg-canvas-light border border-hairline-light rounded-lg p-6 h-96 w-full" />
+      <div className="bg-card border border-border rounded-xl p-6 h-96 w-full" />
     </div>
   )
 }

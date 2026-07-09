@@ -2,7 +2,14 @@
 
 import { useCallback, useState, useId, useMemo } from "react";
 import { Search, X } from "lucide-react";
-import { Select } from "@/components/ui/primitives/Select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 const STOCK_OPTIONS = [
   { value: "all", label: "All Stock" },
@@ -17,13 +24,11 @@ const STATUS_OPTIONS = [
   { value: "inactive", label: "Inactive" },
 ]
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
 export type FilterCriteria = {
   skuQuery: string;
   stockFilter: "all" | "in_stock" | "out_of_stock" | "low_stock";
   statusFilter: "all" | "active" | "inactive";
-  attributeFilters: Record<string, string>; // attribute name → option value
+  attributeFilters: Record<string, string>;
 };
 
 interface VariantFilterBarProps {
@@ -31,8 +36,6 @@ interface VariantFilterBarProps {
   onFilterChange: (filters: FilterCriteria) => void;
   disabled?: boolean;
 }
-
-// ─── Component ───────────────────────────────────────────────────────────────
 
 export function VariantFilterBar({
   attributes,
@@ -45,7 +48,6 @@ export function VariantFilterBar({
   const [statusFilter, setStatusFilter] = useState<FilterCriteria["statusFilter"]>("all");
   const [attributeFilters, setAttributeFilters] = useState<Record<string, string>>({});
 
-  // Debounce SKU search
   const notifyFilterChange = useCallback(
     (overrides: Partial<{
       sku: string;
@@ -124,81 +126,104 @@ export function VariantFilterBar({
   }, [onFilterChange]);
 
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-        {/* SKU Search */}
-        <div className="relative flex-1 w-full sm:max-w-xs">
-          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-shade-40" />
-          <input
-            type="text"
-            value={skuQuery}
-            onChange={(e) => handleSkuChange(e.target.value)}
-            placeholder="Search SKU..."
-            disabled={disabled}
-            className="w-full rounded-md border border-hairline-light bg-canvas-light py-1.5 pl-8 pr-3 text-micro text-ink placeholder:text-shade-40 focus:border-ink focus:outline-none"
-          />
-          {skuQuery && (
-            <button
-              type="button"
-              onClick={() => handleSkuChange("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-shade-40 hover:text-ink"
-              aria-label="Clear SKU search"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          )}
-        </div>
-
-        {/* Stock + Status on same row on mobile */}
-        <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
-          <Select<(typeof STOCK_OPTIONS)[number]>
-            options={STOCK_OPTIONS}
-            value={STOCK_OPTIONS.find((o) => o.value === stockFilter) ?? null}
-            onChange={(opt) => opt && handleStockChange(opt.value as FilterCriteria["stockFilter"])}
-            disabled={disabled}
-            getOptionLabel={(o) => o.label}
-            getOptionValue={(o) => o.value}
-            className="w-full sm:w-auto"
-          />
-
-          <Select<(typeof STATUS_OPTIONS)[number]>
-            options={STATUS_OPTIONS}
-            value={STATUS_OPTIONS.find((o) => o.value === statusFilter) ?? null}
-            onChange={(opt) => opt && handleStatusChange(opt.value as FilterCriteria["statusFilter"])}
-            disabled={disabled}
-            getOptionLabel={(o) => o.label}
-            getOptionValue={(o) => o.value}
-            className="w-full sm:w-auto"
-          />
-        </div>
-
-        {/* Attribute dropdown filters */}
-        {attributes.map((attr) => {
-          const attrOptions = [{ value: "", label: `All ${attr.name}` }, ...attr.options]
-          return (
-            <Select<{ value: string; label: string }>
-              key={attr.name}
-              options={attrOptions}
-              value={attrOptions.find((o) => o.value === (attributeFilters[attr.name] ?? "")) ?? null}
-              onChange={(opt) => handleAttributeFilter(attr.name, opt?.value ?? "")}
-              disabled={disabled}
-              getOptionLabel={(o) => o.label}
-              getOptionValue={(o) => o.value}
-            />
-          )
-        })}
-
-        {/* Clear button */}
-        {hasActiveFilters && (
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 text-foreground">
+      {/* SKU Search */}
+      <div className="relative flex-1 w-full sm:max-w-xs">
+        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/60" />
+        <Input
+          type="text"
+          value={skuQuery}
+          onChange={(e) => handleSkuChange(e.target.value)}
+          placeholder="Search SKU..."
+          disabled={disabled}
+          className="pl-8 pr-8 w-full"
+        />
+        {skuQuery && (
           <button
             type="button"
-            onClick={handleClear}
-            disabled={disabled}
-            className="inline-flex items-center gap-1 rounded-md bg-canvas-cream border border-hairline-light px-2.5 py-1.5 text-micro text-shade-50 hover:bg-shade-30/30 hover:text-ink transition-colors shrink-0"
+            onClick={() => handleSkuChange("")}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer border-none"
+            aria-label="Clear SKU search"
           >
-            <X className="h-3 w-3" />
-            <span>Clear</span>
+            <X className="h-3.5 w-3.5" />
           </button>
         )}
       </div>
+
+      {/* Stock + Status on same row on mobile */}
+      <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
+        <Select
+          value={stockFilter}
+          onValueChange={(val) => handleStockChange(val as FilterCriteria["stockFilter"])}
+          disabled={disabled}
+        >
+          <SelectTrigger className="w-full sm:w-36">
+            <SelectValue placeholder="Stock Status" />
+          </SelectTrigger>
+          <SelectContent>
+            {STOCK_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>
+                {o.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={statusFilter}
+          onValueChange={(val) => handleStatusChange(val as FilterCriteria["statusFilter"])}
+          disabled={disabled}
+        >
+          <SelectTrigger className="w-full sm:w-32">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            {STATUS_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>
+                {o.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Attribute dropdown filters */}
+      {attributes.map((attr) => {
+        const attrOptions = [{ value: "all", label: `All ${attr.name}` }, ...attr.options]
+        const currentVal = attributeFilters[attr.name] || "all"
+        return (
+          <Select
+            key={attr.name}
+            value={currentVal}
+            onValueChange={(val) => handleAttributeFilter(attr.name, val === "all" ? "" : val)}
+            disabled={disabled}
+          >
+            <SelectTrigger className="w-full sm:w-32">
+              <SelectValue placeholder={`All ${attr.name}`} />
+            </SelectTrigger>
+            <SelectContent>
+              {attrOptions.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )
+      })}
+
+      {/* Clear button */}
+      {hasActiveFilters && (
+        <button
+          type="button"
+          onClick={handleClear}
+          disabled={disabled}
+          className="inline-flex items-center justify-center gap-1 rounded-md bg-muted border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors shrink-0 cursor-pointer"
+        >
+          <X className="h-3.5 w-3.5" />
+          <span>Clear</span>
+        </button>
+      )}
+    </div>
   );
 }

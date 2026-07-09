@@ -7,13 +7,14 @@ import {
   createShippingZoneAction,
   deleteShippingZoneAction,
 } from "@/app/actions/shippingZones"
-import { Button } from "@/components/ui/primitives/Button"
-import { Input } from "@/components/ui/primitives/Input"
-import { FormLabel } from "@/components/ui/primitives/FormLabel"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/layout/Card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label as FormLabel } from "@/components/ui/label"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Trash2, Plus, Loader2, ChevronDown, ChevronUp } from "lucide-react"
 import { formatTaka } from "@/lib/utils"
-import { toast } from "@/components/ui/feedback/Toast"
+import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 interface DistrictItem {
   id: string
@@ -169,10 +170,8 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
     const allSelected = availableDistricts.every((d) => selectedDistricts.find((item) => item.district === d))
 
     if (allSelected) {
-      // Deselect all in division
       setSelectedDistricts((prev) => prev.filter((item) => !districts.includes(item.district)))
     } else {
-      // Select all available in division
       setSelectedDistricts((prev) => {
         const filtered = prev.filter((item) => !districts.includes(item.district))
         const newSelections = availableDistricts.map((d) => ({ division: divisionName, district: d }))
@@ -184,23 +183,21 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
   return (
     <div className="flex flex-col gap-6 select-text">
       {/* Shipping Zones Card */}
-      <Card variant="default" className="p-6 sm:p-8 flex flex-col gap-6 rounded-2xl">
-        <CardHeader className="p-0 border-b border-hairline-light pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <Card className="p-6 sm:p-8 flex flex-col gap-6 rounded-xl border border-border">
+        <CardHeader className="p-0 border-b border-border pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <CardTitle className="text-heading-md font-bold text-ink">Shipping Zones</CardTitle>
-            <CardDescription className="text-caption text-shade-50 mt-1">
+            <CardTitle className="text-lg font-bold text-foreground">Shipping Zones</CardTitle>
+            <CardDescription className="text-sm text-muted-foreground mt-1">
               Set custom delivery rates and optional free shipping thresholds for specific areas.
             </CardDescription>
           </div>
           {!isAdding && (
             <Button
               type="button"
-              variant="primary"
-              size="sm"
               onClick={() => {
                 setIsAdding(true)
               }}
-              className="flex items-center w-full md:w-fit gap-1.5 self-start sm:self-auto rounded-full"
+              className="flex items-center w-full md:w-fit gap-1.5 self-start sm:self-auto rounded-md"
             >
               <Plus className="h-4 w-4" />
               <span>Add Zone</span>
@@ -216,9 +213,9 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                 e.preventDefault()
                 zoneForm.handleSubmit()
               }}
-              className="border border-hairline-light p-5 rounded-xl bg-canvas-cream/15 flex flex-col gap-4 animate-fade-in"
+              className="border border-border p-5 rounded-lg bg-muted/5 flex flex-col gap-4 animate-fade-in"
             >
-              <h3 className="text-body-strong font-semibold text-ink">Add New Shipping Zone</h3>
+              <h3 className="text-base font-semibold text-foreground">Add New Shipping Zone</h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <zoneForm.Field name="name">
@@ -275,7 +272,7 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
               {/* District Select accordion checklist */}
               <div className="flex flex-col gap-2 mt-2">
                 <FormLabel>Assign Districts / Cities</FormLabel>
-                <div className="flex flex-col gap-2 border border-hairline-light rounded-lg max-h-96 overflow-y-auto p-3">
+                <div className="flex flex-col gap-2 border border-border rounded-lg max-h-96 overflow-y-auto p-3">
                   {BANGLADESH_GEOGRAPHY.map((div) => {
                     const expanded = !!expandedDivisions[div.id]
                     const availableDistricts = div.districts.filter((d) => !assignedDistricts.has(d))
@@ -283,16 +280,16 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                     const isAllSelected = availableDistricts.length > 0 && availableDistricts.every((d) => selectedDistricts.find((item) => item.district === d))
 
                     return (
-                      <div key={div.id} className="border border-hairline-light/50 rounded-lg p-2.5">
+                      <div key={div.id} className="border border-border/50 rounded-lg p-2.5">
                         <div className="flex items-center justify-between gap-4">
                           <button
                             type="button"
                             onClick={() => toggleDivision(div.id)}
-                            className="flex items-center gap-2 font-semibold text-ink text-caption grow text-left cursor-pointer"
+                            className="flex items-center gap-2 font-semibold text-foreground text-sm grow text-left cursor-pointer"
                           >
                             {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                             <span>{div.name} Division</span>
-                            <span className="text-micro font-normal text-shade-40">
+                            <span className="text-xs font-normal text-muted-foreground">
                               ({selectedInDiv.length} selected)
                             </span>
                           </button>
@@ -301,7 +298,7 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                             <button
                               type="button"
                               onClick={() => handleSelectAllInDivision(div.name, div.districts)}
-                              className="text-micro font-bold text-primary hover:underline cursor-pointer"
+                              className="text-xs font-bold text-primary hover:underline cursor-pointer"
                             >
                               {isAllSelected ? "Deselect All" : "Select All Available"}
                             </button>
@@ -309,7 +306,7 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                         </div>
 
                         {expanded && (
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-3 pt-3 border-t border-hairline-light/40">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-3 pt-3 border-t border-border/40">
                             {div.districts.map((dist) => {
                               const isTaken = assignedDistricts.has(dist)
                               const isSelected = !!selectedDistricts.find((item) => item.district === dist)
@@ -317,22 +314,24 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                               return (
                                 <label
                                   key={dist}
-                                  className={`flex items-center gap-2 text-xs p-2 rounded-lg border transition-colors ${isTaken
-                                    ? "bg-canvas-cream/20 border-hairline-light/20 text-shade-30 cursor-not-allowed"
-                                    : "hover:bg-canvas-cream/10 border-hairline-light cursor-pointer"
-                                    }`}
+                                  className={cn(
+                                    "flex items-center gap-2 text-xs p-2 rounded-lg border transition-colors",
+                                    isTaken
+                                      ? "bg-muted/20 border-border/20 text-muted-foreground/35 cursor-not-allowed"
+                                      : "hover:bg-muted/10 border-border cursor-pointer"
+                                  )}
                                 >
                                   <input
                                     type="checkbox"
                                     disabled={isTaken}
                                     checked={isSelected}
                                     onChange={() => toggleDistrictSelection(div.name, dist)}
-                                    className="rounded border-hairline-light text-primary focus:ring-primary cursor-pointer disabled:cursor-not-allowed"
+                                    className="rounded border-border text-primary focus:ring-primary cursor-pointer disabled:cursor-not-allowed"
                                   />
                                   <span className="truncate" title={dist}>
                                     {dist}
                                   </span>
-                                  {isTaken && <span className="text-[10px] text-shade-30 font-light font-sans">(Taken)</span>}
+                                  {isTaken && <span className="text-[10px] text-muted-foreground/40 font-light">(Taken)</span>}
                                 </label>
                               )
                             })}
@@ -344,10 +343,10 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 border-t border-hairline-light/60 pt-4 mt-2">
+              <div className="flex justify-end gap-3 border-t border-border/60 pt-4 mt-2">
                 <Button
                   type="button"
-                  variant="outline-light"
+                  variant="outline"
                   onClick={() => {
                     setIsAdding(false)
                     zoneForm.reset()
@@ -356,7 +355,7 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" variant="primary" disabled={submitting}>
+                <Button type="submit" disabled={submitting}>
                   {submitting ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
@@ -372,13 +371,12 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
 
           {/* Zones List */}
           {zones.length === 0 ? (
-            <div className="p-8 border border-dashed border-hairline-light rounded-xl text-center text-caption text-shade-50">
+            <div className="p-8 border border-dashed border-border rounded-lg text-center text-sm text-muted-foreground">
               No shipping zones configured yet. Add a zone to enable district-based delivery pricing.
             </div>
           ) : (
             <div className="flex flex-col gap-6">
               {zones.map((zone) => {
-                // Group districts by division for nice visualization
                 const districtsByDivision = zone.districts.reduce<Record<string, string[]>>((acc, d) => {
                   if (!acc[d.division]) {
                     acc[d.division] = []
@@ -388,16 +386,16 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                 }, {})
 
                 return (
-                  <Card key={zone.id} className="p-5 border border-hairline-light flex flex-col gap-4 rounded-2xl bg-zinc-50/15">
-                    <div className="flex justify-between items-start gap-4 pb-3 border-b border-hairline-light/60">
+                  <Card key={zone.id} className="p-5 border border-border flex flex-col gap-4 rounded-xl bg-muted/5">
+                    <div className="flex justify-between items-start gap-4 pb-3 border-b border-border/60">
                       <div className="flex flex-col gap-1">
-                        <span className="text-body-strong font-bold text-ink">{zone.name}</span>
-                        <div className="flex flex-wrap items-center gap-3 text-caption mt-1">
-                          <span className="text-emerald-800 font-bold">
+                        <span className="text-base font-semibold text-foreground">{zone.name}</span>
+                        <div className="flex flex-wrap items-center gap-3 text-sm mt-1">
+                          <span className="text-emerald-800 dark:text-emerald-400 font-bold">
                             Rate: {zone.deliveryChargePaisa === 0 ? "Free Shipping" : formatTaka(zone.deliveryChargePaisa)}
                           </span>
                           {zone.freeShippingThresholdPaisa !== null && (
-                            <span className="text-shade-50">
+                            <span className="text-muted-foreground">
                               (Free on orders above {formatTaka(zone.freeShippingThresholdPaisa)})
                             </span>
                           )}
@@ -407,7 +405,7 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                         type="button"
                         onClick={() => handleDelete(zone.id)}
                         disabled={deleteId === zone.id}
-                        className="p-2 rounded-full text-red-500 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-50"
+                        className="p-2 rounded-full text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors cursor-pointer disabled:opacity-50"
                         title="Delete Zone"
                       >
                         {deleteId === zone.id ? (
@@ -419,18 +417,18 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                     </div>
 
                     <div className="flex flex-col gap-3">
-                      <span className="text-micro font-semibold text-shade-40 uppercase tracking-wider">
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                         Assigned Locations ({zone.districts.length})
                       </span>
                       <div className="flex flex-col gap-2.5">
                         {Object.entries(districtsByDivision).map(([division, districts]) => (
                           <div key={division} className="flex flex-col gap-1">
-                            <span className="text-[11px] font-semibold text-shade-50">{division} Division</span>
+                            <span className="text-[11px] font-semibold text-muted-foreground">{division} Division</span>
                             <div className="flex flex-wrap gap-1.5 mt-0.5">
                               {districts.map((d) => (
                                 <span
                                   key={d}
-                                  className="text-micro bg-canvas-cream/15 text-shade-60 px-2 py-0.5 rounded-full border border-hairline-light/40"
+                                  className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full border border-border"
                                 >
                                   {d}
                                 </span>

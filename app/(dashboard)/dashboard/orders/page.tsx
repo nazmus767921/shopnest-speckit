@@ -5,6 +5,7 @@ import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { getOrders } from "@/db/queries/orders"
 import { OrdersClient } from "./components/orders-client"
 import { redirect } from "next/navigation"
+import { Suspense } from "react"
 
 type Props = {
   searchParams: Promise<{
@@ -13,8 +14,6 @@ type Props = {
     page?: string
   }>
 }
-
-import { Suspense } from "react"
 
 export default function DashboardOrdersPage({ searchParams }: Props) {
   return (
@@ -56,22 +55,21 @@ async function OrdersPageContent({ searchParams }: Props) {
 
 function OrdersSkeleton() {
   return (
-    <div className="flex flex-col gap-8 animate-pulse">
+    <div className="flex flex-col gap-8 animate-pulse text-foreground">
       {/* Page Header Skeleton */}
-      <div className="pb-2 border-b border-hairline-light">
-        <div className="h-8 w-48 bg-shade-30 rounded-full" />
-        <div className="h-4 w-64 bg-shade-30 rounded-full mt-2" />
+      <div className="pb-2 border-b border-border">
+        <div className="h-8 w-48 bg-muted rounded-full" />
+        <div className="h-4 w-64 bg-muted rounded-full mt-2" />
       </div>
       
       {/* Table Skeleton */}
-      <div className="bg-canvas-light border border-hairline-light rounded-lg p-6 flex flex-col gap-4">
+      <div className="bg-card border border-border rounded-xl p-6 flex flex-col gap-4">
         <div className="flex justify-between items-center">
-          <div className="h-10 w-64 bg-shade-20 rounded-md" />
-          <div className="h-10 w-32 bg-shade-20 rounded-md" />
+          <div className="h-10 w-64 bg-muted/60 rounded-lg" />
+          <div className="h-10 w-32 bg-muted/60 rounded-lg" />
         </div>
-        <div className="h-64 bg-shade-20 rounded-lg w-full" />
+        <div className="h-64 bg-muted/60 rounded-xl w-full" />
       </div>
     </div>
   )
 }
-

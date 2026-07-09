@@ -9,7 +9,15 @@ import {
   updateProductStockAction,
   toggleProductPromotionAction
 } from "@/app/actions/products"
-import { Button, Card, Select } from "@/components/ui"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Plus,
   ShoppingBag,
@@ -24,7 +32,17 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase/client"
-import { AlertDialog } from "@/components/ui/feedback/AlertDialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { cn } from "@/lib/utils"
 
 interface FormattedProduct {
   id: string
@@ -70,7 +88,6 @@ export function InlineStockWidget({
   const [isSaving, setIsSaving] = React.useState(false)
   const debounceTimerRef = React.useRef<NodeJS.Timeout | null>(null)
 
-  // Sync with prop when server data updates
   React.useEffect(() => {
     setStock(initialStock)
   }, [initialStock])
@@ -80,7 +97,6 @@ export function InlineStockWidget({
     try {
       await onSave(value)
     } catch (error) {
-      // Revert on error
       setStock(initialStock)
     } finally {
       setIsSaving(false)
@@ -130,12 +146,12 @@ export function InlineStockWidget({
 
   return (
     <div className="flex items-center gap-2">
-      <div className="flex items-center border border-hairline-light rounded-lg bg-canvas-cream/20 overflow-hidden min-h-9.5">
+      <div className="flex items-center border border-border rounded-lg bg-muted/10 overflow-hidden min-h-9">
         <button
           type="button"
           onClick={handleDecrement}
           disabled={stock <= 0 || isSaving}
-          className="px-2.5 py-1 text-shade-60 hover:bg-shade-30/30 active:bg-shade-30/50 disabled:opacity-30 disabled:pointer-events-none transition-colors border-r border-hairline-light cursor-pointer select-none font-semibold text-caption"
+          className="px-2.5 py-1 text-muted-foreground hover:bg-muted/30 active:bg-muted/50 disabled:opacity-30 disabled:pointer-events-none transition-colors border-r border-border cursor-pointer select-none font-semibold text-sm"
         >
           -
         </button>
@@ -148,10 +164,10 @@ export function InlineStockWidget({
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
             disabled={isSaving}
-            className="w-full text-center text-caption font-mono font-medium text-ink bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-full text-center text-sm font-mono font-medium text-foreground bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
           {isSaving && (
-            <div className="absolute inset-0 bg-canvas-light/70 flex items-center justify-center">
+            <div className="absolute inset-0 bg-background/70 flex items-center justify-center">
               <Loader2 className="h-3 w-3 animate-spin text-primary" />
             </div>
           )}
@@ -161,23 +177,24 @@ export function InlineStockWidget({
           type="button"
           onClick={handleIncrement}
           disabled={isSaving}
-          className="px-2.5 py-1 text-shade-60 hover:bg-shade-30/30 active:bg-shade-30/50 disabled:opacity-30 disabled:pointer-events-none transition-colors border-l border-hairline-light cursor-pointer select-none font-semibold text-caption"
+          className="px-2.5 py-1 text-muted-foreground hover:bg-muted/30 active:bg-muted/50 disabled:opacity-30 disabled:pointer-events-none transition-colors border-l border-border cursor-pointer select-none font-semibold text-sm"
         >
           +
         </button>
       </div>
 
-      {/* Stock warning/status dot */}
       <span
         title={
           isOutOfStock ? "Out of stock" :
             isLowStock ? `Low stock (Threshold: ${lowStockThreshold})` :
               "In Stock"
         }
-        className={`h-2.5 w-2.5 rounded-full shrink-0 ${isOutOfStock ? "bg-red-500 animate-pulse" :
-          isLowStock ? "bg-amber-500" :
-            "bg-emerald-500"
-          }`}
+        className={cn(
+          "h-2.5 w-2.5 rounded-full shrink-0",
+          isOutOfStock ? "bg-red-500 animate-pulse" :
+            isLowStock ? "bg-amber-500" :
+              "bg-emerald-500"
+        )}
       />
     </div>
   )
@@ -198,7 +215,6 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
   const [stockFilter, setStockFilter] = React.useState<"all" | "in_stock" | "low_stock" | "out_of_stock">("all")
   const [sortBy, setSortBy] = React.useState<"newest" | "price_asc" | "price_desc" | "stock_asc" | "stock_desc">("newest")
 
-  // TanStack Query for products list
   const { data: products = initialProducts, refetch } = useQuery({
     queryKey: ["products", merchantId],
     queryFn: async () => {
@@ -212,7 +228,6 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
     refetchOnMount: true,
   })
 
-  // Delete product mutation
   const deleteMutation = useMutation({
     mutationFn: async (productId: string) => {
       const res = await deleteProductAction(productId)
@@ -227,7 +242,6 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
     },
   })
 
-  // Toggle publish mutation
   const togglePublishMutation = useMutation({
     mutationFn: async ({ productId, isPublished }: { productId: string; isPublished: boolean }) => {
       const res = await toggleProductPublishAction(productId, isPublished)
@@ -242,7 +256,6 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
     },
   })
 
-  // Inline Stock update mutation
   const stockMutation = useMutation({
     mutationFn: async ({ productId, stockCount }: { productId: string; stockCount: number }) => {
       const res = await updateProductStockAction(productId, stockCount)
@@ -257,7 +270,6 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
     },
   })
 
-  // Toggle promotion mutation
   const togglePromotionMutation = useMutation({
     mutationFn: async ({ productId, promotionType, active }: { productId: string; promotionType: string; active: boolean }) => {
       const res = await toggleProductPromotionAction(productId, promotionType, active)
@@ -317,27 +329,22 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
     }
   }
 
-  // Resolve image URLs from Supabase Storage
   const getProductImageUrl = (storagePath: string | undefined) => {
     if (!storagePath) return null
     return supabase.storage.from("product-images").getPublicUrl(storagePath).data.publicUrl
   }
 
-  // Resolve Storefront product URLs dynamically using base URL computed on the server
   const getStorefrontProductUrl = (slug: string) => {
     return `${storefrontBaseUrl}/product/${slug}`
   }
 
-  // Calculate status counts for tab badges
   const totalCount = products.length
   const publishedCount = products.filter((p) => p.isPublished).length
   const draftCount = products.filter((p) => !p.isPublished).length
 
-  // Filter and sort products client-side for immediate feedback
   const filteredProducts = React.useMemo(() => {
     return products
       .filter((product) => {
-        // Search filter
         if (searchQuery.trim()) {
           const query = searchQuery.toLowerCase().trim()
           const nameMatch = product.name.toLowerCase().includes(query)
@@ -345,13 +352,11 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
           if (!nameMatch && !descMatch) return false
         }
 
-        // Publish status filter
         if (statusFilter !== "all") {
           if (statusFilter === "published" && !product.isPublished) return false
           if (statusFilter === "draft" && product.isPublished) return false
         }
 
-        // Stock filter
         if (stockFilter !== "all") {
           const isOutOfStock = product.stockCount === 0
           const isLowStock = !isOutOfStock && product.stockCount <= product.lowStockThreshold
@@ -368,7 +373,6 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
         if (sortBy === "stock_asc") return a.stockCount - b.stockCount
         if (sortBy === "stock_desc") return b.stockCount - a.stockCount
 
-        // Default: Newest first
         const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
         const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
         return dateB - dateA
@@ -382,21 +386,21 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
   ]
 
   return (
-    <div className="flex flex-col gap-6 text-ink">
+    <div className="flex flex-col gap-6 text-foreground">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-hairline-light">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-border">
         <div>
-          <h1 className="font-display text-heading-xl tracking-tight text-ink font-semibold leading-none">
+          <h1 className="text-2xl tracking-tight text-foreground font-semibold leading-none">
             Product Management
           </h1>
-          <p className="text-caption text-shade-50 font-light mt-1">
+          <p className="text-sm text-muted-foreground font-light mt-1">
             Manage your store items, stock levels, and storefront publishing details
           </p>
         </div>
         {limitReached ? (
           <Button
             disabled
-            className="bg-primary/50 w-full md:w-fit text-on-primary flex items-center gap-2 cursor-not-allowed"
+            className="w-full md:w-fit flex items-center gap-2 cursor-not-allowed"
             title="Product limit reached for your subscription plan"
           >
             <Plus className="h-4.5 w-4.5" />
@@ -404,7 +408,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
           </Button>
         ) : (
           <Link href="/dashboard/products/new">
-            <Button className="bg-primary w-full md:w-fit text-on-primary hover:bg-shade-70 flex items-center gap-2">
+            <Button className="w-full md:w-fit flex items-center gap-2">
               <Plus className="h-4.5 w-4.5" />
               <span>Add Product</span>
             </Button>
@@ -414,23 +418,23 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
 
       {products.length === 0 ? (
         /* Empty State */
-        <Card className="flex flex-col items-center justify-center text-center p-12 border border-hairline-light bg-canvas-light max-w-xl mx-auto mt-6 w-full">
-          <div className="p-4 bg-pistachio-10 text-emerald-900 rounded-full mb-4">
+        <Card className="flex flex-col items-center justify-center text-center p-12 border border-border bg-card max-w-xl mx-auto mt-6 w-full rounded-xl">
+          <div className="p-4 bg-muted text-muted-foreground rounded-full mb-4">
             <ShoppingBag className="h-10 w-10 stroke-[1.5]" />
           </div>
-          <h3 className="font-display text-heading-md font-semibold text-ink">
+          <h3 className="text-lg font-semibold text-foreground">
             No products listed
           </h3>
-          <p className="text-caption text-shade-50 font-light max-w-sm mt-2 mb-6">
+          <p className="text-sm text-muted-foreground font-light max-w-sm mt-2 mb-6">
             Get started by adding your first product. It will show up immediately on your storefront.
           </p>
           {limitReached ? (
-            <Button disabled className="bg-primary/50 text-on-primary cursor-not-allowed">
+            <Button disabled className="cursor-not-allowed">
               Create First Product (Limit Reached)
             </Button>
           ) : (
             <Link href="/dashboard/products/new">
-              <Button className="bg-primary text-on-primary hover:bg-shade-70">
+              <Button>
                 Create First Product
               </Button>
             </Link>
@@ -442,21 +446,25 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
           <div className="flex flex-col gap-4">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               {/* Left Side: Status filter segmented control */}
-              <div className="flex bg-zinc-100/85 p-1 rounded-full gap-1 items-center select-none w-fit border border-hairline-light">
+              <div className="flex bg-muted/65 p-1 rounded-full gap-1 items-center select-none w-fit border border-border">
                 {statusTabs.map((tab) => {
                   const isActive = statusFilter === tab.value
                   return (
                     <button
                       key={tab.value}
                       onClick={() => setStatusFilter(tab.value as any)}
-                      className={`px-5 py-1.5 rounded-full text-caption font-semibold transition-all shrink-0 cursor-pointer flex items-center gap-2 ${isActive
-                        ? "bg-white text-ink border border-hairline-light"
-                        : "text-shade-60 hover:text-ink hover:bg-zinc-200/50"
-                        }`}
+                      className={cn(
+                        "px-5 py-1.5 rounded-full text-sm font-semibold transition-all shrink-0 cursor-pointer flex items-center gap-2",
+                        isActive
+                          ? "bg-background text-foreground shadow-sm border border-border"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      )}
                     >
                       <span>{tab.label}</span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${isActive ? "bg-zinc-100 text-ink" : "bg-zinc-200/60 text-shade-60"
-                        }`}>
+                      <span className={cn(
+                        "text-[10px] px-1.5 py-0.5 rounded-full font-mono",
+                        isActive ? "bg-muted text-foreground" : "bg-muted/60 text-muted-foreground"
+                      )}>
                         {tab.count}
                       </span>
                     </button>
@@ -467,74 +475,61 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               {/* Right Side: Select Dropdowns */}
               <div className="flex flex-wrap gap-3 items-center w-full lg:w-auto">
                 <div className="flex items-center gap-2 grow sm:grow-0">
-                  <span className="text-caption text-shade-50 font-medium">Stock:</span>
-                  <Select<{ value: string; label: string }>
-                    options={[
-                      { value: "all", label: "All Levels" },
-                      { value: "in_stock", label: "In Stock" },
-                      { value: "low_stock", label: "Low Stock" },
-                      { value: "out_of_stock", label: "Out of Stock" },
-                    ]}
-                    value={[
-                      { value: "all", label: "All Levels" },
-                      { value: "in_stock", label: "In Stock" },
-                      { value: "low_stock", label: "Low Stock" },
-                      { value: "out_of_stock", label: "Out of Stock" },
-                    ].find((o: { value: string; label: string }) => o.value === stockFilter) ?? null}
-                    onChange={(opt: { value: string; label: string } | null) => opt && setStockFilter(opt.value as any)}
-                    getOptionLabel={(o: { value: string; label: string }) => o.label}
-                    getOptionValue={(o: { value: string; label: string }) => o.value}
-                  />
+                  <span className="text-sm text-muted-foreground font-medium">Stock:</span>
+                  <Select value={stockFilter} onValueChange={(val) => setStockFilter(val as any)}>
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue placeholder="Stock Level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Levels</SelectItem>
+                      <SelectItem value="in_stock">In Stock</SelectItem>
+                      <SelectItem value="low_stock">Low Stock</SelectItem>
+                      <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="flex items-center gap-2 grow sm:grow-0">
-                  <span className="text-caption text-shade-50 font-medium">Sort:</span>
-                  <Select<{ value: string; label: string }>
-                    options={[
-                      { value: "newest", label: "Newest First" },
-                      { value: "price_asc", label: "Price: Low to High" },
-                      { value: "price_desc", label: "Price: High to Low" },
-                      { value: "stock_asc", label: "Stock: Low to High" },
-                      { value: "stock_desc", label: "Stock: High to Low" },
-                    ]}
-                    value={[
-                      { value: "newest", label: "Newest First" },
-                      { value: "price_asc", label: "Price: Low to High" },
-                      { value: "price_desc", label: "Price: High to Low" },
-                      { value: "stock_asc", label: "Stock: Low to High" },
-                      { value: "stock_desc", label: "Stock: High to Low" },
-                    ].find((o: { value: string; label: string }) => o.value === sortBy) ?? null}
-                    onChange={(opt: { value: string; label: string } | null) => opt && setSortBy(opt.value as any)}
-                    getOptionLabel={(o: { value: string; label: string }) => o.label}
-                    getOptionValue={(o: { value: string; label: string }) => o.value}
-                  />
+                  <span className="text-sm text-muted-foreground font-medium">Sort:</span>
+                  <Select value={sortBy} onValueChange={(val) => setSortBy(val as any)}>
+                    <SelectTrigger className="w-[160px]">
+                      <SelectValue placeholder="Sort order" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="newest">Newest First</SelectItem>
+                      <SelectItem value="price_asc">Price: Low to High</SelectItem>
+                      <SelectItem value="price_desc">Price: High to Low</SelectItem>
+                      <SelectItem value="stock_asc">Stock: Low to High</SelectItem>
+                      <SelectItem value="stock_desc">Stock: High to Low</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
 
             {/* Search Input Bar */}
             <div className="relative w-full md:max-w-md">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-shade-40" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search by product name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full text-caption border border-hairline-light bg-canvas-light text-ink placeholder-shade-40 rounded-full pl-10 pr-4 py-2.5 min-h-10 outline-none focus:border-shade-60 transition-all font-sans"
+                className="w-full text-sm border border-border bg-card text-foreground placeholder-muted-foreground rounded-full pl-10 pr-4 py-2.5 min-h-10 outline-none focus:border-muted-foreground transition-all font-sans"
               />
             </div>
           </div>
 
           {/* List Area */}
           {filteredProducts.length === 0 ? (
-            <Card className="flex flex-col items-center justify-center text-center p-12 border border-hairline-light bg-canvas-light max-w-xl mx-auto w-full mt-4 rounded-2xl">
-              <div className="p-4 bg-pistachio-10 text-emerald-900 rounded-full mb-4">
+            <Card className="flex flex-col items-center justify-center text-center p-12 border border-border bg-card max-w-xl mx-auto w-full mt-4 rounded-xl">
+              <div className="p-4 bg-muted text-muted-foreground rounded-full mb-4">
                 <Search className="h-8 w-8 stroke-[1.5]" />
               </div>
-              <h3 className="font-display text-heading-md font-semibold text-ink">
+              <h3 className="text-lg font-semibold text-foreground">
                 No matching products
               </h3>
-              <p className="text-caption text-shade-50 font-light max-w-sm mt-2">
+              <p className="text-sm text-muted-foreground font-light max-w-sm mt-2">
                 Try adjusting your search criteria, stock levels, or status filters.
               </p>
             </Card>
@@ -542,31 +537,31 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
             <div className="flex flex-col gap-4">
 
               {/* Desktop Table View (>= md viewports) */}
-              <div className="hidden md:block overflow-hidden rounded-2xl border border-hairline-light bg-canvas-light">
-                <table className="w-full border-collapse text-left text-caption text-ink">
+              <div className="hidden md:block overflow-hidden rounded-xl border border-border bg-card">
+                <table className="w-full border-collapse text-left text-sm text-foreground">
                   <thead>
-                    <tr className="border-b border-hairline-light bg-canvas-cream/35 text-shade-55 font-semibold">
+                    <tr className="border-b border-border bg-muted/30 text-muted-foreground font-semibold">
                       <th className="p-4 w-20">Item</th>
                       <th className="p-4">Product Details</th>
-                      <th className="p-4 w-32.5">Category</th>
+                      <th className="p-4 w-32">Category</th>
                       <th className="p-4 w-52">Promotions</th>
                       <th className="p-4 w-30">Price</th>
                       <th className="p-4 w-55">Stock Count</th>
-                      <th className="p-4 w-32.5">Status</th>
-                      <th className="p-4 text-right w-37.5">Actions</th>
+                      <th className="p-4 w-32">Status</th>
+                      <th className="p-4 text-right w-36">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-hairline-light">
+                  <tbody className="divide-y divide-border">
                     {filteredProducts.map((product) => {
                       const imageUrl = getProductImageUrl(product.images[0]?.storagePath)
 
                       return (
                         <tr
                           key={product.id}
-                          className="hover:bg-canvas-cream/10 transition-colors duration-150"
+                          className="hover:bg-muted/10 transition-colors duration-150"
                         >
                           <td className="p-4 align-middle">
-                            <div className="w-12 h-16 bg-canvas-cream flex items-center justify-center rounded border border-hairline-light overflow-hidden shrink-0">
+                            <div className="w-12 h-16 bg-muted flex items-center justify-center rounded border border-border overflow-hidden shrink-0">
                               {imageUrl ? (
                                 <img
                                   src={imageUrl}
@@ -574,17 +569,17 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <ImageIcon className="h-4 w-4 text-shade-40" />
+                                <ImageIcon className="h-4 w-4 text-muted-foreground" />
                               )}
                             </div>
                           </td>
                           <td className="p-4 align-middle font-sans">
                             <div className="flex flex-col gap-0.5 max-w-50">
-                              <span className="font-semibold text-ink truncate" title={product.name}>
+                              <span className="font-semibold text-foreground truncate" title={product.name}>
                                 {product.name}
                               </span>
                               {product.description && (
-                                <span className="text-[12px] text-shade-55 truncate" title={product.description}>
+                                <span className="text-xs text-muted-foreground truncate" title={product.description}>
                                   {product.description}
                                 </span>
                               )}
@@ -592,11 +587,11 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                           </td>
                           <td className="p-4 align-middle">
                             {product.category ? (
-                              <span className="text-caption text-ink font-medium bg-canvas-cream border border-hairline-light px-2.5 py-1 rounded-full">
+                              <span className="text-sm text-foreground font-medium bg-muted border border-border px-2.5 py-1 rounded-full">
                                 {product.category.name}
                               </span>
                             ) : (
-                              <span className="text-caption text-shade-40 italic">Uncategorized</span>
+                              <span className="text-sm text-muted-foreground italic">Uncategorized</span>
                             )}
                           </td>
                           <td className="p-4 align-middle">
@@ -617,10 +612,12 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                                     key={promo.type}
                                     disabled={isLoading}
                                     onClick={() => togglePromotionMutation.mutate({ productId: product.id, promotionType: promo.type, active: !isActive })}
-                                    className={`px-2 py-0.5 text-[9px] uppercase font-bold tracking-wider rounded-full border transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none select-none ${isActive
-                                      ? "bg-emerald-800 border-emerald-800 text-white"
-                                      : "bg-transparent border-hairline-light text-shade-50 hover:border-shade-40 hover:text-ink"
-                                      }`}
+                                    className={cn(
+                                      "px-2 py-0.5 text-[9px] uppercase font-bold tracking-wider rounded-full border transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none select-none",
+                                      isActive
+                                        ? "bg-emerald-600 border-emerald-600 text-white"
+                                        : "bg-transparent border-border text-muted-foreground hover:border-muted-foreground hover:text-foreground"
+                                    )}
                                   >
                                     {promo.label}
                                   </button>
@@ -628,7 +625,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                               })}
                             </div>
                           </td>
-                          <td className="p-4 align-middle font-mono font-medium text-ink">
+                          <td className="p-4 align-middle font-mono font-medium text-foreground">
                             ৳{product.price.toLocaleString("en-BD", { minimumFractionDigits: 2 })}
                           </td>
                           <td className="p-4 align-middle">
@@ -639,13 +636,14 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                                     product.stockCount <= product.lowStockThreshold ? `Low stock (Threshold: ${product.lowStockThreshold})` :
                                       "In Stock"
                                 }
-                                className="inline-flex items-center gap-1.5 text-caption bg-canvas-cream border border-hairline px-2 py-1.5 rounded-md font-semibold text-shade-50"
+                                className="inline-flex items-center gap-1.5 text-sm bg-muted border border-border px-2 py-1.5 rounded-md font-semibold text-muted-foreground"
                               >
-                                <span className={`h-2 w-2 rounded-full shrink-0 ${
+                                <span className={cn(
+                                  "h-2 w-2 rounded-full shrink-0",
                                   product.stockCount === 0 ? "bg-red-500 animate-pulse" :
                                     product.stockCount <= product.lowStockThreshold ? "bg-amber-500" :
                                       "bg-emerald-500"
-                                }`} />
+                                )} />
                                 {product.stockCount} (Variants)
                               </span>
                             ) : (
@@ -665,18 +663,18 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                               className="cursor-pointer hover:opacity-90 active:scale-95 transition-all duration-200 disabled:pointer-events-none disabled:opacity-75 focus:outline-none"
                             >
                               {product.isPublished ? (
-                                <span className="inline-flex items-center gap-1.5 text-eyebrow-cap bg-aloe-10 text-ink rounded-full px-2.5 py-1 font-semibold border border-emerald-300/30">
+                                <span className="inline-flex items-center gap-1.5 text-xs bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 rounded-full px-2.5 py-1 font-semibold border border-emerald-500/20">
                                   {togglePublishMutation.isPending && togglePublishMutation.variables?.productId === product.id ? (
-                                    <Loader2 className="h-3 w-3 animate-spin text-ink" />
+                                    <Loader2 className="h-3 w-3 animate-spin text-foreground" />
                                   ) : (
                                     <Eye className="h-3 w-3 stroke-2" />
                                   )}
                                   <span>Published</span>
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1.5 text-eyebrow-cap bg-shade-30 text-ink rounded-full px-2.5 py-1 font-semibold border border-shade-40/30">
+                                <span className="inline-flex items-center gap-1.5 text-xs bg-muted text-muted-foreground rounded-full px-2.5 py-1 font-semibold border border-border">
                                   {togglePublishMutation.isPending && togglePublishMutation.variables?.productId === product.id ? (
-                                    <Loader2 className="h-3 w-3 animate-spin text-ink" />
+                                    <Loader2 className="h-3 w-3 animate-spin text-foreground" />
                                   ) : (
                                     <EyeOff className="h-3 w-3 stroke-2" />
                                   )}
@@ -687,13 +685,12 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                           </td>
                           <td className="p-4 align-middle text-right">
                             <div className="flex items-center justify-end gap-2.5">
-                              {/* Direct link to storefront */}
                               <a
                                 href={getStorefrontProductUrl(product.slug)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 title="View on storefront"
-                                className="text-shade-50 hover:text-ink cursor-pointer p-1.5 hover:bg-shade-30/20 rounded-full transition-colors"
+                                className="text-muted-foreground hover:text-foreground cursor-pointer p-1.5 hover:bg-muted rounded-full transition-colors"
                               >
                                 <ExternalLink className="h-4.5 w-4.5" />
                               </a>
@@ -701,7 +698,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                               <Link href={`/dashboard/products/${product.id}/edit`}>
                                 <button
                                   title="Edit Product"
-                                  className="text-shade-50 hover:text-ink cursor-pointer p-1.5 hover:bg-shade-30/20 rounded-full transition-colors"
+                                  className="text-muted-foreground hover:text-foreground cursor-pointer p-1.5 hover:bg-muted rounded-full transition-colors"
                                 >
                                   <Edit2 className="h-4.5 w-4.5" />
                                 </button>
@@ -711,7 +708,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                                 onClick={() => handleDelete(product.id, product.name)}
                                 disabled={isPending || deleteMutation.isPending}
                                 title="Delete Product"
-                                className="text-red-500 hover:text-red-700 cursor-pointer p-1.5 hover:bg-red-50 rounded-full transition-colors disabled:opacity-50"
+                                className="text-red-500 hover:text-red-700 cursor-pointer p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-full transition-colors disabled:opacity-50"
                               >
                                 {deleteMutation.isPending && deleteMutation.variables === product.id ? (
                                   <Loader2 className="h-4.5 w-4.5 animate-spin text-red-500" />
@@ -736,11 +733,10 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                   return (
                     <Card
                       key={product.id}
-                      className="flex flex-col border border-hairline-light bg-canvas-light p-4 gap-4"
+                      className="flex flex-col border border-border bg-card p-4 gap-4"
                     >
-                      {/* Top details */}
                       <div className="flex gap-3.5 items-start">
-                        <div className="w-16 h-20 bg-canvas-cream flex items-center justify-center rounded border border-hairline-light overflow-hidden shrink-0">
+                        <div className="w-16 h-20 bg-muted flex items-center justify-center rounded border border-border overflow-hidden shrink-0">
                           {imageUrl ? (
                             <img
                               src={imageUrl}
@@ -748,40 +744,39 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <ImageIcon className="h-5 w-5 text-shade-40" />
+                            <ImageIcon className="h-5 w-5 text-muted-foreground" />
                           )}
                         </div>
                         <div className="flex flex-col gap-1 grow min-w-0">
                           <div className="flex justify-between items-start gap-2">
                             <div className="flex flex-col gap-1 min-w-0">
-                              <h3 className="text-body-strong font-medium text-ink truncate">
+                              <h3 className="text-base font-semibold text-foreground truncate">
                                 {product.name}
                               </h3>
                               {product.category && (
-                                <span className="text-[11px] text-emerald-850 font-medium bg-aloe-10/40 px-2 py-0.5 rounded-full self-start">
+                                <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 self-start">
                                   {product.category.name}
                                 </span>
                               )}
                             </div>
-                            {/* Interactive Publish Badge on mobile */}
                             <button
                               onClick={() => handleTogglePublish(product.id, product.isPublished)}
                               disabled={isPending || deleteMutation.isPending || togglePublishMutation.isPending}
                               className="cursor-pointer hover:opacity-90 active:scale-95 transition-all duration-200 focus:outline-none"
                             >
                               {product.isPublished ? (
-                                <span className="inline-flex items-center gap-1 text-[11px] bg-aloe-10 text-ink rounded-full px-2 py-0.5 font-semibold border border-emerald-300/30">
+                                <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 rounded-full px-2 py-0.5 font-semibold border border-emerald-500/20">
                                   {togglePublishMutation.isPending && togglePublishMutation.variables?.productId === product.id ? (
-                                    <Loader2 className="h-2.5 w-2.5 animate-spin text-ink" />
+                                    <Loader2 className="h-2.5 w-2.5 animate-spin text-foreground" />
                                   ) : (
                                     <Eye className="h-2.5 w-2.5 stroke-[2.5]" />
                                   )}
                                   <span>Published</span>
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 text-[11px] bg-shade-30 text-ink rounded-full px-2 py-0.5 font-semibold border border-shade-40/30">
+                                <span className="inline-flex items-center gap-1 text-[11px] bg-muted text-muted-foreground rounded-full px-2 py-0.5 font-semibold border border-border">
                                   {togglePublishMutation.isPending && togglePublishMutation.variables?.productId === product.id ? (
-                                    <Loader2 className="h-2.5 w-2.5 animate-spin text-ink" />
+                                    <Loader2 className="h-2.5 w-2.5 animate-spin text-foreground" />
                                   ) : (
                                     <EyeOff className="h-2.5 w-2.5 stroke-[2.5]" />
                                   )}
@@ -791,15 +786,15 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                             </button>
                           </div>
 
-                          <span className="font-sans text-heading-sm font-semibold text-ink">
+                          <span className="font-sans text-sm font-semibold text-foreground">
                             ৳{product.price.toLocaleString("en-BD", { minimumFractionDigits: 2 })}
                           </span>
                         </div>
                       </div>
 
                       {/* Mobile promotions toggle row */}
-                      <div className="flex flex-col gap-1.5 border-t border-hairline-light/50 pt-2.5">
-                        <span className="text-[11px] text-shade-50 font-bold uppercase tracking-wider">Promotions</span>
+                      <div className="flex flex-col gap-1.5 border-t border-border/50 pt-2.5">
+                        <span className="text-[11px] text-muted-foreground font-bold uppercase tracking-wider">Promotions</span>
                         <div className="flex flex-row items-center gap-1.5">
                           {[
                             { type: "featured", label: "Featured" },
@@ -817,10 +812,12 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                                 key={promo.type}
                                 disabled={isLoading}
                                 onClick={() => togglePromotionMutation.mutate({ productId: product.id, promotionType: promo.type, active: !isActive })}
-                                className={`px-2.5 py-1 text-[10px] uppercase font-bold tracking-wider rounded-full border transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none select-none ${isActive
-                                  ? "bg-emerald-800 border-emerald-800 text-white"
-                                  : "bg-transparent border-hairline-light text-shade-55"
-                                  }`}
+                                className={cn(
+                                  "px-2.5 py-1 text-[10px] uppercase font-bold tracking-wider rounded-full border transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none select-none",
+                                  isActive
+                                    ? "bg-emerald-600 border-emerald-600 text-white"
+                                    : "bg-transparent border-border text-muted-foreground"
+                                )}
                               >
                                 {promo.label}
                               </button>
@@ -830,8 +827,8 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                       </div>
 
                       {/* Stock management row */}
-                      <div className="flex items-center justify-between border-t border-b border-hairline-light/50 py-3">
-                        <span className="text-caption text-shade-50 font-medium">Stock Level:</span>
+                      <div className="flex items-center justify-between border-t border-b border-border/50 py-3">
+                        <span className="text-sm text-muted-foreground font-medium">Stock Level:</span>
                         {product.hasVariants ? (
                           <span
                             title={
@@ -839,13 +836,14 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                                 product.stockCount <= product.lowStockThreshold ? `Low stock (Threshold: ${product.lowStockThreshold})` :
                                   "In Stock"
                             }
-                            className="inline-flex items-center gap-1.5 text-caption bg-canvas-cream border border-hairline px-2 py-1.5 rounded-md font-semibold text-shade-50"
+                            className="inline-flex items-center gap-1.5 text-sm bg-muted border border-border px-2 py-1.5 rounded-md font-semibold text-muted-foreground"
                           >
-                            <span className={`h-2 w-2 rounded-full shrink-0 ${
+                            <span className={cn(
+                              "h-2 w-2 rounded-full shrink-0",
                               product.stockCount === 0 ? "bg-red-500 animate-pulse" :
                                 product.stockCount <= product.lowStockThreshold ? "bg-amber-500" :
                                   "bg-emerald-500"
-                            }`} />
+                            )} />
                             {product.stockCount} (Variants)
                           </span>
                         ) : (
@@ -860,22 +858,20 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
 
                       {/* Actions row */}
                       <div className="flex items-center justify-between gap-2 pt-1">
-                        {/* View storefront link */}
                         <a
                           href={getStorefrontProductUrl(product.slug)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-caption font-semibold text-primary hover:underline"
+                          className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
                           <span>Storefront</span>
                         </a>
 
-                        {/* Edit / Delete buttons */}
                         <div className="flex gap-2">
                           <Link href={`/dashboard/products/${product.id}/edit`}>
                             <Button
-                              variant="outline-light"
+                              variant="outline"
                               size="sm"
                               className="flex items-center gap-1.5 py-1.5 px-3 min-h-9"
                             >
@@ -887,9 +883,9 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                           <Button
                             onClick={() => handleDelete(product.id, product.name)}
                             disabled={isPending || deleteMutation.isPending}
-                            variant="outline-light"
+                            variant="outline"
                             size="sm"
-                            className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 hover:text-red-700 py-1.5 px-3 min-h-9 flex items-center justify-center shrink-0"
+                            className="border-red-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 hover:border-red-300 hover:text-red-700 py-1.5 px-3 min-h-9 flex items-center justify-center shrink-0"
                           >
                             {deleteMutation.isPending && deleteMutation.variables === product.id ? (
                               <Loader2 className="h-3.5 w-3.5 animate-spin text-red-600" />
@@ -909,27 +905,49 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
         </div>
       )}
       {/* Delete Confirmation Alert Dialog */}
-      <AlertDialog
-        isOpen={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDeleteConfirm}
-        title={`Delete Product "${deleteTarget?.name}"?`}
-        description="This action cannot be undone. The product and all associated images will be permanently deleted."
-        confirmText="Delete Product"
-        variant="danger"
-        isPending={deleteMutation.isPending}
-      />
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && !deleteMutation.isPending && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Product &ldquo;{deleteTarget?.name}&rdquo;?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The product and all associated images will be permanently deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteMutation.isPending} onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleteMutation.isPending}
+              onClick={(e) => {
+                e.preventDefault()
+                handleDeleteConfirm()
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}
+              Delete Product
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Error Alert Dialog */}
-      <AlertDialog
-        isOpen={!!errorAlert}
-        onClose={() => setErrorAlert(null)}
-        onConfirm={() => setErrorAlert(null)}
-        title={errorAlert?.title || "Error"}
-        description={errorAlert?.message || "An unexpected error occurred."}
-        confirmText="Acknowledge"
-        variant="primary"
-      />
+      <AlertDialog open={!!errorAlert} onOpenChange={(open) => !open && setErrorAlert(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{errorAlert?.title || "Error"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {errorAlert?.message || "An unexpected error occurred."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setErrorAlert(null)}>
+              Acknowledge
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

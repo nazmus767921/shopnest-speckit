@@ -2,12 +2,21 @@
 
 import React, { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { Plus, Tag, Pencil, Trash2, Percent, DollarSign } from "lucide-react"
-import { Button } from "@/components/ui/primitives/Button"
-import { Badge } from "@/components/ui/primitives/Badge"
-import { Card } from "@/components/ui/layout/Card"
+import { Plus, Tag, Pencil, Trash2, Percent, DollarSign, Loader2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card } from "@/components/ui/card"
 import { DiscountCodeModal } from "./DiscountCodeModal"
-import { AlertDialog } from "@/components/ui/feedback/AlertDialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import {
   getDiscountCodesAction,
   deleteDiscountCodeAction,
@@ -100,16 +109,14 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 text-foreground">
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4">
-        <p className="text-caption text-shade-50">
+        <p className="text-sm text-muted-foreground">
           {codes.length} code{codes.length !== 1 ? "s" : ""} total
         </p>
         <Button
           id="create-discount-code-btn"
-          variant="primary"
-          size="sm"
           onClick={handleOpenCreate}
           className="flex items-center gap-2"
         >
@@ -121,22 +128,19 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
       {codes.length === 0 ? (
         /* Empty State */
         <Card
-          variant="default"
-          className="flex flex-col items-center justify-center text-center p-12 border border-hairline-light bg-canvas-light"
+          className="flex flex-col items-center justify-center text-center p-12 border border-border bg-card rounded-xl"
         >
-          <div className="p-3 bg-pistachio-10 rounded-full mb-4">
-            <Tag className="h-8 w-8 text-ink stroke-1.5" />
+          <div className="p-3 bg-muted rounded-full mb-4">
+            <Tag className="h-8 w-8 text-foreground stroke-1.5" />
           </div>
-          <h3 className="font-display text-heading-md font-semibold text-ink">
+          <h3 className="text-lg font-semibold text-foreground">
             No discount codes yet
           </h3>
-          <p className="text-caption text-shade-50 font-light max-w-sm mt-2 mb-6">
+          <p className="text-sm text-muted-foreground font-light max-w-sm mt-2 mb-6">
             Create your first promotional code to share with customers and drive sales.
           </p>
           <Button
             id="create-first-discount-btn"
-            variant="primary"
-            size="md"
             onClick={handleOpenCreate}
           >
             Create First Code
@@ -144,31 +148,31 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
         </Card>
       ) : (
         /* Discount Codes Table */
-        <div className="border border-hairline-light rounded-2xl bg-canvas-light overflow-hidden">
+        <div className="border border-border rounded-xl bg-card overflow-hidden">
           <table className="w-full text-left">
-            <thead className="border-b border-hairline-light bg-canvas-cream/30">
+            <thead className="border-b border-border bg-muted/30">
               <tr>
-                <th className="px-5 py-3 text-micro font-bold text-shade-40 uppercase tracking-wider">
+                <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                   Code
                 </th>
-                <th className="px-5 py-3 text-micro font-bold text-shade-40 uppercase tracking-wider">
+                <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                   Type / Value
                 </th>
-                <th className="px-5 py-3 text-micro font-bold text-shade-40 uppercase tracking-wider">
+                <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                   Usage
                 </th>
-                <th className="px-5 py-3 text-micro font-bold text-shade-40 uppercase tracking-wider">
+                <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                   Expires
                 </th>
-                <th className="px-5 py-3 text-micro font-bold text-shade-40 uppercase tracking-wider">
+                <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-5 py-3 text-micro font-bold text-shade-40 uppercase tracking-wider">
+                <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-hairline-light">
+            <tbody className="divide-y divide-border">
               {codes.map((code) => {
                 const expired = isExpired(code.expiresAt)
                 const exhausted =
@@ -177,11 +181,11 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
                 return (
                   <tr
                     key={code.id}
-                    className="hover:bg-canvas-cream/20 transition-colors"
+                    className="hover:bg-muted/10 transition-colors"
                   >
                     {/* Code string */}
                     <td className="px-5 py-3.5">
-                      <span className="font-mono font-semibold text-ink text-body-md bg-canvas-cream border border-hairline-light px-2 py-0.5 rounded">
+                      <span className="font-mono font-semibold text-foreground text-sm bg-muted border border-border px-2 py-0.5 rounded">
                         {code.code}
                       </span>
                     </td>
@@ -190,11 +194,11 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-1.5">
                         {code.discountType === "percent" ? (
-                          <Percent className="h-3.5 w-3.5 text-shade-50" />
+                          <Percent className="h-3.5 w-3.5 text-muted-foreground" />
                         ) : (
-                          <DollarSign className="h-3.5 w-3.5 text-shade-50" />
+                          <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
                         )}
-                        <span className="text-caption font-semibold text-ink">
+                        <span className="text-sm font-semibold text-foreground">
                           {code.discountType === "percent"
                             ? `${code.value}% off`
                             : `৳ ${parseFloat(code.value).toFixed(0)} off`}
@@ -203,24 +207,24 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
                     </td>
 
                     {/* Usage */}
-                    <td className="px-5 py-3.5 text-caption text-shade-60">
+                    <td className="px-5 py-3.5 text-sm text-muted-foreground">
                       {code.usageCount}
                       {code.usageLimit !== null ? ` / ${code.usageLimit}` : ""}
                     </td>
 
                     {/* Expires */}
-                    <td className="px-5 py-3.5 text-caption text-shade-60">
+                    <td className="px-5 py-3.5 text-sm text-muted-foreground">
                       {formatDate(code.expiresAt)}
                     </td>
 
                     {/* Status */}
                     <td className="px-5 py-3.5">
                       {expired ? (
-                        <Badge variant="shade" className="bg-red-50 text-red-700">Expired</Badge>
+                        <Badge variant="secondary" className="bg-red-50 text-red-700 dark:bg-red-950/20">Expired</Badge>
                       ) : exhausted ? (
-                        <Badge variant="shade" className="bg-amber-50 text-amber-700">Exhausted</Badge>
+                        <Badge variant="secondary" className="bg-amber-50 text-amber-700 dark:bg-amber-950/20">Exhausted</Badge>
                       ) : (
-                        <Badge variant="mint">Active</Badge>
+                        <Badge variant="default">Active</Badge>
                       )}
                     </td>
 
@@ -229,7 +233,7 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleOpenEdit(code)}
-                          className="p-1.5 hover:bg-canvas-cream rounded-md transition-colors text-shade-50 hover:text-ink"
+                          className="p-1.5 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground"
                           title="Edit"
                         >
                           <Pencil className="h-4 w-4" />
@@ -237,7 +241,7 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
                         <button
                           onClick={() => handleDelete(code.id, code.code)}
                           disabled={deleteMutation.isPending}
-                          className="p-1.5 hover:bg-red-50 rounded-md transition-colors text-shade-50 hover:text-red-600"
+                          className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-md transition-colors text-muted-foreground hover:text-red-650"
                           title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -261,16 +265,32 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
       )}
 
       {/* Delete Confirmation Alert Dialog */}
-      <AlertDialog
-        isOpen={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDeleteConfirm}
-        title={`Delete Discount Code "${deleteTarget?.codeStr}"?`}
-        description="This action cannot be undone. Customers will no longer be able to apply this discount code during checkout."
-        confirmText="Delete Code"
-        variant="danger"
-        isPending={deleteMutation.isPending}
-      />
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && !deleteMutation.isPending && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Discount Code &ldquo;{deleteTarget?.codeStr}&rdquo;?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. Customers will no longer be able to apply this discount code during checkout.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteMutation.isPending} onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleteMutation.isPending}
+              onClick={(e) => {
+                e.preventDefault()
+                handleDeleteConfirm()
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}
+              Delete Code
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

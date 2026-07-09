@@ -1,8 +1,37 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import { VariantSelector, type AttributeInfo, type VariantOption } from "../VariantSelector";
+import * as React from "react";
 
 afterEach(cleanup);
+
+// Mock the Select primitive wrapper to use a simple native select element,
+// which avoids portal/focus timing issues in JSDOM unit test environment.
+vi.mock("@/components/ui/primitives/Select", () => {
+  return {
+    Select: ({ options, value, onChange, placeholder, getOptionLabel, getOptionValue }: any) => {
+      const getLabel = getOptionLabel || ((o: any) => o.label || o.name || String(o));
+      const getValue = getOptionValue || ((o: any) => o.value ?? o.id ?? String(o));
+      return (
+        <select
+          data-testid="mock-select"
+          value={value ? String(getValue(value)) : ""}
+          onChange={(e) => {
+            const opt = options.find((o: any) => String(getValue(o)) === e.target.value);
+            onChange(opt || null);
+          }}
+        >
+          <option value="">{placeholder || "Select option..."}</option>
+          {options.map((o: any, idx: number) => (
+            <option key={idx} value={String(getValue(o))}>
+              {getLabel(o)}
+            </option>
+          ))}
+        </select>
+      );
+    }
+  };
+});
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
@@ -43,12 +72,8 @@ function clickSwatch(name: string) {
 }
 
 function selectDropdown(selectName: string, value: string) {
-  // Find the Select trigger button by its placeholder text (e.g. "Select Size...")
-  const trigger = screen.getByRole("button", { name: new RegExp(`select ${selectName}`, "i") });
-  fireEvent.click(trigger);
-  // Find and click the desired option in the dropdown by its display label
-  const option = screen.getByText(new RegExp(`^${value}$`, "i"));
-  fireEvent.click(option);
+  const select = screen.getByTestId("mock-select") as HTMLSelectElement;
+  fireEvent.change(select, { target: { value: value.toLowerCase() } });
 }
 
 describe("VariantSelector — Selection State", () => {
@@ -62,8 +87,6 @@ describe("VariantSelector — Selection State", () => {
         onVariantSelect={onSelect}
       />,
     );
-    // onVariantSelect may be called on mount with null (partial selection state)
-    // or not called at all until a selection is made — depends on component impl
     const hint = screen.getByText(/select all options/i);
     expect(hint).toBeTruthy();
   });
@@ -85,7 +108,7 @@ describe("VariantSelector — Selection State", () => {
     expect(hint).toBeTruthy();
   });
 
-  it("T041c — should call onVariantSelect with matching variant when all attributes selected", () => {
+  it("T041c — should call onVariantSelect with matching variant when all attributes selected", async () => {
     const onSelect = vi.fn();
     render(
       <VariantSelector
@@ -99,16 +122,17 @@ describe("VariantSelector — Selection State", () => {
     clickSwatch("Red");
     selectDropdown("Size", "m");
 
-    // After both selections, onVariantSelect should be called with variant v2 (Red/M)
-    const calls = onSelect.mock.calls;
-    const lastCall = calls[calls.length - 1];
-    expect(lastCall[0]).not.toBeNull();
-    expect(lastCall[0].id).toBe("v2");
+    await waitFor(() => {
+      const calls = onSelect.mock.calls;
+      const lastCall = calls[calls.length - 1];
+      expect(lastCall[0]).not.toBeNull();
+      expect(lastCall[0].id).toBe("v2");
+    });
   });
 });
 
 describe("VariantSelector — Out of Stock Behavior", () => {
-  it("T041d — should show correct price for out-of-stock variant but still indicate stock status", () => {
+  it("T041d — should show correct price for out-of-stock variant but still indicate stock status", async () => {
     const onSelect = vi.fn();
     render(
       <VariantSelector
@@ -122,15 +146,16 @@ describe("VariantSelector — Out of Stock Behavior", () => {
     clickSwatch("Red");
     selectDropdown("Size", "l");
 
-    // Red/L has stockCount=0
-    const calls = onSelect.mock.calls;
-    const lastCall = calls[calls.length - 1];
-    expect(lastCall[0]).not.toBeNull();
-    expect(lastCall[0].id).toBe("v3");
-    expect(lastCall[0].stockCount).toBe(0);
+    await waitFor(() => {
+      const calls = onSelect.mock.calls;
+      const lastCall = calls[calls.length - 1];
+      expect(lastCall[0]).not.toBeNull();
+      expect(lastCall[0].id).toBe("v3");
+      expect(lastCall[0].stockCount).toBe(0);
+    });
   });
 
-  it("T041e — should call onVariantSelect with null for deactivated (isActive=false) variant", () => {
+  it("T041e — should call onVariantSelect with null for deactivated (isActive=false) variant", async () => {
     const onSelect = vi.fn();
     render(
       <VariantSelector
@@ -144,16 +169,16 @@ describe("VariantSelector — Out of Stock Behavior", () => {
     clickSwatch("Blue");
     selectDropdown("Size", "m");
 
-    // Blue/M is isActive=false — should return null or not be findable
-    const calls = onSelect.mock.calls;
-    const lastCall = calls[calls.length - 1];
-    // Should either be null or not exist (component may skip calling for inactive)
-    expect(lastCall[0]).toBeNull();
+    await waitFor(() => {
+      const calls = onSelect.mock.calls;
+      const lastCall = calls[calls.length - 1];
+      expect(lastCall[0]).toBeNull();
+    });
   });
 });
 
 describe("VariantSelector — US4 Stock Display (T050-T051)", () => {
-  it("T050a — should show 'Out of Stock' when selected variant has stockCount 0", () => {
+  it("T050a — should show 'Out of Stock' when selected variant has stockCount 0", async () => {
     const onSelect = vi.fn();
     render(
       <VariantSelector
@@ -167,11 +192,12 @@ describe("VariantSelector — US4 Stock Display (T050-T051)", () => {
     clickSwatch("Red");
     selectDropdown("Size", "l");
 
-    // Red/L has stockCount=0
-    expect(screen.getByText(/Out of Stock/i)).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByText(/Out of Stock/i)).toBeTruthy();
+    });
   });
 
-  it("T050b — should show 'Out of Stock' and not 'In Stock' for zero-stock variant", () => {
+  it("T050b — should show 'Out of Stock' and not 'In Stock' for zero-stock variant", async () => {
     const onSelect = vi.fn();
     render(
       <VariantSelector
@@ -185,11 +211,13 @@ describe("VariantSelector — US4 Stock Display (T050-T051)", () => {
     clickSwatch("Red");
     selectDropdown("Size", "l");
 
-    expect(screen.queryByText(/In Stock/i)).toBeNull();
-    expect(screen.getByText(/Out of Stock/i)).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.queryByText(/In Stock/i)).toBeNull();
+      expect(screen.getByText(/Out of Stock/i)).toBeTruthy();
+    });
   });
 
-  it("T051a — should show 'In Stock' when selected variant has stockCount > 0", () => {
+  it("T051a — should show 'In Stock' when selected variant has stockCount > 0", async () => {
     const onSelect = vi.fn();
     render(
       <VariantSelector
@@ -203,12 +231,13 @@ describe("VariantSelector — US4 Stock Display (T050-T051)", () => {
     clickSwatch("Red");
     selectDropdown("Size", "s");
 
-    // Red/S has stockCount=5
-    expect(screen.getByText(/In Stock/i)).toBeTruthy();
-    expect(screen.queryByText(/Out of Stock/i)).toBeNull();
+    await waitFor(() => {
+      expect(screen.getByText(/In Stock/i)).toBeTruthy();
+      expect(screen.queryByText(/Out of Stock/i)).toBeNull();
+    });
   });
 
-  it("T051b — should show low stock count when stockCount is between 1 and 10", () => {
+  it("T051b — should show low stock count when stockCount is between 1 and 10", async () => {
     const onSelect = vi.fn();
     render(
       <VariantSelector
@@ -222,11 +251,12 @@ describe("VariantSelector — US4 Stock Display (T050-T051)", () => {
     clickSwatch("Red");
     selectDropdown("Size", "s");
 
-    // Red/S has stockCount=5 (≤10) — should show "Only 5 left"
-    expect(screen.getByText(/Only 5 left/i)).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByText(/Only 5 left/i)).toBeTruthy();
+    });
   });
 
-  it("T051c — should show low stock count when stockCount is between 1 and 10", () => {
+  it("T051c — should show low stock count when stockCount is between 1 and 10", async () => {
     const onSelect = vi.fn();
     render(
       <VariantSelector
@@ -240,13 +270,14 @@ describe("VariantSelector — US4 Stock Display (T050-T051)", () => {
     clickSwatch("Blue");
     selectDropdown("Size", "l");
 
-    // Blue/L has stockCount=4 (≤ 10) — should show "Only 4 left"
-    expect(screen.getByText(/Only 4 left/i)).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByText(/Only 4 left/i)).toBeTruthy();
+    });
   });
 });
 
 describe("VariantSelector — Price Display", () => {
-  it("T041f — should call onVariantSelect with correct price when all attributes selected", () => {
+  it("T041f — should call onVariantSelect with correct price when all attributes selected", async () => {
     const onSelect = vi.fn();
     render(
       <VariantSelector
@@ -260,11 +291,12 @@ describe("VariantSelector — Price Display", () => {
     clickSwatch("Red");
     selectDropdown("Size", "m");
 
-    // Red/M has pricePaisa=10000 = 100.00
-    const calls = onSelect.mock.calls;
-    const lastCall = calls[calls.length - 1];
-    expect(lastCall[0]).not.toBeNull();
-    expect(lastCall[0].pricePaisa).toBe(10000);
+    await waitFor(() => {
+      const calls = onSelect.mock.calls;
+      const lastCall = calls[calls.length - 1];
+      expect(lastCall[0]).not.toBeNull();
+      expect(lastCall[0].pricePaisa).toBe(10000);
+    });
   });
 
   it("T041g — should show base price display when no variant selected", () => {
@@ -278,8 +310,6 @@ describe("VariantSelector — Price Display", () => {
       />,
     );
 
-    // The price 100.00 (from basePricePaisa=10000) should appear in the rendered output.
-    // Use getAllByText and check at least one matches to avoid multiple-element error.
     const priceElements = screen.getAllByText(/100\.00/);
     expect(priceElements.length).toBeGreaterThan(0);
   });

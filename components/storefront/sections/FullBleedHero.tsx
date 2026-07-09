@@ -1,7 +1,7 @@
 import React from "react"
 import Link from "next/link"
 import { HeroContent } from "@/lib/storefront-sections/types"
-import { Button } from "@/components/ui/primitives/Button"
+import { Button } from "@/components/ui/button"
 
 export function FullBleedHero({ content }: { content: HeroContent }) {
   const { title, subtitle, buttonText, buttonLink, imageUrl, overlayOpacity = 50 } = content

@@ -5,18 +5,16 @@ import type { AttributeInput } from "@/lib/validations/variants";
 import { Plus, X, MoreVertical, Trash2, Palette, List, Circle } from "lucide-react";
 import { DeleteAttributeDialog } from "@/components/dashboard/product-variant-editor/DeleteAttributeDialog";
 import { RemoveOptionDialog } from "@/components/dashboard/attribute-editor/RemoveOptionDialog";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 interface AttributeEditorProps {
   attributes: AttributeInput[];
   onChange: (attributes: AttributeInput[]) => void;
   disabled?: boolean;
-  /** Estimated number of existing variants. Used for warning dialogs. */
   estimatedExistingVariants?: number;
 }
-
-// ─── Constants ───────────────────────────────────────────────────────────────
 
 const MAX_ATTRIBUTES = 3;
 const MAX_OPTIONS = 10;
@@ -26,8 +24,6 @@ const DISPLAY_TYPES = [
   { value: "swatch" as const, label: "Color Swatch", icon: Palette },
   { value: "radio" as const, label: "Radio Buttons", icon: Circle },
 ] as const;
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
 
 function slugify(text: string): string {
   return text
@@ -44,10 +40,6 @@ function estimateVariantCount(attributes: AttributeInput[]): number {
   }, attributes.length > 0 ? 1 : 0);
 }
 
-/**
- * Estimates how many variants include a specific option, based on a naive
- * combinatorial model. Used for the RemoveOptionDialog warning.
- */
 function estimateOptionVariantCount(
   attributes: AttributeInput[],
   attrIndex: number,
@@ -94,7 +86,7 @@ function ThreeDotMenu({
         type="button"
         onClick={() => setOpen(!open)}
         disabled={disabled}
-        className="rounded-full p-1.5 text-shade-40 hover:bg-canvas-cream hover:text-ink transition-colors disabled:opacity-50"
+        className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-50 border-none bg-transparent cursor-pointer"
         aria-label="Attribute options"
         aria-haspopup="true"
         aria-expanded={open}
@@ -104,11 +96,10 @@ function ThreeDotMenu({
 
       {open && (
         <div
-          className="absolute right-0 top-full mt-1 z-20 w-44 rounded-lg border border-hairline-light bg-canvas-light py-1"
+          className="absolute right-0 top-full mt-1 z-20 w-44 rounded-lg border border-border bg-popover py-1 shadow-md"
           role="menu"
         >
-          {/* Display Type submenu */}
-          <div className="px-3 py-1.5 text-micro text-shade-40 font-medium uppercase tracking-wider">
+          <div className="px-3 py-1.5 text-xs text-muted-foreground font-semibold uppercase tracking-wider">
             Display Type
           </div>
           {DISPLAY_TYPES.map((dt) => {
@@ -123,22 +114,22 @@ function ThreeDotMenu({
                   onDisplayTypeChange(dt.value);
                   setOpen(false);
                 }}
-                className={`flex w-full items-center gap-2 px-3 py-1.5 text-caption transition-colors ${
+                className={cn(
+                  "flex w-full items-center gap-2 px-3 py-1.5 text-sm transition-colors cursor-pointer border-none",
                   isActive
-                    ? "bg-primary/10 text-ink font-medium"
-                    : "text-shade-60 hover:bg-canvas-cream"
-                }`}
+                    ? "bg-primary/10 text-foreground font-semibold"
+                    : "text-muted-foreground hover:bg-muted"
+                )}
               >
                 <Icon className="h-3.5 w-3.5" />
                 <span>{dt.label}</span>
-                {isActive && <span className="ml-auto text-primary">✓</span>}
+                {isActive && <span className="ml-auto text-primary font-bold">✓</span>}
               </button>
             );
           })}
 
-          <div className="my-1 border-t border-hairline-light" />
+          <div className="my-1 border-t border-border" />
 
-          {/* Delete */}
           <button
             type="button"
             role="menuitem"
@@ -146,7 +137,7 @@ function ThreeDotMenu({
               onDelete();
               setOpen(false);
             }}
-            className="flex w-full items-center gap-2 px-3 py-1.5 text-caption text-red-500 hover:bg-red-50 transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-destructive hover:bg-destructive/10 transition-colors cursor-pointer border-none"
           >
             <Trash2 className="h-3.5 w-3.5" />
             <span>Delete Attribute</span>
@@ -187,7 +178,6 @@ function TagInput({
         setValidationError(`Option value must be ${MAX_OPTION_LENGTH} characters or fewer.`);
         return;
       }
-      // Prevent duplicates
       if (options.some((o) => o.label.toLowerCase() === trimmed.toLowerCase())) {
         setValidationError(`"${trimmed}" already exists.`);
         return;
@@ -205,11 +195,9 @@ function TagInput({
         e.preventDefault();
         commitTag(input);
       } else if (e.key === "Backspace" && input === "" && options.length > 0) {
-        // Backspace on empty input removes last chip
         e.preventDefault();
         onRemoveOption(options.length - 1);
       } else {
-        // Clear validation on any other keypress
         if (validationError) setValidationError(null);
       }
     },
@@ -228,20 +216,20 @@ function TagInput({
 
   return (
     <div
-      className={`flex flex-wrap items-center gap-1.5 rounded-lg border px-2.5 py-2 min-h-[42px] transition-colors ${
+      className={cn(
+        "flex flex-wrap items-center gap-1.5 rounded-lg border px-2.5 py-1.5 min-h-[42px] transition-colors cursor-text text-foreground",
         disabled
-          ? "border-hairline-light bg-canvas-cream/50 cursor-not-allowed"
+          ? "border-border bg-muted/50 cursor-not-allowed"
           : validationError
-            ? "border-red-400 bg-red-50/30"
-            : "border-hairline-light bg-canvas-light focus-within:border-shade-40 focus-within:ring-1 focus-within:ring-shade-30"
-      }`}
+            ? "border-destructive bg-destructive/10"
+            : "border-border bg-card focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/45"
+      )}
       onClick={() => inputRef.current?.focus()}
     >
-      {/* Existing chips */}
       {options.map((opt, i) => (
         <span
           key={i}
-          className="inline-flex items-center gap-1.5 rounded-md border border-shade-30/60 bg-gradient-to-b from-canvas-cream to-canvas-cream/80 px-2.5 py-1 text-micro font-medium text-ink"
+          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted px-2.5 py-1 text-xs font-semibold"
         >
           <span
             className="h-1.5 w-1.5 rounded-full shrink-0"
@@ -257,7 +245,7 @@ function TagInput({
                 e.stopPropagation();
                 onRemoveOption(i);
               }}
-              className="ml-0.5 rounded p-0.5 text-shade-40 opacity-60 hover:opacity-100 hover:text-red-500 hover:bg-red-50 transition-all"
+              className="ml-0.5 rounded p-0.5 text-muted-foreground opacity-60 hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all border-none bg-transparent cursor-pointer"
               aria-label={`Remove ${opt.label}`}
             >
               <X className="h-3 w-3" />
@@ -266,7 +254,6 @@ function TagInput({
         </span>
       ))}
 
-      {/* Input field */}
       {canAdd && (
         <input
           ref={inputRef}
@@ -276,21 +263,20 @@ function TagInput({
           onKeyDown={handleKeyDown}
           placeholder={options.length === 0 ? "Type and press Enter..." : "Add more..."}
           disabled={disabled}
-          className="min-w-[80px] flex-1 border-0 bg-transparent py-1 text-body-md text-ink placeholder:text-shade-40 focus:outline-none"
+          className="min-w-[80px] flex-1 border-none bg-transparent py-1 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
         />
       )}
 
-      {/* Count badge */}
-      <span className="inline-flex items-center gap-1 rounded-md border border-hairline-light bg-canvas-cream px-2 py-0.5 text-micro text-shade-50 font-medium ml-auto shrink-0">
-        <span className={`h-1.5 w-1.5 rounded-full ${
+      <span className="inline-flex items-center gap-1 rounded-md border border-border bg-muted px-2 py-0.5 text-[10px] text-muted-foreground font-semibold ml-auto shrink-0 select-none">
+        <span className={cn(
+          "h-1.5 w-1.5 rounded-full",
           options.length >= MAX_OPTIONS ? "bg-amber-500" : "bg-primary/60"
-        }`} />
+        )} />
         {options.length}/{MAX_OPTIONS}
       </span>
 
-      {/* Validation error */}
       {validationError && (
-        <div className="w-full text-micro text-red-500 mt-0.5">
+        <div className="w-full text-xs text-destructive mt-1 font-semibold">
           {validationError}
         </div>
       )}
@@ -318,8 +304,8 @@ function AttributeRow({
   const rowId = useId();
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-2 rounded-lg border border-hairline-light bg-canvas-light p-3">
-      {/* Three-dot Menu — first on mobile (top-right), last on desktop (vertically centered) */}
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2 rounded-xl border border-border bg-card p-3 text-foreground">
+      {/* Three-dot Menu */}
       <div className="order-first sm:order-last self-end sm:self-center">
         <ThreeDotMenu
           onDelete={() => onDelete(attrIndex)}
@@ -331,21 +317,21 @@ function AttributeRow({
 
       {/* Attribute Name Input */}
       <div className="w-full sm:w-[200px] shrink-0">
-        <label className="sm:hidden text-micro text-shade-40 mb-1 block">Attribute Name</label>
-        <input
+        <label className="sm:hidden text-xs text-muted-foreground mb-1 block">Attribute Name</label>
+        <Input
           id={`${rowId}-name`}
           type="text"
           value={attr.name}
           onChange={(e) => onUpdate(attrIndex, "name", e.target.value)}
           placeholder="e.g. Color"
           disabled={disabled}
-          className="w-full rounded-md border border-hairline-light bg-canvas-light px-3 py-2 text-body-md text-ink placeholder:text-shade-40 transition-colors focus:border-ink focus:outline-none"
+          className="w-full"
         />
       </div>
 
       {/* Tag Input */}
       <div className="flex-1 min-w-0">
-        <label className="sm:hidden text-micro text-shade-40 mb-1 block">Options</label>
+        <label className="sm:hidden text-xs text-muted-foreground mb-1 block">Options</label>
         <TagInput
           options={attr.options}
           onAddOption={(label, value) => {
@@ -373,14 +359,11 @@ export function AttributeEditor({
   const variantCount = useMemo(() => estimateVariantCount(attributes), [attributes]);
   const canAddAttribute = attributes.length < MAX_ATTRIBUTES && !disabled;
 
-  // ── Dialog state ───────────────────────────────────────────────────────────
   const [pendingDeleteAttr, setPendingDeleteAttr] = useState<number | null>(null);
   const [pendingRemoveOption, setPendingRemoveOption] = useState<{
     attrIndex: number;
     optIndex: number;
   } | null>(null);
-
-  // ── Attribute CRUD ─────────────────────────────────────────────────────────
 
   const addAttribute = useCallback(() => {
     if (!canAddAttribute) return;
@@ -403,10 +386,8 @@ export function AttributeEditor({
     [attributes, onChange],
   );
 
-  /** Intercept deletion — show warning dialog first */
   const requestDeleteAttribute = useCallback(
     (attrIndex: number) => {
-      // If attribute has no options, delete immediately without dialog
       if (attributes[attrIndex]?.options.length === 0) {
         onChange(attributes.filter((_, i) => i !== attrIndex));
         return;
@@ -423,10 +404,8 @@ export function AttributeEditor({
     }
   }, [attributes, onChange, pendingDeleteAttr]);
 
-  /** Intercept option removal — show warning dialog first */
   const requestRemoveOption = useCallback(
     (attrIndex: number, optIndex: number) => {
-      // If there are no existing variants (fresh editor), skip dialog
       if (!estimatedExistingVariants || estimatedExistingVariants === 0) {
         const updated = [...attributes];
         updated[attrIndex] = {
@@ -454,8 +433,6 @@ export function AttributeEditor({
     }
   }, [attributes, onChange, pendingRemoveOption]);
 
-  // ── Dialog computed data ───────────────────────────────────────────────────
-
   const pendingDeleteAttrData = pendingDeleteAttr !== null
     ? attributes[pendingDeleteAttr]
     : null;
@@ -477,26 +454,26 @@ export function AttributeEditor({
     : 0;
 
   return (
-    <div className="space-y-3" role="region" aria-label="Product attribute editor">
+    <div className="space-y-3 text-foreground" role="region" aria-label="Product attribute editor">
       {/* Empty State */}
       {attributes.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-hairline-light bg-canvas-cream/30 p-8 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-canvas-cream">
-            <Plus className="h-5 w-5 text-shade-50" />
+        <div className="rounded-xl border-2 border-dashed border-border bg-muted/20 p-8 text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+            <Plus className="h-5 w-5 text-muted-foreground" />
           </div>
-          <h4 className="text-body-strong text-ink mb-1">No attributes yet</h4>
-          <p className="text-caption text-shade-50 mb-4 max-w-xs mx-auto">
+          <h4 className="text-base font-semibold text-foreground mb-1">No attributes yet</h4>
+          <p className="text-xs text-muted-foreground mb-4 max-w-xs mx-auto">
             Add attributes like Color, Size, or Material. Each attribute&apos;s options are combined to create unique variants.
           </p>
-          <button
+          <Button
             type="button"
             onClick={addAttribute}
             disabled={!canAddAttribute}
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-body-md text-on-primary hover:bg-shade-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
             <span>Add Attribute</span>
-          </button>
+          </Button>
         </div>
       ) : (
         <>
@@ -518,13 +495,14 @@ export function AttributeEditor({
           {/* Variant count indicator */}
           {variantCount > 0 && (
             <div
-              className={`rounded-lg px-3 py-2 text-caption ${
+              className={cn(
+                "rounded-lg px-3 py-2 text-xs font-semibold",
                 variantCount > 1000
-                  ? "bg-red-50 text-red-600"
+                  ? "bg-destructive/10 text-destructive"
                   : variantCount > 100
-                    ? "bg-amber-50 text-amber-700"
-                    : "bg-aloe-10/50 text-shade-60"
-              }`}
+                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-500"
+                    : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+              )}
               role="status"
               aria-live="polite"
             >
@@ -538,22 +516,21 @@ export function AttributeEditor({
 
           {/* Add Attribute button */}
           {canAddAttribute && (
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={addAttribute}
-              className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-hairline-light px-4 py-2 text-caption text-shade-50 hover:border-shade-40 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 transition-colors w-full justify-center"
+              className="w-full justify-center border-dashed flex items-center gap-1.5 rounded-full"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Add {attributes.length >= MAX_ATTRIBUTES ? "" : "Another Attribute"}</span>
-              <span className="text-micro text-shade-40 ml-1">
+              <span className="text-xs text-muted-foreground ml-1">
                 ({MAX_ATTRIBUTES - attributes.length} left)
               </span>
-            </button>
+            </Button>
           )}
         </>
       )}
-
-      {/* ── Warning Dialogs ────────────────────────────────────────────────────── */}
 
       <DeleteAttributeDialog
         open={pendingDeleteAttr !== null}

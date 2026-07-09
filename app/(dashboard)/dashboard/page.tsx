@@ -2,7 +2,8 @@ import React from "react"
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth/auth"
 import { getMerchantByOwnerId } from "@/db/queries/merchants"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { buttonVariants } from "@/components/ui/button"
 import {
   Store,
   ShoppingBag,
@@ -17,6 +18,7 @@ import { orders, products, paymentConfirmations, shippingZones } from "@/db/sche
 import { eq, and, isNull, sum, count, ne, exists, or, inArray } from "drizzle-orm"
 import { DashboardChecklist } from "@/components/dashboard/DashboardChecklist"
 import { Suspense } from "react"
+import { cn } from "@/lib/utils"
 
 export default function DashboardPage() {
   return (
@@ -127,21 +129,24 @@ async function DashboardPageContent() {
   const isTrial = merchant?.subscriptionStatus === "trial"
 
   return (
-    <div className="flex flex-col gap-8 animate-fade-in text-ink select-text">
+    <div className="flex flex-col gap-8 animate-fade-in text-foreground select-text">
       {/* Dynamic Header Greeting */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4.5 border-b border-hairline-light">
-        <div className="flex flex-col gap-1.5">
-          <span className="text-micro font-bold text-shade-40 uppercase tracking-wider">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
             {currentDate}
           </span>
-          <h1 className="font-display text-display-md tracking-tight font-semibold leading-tight">
+          <h1 className="text-3xl font-bold tracking-tight leading-tight">
             Welcome back, {session?.user?.name || "Merchant"}
           </h1>
         </div>
 
         <Link
           href="/dashboard/products/new"
-          className="inline-flex w-full md:w-fit items-center justify-center font-sans font-semibold rounded-full bg-primary text-on-primary hover:bg-shade-70 active:bg-shade-70 py-2.5 px-6 text-caption transition-all duration-200 self-start md:self-center gap-2 cursor-pointer select-none"
+          className={cn(
+            buttonVariants({ variant: "default" }),
+            "inline-flex w-full md:w-fit items-center justify-center rounded-md font-semibold py-2.5 px-6 text-sm gap-2"
+          )}
         >
           <Plus className="h-4 w-4 stroke-[3]" />
           Add Product
@@ -151,19 +156,19 @@ async function DashboardPageContent() {
       {/* Premium Statistics Bento Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Bento Card 1: Total Sales */}
-        <Card className="border border-hairline-light bg-canvas-light p-6 flex flex-col justify-between rounded-2xl min-h-[160px] hover:border-shade-40 transition-colors duration-300">
+        <Card className="border border-border bg-card p-6 flex flex-col justify-between rounded-xl min-h-[160px] hover:border-muted-foreground/50 transition-colors duration-300">
           <div className="flex justify-between items-start">
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-bold text-shade-45 uppercase tracking-wider">Total Sales</span>
-              <span className="text-display-sm font-bold font-display text-ink leading-tight">
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Total Sales</span>
+              <span className="text-2xl font-bold text-foreground leading-tight">
                 ৳{totalSalesTaka.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
-            <div className="p-2.5 bg-zinc-50 text-shade-60 rounded-xl border border-hairline-light">
-              <ShoppingBag className="h-4.5 w-4.5" />
+            <div className="p-2.5 bg-muted text-muted-foreground rounded-lg border border-border">
+              <ShoppingBag className="h-4 w-4" />
             </div>
           </div>
-          <span className="text-micro text-shade-40 font-light mt-4">
+          <span className="text-xs text-muted-foreground font-light mt-4">
             {totalSalesTaka > 0
               ? "Accumulated confirmed revenue."
               : isTrial
@@ -173,36 +178,36 @@ async function DashboardPageContent() {
         </Card>
 
         {/* Bento Card 2: Active Products */}
-        <Card className="border border-hairline-light bg-canvas-light p-6 flex flex-col justify-between rounded-2xl min-h-[160px] hover:border-shade-40 transition-colors duration-300">
+        <Card className="border border-border bg-card p-6 flex flex-col justify-between rounded-xl min-h-[160px] hover:border-muted-foreground/50 transition-colors duration-300">
           <div className="flex justify-between items-start">
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-bold text-shade-45 uppercase tracking-wider">Active Products</span>
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Active Products</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-display-sm font-bold font-display text-ink leading-tight">{activeProductsCount}</span>
+                <span className="text-2xl font-bold text-foreground leading-tight">{activeProductsCount}</span>
                 {merchant?.plan === "starter" && (
-                  <span className="text-caption text-shade-45 font-medium">/ 50 limit</span>
+                  <span className="text-sm text-muted-foreground font-medium">/ 50 limit</span>
                 )}
               </div>
             </div>
-            <div className="p-2.5 bg-zinc-50 text-shade-60 rounded-xl border border-hairline-light">
-              <Store className="h-4.5 w-4.5" />
+            <div className="p-2.5 bg-muted text-muted-foreground rounded-lg border border-border">
+              <Store className="h-4 w-4" />
             </div>
           </div>
           <div className="flex flex-col gap-2 mt-4">
             {merchant?.plan === "starter" ? (
               <>
-                <div className="h-1.5 w-full bg-zinc-100 rounded-full overflow-hidden">
+                <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-emerald-700 rounded-full transition-all duration-300"
+                    className="h-full bg-primary rounded-full transition-all duration-300"
                     style={{ width: `${Math.min((activeProductsCount / 50) * 100, 100)}%` }}
                   />
                 </div>
-                <span className="text-micro text-shade-40 font-light">
+                <span className="text-xs text-muted-foreground font-light">
                   Starter Plan limits: 50 active products
                 </span>
               </>
             ) : (
-              <span className="text-micro text-shade-40 font-light">
+              <span className="text-xs text-muted-foreground font-light">
                 Growth Plan: Unlimited catalog listings
               </span>
             )}
@@ -210,21 +215,21 @@ async function DashboardPageContent() {
         </Card>
 
         {/* Bento Card 3: Active Orders */}
-        <Card className="border border-hairline-light bg-canvas-light p-6 flex flex-col justify-between rounded-2xl min-h-[160px] hover:border-shade-40 transition-colors duration-300">
+        <Card className="border border-border bg-card p-6 flex flex-col justify-between rounded-xl min-h-[160px] hover:border-muted-foreground/50 transition-colors duration-300">
           <div className="flex justify-between items-start">
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[10px] font-bold text-shade-45 uppercase tracking-wider">Active Orders</span>
-              <span className="text-display-sm font-bold font-display text-ink leading-tight">{activeOrdersCount}</span>
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Active Orders</span>
+              <span className="text-2xl font-bold text-foreground leading-tight">{activeOrdersCount}</span>
             </div>
-            <div className="p-2.5 bg-zinc-50 text-shade-60 rounded-xl border border-hairline-light">
-              <Tag className="h-4.5 w-4.5" />
+            <div className="p-2.5 bg-muted text-muted-foreground rounded-lg border border-border">
+              <Tag className="h-4 w-4" />
             </div>
           </div>
-          <div className="flex items-center gap-2 mt-4 text-micro text-shade-45">
-            <span className="px-2.5 py-0.5 rounded-full bg-canvas-cream border border-hairline-light font-semibold">
+          <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
+            <span className="px-2.5 py-0.5 rounded-full bg-muted border border-border font-semibold">
               Pending: {pendingOrdersCount}
             </span>
-            <span className="px-2.5 py-0.5 rounded-full bg-zinc-50 border border-hairline-light font-semibold">
+            <span className="px-2.5 py-0.5 rounded-full bg-muted border border-border font-semibold">
               Completed: {completedOrdersCount}
             </span>
           </div>
@@ -245,42 +250,42 @@ async function DashboardPageContent() {
 
         {/* Right Column: Storefront Information */}
         <div className="lg:col-span-5 flex flex-col gap-4" id="storefront-url">
-          <h2 className="text-heading-lg font-display font-semibold text-ink leading-snug">
+          <h2 className="text-xl font-bold text-foreground leading-snug">
             Storefront URL
           </h2>
-          <Card className="border border-hairline-light bg-canvas-light p-6 flex flex-col gap-5 justify-between rounded-2xl min-h-[280px]">
+          <Card className="border border-border bg-card p-6 flex flex-col gap-5 justify-between rounded-xl min-h-[280px]">
             <div className="flex flex-col gap-4">
-              <div className="w-12 h-12 rounded-xl bg-zinc-50 flex items-center justify-center border border-hairline-light">
-                <Globe className="h-6 w-6 text-shade-60" />
+              <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center border border-border">
+                <Globe className="h-6 w-6 text-muted-foreground" />
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[10px] font-bold text-shade-40 uppercase tracking-wider">Live Subdomain URL</span>
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Live Subdomain URL</span>
                 {merchant ? (
                   <div className="flex flex-col gap-2">
                     <a
                       href={`http://${merchant.subdomain}.localhost:3000`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-body-lg font-semibold text-primary hover:underline break-all inline-flex items-center gap-1.5 group select-all"
+                      className="text-lg font-semibold text-primary hover:underline break-all inline-flex items-center gap-1.5 group select-all"
                     >
                       {merchant.subdomain}.shopnest.com.bd
                       <ExternalLink className="h-4 w-4 stroke-[2.5] opacity-60 group-hover:opacity-100 transition-opacity shrink-0" />
                     </a>
-                    <span className="text-caption text-shade-50 font-light leading-relaxed">
+                    <span className="text-sm text-muted-foreground font-light leading-relaxed">
                       Copy this URL to share in your Facebook Page about section, Instagram bio, posts, and DMs.
                     </span>
                   </div>
                 ) : (
-                  <span className="text-body-md text-red-500 font-medium">Not configured.</span>
+                  <span className="text-sm text-destructive font-medium">Not configured.</span>
                 )}
               </div>
             </div>
 
-            <div className="border-t border-hairline-light pt-5 flex items-center justify-between gap-4 mt-auto">
+            <div className="border-t border-border pt-5 flex items-center justify-between gap-4 mt-auto">
               <div className="flex flex-col gap-0.5">
-                <span className="text-[9px] font-bold text-shade-40 uppercase tracking-wider">Subscription Plan</span>
-                <span className="text-caption font-bold text-ink">
+                <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Subscription Plan</span>
+                <span className="text-sm font-bold text-foreground">
                   {merchant?.plan === "growth"
                     ? "Growth"
                     : merchant?.subscriptionStatus === "trial"
@@ -288,11 +293,12 @@ async function DashboardPageContent() {
                       : "Starter"}
                 </span>
               </div>
-              <span className={`text-[10px] font-bold rounded-full px-3 py-1 border uppercase tracking-wider select-none ${
+              <span className={cn(
+                "text-[10px] font-bold rounded-full px-3 py-1 border uppercase tracking-wider select-none",
                 merchant?.subscriptionStatus === "active" || merchant?.subscriptionStatus === "trial"
-                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                  : "bg-red-50 text-red-800 border-red-200"
-              }`}>
+                  ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20"
+                  : "bg-destructive/10 text-destructive border-destructive/20"
+              )}>
                 {merchant?.subscriptionStatus || "active"}
               </span>
             </div>
@@ -305,21 +311,21 @@ async function DashboardPageContent() {
 
 function DashboardPageSkeleton() {
   return (
-    <div className="flex flex-col gap-8 animate-pulse text-ink">
-      <div className="flex flex-col gap-2 border-b border-hairline-light pb-6 mt-4">
-        <div className="h-4 w-32 bg-shade-30 rounded-full" />
-        <div className="h-8 w-64 bg-shade-30 rounded-full mt-1" />
+    <div className="flex flex-col gap-8 animate-pulse text-foreground">
+      <div className="flex flex-col gap-2 border-b border-border pb-6 mt-4">
+        <div className="h-4 w-32 bg-muted rounded-full" />
+        <div className="h-8 w-64 bg-muted rounded-full mt-1" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="h-36 bg-shade-30 rounded-2xl" />
-        <div className="h-36 bg-shade-30 rounded-2xl" />
-        <div className="h-36 bg-shade-30 rounded-2xl" />
+        <div className="h-36 bg-muted rounded-xl" />
+        <div className="h-36 bg-muted rounded-xl" />
+        <div className="h-36 bg-muted rounded-xl" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-7 h-80 bg-shade-30 rounded-2xl" />
-        <div className="lg:col-span-5 h-80 bg-shade-30 rounded-2xl" />
+        <div className="lg:col-span-7 h-80 bg-muted rounded-xl" />
+        <div className="lg:col-span-5 h-80 bg-muted rounded-xl" />
       </div>
     </div>
   )

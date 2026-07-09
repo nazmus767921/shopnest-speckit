@@ -1,7 +1,14 @@
 "use client";
 
-import { Dialog } from "@/components/ui/feedback/Dialog";
-import { Button } from "@/components/ui/primitives/Button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 type RemoveOptionDialogProps = {
   open: boolean;
@@ -19,33 +26,36 @@ export function RemoveOptionDialog({
   onConfirm,
 }: RemoveOptionDialogProps) {
   return (
-    <Dialog
-      isOpen={open}
-      onClose={() => onOpenChange(false)}
-      title="Remove Option"
-      description={`Removing "${optionLabel}" will delete ${variantCount} variant${variantCount !== 1 ? "s" : ""} with custom pricing.`}
-    >
-      <div className="flex flex-col gap-2 text-sm text-shade-40">
-        <p>
-          All variants that include &ldquo;{optionLabel}&rdquo; will be
-          permanently deleted. Active carts referencing these variants will
-          show them as &ldquo;No longer available.&rdquo;
-        </p>
-      </div>
-      <div className="flex justify-end gap-3 mt-2">
-        <Button variant="secondary" onClick={() => onOpenChange(false)}>
-          Cancel
-        </Button>
-        <Button
-          variant="primary"
-          onClick={() => {
-            onConfirm();
-            onOpenChange(false);
-          }}
-        >
-          Remove
-        </Button>
-      </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Remove Option</DialogTitle>
+          <DialogDescription>
+            Removing &ldquo;{optionLabel}&rdquo; will delete {variantCount} variant{variantCount !== 1 ? "s" : ""} with custom pricing.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+          <p>
+            All variants that include &ldquo;{optionLabel}&rdquo; will be
+            permanently deleted. Active carts referencing these variants will
+            show them as &ldquo;No longer available.&rdquo;
+          </p>
+        </div>
+        <DialogFooter className="flex justify-end gap-3 mt-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              onConfirm();
+              onOpenChange(false);
+            }}
+          >
+            Remove
+          </Button>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   );
 }

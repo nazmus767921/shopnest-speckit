@@ -2,12 +2,12 @@
 
 import React, { useState } from "react"
 import { LayoutTemplate, Edit2, CheckCircle2, AlertCircle, X, Check, Star } from "lucide-react"
-import { Button } from "@/components/ui/primitives/Button"
-import { Input } from "@/components/ui/primitives/Input"
-import { FormLabel } from "@/components/ui/primitives/FormLabel"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/layout/Card"
-import { Badge } from "@/components/ui/primitives/Badge"
-import { toast } from "@/components/ui/feedback/Toast"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label as FormLabel } from "@/components/ui/label"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
 import { updateTemplateAction, toggleTemplateActiveAction } from "@/app/actions/admin"
 import { useRouter } from "next/navigation"
 

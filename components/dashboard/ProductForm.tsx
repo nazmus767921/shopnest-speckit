@@ -8,18 +8,27 @@ import { productFormSchema } from "@/lib/validations/products"
 import { createProductAction, updateProductAction } from "@/app/actions/products"
 import { getCategoriesAction } from "@/app/actions/categories"
 import { useQuery } from "@tanstack/react-query"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label as FormLabel } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { CustomCombobox } from "@/components/ui/custom/combobox"
+import { UploadCloud, X, Loader2, ArrowLeft, ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import {
-  Button,
-  Input,
-  FormLabel,
-  Textarea,
-  Card,
-  Badge,
-  Combobox,
-} from "@/components/ui"
-import { UploadCloud, X, Loader2, ArrowLeft, Image as ImageIcon, ChevronLeft, ChevronRight, Plus } from "lucide-react"
-import { AlertDialog } from "@/components/ui/feedback/AlertDialog"
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 function getErrorMessage(error: any): string | null {
   if (!error) return null
@@ -68,7 +77,6 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
   const [isDragging, setIsDragging] = useState(false)
   const [errorAlert, setErrorAlert] = useState<{ title: string; message: string } | null>(null)
 
-  // Initialize images list (either from DB or empty)
   const [images, setImages] = useState<ImageItem[]>(() => {
     if (!initialData?.images) return []
     return initialData.images.map((img) => ({
@@ -78,7 +86,6 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
     }))
   })
 
-  // Fetch categories using TanStack Query
   const { data: categories = [] } = useQuery({
     queryKey: ["categories", merchantId],
     queryFn: async () => {
@@ -101,7 +108,6 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
     })
   }
 
-  // Set up form via @tanstack/react-form
   const form = useForm({
     defaultValues: {
       id: productId,
@@ -126,7 +132,6 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
         try {
           const finalImagePaths: string[] = []
 
-          // Upload new files to Supabase Storage
           for (const img of images) {
             if (img.file) {
               const fileExt = img.file.name.split(".").pop()
@@ -149,7 +154,6 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
             }
           }
 
-          // Build request payload
           const payload = {
             ...value,
             images: finalImagePaths,
@@ -277,17 +281,14 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
     <div className="flex flex-col gap-6">
       {!hideHeader && (
         <div className="flex items-center gap-4">
-          <Link
-            href="/dashboard/products"
-            className="p-2 border border-hairline-light rounded-full bg-canvas-light text-ink hover:bg-canvas-cream transition-colors duration-200"
-          >
+          <Button variant="outline" size="icon" className="rounded-full" render={<Link href="/dashboard/products" />}>
             <ArrowLeft className="h-4 w-4" />
-          </Link>
+          </Button>
           <div>
-            <h1 className="font-display text-heading-xl tracking-tight text-ink font-semibold leading-none">
+            <h1 className="text-2xl font-bold tracking-tight leading-none">
               {initialData ? "Edit Product" : "Add Product"}
             </h1>
-            <p className="text-caption text-shade-50 font-light mt-1">
+            <p className="text-sm text-muted-foreground font-light mt-1">
               {initialData ? "Manage and update product details" : "List a new boutique item on your storefront"}
             </p>
           </div>
@@ -295,12 +296,19 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
       )}
 
       {errorMsg && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-body-md rounded-md p-4 flex items-center justify-between">
-          <span>{errorMsg}</span>
-          <button onClick={() => setErrorMsg(null)} className="text-red-500 hover:text-red-700">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        <Alert variant="destructive">
+          <div className="flex items-center justify-between w-full">
+            <AlertDescription>{errorMsg}</AlertDescription>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setErrorMsg(null)}
+              className="h-auto w-auto p-1 hover:bg-transparent"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </Alert>
       )}
 
       <form
@@ -313,79 +321,27 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
       >
         {/* Left column: Details card */}
         <div className="lg:col-span-2 flex flex-col gap-6">
-          <Card className="p-6 border border-hairline-light bg-canvas-light flex flex-col gap-5 overflow-visible">
-            <h2 className="text-body-strong font-bold text-ink uppercase tracking-wider border-b border-hairline-light pb-3">
-              Basic Details
-            </h2>
-
-            {/* Product Name */}
-            <form.Field
-              name="name"
-              children={(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <FormLabel htmlFor={field.name}>Product Name *</FormLabel>
-                  <Input
-                    id={field.name}
-                    placeholder="e.g. Premium Cotton Kurti"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    error={field.state.meta.errors.length > 0}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <span className="text-caption text-red-500 font-medium mt-0.5">
-                      {getErrorMessage(field.state.meta.errors[0])}
-                    </span>
-                  )}
-                </div>
-              )}
-            />
-
-            {/* Description */}
-            <form.Field
-              name="description"
-              children={(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <FormLabel htmlFor={field.name}>Product Description</FormLabel>
-                  <Textarea
-                    id={field.name}
-                    placeholder="Provide descriptions including fabric, fit, styling notes..."
-                    rows={6}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    error={field.state.meta.errors.length > 0}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <span className="text-caption text-red-500 font-medium mt-0.5">
-                      {getErrorMessage(field.state.meta.errors[0])}
-                    </span>
-                  )}
-                </div>
-              )}
-            />
-
-            {/* Price and Stock Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {/* Price */}
+          <Card>
+            <CardHeader className="border-b border-border pb-3">
+              <CardTitle className="text-base font-semibold uppercase tracking-wider">Basic Details</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6 flex flex-col gap-5 overflow-visible">
+              {/* Product Name */}
               <form.Field
-                name="price"
+                name="name"
                 children={(field) => (
                   <div className="flex flex-col gap-1.5">
-                    <FormLabel htmlFor={field.name}>Price (BDT) *</FormLabel>
+                    <FormLabel htmlFor={field.name}>Product Name *</FormLabel>
                     <Input
                       id={field.name}
-                      type="number"
-                      step="1"
-                      placeholder="0"
-                      leftIcon="৳"
+                      placeholder="e.g. Premium Cotton Kurti"
                       value={field.state.value}
                       onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : 0)}
+                      onChange={(e) => field.handleChange(e.target.value)}
                       error={field.state.meta.errors.length > 0}
                     />
                     {field.state.meta.errors.length > 0 && (
-                      <span className="text-caption text-red-500 font-medium mt-0.5">
+                      <span className="text-xs text-destructive font-medium mt-0.5">
                         {getErrorMessage(field.state.meta.errors[0])}
                       </span>
                     )}
@@ -393,210 +349,263 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                 )}
               />
 
-              {/* Old Price */}
+              {/* Description */}
               <form.Field
-                name="compareAtPrice"
+                name="description"
                 children={(field) => (
                   <div className="flex flex-col gap-1.5">
-                    <FormLabel htmlFor={field.name}>Old Price (BDT)</FormLabel>
-                    <Input
+                    <FormLabel htmlFor={field.name}>Product Description</FormLabel>
+                    <Textarea
                       id={field.name}
-                      type="number"
-                      placeholder="e.g. 150"
-                      leftIcon="৳"
-                      value={field.state.value ?? ""}
+                      placeholder="Provide descriptions including fabric, fit, styling notes..."
+                      rows={6}
+                      value={field.state.value}
                       onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : null)}
+                      onChange={(e) => field.handleChange(e.target.value)}
                       error={field.state.meta.errors.length > 0}
                     />
-                    {field.state.meta.errors.length > 0 ? (
-                      <span className="text-caption text-red-500 font-medium mt-0.5">
+                    {field.state.meta.errors.length > 0 && (
+                      <span className="text-xs text-destructive font-medium mt-0.5">
                         {getErrorMessage(field.state.meta.errors[0])}
                       </span>
-                    ) : (
-                      <p className="text-caption text-shade-40">
-                        Optional comparison price.
-                      </p>
                     )}
                   </div>
                 )}
               />
 
-              {/* Stock count — managed per-variant when product has variants */}
-              {hasVariants ? (
-                <div className="flex flex-col gap-1.5">
-                  <FormLabel htmlFor="variant-stock">Stock Quantity</FormLabel>
-                  <Input
-                    id="variant-stock"
-                    type="number"
-                    disabled
-                    value={totalVariantStock}
-                    className="bg-shade-10 cursor-not-allowed opacity-75"
-                  />
-                  <p className="text-caption text-amber-600 dark:text-amber-500 font-medium mt-0.5">
-                    Stock is managed via variants
-                  </p>
-                </div>
-              ) : (
+              {/* Price and Stock Row */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {/* Price */}
                 <form.Field
-                  name="stockCount"
+                  name="price"
                   children={(field) => (
                     <div className="flex flex-col gap-1.5">
-                      <FormLabel htmlFor={field.name}>Stock Quantity *</FormLabel>
+                      <FormLabel htmlFor={field.name}>Price (BDT) *</FormLabel>
                       <Input
                         id={field.name}
                         type="number"
-                        placeholder="e.g. 100"
+                        step="1"
+                        placeholder="0"
+                        leftIcon="৳"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : 0)}
                         error={field.state.meta.errors.length > 0}
                       />
                       {field.state.meta.errors.length > 0 && (
-                        <span className="text-caption text-red-500 font-medium mt-0.5">
+                        <span className="text-xs text-destructive font-medium mt-0.5">
                           {getErrorMessage(field.state.meta.errors[0])}
                         </span>
                       )}
                     </div>
                   )}
                 />
-              )}
-            </div>
 
-            {/* Category selection */}
-            <form.Field
-              name="categoryId"
-              children={(field) => {
-                const selectedCategory = categories.find((cat) => cat.id === field.state.value) || null
-                return (
+                {/* Old Price */}
+                <form.Field
+                  name="compareAtPrice"
+                  children={(field) => (
+                    <div className="flex flex-col gap-1.5">
+                      <FormLabel htmlFor={field.name}>Old Price (BDT)</FormLabel>
+                      <Input
+                        id={field.name}
+                        type="number"
+                        placeholder="e.g. 150"
+                        leftIcon="৳"
+                        value={field.state.value ?? ""}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : null)}
+                        error={field.state.meta.errors.length > 0}
+                      />
+                      {field.state.meta.errors.length > 0 ? (
+                        <span className="text-xs text-destructive font-medium mt-0.5">
+                          {getErrorMessage(field.state.meta.errors[0])}
+                        </span>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          Optional comparison price.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
+
+                {/* Stock count */}
+                {hasVariants ? (
                   <div className="flex flex-col gap-1.5">
-                    <FormLabel>Category</FormLabel>
-                    <Combobox
-                      options={categories}
-                      value={selectedCategory}
-                      onChange={(val) => field.handleChange(val ? val.id : null)}
-                      getOptionLabel={(cat) => cat.name}
-                      getOptionValue={(cat) => cat.id}
-                      placeholder="Select a category..."
-                      searchPlaceholder="Search categories..."
-                      noOptionsMessage="No categories found."
+                    <FormLabel htmlFor="variant-stock">Stock Quantity</FormLabel>
+                    <Input
+                      id="variant-stock"
+                      type="number"
+                      disabled
+                      value={totalVariantStock}
+                      className="cursor-not-allowed opacity-75"
                     />
-                    {field.state.meta.errors.length > 0 && (
-                      <span className="text-caption text-red-500 font-medium">
-                        {getErrorMessage(field.state.meta.errors[0])}
-                      </span>
-                    )}
+                    <p className="text-xs text-amber-600 dark:text-amber-500 font-medium mt-0.5">
+                      Stock is managed via variants
+                    </p>
                   </div>
-                )
-              }}
-            />
+                ) : (
+                  <form.Field
+                    name="stockCount"
+                    children={(field) => (
+                      <div className="flex flex-col gap-1.5">
+                        <FormLabel htmlFor={field.name}>Stock Quantity *</FormLabel>
+                        <Input
+                          id={field.name}
+                          type="number"
+                          placeholder="e.g. 100"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : 0)}
+                          error={field.state.meta.errors.length > 0}
+                        />
+                        {field.state.meta.errors.length > 0 && (
+                          <span className="text-xs text-destructive font-medium mt-0.5">
+                            {getErrorMessage(field.state.meta.errors[0])}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  />
+                )}
+              </div>
+
+              {/* Category selection */}
+              <form.Field
+                name="categoryId"
+                children={(field) => {
+                  const selectedCategory = categories.find((cat) => cat.id === field.state.value) || null
+                  return (
+                    <div className="flex flex-col gap-1.5">
+                      <FormLabel>Category</FormLabel>
+                      <CustomCombobox
+                        value={field.state.value || ""}
+                        onValueChange={(val) => field.handleChange(val || null)}
+                        items={categories}
+                        getItemValue={(cat) => cat.id}
+                        getItemLabel={(cat) => cat.name}
+                        renderOption={(cat) => cat.name}
+                        placeholder="Select a category..."
+                        emptyTitle="No categories found."
+                      />
+                      {field.state.meta.errors.length > 0 && (
+                        <span className="text-xs text-destructive font-medium">
+                          {getErrorMessage(field.state.meta.errors[0])}
+                        </span>
+                      )}
+                    </div>
+                  )
+                }}
+              />
+            </CardContent>
           </Card>
         </div>
 
         {/* Right column: Images & Configuration */}
         <div className="flex flex-col gap-6">
           {/* Status & Alerts Card */}
-          <Card className="p-6 border border-hairline-light bg-canvas-light flex flex-col gap-5">
-            <h2 className="text-body-strong font-bold text-ink uppercase tracking-wider border-b border-hairline-light pb-3">
-              Storefront Status
-            </h2>
-
-            {/* Publish state */}
-            <form.Field
-              name="isPublished"
-              children={(field) => (
-                <div className="flex items-center gap-3">
-                  <input
-                    id={field.name}
-                    type="checkbox"
-                    checked={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.checked)}
-                    className="h-4.5 w-4.5 rounded border-hairline-light accent-emerald-800 text-on-primary focus:ring-emerald-800"
-                  />
-                  <div className="flex flex-col">
-                    <FormLabel htmlFor={field.name} className="cursor-pointer font-semibold leading-tight">
-                      Publish Storefront
-                    </FormLabel>
-                    <span className="text-micro text-shade-40 leading-none mt-1">
-                      Make this product immediately visible to customers
-                    </span>
-                  </div>
-                </div>
-              )}
-            />
-
-            {/* Low stock threshold alert setting */}
-            <form.Field
-              name="lowStockThreshold"
-              children={(field) => (
-                <div className="flex flex-col gap-1.5 mt-2">
-                  <FormLabel htmlFor={field.name}>Low Stock Threshold</FormLabel>
-                  <Input
-                    id={field.name}
-                    type="number"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : 0)}
-                    error={field.state.meta.errors.length > 0}
-                  />
-                  <span className="text-micro text-shade-40 mt-0.5">
-                    We will send an SMS notification when stock count drops to or below this count.
-                  </span>
-                  {field.state.meta.errors.length > 0 && (
-                    <span className="text-caption text-red-500 font-medium">
-                      {getErrorMessage(field.state.meta.errors[0])}
-                    </span>
-                  )}
-                </div>
-              )}
-            />
-
-            {/* Promotions checklist */}
-            <form.Field
-              name="promotionTypes"
-              children={(field) => {
-                const value = field.state.value || []
-                const togglePromotion = (type: string) => {
-                  if (value.includes(type)) {
-                    field.handleChange(value.filter((t) => t !== type))
-                  } else {
-                    field.handleChange([...value, type])
-                  }
-                }
-
-                return (
-                  <div className="flex flex-col gap-3 border-t border-hairline-light pt-4 mt-2">
-                    <FormLabel>Storefront Promotions</FormLabel>
-                    <span className="text-micro text-shade-40 leading-normal -mt-1 block">
-                      Feature this product in specialized landing page collections
-                    </span>
-                    <div className="flex flex-wrap gap-2.5 mt-1">
-                      {[
-                        { type: "featured", label: "Featured" },
-                        { type: "new_arrival", label: "New Arrival" },
-                        { type: "exclusive", label: "Exclusive" },
-                      ].map((promo) => {
-                        const isSelected = value.includes(promo.type)
-                        return (
-                          <button
-                            key={promo.type}
-                            type="button"
-                            onClick={() => togglePromotion(promo.type)}
-                            className={`px-3 py-1.5 text-[12px] rounded-full border transition-all cursor-pointer font-medium select-none ${
-                              isSelected
-                                ? "bg-emerald-800 border-emerald-800 text-white"
-                                : "bg-transparent border-hairline-light text-ink hover:border-shade-40"
-                            }`}
-                          >
-                            {promo.label}
-                          </button>
-                        )
-                      })}
+          <Card>
+            <CardHeader className="border-b border-border pb-3">
+              <CardTitle className="text-base font-semibold uppercase tracking-wider">Storefront Status</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6 flex flex-col gap-5">
+              {/* Publish state */}
+              <form.Field
+                name="isPublished"
+                children={(field) => (
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      id={field.name}
+                      checked={field.state.value}
+                      onCheckedChange={(checked) => field.handleChange(!!checked)}
+                    />
+                    <div className="flex flex-col">
+                      <FormLabel htmlFor={field.name} className="cursor-pointer font-semibold leading-tight">
+                        Publish Storefront
+                      </FormLabel>
+                      <span className="text-xs text-muted-foreground leading-none mt-1">
+                        Make this product immediately visible to customers
+                      </span>
                     </div>
                   </div>
-                )
-              }}
-            />
+                )}
+              />
+
+              {/* Low stock threshold alert setting */}
+              <form.Field
+                name="lowStockThreshold"
+                children={(field) => (
+                  <div className="flex flex-col gap-1.5 mt-2">
+                    <FormLabel htmlFor={field.name}>Low Stock Threshold</FormLabel>
+                    <Input
+                      id={field.name}
+                      type="number"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : 0)}
+                      error={field.state.meta.errors.length > 0}
+                    />
+                    <span className="text-xs text-muted-foreground mt-0.5">
+                      We will send an SMS notification when stock count drops to or below this count.
+                    </span>
+                    {field.state.meta.errors.length > 0 && (
+                      <span className="text-xs text-destructive font-medium">
+                        {getErrorMessage(field.state.meta.errors[0])}
+                      </span>
+                    )}
+                  </div>
+                )}
+              />
+
+              {/* Promotions checklist */}
+              <form.Field
+                name="promotionTypes"
+                children={(field) => {
+                  const value = field.state.value || []
+                  const togglePromotion = (type: string) => {
+                    if (value.includes(type)) {
+                      field.handleChange(value.filter((t) => t !== type))
+                    } else {
+                      field.handleChange([...value, type])
+                    }
+                  }
+
+                  return (
+                    <div className="flex flex-col gap-3 border-t border-border pt-4 mt-2">
+                      <FormLabel>Storefront Promotions</FormLabel>
+                      <span className="text-xs text-muted-foreground leading-normal -mt-1 block">
+                        Feature this product in specialized landing page collections
+                      </span>
+                      <div className="flex flex-wrap gap-2.5 mt-1">
+                        {[
+                          { type: "featured", label: "Featured" },
+                          { type: "new_arrival", label: "New Arrival" },
+                          { type: "exclusive", label: "Exclusive" },
+                        ].map((promo) => {
+                          const isSelected = value.includes(promo.type)
+                          return (
+                            <button
+                              key={promo.type}
+                              type="button"
+                              onClick={() => togglePromotion(promo.type)}
+                              className={cn(
+                                "px-3 py-1.5 text-xs rounded-full border transition-all cursor-pointer font-medium select-none",
+                                isSelected
+                                  ? "bg-primary border-primary text-primary-foreground font-bold shadow-sm"
+                                  : "bg-transparent border-border text-foreground hover:border-muted-foreground/30"
+                              )}
+                            >
+                              {promo.label}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )
+                }}
+              />
+            </CardContent>
           </Card>
 
           {/* Product Media Card */}
@@ -606,125 +615,119 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
             onDrop={handleDrop}
             className="relative flex flex-col grow"
           >
-            <Card className="p-6 border border-hairline-light bg-canvas-light flex flex-col gap-5 grow transition-colors duration-300">
-              <h2 className="text-body-strong font-bold text-ink uppercase tracking-wider border-b border-hairline-light pb-3 flex items-center justify-between">
-                <span>Product Images</span>
-                <span className="text-micro font-medium text-shade-50 normal-case">
+            <Card className="grow flex flex-col">
+              <CardHeader className="border-b border-border pb-3 flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-base font-semibold uppercase tracking-wider">Product Images</CardTitle>
+                <span className="text-xs font-medium text-muted-foreground normal-case">
                   {images.length} / {maxImages} uploaded
                 </span>
-              </h2>
+              </CardHeader>
+              <CardContent className="pt-6 flex flex-col gap-5 grow">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5">
+                  {Array.from({ length: maxImages }).map((_, index) => {
+                    const img = images[index]
+                    if (img) {
+                      return (
+                        <div
+                          key={img.id}
+                          className="relative group border border-border rounded-xl overflow-hidden bg-muted/20 aspect-square transition-all duration-300 hover:border-muted-foreground/30"
+                        >
+                          <img
+                            src={img.previewUrl}
+                            alt={`Upload preview ${index + 1}`}
+                            className="object-cover w-full h-full"
+                          />
+                          {index === 0 && (
+                            <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider select-none">
+                              Cover
+                            </span>
+                          )}
 
-              {/* Slot grid (5 columns on desktop/tablet, grid on mobile) */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5">
-                {Array.from({ length: maxImages }).map((_, index) => {
-                  const img = images[index]
-                  if (img) {
-                    return (
-                      <div
-                        key={img.id}
-                        className="relative group border border-hairline-light rounded-xl overflow-hidden bg-canvas-cream/50 aspect-square transition-all duration-300 hover:border-shade-50"
-                      >
-                        <img
-                          src={img.previewUrl}
-                          alt={`Upload preview ${index + 1}`}
-                          className="object-cover w-full h-full"
-                        />
-                        {index === 0 && (
-                          <span className="absolute top-2 left-2 bg-primary text-on-primary text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider select-none">
-                            Cover
-                          </span>
-                        )}
-
-                        {/* Hover Overlay Controls */}
-                        <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-2">
-                          {/* Top: Delete action */}
-                          <div className="flex justify-end">
-                            <button
-                              type="button"
-                              onClick={() => removeImage(img.id)}
-                              className="p-1 bg-red-600/90 hover:bg-red-600 text-white rounded-full transition-colors duration-150 cursor-pointer"
-                              title="Delete Image"
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-
-                          {/* Bottom: Reordering actions */}
-                          <div className="flex justify-between w-full gap-1">
-                            {index > 0 ? (
+                          <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-2">
+                            <div className="flex justify-end">
                               <button
                                 type="button"
-                                onClick={() => moveImage(index, "left")}
-                                className="p-1.5 bg-black/60 hover:bg-black/90 text-white rounded-full transition-colors duration-150 cursor-pointer"
-                                title="Move Left"
+                                onClick={() => removeImage(img.id)}
+                                className="p-1 bg-red-650 hover:bg-red-600 text-white rounded-full transition-colors duration-150 cursor-pointer border-none"
+                                title="Delete Image"
                               >
-                                <ChevronLeft className="h-3.5 w-3.5 stroke-[2.5]" />
+                                <X className="h-3 w-3" />
                               </button>
-                            ) : (
-                              <div className="w-6.5" />
-                            )}
+                            </div>
 
-                            {index < images.length - 1 ? (
-                              <button
-                                type="button"
-                                onClick={() => moveImage(index, "right")}
-                                className="p-1.5 bg-black/60 hover:bg-black/90 text-white rounded-full transition-colors duration-150 cursor-pointer"
-                                title="Move Right"
-                              >
-                                <ChevronRight className="h-3.5 w-3.5 stroke-[2.5]" />
-                              </button>
-                            ) : (
-                              <div className="w-6.5" />
-                            )}
+                            <div className="flex justify-between w-full gap-1">
+                              {index > 0 ? (
+                                <button
+                                  type="button"
+                                  onClick={() => moveImage(index, "left")}
+                                  className="p-1.5 bg-black/60 hover:bg-black/90 text-white rounded-full transition-colors duration-150 cursor-pointer border-none"
+                                  title="Move Left"
+                                >
+                                  <ChevronLeft className="h-3.5 w-3.5 stroke-[2.5]" />
+                                </button>
+                              ) : (
+                                <div className="w-6.5" />
+                              )}
+
+                              {index < images.length - 1 ? (
+                                <button
+                                  type="button"
+                                  onClick={() => moveImage(index, "right")}
+                                  className="p-1.5 bg-black/60 hover:bg-black/90 text-white rounded-full transition-colors duration-150 cursor-pointer border-none"
+                                  title="Move Right"
+                                >
+                                  <ChevronRight className="h-3.5 w-3.5 stroke-[2.5]" />
+                                </button>
+                              ) : (
+                                <div className="w-6.5" />
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      )
+                    }
+
+                    return (
+                      <button
+                        key={`empty-${index}`}
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="border-2 border-dashed border-border rounded-xl bg-muted/10 hover:bg-muted/30 hover:border-muted-foreground/30 transition-all flex flex-col items-center justify-center aspect-square gap-1.5 text-muted-foreground hover:text-foreground cursor-pointer group"
+                      >
+                        <Plus className="h-5 w-5 stroke-2 transition-transform duration-200 group-hover:scale-110" />
+                        <span className="text-[10px] font-semibold tracking-wide uppercase select-none">
+                          {index === 0 ? "Add Cover" : `Add Image`}
+                        </span>
+                      </button>
                     )
-                  }
+                  })}
+                </div>
 
-                  // Empty Slot (acting as upload trigger)
-                  return (
-                    <button
-                      key={`empty-${index}`}
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="border-2 border-dashed border-hairline-light rounded-xl bg-canvas-cream/10 hover:bg-canvas-cream/50 hover:border-shade-40 transition-all flex flex-col items-center justify-center aspect-square gap-1.5 text-shade-40 hover:text-ink cursor-pointer group"
-                    >
-                      <Plus className="h-5 w-5 stroke-2 transition-transform duration-200 group-hover:scale-110" />
-                      <span className="text-[10px] font-semibold tracking-wide uppercase select-none">
-                        {index === 0 ? "Add Cover" : `Add Image`}
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/png, image/jpeg, image/webp"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
 
-              {/* Hidden file input */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/png, image/jpeg, image/webp"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-
-              <div className="text-micro text-shade-50 font-light mt-1 flex items-center gap-1">
-                <UploadCloud className="h-4.5 w-4.5 stroke-[1.5]" />
-                <span>Drag and drop anywhere on this card, or click any slot to upload (PNG, JPG, WebP up to {imageSizeLimitMb}MB each).</span>
-              </div>
+                <div className="text-xs text-muted-foreground font-light mt-1 flex items-center gap-1.5">
+                  <UploadCloud className="h-4.5 w-4.5 stroke-[1.5]" />
+                  <span>Drag and drop anywhere on this card, or click any slot to upload (PNG, JPG, WebP up to {imageSizeLimitMb}MB each).</span>
+                </div>
+              </CardContent>
             </Card>
 
-            {/* Drag & Drop Overlay */}
             {isDragging && (
-              <div className="absolute inset-0 bg-emerald-900/10 backdrop-blur-[2px] border-2 border-dashed border-emerald-700/60 rounded-xl z-20 flex flex-col items-center justify-center pointer-events-none animate-fade-in">
-                <div className="p-4 bg-canvas-light text-emerald-800 rounded-full border border-emerald-200/50 shadow-sm flex items-center justify-center">
+              <div className="absolute inset-0 bg-emerald-950/10 backdrop-blur-[2px] border-2 border-dashed border-emerald-700/60 rounded-xl z-20 flex flex-col items-center justify-center pointer-events-none animate-fade-in">
+                <div className="p-4 bg-card text-emerald-800 rounded-full border border-emerald-250 shadow-sm flex items-center justify-center">
                   <UploadCloud className="h-8 w-8 animate-bounce" />
                 </div>
-                <span className="text-body-strong font-semibold text-emerald-950 mt-3">
+                <span className="text-base font-semibold text-emerald-950 mt-3">
                   Drop images to upload
                 </span>
-                <span className="text-micro text-emerald-900/80 mt-1">
+                <span className="text-xs text-emerald-900/80 mt-1">
                   Upload up to {maxImages - images.length} remaining images
                 </span>
               </div>
@@ -732,7 +735,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
           </div>
 
           {/* Form controls */}
-          <div className="flex gap-4 border-t border-hairline-light pt-6 mt-4">
+          <div className="flex gap-4 border-t border-border pt-6 mt-4">
             <Link href="/dashboard/products" className="grow">
               <Button type="button" variant="outline" className="w-full justify-center">
                 Cancel
@@ -741,7 +744,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
             <Button
               type="submit"
               disabled={isPending}
-              className="grow justify-center bg-primary text-on-primary hover:bg-shade-70 flex items-center gap-2"
+              className="grow justify-center flex items-center gap-2"
             >
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               <span>{initialData ? "Save Changes" : "Create Product"}</span>
@@ -749,16 +752,21 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
           </div>
         </div>
       </form>
-      {/* Error Alert Dialog */}
-      <AlertDialog
-        isOpen={!!errorAlert}
-        onClose={() => setErrorAlert(null)}
-        onConfirm={() => setErrorAlert(null)}
-        title={errorAlert?.title || "Warning"}
-        description={errorAlert?.message || "An unexpected warning occurred."}
-        confirmText="Acknowledge"
-        variant="primary"
-      />
+      <AlertDialog open={!!errorAlert} onOpenChange={(open) => !open && setErrorAlert(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{errorAlert?.title || "Warning"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {errorAlert?.message || "An unexpected warning occurred."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setErrorAlert(null)}>
+              Acknowledge
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

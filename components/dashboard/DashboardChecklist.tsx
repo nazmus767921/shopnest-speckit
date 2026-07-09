@@ -1,7 +1,14 @@
 "use client"
 
 import React, { useState } from "react"
-import { CardDescription, Dialog, Button } from "@/components/ui"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 import {
   CheckCircle2,
   Circle,
@@ -11,7 +18,17 @@ import {
   Check,
 } from "lucide-react"
 import Link from "next/link"
-import { AlertDialog } from "@/components/ui/feedback/AlertDialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { CardDescription } from "@/components/ui/card"
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -70,7 +87,6 @@ function LinkedinIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
-
 
 interface ChecklistStep {
   title: string
@@ -150,11 +166,11 @@ export function DashboardChecklist({
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-heading-lg font-display font-semibold text-ink leading-snug">
+      <h2 className="text-xl font-bold text-foreground leading-snug">
         Setup Checklist
       </h2>
-      <div className="border border-hairline-light bg-canvas-light p-6 rounded-2xl flex flex-col gap-4">
-        <CardDescription className="text-caption text-shade-50 font-light leading-relaxed">
+      <div className="border border-border bg-card p-6 rounded-xl flex flex-col gap-4">
+        <CardDescription className="text-sm text-muted-foreground font-light leading-relaxed">
           Complete these initial tasks to launch your storefront and begin accepting customer orders.
         </CardDescription>
 
@@ -165,21 +181,21 @@ export function DashboardChecklist({
             return (
               <div
                 key={idx}
-                className="flex items-start gap-3 p-3.5 rounded-xl border border-hairline-light bg-canvas-cream/5 hover:bg-canvas-cream/15 transition-all duration-200"
+                className="flex items-start gap-3 p-3.5 rounded-lg border border-border bg-muted/10 hover:bg-muted/20 transition-all duration-200"
               >
                 {isShareStep ? (
-                  <Share2 className="h-5 w-5 text-ink shrink-0 mt-0.5" />
+                  <Share2 className="h-5 w-5 text-foreground shrink-0 mt-0.5" />
                 ) : step.done ? (
                   <CheckCircle2 className="h-5 w-5 text-emerald-800 shrink-0 mt-0.5 stroke-[2.5]" />
                 ) : (
-                  <Circle className="h-5 w-5 text-shade-40 shrink-0 mt-0.5 stroke-[2]" />
+                  <Circle className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5 stroke-[2]" />
                 )}
 
                 <div className="flex flex-col gap-0.5 grow">
                   <span
-                    className={`text-body-md ${!isShareStep && step.done
-                        ? "text-shade-40 line-through font-normal"
-                        : "text-ink font-semibold"
+                    className={`text-base ${!isShareStep && step.done
+                        ? "text-muted-foreground line-through font-normal"
+                        : "text-foreground font-semibold"
                       }`}
                   >
                     {step.title}
@@ -188,7 +204,7 @@ export function DashboardChecklist({
                   {isShareStep ? (
                     <button
                       onClick={() => setIsShareDialogOpen(true)}
-                      className="text-caption font-semibold text-primary hover:underline inline-flex items-center gap-1.5 self-start mt-1 cursor-pointer select-none"
+                      className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1.5 self-start mt-1 cursor-pointer select-none"
                     >
                       Share Storefront
                       <ArrowRight className="h-3 w-3" />
@@ -196,7 +212,7 @@ export function DashboardChecklist({
                   ) : !step.done && step.href ? (
                     <Link
                       href={step.href}
-                      className="text-caption font-semibold text-primary hover:underline inline-flex items-center gap-1.5 self-start mt-1 select-none"
+                      className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1.5 self-start mt-1 select-none"
                     >
                       Get started
                       <ArrowRight className="h-3 w-3" />
@@ -210,73 +226,88 @@ export function DashboardChecklist({
       </div>
 
       {/* Share Dialog */}
-      <Dialog
-        isOpen={isShareDialogOpen}
-        onClose={() => setIsShareDialogOpen(false)}
-        title="Share Your Storefront"
-        description="Share your boutique link across social platforms to start receiving orders."
-      >
-        {/* Link Copy Bar */}
-        <div className="flex items-center gap-2 p-2 rounded-lg border border-hairline-light bg-canvas-cream/30">
-          <span className="text-caption text-shade-60 font-mono truncate grow select-all pl-1.5">
-            {storefrontUrl}
-          </span>
-          <Button
-            variant="outline-light"
-            size="sm"
-            onClick={handleCopyLink}
-            className="shrink-0 p-2 min-h-9 w-9 rounded-full flex items-center justify-center cursor-pointer border border-hairline-light bg-canvas-light hover:bg-canvas-cream/50 active:bg-canvas-cream"
-          >
-            {copied ? (
-              <Check className="h-4 w-4 text-emerald-800" />
-            ) : (
-              <Copy className="h-4 w-4 text-ink" />
-            )}
-          </Button>
-        </div>
+      <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share Your Storefront</DialogTitle>
+            <DialogDescription>
+              Share your boutique link across social platforms to start receiving orders.
+            </DialogDescription>
+          </DialogHeader>
 
-        {/* Social Platforms Grid */}
-        <div className="grid grid-cols-2 gap-3 mt-1">
-          {shares.map((social) => {
-            const Icon = social.icon
-            return social.href ? (
-              <a
-                key={social.name}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`flex items-center gap-2.5 p-3 rounded-lg border border-hairline-light bg-canvas-light text-ink text-caption font-semibold transition-all duration-200 cursor-pointer ${social.color}`}
-              >
-                <Icon className="h-4.5 w-4.5" />
-                <span>{social.name}</span>
-              </a>
-            ) : (
-              <button
-                key={social.name}
-                onClick={social.onClick}
-                className={`flex items-center gap-2.5 p-3 rounded-lg border border-hairline-light bg-canvas-light text-ink text-caption font-semibold transition-all duration-200 cursor-pointer text-left ${social.color}`}
-              >
-                <Icon className="h-4.5 w-4.5" />
-                <span>{social.name}</span>
-              </button>
-            )
-          })}
-        </div>
+          {/* Link Copy Bar */}
+          <div className="flex items-center gap-2 p-2 rounded-lg border border-border bg-muted">
+            <span className="text-sm text-muted-foreground font-mono truncate grow select-all pl-1.5">
+              {storefrontUrl}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCopyLink}
+              className="shrink-0 p-2 min-h-9 w-9 rounded-full flex items-center justify-center cursor-pointer border border-border bg-background hover:bg-accent"
+            >
+              {copied ? (
+                <Check className="h-4 w-4 text-emerald-800" />
+              ) : (
+                <Copy className="h-4 w-4 text-foreground" />
+              )}
+            </Button>
+          </div>
+
+          {/* Social Platforms Grid */}
+          <div className="grid grid-cols-2 gap-3 mt-1">
+            {shares.map((social) => {
+              const Icon = social.icon
+              return social.href ? (
+                <a
+                  key={social.name}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center gap-2.5 p-3 rounded-lg border border-border bg-background text-foreground text-sm font-semibold transition-all duration-200 cursor-pointer ${social.color}`}
+                >
+                  <Icon className="h-4.5 w-4.5" />
+                  <span>{social.name}</span>
+                </a>
+              ) : (
+                <button
+                  key={social.name}
+                  onClick={social.onClick}
+                  className={`flex items-center gap-2.5 p-3 rounded-lg border border-border bg-background text-foreground text-sm font-semibold transition-all duration-200 cursor-pointer text-left ${social.color}`}
+                >
+                  <Icon className="h-4.5 w-4.5" />
+                  <span>{social.name}</span>
+                </button>
+              )
+            })}
+          </div>
+        </DialogContent>
       </Dialog>
 
       {/* Instagram Clipboard Instructions Alert */}
-      <AlertDialog
-        isOpen={instagramAlert}
-        onClose={() => setInstagramAlert(false)}
-        onConfirm={() => {
-          setInstagramAlert(false)
-          window.open("https://www.instagram.com", "_blank", "noopener,noreferrer")
-        }}
-        title="Link Copied to Clipboard!"
-        description="Instagram does not support pre-filling post links from external sites. We have successfully copied your boutique storefront URL to your clipboard so you can paste it directly into your bio, post description, or stories. Click 'Proceed' to open Instagram."
-        confirmText="Proceed"
-        variant="primary"
-      />
+      <AlertDialog open={instagramAlert} onOpenChange={setInstagramAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Link Copied to Clipboard!</AlertDialogTitle>
+            <AlertDialogDescription>
+              Instagram does not support pre-filling post links from external sites. We have successfully copied your boutique storefront URL to your clipboard so you can paste it directly into your bio, post description, or stories. Click 'Proceed' to open Instagram.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setInstagramAlert(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setInstagramAlert(false)
+                window.open("https://www.instagram.com", "_blank", "noopener,noreferrer")
+              }}
+            >
+              Proceed
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

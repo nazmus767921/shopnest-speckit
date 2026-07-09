@@ -3,9 +3,9 @@
 import React, { useState } from "react"
 import { useForm } from "@tanstack/react-form"
 import { X, CheckCircle2, AlertCircle } from "lucide-react"
-import { Button } from "@/components/ui/primitives/Button"
-import { Input } from "@/components/ui/primitives/Input"
-import { FormLabel } from "@/components/ui/primitives/FormLabel"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label as FormLabel } from "@/components/ui/label"
 import { createCategoryAction, updateCategoryAction } from "@/app/actions/categories"
 import { z } from "zod"
 
@@ -71,21 +71,21 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
   return (
     /* Backdrop */
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-canvas-night/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
     >
       {/* Modal Panel */}
-      <div className="bg-canvas-light border border-hairline-light rounded-xl w-full max-w-md flex flex-col overflow-hidden animate-fade-in">
+      <div className="bg-card border border-border rounded-xl w-full max-w-md flex flex-col overflow-hidden animate-fade-in text-foreground">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-hairline-light">
-          <h2 className="font-display text-heading-md font-semibold text-ink">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <h2 className="text-lg font-bold text-foreground">
             {isEditing ? "Edit Category" : "Create Category"}
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-canvas-cream rounded-full transition-colors text-shade-50 hover:text-ink cursor-pointer"
+            className="p-1.5 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
@@ -119,7 +119,7 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
                   placeholder="e.g. Traditional Salwar"
                 />
                 {field.state.meta.errors.length > 0 && (
-                  <p className="text-micro text-red-500">{String(field.state.meta.errors[0])}</p>
+                  <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
                 )}
               </div>
             )}
@@ -140,11 +140,11 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
                   onBlur={field.handleBlur}
                   placeholder="e.g. traditional-salwar"
                 />
-                <p className="text-micro text-shade-40 leading-normal">
+                <p className="text-xs text-muted-foreground leading-normal">
                   Used for SEO friendly URLs on the storefront (lowercase letters, numbers, and hyphens only).
                 </p>
                 {field.state.meta.errors.length > 0 && (
-                  <p className="text-micro text-red-500">{String(field.state.meta.errors[0])}</p>
+                  <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
                 )}
               </div>
             )}
@@ -152,29 +152,27 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
 
           {/* Feedback */}
           {successMessage && (
-            <div className="flex items-center gap-2 text-emerald-800 bg-emerald-50 border border-emerald-100 rounded-lg px-4 py-3">
+            <div className="flex items-center gap-2 text-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900 rounded-lg px-4 py-3">
               <CheckCircle2 className="h-4 w-4 shrink-0" />
-              <span className="text-caption font-medium">{successMessage}</span>
+              <span className="text-sm font-medium">{successMessage}</span>
             </div>
           )}
           {errorMessage && (
-            <div className="flex items-center gap-2 text-red-700 bg-red-50 border border-red-100 rounded-lg px-4 py-3">
+            <div className="flex items-center gap-2 text-red-700 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900 rounded-lg px-4 py-3">
               <AlertCircle className="h-4 w-4 shrink-0" />
-              <span className="text-caption font-medium">{errorMessage}</span>
+              <span className="text-sm font-medium">{errorMessage}</span>
             </div>
           )}
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-2 border-t border-hairline-light">
-            <Button type="button" variant="secondary" size="sm" onClick={onClose} className="cursor-pointer">
+          <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
+            <Button type="button" variant="outline" onClick={onClose} className="cursor-pointer">
               Cancel
             </Button>
             <form.Subscribe selector={(state) => state.isSubmitting}>
               {(isSubmitting) => (
                 <Button
                   type="submit"
-                  variant="primary"
-                  size="sm"
                   disabled={isSubmitting}
                   className="cursor-pointer"
                 >

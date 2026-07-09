@@ -1,11 +1,18 @@
 "use client";
 
 import { useCallback, useState, useId } from "react";
-import { CheckSquare, Square, X, Percent, Plus, Minus, RefreshCw } from "lucide-react";
-import { Input } from "@/components/ui/primitives/Input";
-import { Select } from "@/components/ui/primitives/Select";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
+import { CheckSquare, Square, X, RefreshCw } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type PriceAdjustmentType = "fixed" | "percent" | "add_amount";
 
@@ -45,8 +52,6 @@ interface BulkToolbarProps {
   onUndo?: () => Promise<void>;
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
-
 export function VariantBulkToolbar({
   selectedCount,
   totalCount,
@@ -62,21 +67,16 @@ export function VariantBulkToolbar({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // Price adjustment
   const [priceType, setPriceType] = useState<PriceAdjustmentType>("fixed");
   const [priceValue, setPriceValue] = useState("");
 
-  // Compare-at price adjustment
   const [compareAtPriceType, setCompareAtPriceType] = useState<PriceAdjustmentType | "clear">("fixed");
   const [compareAtPriceValue, setCompareAtPriceValue] = useState("");
 
-  // Stock
   const [stockValue, setStockValue] = useState("");
 
-  // Status
   const [bulkActive, setBulkActive] = useState<boolean | null>(null);
 
-  // SKU prefix
   const [skuPrefix, setSkuPrefix] = useState("");
 
   const hasSelection = selectedCount > 0;
@@ -101,7 +101,6 @@ export function VariantBulkToolbar({
 
       if (priceValue) {
         let value = parseFloat(priceValue);
-        // Convert taka inputs to paisa for DB (fixed and add_amount types only)
         if (priceType === "fixed" || priceType === "add_amount") {
           value = Math.round(value * 100);
         }
@@ -135,7 +134,6 @@ export function VariantBulkToolbar({
         return;
       }
 
-      // We pass variantIds via a hidden trick — the parent handles ID resolution
       await onBulkUpdate(data as any);
       setMessage({ type: "success", text: "Updated successfully." });
       setExpanded(false);
@@ -152,69 +150,64 @@ export function VariantBulkToolbar({
   if (totalCount === 0) return null;
 
   return (
-    <div className="rounded-lg bg-canvas-cream/60">
-      {/* Undo toast */}
+    <div className="rounded-xl bg-muted/40 text-foreground">
+      {/* Undo banner */}
       {undoSnapshot && onUndo && (
-        <div className="flex items-center justify-between gap-2 px-3 py-2 bg-aloe-10/30 border-b border-aloe-10/40">
-          <span className="text-caption text-shade-70">
+        <div className="flex items-center justify-between gap-2 px-4 py-2 bg-emerald-500/10 border-b border-border text-sm">
+          <span className="text-emerald-700 dark:text-emerald-350 font-medium">
             Bulk update applied.
           </span>
-          <button
-            type="button"
+          <Button
+            variant="default"
+            size="sm"
             onClick={onUndo}
-            className="rounded-md bg-ink px-3 py-1 text-micro text-on-primary hover:bg-shade-70 transition-colors shrink-0"
+            className="h-7 px-3"
           >
             Undo
-          </button>
+          </Button>
         </div>
       )}
 
       {/* Selection bar */}
       <div className="flex items-center gap-2 px-3 py-2">
-        {/* Left side — grows to push right side to the end */}
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <button
-            type="button"
-            onClick={selectedCount === totalCount ? onDeselectAll : onSelectAll}
+          <Checkbox
+            checked={selectedCount === totalCount && totalCount > 0}
+            onCheckedChange={(checked) => {
+              if (checked) onSelectAll();
+              else onDeselectAll();
+            }}
             disabled={disabled}
-            className="rounded-full p-1 text-shade-40 hover:bg-canvas-cream transition-colors shrink-0"
             aria-label={
               selectedCount === totalCount ? "Deselect all variants" : "Select all variants"
             }
-          >
-            {selectedCount === totalCount ? (
-              <CheckSquare className="h-4 w-4" />
-            ) : (
-              <Square className="h-4 w-4" />
-            )}
-          </button>
+          />
 
-          <span className="text-caption text-shade-50 truncate">
+          <span className="text-sm text-muted-foreground truncate font-medium">
             {selectedCount > 0
               ? `${selectedCount} of ${totalCount} selected`
               : `${totalCount} variant${totalCount !== 1 ? "s" : ""}`}
           </span>
         </div>
 
-        {/* Right side — pushed to the end, does not shrink */}
         {hasSelection && (
           <div className="flex items-center gap-2 shrink-0">
-            <span className="h-4 w-px bg-shade-30" aria-hidden="true" />
+            <span className="h-4 w-px bg-border" aria-hidden="true" />
 
-            <button
-              type="button"
+            <Button
+              size="sm"
               onClick={() => setExpanded(!expanded)}
               disabled={disabled}
-              className="rounded-full bg-primary px-3 py-1 text-micro text-on-primary hover:bg-shade-70 transition-colors shrink-0"
+              className="h-8 px-3 rounded-full"
             >
-              <span>{expanded ? "Cancel" : "Bulk Edit"}</span>
-            </button>
+              {expanded ? "Cancel" : "Bulk Edit"}
+            </Button>
 
             <button
               type="button"
               onClick={onDeselectAll}
               disabled={disabled}
-              className="rounded-full p-1 text-shade-40 hover:bg-canvas-cream transition-colors shrink-0"
+              className="rounded-full p-1.5 text-muted-foreground hover:bg-muted transition-colors shrink-0 cursor-pointer border-none"
               aria-label="Clear selection"
             >
               <X className="h-3.5 w-3.5" />
@@ -225,24 +218,25 @@ export function VariantBulkToolbar({
 
       {/* Expanded bulk editor */}
       {expanded && hasSelection && (
-        <div className="border-t border-hairline-light/60 px-3 py-4 space-y-4">
+        <div className="border-t border-border px-4 py-4 space-y-4">
           {message && (
             <div
-              className={`rounded-lg px-3 py-2 text-caption ${
+              className={cn(
+                "rounded-lg px-3 py-2 text-xs font-semibold flex items-center justify-between",
                 message.type === "success"
-                  ? "bg-aloe-10/60 text-shade-70"
-                  : "bg-red-50 text-red-600"
-              }`}
+                  ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-350"
+                  : "bg-destructive/10 text-destructive"
+              )}
               role="alert"
             >
-              {message.text}
+              <span>{message.text}</span>
               <button
                 type="button"
                 onClick={clearMessage}
-                className="ml-2 text-shade-40 hover:text-ink"
+                className="text-muted-foreground hover:text-foreground cursor-pointer border-none"
                 aria-label="Dismiss"
               >
-                <X className="inline h-3 w-3" />
+                <X className="h-3.5 w-3.5" />
               </button>
             </div>
           )}
@@ -250,19 +244,26 @@ export function VariantBulkToolbar({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Price Adjustment */}
             <div>
-              <label className="mb-1 block text-micro font-medium text-ink">
+              <label className="mb-1 block text-xs font-semibold text-foreground">
                 Price Adjustment
               </label>
-              <div className="grid grid-cols-2 sm:flex gap-1.5">
-                <Select<(typeof PRICE_ADJUSTMENT_OPTIONS)[number]>
-                  options={PRICE_ADJUSTMENT_OPTIONS}
-                  value={PRICE_ADJUSTMENT_OPTIONS.find((o) => o.value === priceType) ?? null}
-                  onChange={(opt) => opt && setPriceType(opt.value as PriceAdjustmentType)}
+              <div className="flex gap-1.5">
+                <Select
+                  value={priceType}
+                  onValueChange={(val) => setPriceType(val as PriceAdjustmentType)}
                   disabled={disabled || saving}
-                  getOptionLabel={(o) => o.label}
-                  getOptionValue={(o) => o.value}
-                  className="w-full sm:w-24"
-                />
+                >
+                  <SelectTrigger className="w-28 shrink-0">
+                    <SelectValue placeholder="Price Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRICE_ADJUSTMENT_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>
+                        {o.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Input
                   type="number"
                   value={priceValue}
@@ -270,10 +271,10 @@ export function VariantBulkToolbar({
                   placeholder={priceType === "percent" ? "+10" : "100"}
                   disabled={disabled || saving}
                   min={0}
-                  className="min-h-9 text-micro"
+                  className="min-h-9 text-sm flex-1"
                 />
               </div>
-              <p className="mt-0.5 text-micro text-shade-40">
+              <p className="mt-1 text-[11px] text-muted-foreground leading-normal">
                 {priceType === "fixed"
                   ? "Set exact price in ৳"
                   : priceType === "percent"
@@ -284,19 +285,26 @@ export function VariantBulkToolbar({
 
             {/* Old Price Adjustment */}
             <div>
-              <label className="mb-1 block text-micro font-medium text-ink">
+              <label className="mb-1 block text-xs font-semibold text-foreground">
                 Old Price Adjustment
               </label>
-              <div className="grid grid-cols-2 sm:flex gap-1.5">
-                <Select<(typeof COMPARE_AT_OPTIONS)[number]>
-                  options={COMPARE_AT_OPTIONS}
-                  value={COMPARE_AT_OPTIONS.find((o) => o.value === compareAtPriceType) ?? null}
-                  onChange={(opt) => opt && setCompareAtPriceType(opt.value as any)}
+              <div className="flex gap-1.5">
+                <Select
+                  value={compareAtPriceType}
+                  onValueChange={(val) => setCompareAtPriceType(val as any)}
                   disabled={disabled || saving}
-                  getOptionLabel={(o) => o.label}
-                  getOptionValue={(o) => o.value}
-                  className="w-full sm:w-24"
-                />
+                >
+                  <SelectTrigger className="w-28 shrink-0">
+                    <SelectValue placeholder="Old Price Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COMPARE_AT_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>
+                        {o.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {compareAtPriceType !== "clear" && (
                   <Input
                     type="number"
@@ -305,13 +313,13 @@ export function VariantBulkToolbar({
                     placeholder={compareAtPriceType === "percent" ? "+10" : "150"}
                     disabled={disabled || saving}
                     min={0}
-                    className="min-h-9 text-micro"
+                    className="min-h-9 text-sm flex-1"
                   />
                 )}
               </div>
-              <p className="mt-0.5 text-micro text-shade-40">
+              <p className="mt-1 text-[11px] text-muted-foreground leading-normal">
                 {compareAtPriceType === "clear"
-                  ? "Clear compare-at price"
+                  ? "Clear old price"
                   : compareAtPriceType === "fixed"
                     ? "Set exact old price in ৳"
                     : compareAtPriceType === "percent"
@@ -324,7 +332,7 @@ export function VariantBulkToolbar({
             <div>
               <label
                 htmlFor={`${uid}-stock`}
-                className="mb-1 block text-micro font-medium text-ink"
+                className="mb-1 block text-xs font-semibold text-foreground"
               >
                 Set Stock Count
               </label>
@@ -336,16 +344,16 @@ export function VariantBulkToolbar({
                 placeholder="Leave empty to keep"
                 min={0}
                 disabled={disabled || saving}
-                className="min-h-9 text-micro"
+                className="min-h-9 text-sm"
               />
             </div>
 
             {/* Status */}
             <div>
-              <span className="mb-1 block text-micro font-medium text-ink">
+              <span className="mb-1.5 block text-xs font-semibold text-foreground">
                 Set Status
               </span>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-3 py-1">
                 <label className="flex items-center gap-1.5 cursor-pointer">
                   <input
                     type="radio"
@@ -353,9 +361,9 @@ export function VariantBulkToolbar({
                     checked={bulkActive === true}
                     onChange={() => setBulkActive(true)}
                     disabled={disabled || saving}
-                    className="h-3.5 w-3.5 accent-ink"
+                    className="h-4 w-4 accent-primary"
                   />
-                  <span className="text-micro text-ink">Active</span>
+                  <span className="text-sm font-medium">Active</span>
                 </label>
                 <label className="flex items-center gap-1.5 cursor-pointer">
                   <input
@@ -364,15 +372,15 @@ export function VariantBulkToolbar({
                     checked={bulkActive === false}
                     onChange={() => setBulkActive(false)}
                     disabled={disabled || saving}
-                    className="h-3.5 w-3.5 accent-ink"
+                    className="h-4 w-4 accent-primary"
                   />
-                  <span className="text-micro text-ink">Inactive</span>
+                  <span className="text-sm font-medium">Inactive</span>
                 </label>
                 {bulkActive !== null && (
                   <button
                     type="button"
                     onClick={() => setBulkActive(null)}
-                    className="text-micro text-shade-40 hover:text-ink"
+                    className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer border-none bg-transparent"
                   >
                     Clear
                   </button>
@@ -384,21 +392,21 @@ export function VariantBulkToolbar({
             <div>
               <label
                 htmlFor={`${uid}-sku`}
-                className="mb-1 block text-micro font-medium text-ink"
+                className="mb-1 block text-xs font-semibold text-foreground"
               >
                 SKU Prefix
               </label>
-              <input
+              <Input
                 id={`${uid}-sku`}
                 type="text"
                 value={skuPrefix}
-                onChange={(e) => setSkuPrefix(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSkuPrefix(e.target.value)}
                 placeholder="Leave empty to keep"
                 maxLength={20}
                 disabled={disabled || saving}
-                className="w-full rounded-md border border-hairline-light bg-canvas-light px-3 py-2 text-micro text-ink placeholder:text-shade-40 focus:border-ink focus:outline-none"
+                className="min-h-9 text-sm"
               />
-              <p className="mt-0.5 text-micro text-shade-40">
+              <p className="mt-1 text-[11px] text-muted-foreground leading-normal">
                 Replaces first segment of SKU
               </p>
             </div>
@@ -406,21 +414,21 @@ export function VariantBulkToolbar({
 
           {/* Apply button */}
           <div className="flex justify-end pt-1">
-            <button
+            <Button
               type="button"
               onClick={handleApply}
               disabled={disabled || saving}
-              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-5 py-2 text-caption text-on-primary hover:bg-shade-70 transition-colors disabled:opacity-50 w-full sm:w-auto"
+              className="w-full sm:w-auto flex items-center gap-1.5"
             >
               {saving ? (
                 <>
-                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                  <RefreshCw className="h-4 w-4 animate-spin" />
                   <span>Applying...</span>
                 </>
               ) : (
                 <span>Apply to {selectedCount} variant{selectedCount !== 1 ? "s" : ""}</span>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       )}

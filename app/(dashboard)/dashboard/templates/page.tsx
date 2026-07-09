@@ -9,24 +9,23 @@ import { getStorefrontSections } from "@/db/queries/storefront-sections"
 import { TemplatesPageClient } from "./components/TemplatesPageClient"
 
 import { connection } from "next/server"
+import { Suspense } from "react"
 
 export const metadata: Metadata = {
   title: "Templates | Shopnest",
 }
 
-import { Suspense } from "react"
-
 export default function TemplatesPage() {
   return (
-    <div className="flex-1 w-full space-y-8 animate-fade-in p-6">
+    <div className="flex-1 w-full space-y-8 animate-fade-in p-6 text-foreground">
       <div className="flex flex-col gap-2">
-        <h1 className="text-heading-xl font-bold text-ink">Storefront Templates</h1>
-        <p className="text-body-md text-shade-50">
+        <h1 className="text-2xl font-bold text-foreground">Storefront Templates</h1>
+        <p className="text-sm text-muted-foreground">
           Choose a design template for your storefront and customize the homepage sections.
         </p>
       </div>
 
-      <Suspense fallback={<div className="h-96 flex items-center justify-center text-shade-50">Loading templates...</div>}>
+      <Suspense fallback={<div className="h-96 flex items-center justify-center text-muted-foreground">Loading templates...</div>}>
         <TemplatesPageContent />
       </Suspense>
     </div>
@@ -52,7 +51,6 @@ async function TemplatesPageContent() {
   const activeTemplates = await getActiveTemplates()
   const currentTier = merchant.plan || "starter"
   
-  // Transform templates to include locking logic based on current plan
   const mappedTemplates = activeTemplates.map((t) => {
     let isLocked = false
     if (t.allowedTiers.includes("growth") && currentTier === "starter") isLocked = true
@@ -67,7 +65,7 @@ async function TemplatesPageContent() {
     }
   })
 
-  const sections = await getStorefrontSections(merchant.id, false) // Fetch all sections, not just visible ones
+  const sections = await getStorefrontSections(merchant.id, false)
 
   return (
     <TemplatesPageClient 

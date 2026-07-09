@@ -8,7 +8,6 @@ import {
   getMerchantUsageCounts,
 } from "@/db/queries/subscriptions"
 import { SubscriptionOverview } from "./components/SubscriptionOverview"
-
 import { Suspense } from "react"
 
 export const metadata = {
@@ -30,8 +29,8 @@ async function BillingPageContent() {
 
   if (!merchant) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <p className="text-shade-50">Merchant account not found.</p>
+      <div className="flex items-center justify-center min-h-64 text-foreground">
+        <p className="text-muted-foreground">Merchant account not found.</p>
       </div>
     )
   }
@@ -55,13 +54,13 @@ async function BillingPageContent() {
   }))
 
   return (
-    <div className="flex flex-col gap-8 animate-fade-in max-w-6xl mx-auto">
+    <div className="flex flex-col gap-8 animate-fade-in max-w-6xl mx-auto text-foreground">
       {/* Page Header */}
-      <div className="pb-2 border-b border-hairline-light">
-        <h1 className="font-display text-heading-xl tracking-tight text-ink font-semibold leading-none">
+      <div className="pb-2 border-b border-border">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground leading-none">
           Billing &amp; Plan
         </h1>
-        <p className="text-caption text-shade-50 font-light mt-1">
+        <p className="text-sm text-muted-foreground font-light mt-1">
           View your subscription status, plan limits, and payment history.
         </p>
       </div>
@@ -79,23 +78,23 @@ async function BillingPageContent() {
 
 function BillingPageSkeleton() {
   return (
-    <div className="flex flex-col gap-8 animate-pulse">
+    <div className="flex flex-col gap-8 animate-pulse text-foreground">
       {/* Page Header Skeleton */}
-      <div className="pb-2 border-b border-hairline-light">
-        <div className="h-8 w-48 bg-shade-30 rounded-full" />
-        <div className="h-4 w-64 bg-shade-30 rounded-full mt-2" />
+      <div className="pb-2 border-b border-border">
+        <div className="h-8 w-48 bg-muted rounded-full" />
+        <div className="h-4 w-64 bg-muted rounded-full mt-2" />
       </div>
 
       {/* Subscription Cards Skeleton */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="h-48 bg-shade-30 rounded-2xl" />
-        <div className="h-48 bg-shade-30 rounded-2xl" />
+        <div className="h-48 bg-muted rounded-xl" />
+        <div className="h-48 bg-muted rounded-xl" />
       </div>
 
       {/* Payment History Skeleton */}
       <div className="flex flex-col gap-4">
-        <div className="h-6 w-36 bg-shade-30 rounded-full" />
-        <div className="h-32 bg-shade-30 rounded-2xl w-full" />
+        <div className="h-6 w-36 bg-muted rounded-full" />
+        <div className="h-32 bg-muted rounded-xl w-full" />
       </div>
     </div>
   )

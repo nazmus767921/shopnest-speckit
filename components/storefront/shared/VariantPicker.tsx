@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useCallback } from "react"
-import { Select } from "@/components/ui/primitives/Select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -209,31 +209,32 @@ export function VariantPicker({
               })}
             </div>
           ) : (() => {
-            const attrOptions = [
-              { value: "", label: `Select ${attr.name}...` },
-              ...attr.options.map((o: { value: string; label: string }) => ({
-                ...o,
-                unavailable: !(availableOptions[attr.name]?.has(o.value) ?? true),
-              })),
-            ] as ({ value: string; label: string; unavailable?: boolean }[])
+            const currentValue = selectedOptions[attr.name] ?? ""
             return (
               <Select
-                options={attrOptions}
-                value={attrOptions.find((o) => o.value === (selectedOptions[attr.name] ?? "")) ?? null}
-                onChange={(opt) => opt && handleOptionSelect(attr.name, opt.value)}
+                value={currentValue}
+                onValueChange={(val) => handleOptionSelect(attr.name, val ?? "")}
                 disabled={disabled}
-                getOptionLabel={(o) => o.label}
-                getOptionValue={(o) => o.value}
-                renderOption={(opt) => (
-                  <span className="flex items-center justify-between w-full">
-                    <span>{opt.label}</span>
-                    {opt.unavailable && (
-                      <span className="text-micro text-[var(--color-shade-40)] ml-2">Unavailable</span>
-                    )}
-                  </span>
-                )}
-                className="w-full"
-              />
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={`Select ${attr.name}...`} />
+                </SelectTrigger>
+                <SelectContent>
+                  {attr.options.map((o: any) => {
+                    const unavailable = !(availableOptions[attr.name]?.has(o.value) ?? true)
+                    return (
+                      <SelectItem key={o.value} value={o.value} disabled={unavailable}>
+                        <span className="flex items-center justify-between w-full">
+                          <span>{o.label}</span>
+                          {unavailable && (
+                            <span className="text-xs text-muted-foreground ml-2">Unavailable</span>
+                          )}
+                        </span>
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
             )
           })()}
         </div>

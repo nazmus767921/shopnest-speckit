@@ -4,7 +4,7 @@ import React, { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Filter, X } from "lucide-react"
 import { FilterSidebar } from "./shared/FilterSidebar"
-import { Sheet } from "@/components/ui/layout/Sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 
 interface Category {
   id: string
@@ -75,18 +75,23 @@ export function ProductFilters({
         />
       </div>
 
-      <Sheet isOpen={mobileOpen} onClose={() => setMobileOpen(false)} side="right" title="Filter Products">
-        <div className="px-2 py-4 -m-6 p-6">
-          <FilterSidebar
-            categories={categories}
-            activeCategory={activeCategory}
-            activePrice={activePrice}
-            activeColor={activeColor}
-            activeSize={activeSize}
-            onFilterChange={handleFilterChange}
-            onClearAll={clearAllFilters}
-          />
-        </div>
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent side="right">
+          <SheetHeader>
+            <SheetTitle>Filter Products</SheetTitle>
+          </SheetHeader>
+          <div className="px-2 py-4">
+            <FilterSidebar
+              categories={categories}
+              activeCategory={activeCategory}
+              activePrice={activePrice}
+              activeColor={activeColor}
+              activeSize={activeSize}
+              onFilterChange={handleFilterChange}
+              onClearAll={clearAllFilters}
+            />
+          </div>
+        </SheetContent>
       </Sheet>
     </>
   )

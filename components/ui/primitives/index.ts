@@ -1,9 +1,0 @@
-export { Badge } from "./Badge"
-export { Button } from "./Button"
-export { Combobox } from "./Combobox"
-export { FormLabel } from "./FormLabel"
-export { Input } from "./Input"
-export { Select } from "./Select"
-export { Textarea } from "./Textarea"
-export { RichTextEditor } from "./RichTextEditor"
-

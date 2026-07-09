@@ -3,8 +3,9 @@
 import { useCallback, useId } from "react";
 import type { MetadataEntryInput } from "@/lib/validations/variants";
 import { Plus, X, BookText, AlertCircle } from "lucide-react";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 interface MetadataEditorProps {
   entries: MetadataEntryInput[];
@@ -12,11 +13,7 @@ interface MetadataEditorProps {
   disabled?: boolean;
 }
 
-// ─── Constants ───────────────────────────────────────────────────────────────
-
 const MAX_METADATA = 20;
-
-// ─── Component ───────────────────────────────────────────────────────────────
 
 export function MetadataEditor({
   entries,
@@ -47,70 +44,69 @@ export function MetadataEditor({
     [entries, onChange],
   );
 
-  // ─── Empty State ───────────────────────────────────────────────────────
-
   if (entries.length === 0) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 text-foreground">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-body-strong text-ink">
+            <h3 className="text-base font-semibold text-foreground">
               Custom Metadata
             </h3>
-            <p className="text-micro text-shade-50 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Add details like fabric type, care instructions, or fit notes for the storefront
             </p>
           </div>
         </div>
 
-        <div className="rounded-lg border-2 border-dashed border-hairline-light bg-canvas-cream/30 p-8 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-canvas-cream">
-            <BookText className="h-5 w-5 text-shade-50" />
+        <div className="rounded-xl border-2 border-dashed border-border bg-muted/20 p-8 text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+            <BookText className="h-5 w-5 text-muted-foreground" />
           </div>
-          <h4 className="text-body-strong text-ink mb-1">
+          <h4 className="text-base font-semibold text-foreground mb-1">
             No metadata yet
           </h4>
-          <p className="text-caption text-shade-50 mb-5 max-w-sm mx-auto">
+          <p className="text-xs text-muted-foreground mb-5 max-w-sm mx-auto">
             Metadata appears as a details table on the product page — perfect for
             specs, materials, and care instructions.
           </p>
-          <button
+          <Button
             type="button"
             onClick={addEntry}
             disabled={disabled}
             aria-label="Add first metadata field"
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-body-md text-on-primary hover:bg-shade-70 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
             <span>Add Field</span>
-          </button>
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 text-foreground">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h3 className="text-body-strong text-ink">
+          <h3 className="text-base font-semibold text-foreground">
             Custom Metadata
           </h3>
-          <p className="text-micro text-shade-50 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             {entries.length} of {MAX_METADATA} fields used
           </p>
         </div>
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={addEntry}
           disabled={disabled || entries.length >= MAX_METADATA}
           aria-label="Add metadata field"
-          className="inline-flex items-center gap-1.5 rounded-full border border-hairline-light bg-canvas-light px-4 py-2 text-caption text-ink hover:bg-canvas-cream transition-colors self-start sm:self-auto disabled:opacity-50"
+          className="flex items-center gap-1.5 self-start sm:self-auto"
         >
           <Plus className="h-3.5 w-3.5" />
           <span>Add Field</span>
-        </button>
+        </Button>
       </div>
 
       {/* Entry List */}
@@ -123,18 +119,18 @@ export function MetadataEditor({
             <div
               key={index}
               role="listitem"
-              className="rounded-lg border border-hairline-light bg-canvas-cream/30 p-3 sm:p-4"
+              className="rounded-xl border border-border bg-muted/20 p-3 sm:p-4"
             >
               <div className="grid grid-cols-1 sm:grid-cols-[1fr_2fr_auto] gap-2 sm:gap-3 items-start">
                 {/* Key */}
                 <div>
                   <label
                     htmlFor={keyId}
-                    className="sm:hidden mb-0.5 block text-micro text-shade-40"
+                    className="sm:hidden mb-1 block text-xs font-semibold text-muted-foreground"
                   >
                     Key
                   </label>
-                  <input
+                  <Input
                     id={keyId}
                     type="text"
                     value={entry.key}
@@ -142,7 +138,7 @@ export function MetadataEditor({
                     placeholder="e.g., Fabric"
                     disabled={disabled}
                     aria-label={`Metadata field ${index + 1} key`}
-                    className="w-full rounded-md border border-hairline-light bg-canvas-light px-3 py-2 text-body-md text-ink placeholder:text-shade-40 transition-colors focus:border-ink focus:outline-none"
+                    className="w-full text-sm"
                   />
                 </div>
 
@@ -150,11 +146,11 @@ export function MetadataEditor({
                 <div>
                   <label
                     htmlFor={valId}
-                    className="sm:hidden mb-0.5 block text-micro text-shade-40"
+                    className="sm:hidden mb-1 block text-xs font-semibold text-muted-foreground"
                   >
                     Value
                   </label>
-                  <input
+                  <Input
                     id={valId}
                     type="text"
                     value={entry.value}
@@ -162,7 +158,7 @@ export function MetadataEditor({
                     placeholder="e.g., Cotton"
                     disabled={disabled}
                     aria-label={`Metadata field ${index + 1} value`}
-                    className="w-full rounded-md border border-hairline-light bg-canvas-light px-3 py-2 text-body-md text-ink placeholder:text-shade-40 transition-colors focus:border-ink focus:outline-none"
+                    className="w-full text-sm"
                   />
                 </div>
 
@@ -172,7 +168,7 @@ export function MetadataEditor({
                   onClick={() => removeEntry(index)}
                   disabled={disabled}
                   aria-label={`Remove metadata field ${index + 1}`}
-                  className="self-start sm:self-center justify-self-end sm:justify-self-center rounded-full p-2 text-shade-40 hover:bg-red-50 hover:text-red-500 transition-colors disabled:opacity-50"
+                  className="self-start sm:self-center justify-self-end sm:justify-self-center rounded-full p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors disabled:opacity-50 border-none bg-transparent cursor-pointer"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -185,7 +181,7 @@ export function MetadataEditor({
       {/* Limit notice */}
       {entries.length >= MAX_METADATA && (
         <div
-          className="rounded-lg bg-amber-50 px-4 py-2.5 text-caption text-amber-700 flex items-center gap-2"
+          className="rounded-xl bg-amber-500/10 px-4 py-2.5 text-xs text-amber-600 dark:text-amber-500 flex items-center gap-2"
           role="alert"
         >
           <AlertCircle className="h-4 w-4 shrink-0" />

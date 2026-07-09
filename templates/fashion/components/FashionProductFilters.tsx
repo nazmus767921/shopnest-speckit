@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ChevronDown, ChevronUp, Filter, X, Search } from "lucide-react"
-import { Sheet } from "@/components/ui/layout/Sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet"
 
 interface Category {
   id: string
@@ -348,33 +348,13 @@ export function FashionProductFilters({
         </form>
       </div>
 
-      {/* Mobile Drawer Overlay */}
-      <Sheet 
-        isOpen={drawerOpen} 
-        onClose={() => setDrawerOpen(false)} 
-        side="right" 
-        title="Filters"
-        footer={
-          <div className="flex flex-col gap-3 w-full">
-            <button
-              onClick={() => setDrawerOpen(false)}
-              className="w-full py-4 text-xs font-semibold font-sans uppercase tracking-[0.2em] bg-black text-white rounded-full hover:bg-zinc-800 transition-colors cursor-pointer border-none"
-            >
-              Apply Filters
-            </button>
-            {hasActiveFilters && (
-              <button
-                onClick={clearAllFilters}
-                className="w-full py-2.5 text-xs font-semibold font-sans uppercase tracking-[0.1em] text-zinc-500 hover:text-black transition-colors cursor-pointer border-none bg-transparent"
-              >
-                Clear All Filters
-              </button>
-            )}
-          </div>
-        }
-      >
-        <div className="w-full bg-[var(--color-canvas-warm)] flex flex-col gap-4 select-none pb-4 -m-6 p-6">
-          {/* Category Section */}
+      <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <SheetContent side="right" className="flex flex-col h-full">
+          <SheetHeader>
+            <SheetTitle>Filters</SheetTitle>
+          </SheetHeader>
+          <div className="flex-grow overflow-y-auto w-full bg-[var(--color-canvas-warm)] flex flex-col gap-4 select-none pb-4 px-6 py-4">
+            {/* Category Section */}
             <div className="border-b border-zinc-200/60 pb-4">
               <button
                 onClick={() => toggleMobileSection("categories")}
@@ -504,6 +484,25 @@ export function FashionProductFilters({
               )}
             </div>
           </div>
+          <SheetFooter className="mt-auto p-6">
+            <div className="flex flex-col gap-3 w-full">
+              <button
+                onClick={() => setDrawerOpen(false)}
+                className="w-full py-4 text-xs font-semibold font-sans uppercase tracking-[0.2em] bg-black text-white rounded-full hover:bg-zinc-800 transition-colors cursor-pointer border-none"
+              >
+                Apply Filters
+              </button>
+              {hasActiveFilters && (
+                <button
+                  onClick={clearAllFilters}
+                  className="w-full py-2.5 text-xs font-semibold font-sans uppercase tracking-[0.1em] text-zinc-500 hover:text-black transition-colors cursor-pointer border-none bg-transparent"
+                >
+                  Clear All Filters
+                </button>
+              )}
+            </div>
+          </SheetFooter>
+        </SheetContent>
       </Sheet>
     </div>
   )

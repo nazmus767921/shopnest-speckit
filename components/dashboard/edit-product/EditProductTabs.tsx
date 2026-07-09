@@ -6,6 +6,8 @@ import { ArrowLeft } from "lucide-react";
 import { ProductForm } from "@/components/dashboard/ProductForm";
 import { VariantsSection } from "@/components/dashboard/product-variant-editor/VariantsSection";
 import { MetadataSection } from "@/components/dashboard/product-variant-editor/MetadataSection";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 // ─── Tab Button ──────────────────────────────────────────────────────────────
 
@@ -22,11 +24,12 @@ function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className={`px-4 py-3 text-body-md font-medium transition-colors border-b-2 -mb-px ${
+      className={cn(
+        "px-4 py-3 text-sm font-semibold transition-all border-b-2 -mb-px cursor-pointer",
         active
-          ? "border-ink text-ink"
-          : "border-transparent text-shade-50 hover:text-shade-70 hover:border-shade-30"
-      }`}
+          ? "border-primary text-foreground font-bold"
+          : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+      )}
       role="tab"
       aria-selected={active}
     >
@@ -82,27 +85,23 @@ export function EditProductTabs({
   };
 
   return (
-    <div>
-      {/* ── Header — outside tabs, visible on all tabs ── */}
+    <div className="text-foreground">
       <div className="flex items-center gap-4 mb-6">
-        <Link
-          href="/dashboard/products"
-          className="p-2 border border-hairline-light rounded-full bg-canvas-light text-ink hover:bg-canvas-cream transition-colors duration-200"
-        >
+        <Button variant="outline" size="icon" className="rounded-full" render={<Link href="/dashboard/products" />}>
           <ArrowLeft className="h-4 w-4" />
-        </Link>
+        </Button>
         <div>
-          <h1 className="font-display text-heading-xl tracking-tight text-ink font-semibold leading-none">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground leading-none">
             Edit Product
           </h1>
-          <p className="text-caption text-shade-50 font-light mt-1">
+          <p className="text-sm text-muted-foreground font-light mt-1">
             Manage and update product details
           </p>
         </div>
       </div>
 
       {/* ── Tab bar ── */}
-      <div className="flex border-b border-hairline-light mb-6" role="tablist" aria-label="Product sections">
+      <div className="flex border-b border-border mb-6" role="tablist" aria-label="Product sections">
         <TabButton active={activeTab === "info"} onClick={() => setActiveTab("info")}>
           Product Info
         </TabButton>

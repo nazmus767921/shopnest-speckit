@@ -3,14 +3,15 @@
 import React, { useState } from "react"
 import { useForm } from "@tanstack/react-form"
 import { X, CheckCircle2, AlertCircle } from "lucide-react"
-import { Button } from "@/components/ui/primitives/Button"
-import { Input } from "@/components/ui/primitives/Input"
-import { FormLabel } from "@/components/ui/primitives/FormLabel"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label as FormLabel } from "@/components/ui/label"
 import { discountCodeSchema, type DiscountCodeValues } from "@/lib/validations/discounts"
 import {
   createDiscountCodeAction,
   updateDiscountCodeAction,
 } from "@/app/actions/discounts"
+import { cn } from "@/lib/utils"
 
 interface DiscountCode {
   id: string
@@ -30,7 +31,6 @@ interface DiscountCodeModalProps {
 function toDatetimeLocalString(date: Date | null): string {
   if (!date) return ""
   const d = new Date(date)
-  // Pad to YYYY-MM-DDTHH:MM format
   const pad = (n: number) => String(n).padStart(2, "0")
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
@@ -74,21 +74,21 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
   return (
     /* Backdrop */
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-canvas-night/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
     >
       {/* Modal Panel */}
-      <div className="bg-canvas-light border border-hairline-light rounded-xl w-full max-w-md flex flex-col overflow-hidden animate-fade-in">
+      <div className="bg-card border border-border rounded-xl w-full max-w-md flex flex-col overflow-hidden text-foreground">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-hairline-light">
-          <h2 className="font-display text-heading-md font-semibold text-ink">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <h2 className="text-lg font-bold text-foreground">
             {isEditing ? "Edit Discount Code" : "Create Discount Code"}
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-canvas-cream rounded-md transition-colors text-shade-50 hover:text-ink"
+            className="p-1.5 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
@@ -115,13 +115,13 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
                   onChange={(e) => field.handleChange(e.target.value.toUpperCase())}
                   onBlur={field.handleBlur}
                   placeholder="e.g. SUMMER20"
-                  className="font-mono uppercase"
+                  className="font-mono uppercase bg-background border-border rounded-lg"
                 />
-                <p className="text-micro text-shade-40">
+                <p className="text-xs text-muted-foreground">
                   Letters, numbers, hyphens and underscores only.
                 </p>
                 {field.state.meta.errors.length > 0 && (
-                  <p className="text-micro text-red-500">{String(field.state.meta.errors[0])}</p>
+                  <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
                 )}
               </div>
             )}
@@ -136,11 +136,12 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
                   {(["fixed", "percent"] as const).map((type) => (
                     <label
                       key={type}
-                      className={`flex items-center gap-2 px-4 py-2.5 border rounded-lg cursor-pointer transition-colors flex-1 ${
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2.5 border rounded-lg cursor-pointer transition-colors flex-1",
                         field.state.value === type
-                          ? "border-ink bg-canvas-cream"
-                          : "border-hairline-light bg-transparent hover:bg-canvas-cream/50"
-                      }`}
+                          ? "border-primary bg-muted text-foreground"
+                          : "border-border bg-transparent hover:bg-muted/50"
+                      )}
                     >
                       <input
                         type="radio"
@@ -150,7 +151,7 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
                         onChange={() => field.handleChange(type)}
                         className="sr-only"
                       />
-                      <span className="text-caption font-semibold text-ink capitalize">
+                      <span className="text-sm font-semibold capitalize">
                         {type === "fixed" ? "Fixed (৳)" : "Percentage (%)"}
                       </span>
                     </label>
@@ -182,9 +183,10 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
                       placeholder={
                         discountType === "percent" ? "e.g. 15" : "e.g. 200"
                       }
+                      className="bg-background border-border rounded-lg"
                     />
                     {field.state.meta.errors.length > 0 && (
-                      <p className="text-micro text-red-500">{String(field.state.meta.errors[0])}</p>
+                      <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
                     )}
                   </div>
                 )}
@@ -207,6 +209,7 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
                   }
                   onBlur={field.handleBlur}
                   placeholder="Leave blank for unlimited"
+                  className="bg-background border-border rounded-lg"
                 />
               </div>
             )}
@@ -223,6 +226,7 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
                   value={field.state.value ?? ""}
                   onChange={(e) => field.handleChange(e.target.value || null)}
                   onBlur={field.handleBlur}
+                  className="bg-background border-border rounded-lg"
                 />
               </div>
             )}
@@ -230,29 +234,27 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
 
           {/* Feedback */}
           {successMessage && (
-            <div className="flex items-center gap-2 text-emerald-800 bg-emerald-50 border border-emerald-100 rounded-lg px-4 py-3">
+            <div className="flex items-center gap-2 text-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900 rounded-lg px-4 py-3">
               <CheckCircle2 className="h-4 w-4 shrink-0" />
-              <span className="text-caption font-medium">{successMessage}</span>
+              <span className="text-sm font-medium">{successMessage}</span>
             </div>
           )}
           {errorMessage && (
-            <div className="flex items-center gap-2 text-red-700 bg-red-50 border border-red-100 rounded-lg px-4 py-3">
+            <div className="flex items-center gap-2 text-red-700 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900 rounded-lg px-4 py-3">
               <AlertCircle className="h-4 w-4 shrink-0" />
-              <span className="text-caption font-medium">{errorMessage}</span>
+              <span className="text-sm font-medium">{errorMessage}</span>
             </div>
           )}
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-2 border-t border-hairline-light">
-            <Button type="button" variant="secondary" size="sm" onClick={onClose}>
+          <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
             <form.Subscribe selector={(state) => state.isSubmitting}>
               {(isSubmitting) => (
                 <Button
                   type="submit"
-                  variant="primary"
-                  size="sm"
                   disabled={isSubmitting}
                 >
                   {isSubmitting

@@ -2,7 +2,15 @@
 
 import React, { useState, useEffect, useTransition } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { Card, Button, AlertDialog, Select } from "@/components/ui"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { StatusBadge } from "./StatusBadge"
 import {
   Search,
@@ -21,6 +29,17 @@ import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
 import { getOrdersAction, confirmPaymentAction, updateOrderStatusAction } from "../actions"
 import { useRealtimeOrders } from "@/hooks/use-realtime-orders"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { cn } from "@/lib/utils"
 
 interface OrderListItem {
   id: string
@@ -61,10 +80,8 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
   const [searchInput, setSearchInput] = useState(currentSearch)
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
-  // Track which order is undergoing which inline status transition
   const [activeActionOrderId, setActiveActionOrderId] = useState<string | null>(null)
 
-  // Dialog State
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogConfig, setDialogConfig] = useState<{
     title: string
@@ -85,7 +102,6 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
     setDialogOpen(true)
   }
 
-  // Sync state with search params on load/change
   useEffect(() => {
     setSearchInput(currentSearch)
   }, [currentSearch])
@@ -105,7 +121,7 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
       } else {
         params.set("status", newParams.status)
       }
-      params.set("page", "1") // reset page on filter change
+      params.set("page", "1")
     }
 
     if (newParams.search !== undefined) {
@@ -114,7 +130,7 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
       } else {
         params.set("search", newParams.search)
       }
-      params.set("page", "1") // reset page on search
+      params.set("page", "1")
     }
 
     if (newParams.sortBy !== undefined) {
@@ -227,7 +243,6 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
 
   const [latestOrderId, setLatestOrderId] = useState<string | null>(null)
 
-  // TanStack Query to manage the orders list server state
   const { data: ordersData = initialData } = useQuery({
     queryKey: [
       "orders",
@@ -256,7 +271,6 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
     refetchOnMount: true,
   })
 
-  // Subscribe to realtime order notifications
   useRealtimeOrders(merchantId, (orderId) => {
     setLatestOrderId(orderId)
     setTimeout(() => {
@@ -284,14 +298,14 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
   ]
 
   return (
-    <div className="flex flex-col gap-6 text-ink">
+    <div className="flex flex-col gap-6 text-foreground">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-hairline-light">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-border">
         <div className="flex flex-col gap-1">
-          <h1 className="font-display text-heading-xl tracking-tight text-ink font-semibold leading-none">
+          <h1 className="text-2xl tracking-tight text-foreground font-semibold leading-none">
             Order Management
           </h1>
-          <p className="text-caption text-shade-50 font-light mt-1">
+          <p className="text-sm text-muted-foreground font-light mt-1">
             Review bKash/Nagad transactions, confirm payments, and progress delivery statuses.
           </p>
         </div>
@@ -301,7 +315,7 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
       <div className="flex flex-col gap-4">
         {/* Horizontal Status Tabs & Select Dropdowns */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex bg-zinc-100/85 p-1 rounded-full gap-1 items-center select-none w-fit border border-hairline-light overflow-x-auto scrollbar-none">
+          <div className="flex bg-muted/65 p-1 rounded-full gap-1 items-center select-none w-fit border border-border overflow-x-auto scrollbar-none">
             {statusTabs.map((tab) => {
               const isActive = currentStatus === tab.value
               return (
@@ -309,15 +323,19 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                   key={tab.value}
                   onClick={() => updateFilters({ status: tab.value })}
                   disabled={isPending}
-                  className={`px-5 py-1.5 rounded-full text-caption font-semibold transition-all shrink-0 cursor-pointer flex items-center gap-2 ${isActive
-                    ? "bg-white text-ink border border-hairline-light"
-                    : "text-shade-60 hover:text-ink hover:bg-zinc-200/50"
-                    }`}
+                  className={cn(
+                    "px-5 py-1.5 rounded-full text-sm font-semibold transition-all shrink-0 cursor-pointer flex items-center gap-2",
+                    isActive
+                      ? "bg-background text-foreground shadow-sm border border-border"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  )}
                 >
                   <span>{tab.label}</span>
                   <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${isActive ? "bg-zinc-100 text-ink" : "bg-zinc-200/60 text-shade-60"
-                      }`}
+                    className={cn(
+                      "text-[10px] px-1.5 py-0.5 rounded-full font-mono",
+                      isActive ? "bg-muted text-foreground" : "bg-muted/60 text-muted-foreground"
+                    )}
                   >
                     {tab.count ?? 0}
                   </span>
@@ -329,45 +347,40 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
           {/* Sorting and Payment method filters */}
           <div className="flex flex-wrap gap-3 items-center w-full lg:w-auto">
             <div className="flex items-center gap-2 grow sm:grow-0">
-              <span className="text-caption text-shade-50 font-medium">Payment:</span>
-              <Select<{ value: string; label: string }>
-                options={[
-                  { value: "all", label: "All Methods" },
-                  { value: "bkash", label: "bKash" },
-                  { value: "nagad", label: "Nagad" },
-                ]}
-                value={[
-                  { value: "all", label: "All Methods" },
-                  { value: "bkash", label: "bKash" },
-                  { value: "nagad", label: "Nagad" },
-                ].find((o: { value: string; label: string }) => o.value === currentPaymentMethod) ?? null}
-                onChange={(opt: { value: string; label: string } | null) => opt && updateFilters({ paymentMethod: opt.value })}
+              <span className="text-sm text-muted-foreground font-medium">Payment:</span>
+              <Select
+                value={currentPaymentMethod}
+                onValueChange={(val) => updateFilters({ paymentMethod: val })}
                 disabled={isPending}
-                getOptionLabel={(o: { value: string; label: string }) => o.label}
-                getOptionValue={(o: { value: string; label: string }) => o.value}
-              />
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Payment Method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Methods</SelectItem>
+                  <SelectItem value="bkash">bKash</SelectItem>
+                  <SelectItem value="nagad">Nagad</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="flex items-center gap-2 grow sm:grow-0">
-              <span className="text-caption text-shade-50 font-medium">Sort:</span>
-              <Select<{ value: string; label: string }>
-                options={[
-                  { value: "newest", label: "Newest First" },
-                  { value: "oldest", label: "Oldest First" },
-                  { value: "total_desc", label: "Total: High to Low" },
-                  { value: "total_asc", label: "Total: Low to High" },
-                ]}
-                value={[
-                  { value: "newest", label: "Newest First" },
-                  { value: "oldest", label: "Oldest First" },
-                  { value: "total_desc", label: "Total: High to Low" },
-                  { value: "total_asc", label: "Total: Low to High" },
-                ].find((o: { value: string; label: string }) => o.value === currentSortBy) ?? null}
-                onChange={(opt: { value: string; label: string } | null) => opt && updateFilters({ sortBy: opt.value })}
+              <span className="text-sm text-muted-foreground font-medium">Sort:</span>
+              <Select
+                value={currentSortBy}
+                onValueChange={(val) => updateFilters({ sortBy: val })}
                 disabled={isPending}
-                getOptionLabel={(o: { value: string; label: string }) => o.label}
-                getOptionValue={(o: { value: string; label: string }) => o.value}
-              />
+              >
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Sort order" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                  <SelectItem value="oldest">Oldest First</SelectItem>
+                  <SelectItem value="total_desc">Total: High to Low</SelectItem>
+                  <SelectItem value="total_asc">Total: Low to High</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
@@ -375,21 +388,19 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
         {/* Search Bar Form */}
         <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 w-full md:max-w-md">
           <div className="relative grow">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-shade-40" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search by customer name..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full text-caption border border-hairline-light bg-canvas-light text-ink placeholder-shade-40 rounded-full pl-10 pr-4 h-10 outline-none focus:border-shade-60 transition-all font-sans"
+              className="w-full text-sm border border-border bg-card text-foreground placeholder-muted-foreground rounded-full pl-10 pr-4 h-10 outline-none focus:border-muted-foreground transition-all font-sans"
             />
           </div>
           <Button
             type="submit"
-            variant="primary"
-            size="sm"
             disabled={isPending}
-            className="text-caption px-4 h-10 cursor-pointer"
+            className="text-sm px-4 h-10 cursor-pointer"
           >
             Search
           </Button>
@@ -399,27 +410,27 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
       {/* Main List Area */}
       {isPending ? (
         <div className="flex items-center justify-center p-20">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary" />
+          <Loader2 className="animate-spin h-8 w-8 text-primary" />
         </div>
       ) : orders.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center text-center p-12 border border-hairline-light bg-canvas-light max-w-xl mx-auto w-full mt-4">
-          <div className="p-4 bg-pistachio-10 text-emerald-900 rounded-full mb-4">
+        <Card className="flex flex-col items-center justify-center text-center p-12 border border-border bg-card max-w-xl mx-auto w-full mt-4 rounded-xl">
+          <div className="p-4 bg-muted text-muted-foreground rounded-full mb-4">
             <Search className="h-8 w-8 stroke-1.5" />
           </div>
-          <h3 className="font-display text-heading-md font-semibold text-ink">
+          <h3 className="text-lg font-semibold text-foreground">
             No orders found
           </h3>
-          <p className="text-caption text-shade-50 font-light max-w-sm mt-2">
+          <p className="text-sm text-muted-foreground font-light max-w-sm mt-2">
             Try adjusting your status filters or search term to locate the records.
           </p>
         </Card>
       ) : (
         <div className="flex flex-col gap-4">
           {/* Desktop Table View */}
-          <div className="hidden md:block overflow-hidden rounded-2xl border border-hairline-light bg-canvas-light">
-            <table className="w-full border-collapse text-left text-caption">
+          <div className="hidden md:block overflow-hidden rounded-xl border border-border bg-card">
+            <table className="w-full border-collapse text-left text-sm">
               <thead>
-                <tr className="border-b border-hairline-light bg-canvas-cream/35 text-shade-50 font-semibold">
+                <tr className="border-b border-border bg-muted/30 text-muted-foreground font-semibold">
                   <th className="p-4">Order ID</th>
                   <th className="p-4">Date</th>
                   <th className="p-4">Customer</th>
@@ -429,7 +440,7 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                   <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-hairline-light">
+              <tbody className="divide-y divide-border">
                 {orders.map((order) => {
                   const txId = order.paymentConfirmation?.transactionId
                   const isIdCopied = copiedId === `id-${order.id}`
@@ -440,8 +451,10 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                   return (
                     <tr
                       key={order.id}
-                      className={`hover:bg-canvas-cream/10 transition-colors duration-150 ${isNewOrder ? "animate-new-order-highlight" : ""
-                        }`}
+                      className={cn(
+                        "hover:bg-muted/10 transition-colors duration-150",
+                        isNewOrder && "animate-new-order-highlight"
+                      )}
                     >
                       <td className="p-4 font-mono font-medium align-middle">
                         <div className="flex items-center gap-1.5">
@@ -450,19 +463,19 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                           </span>
                           <button
                             onClick={(e) => handleCopy(e, order.id, "id")}
-                            className="text-shade-40 hover:text-ink cursor-pointer p-0.5"
+                            className="text-muted-foreground hover:text-foreground cursor-pointer p-0.5"
                           >
                             {isIdCopied ? <Check className="h-3 w-3 text-emerald-700" /> : <Copy className="h-3 w-3" />}
                           </button>
                         </div>
                       </td>
-                      <td className="p-4 text-shade-60 align-middle">
+                      <td className="p-4 text-muted-foreground align-middle">
                         {formatDate(order.createdAt)}
                       </td>
                       <td className="p-4 align-middle">
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-semibold text-ink">{order.deliveryName}</span>
-                          <span className="text-[12px] text-shade-50 flex items-center gap-1">
+                          <span className="font-semibold text-foreground">{order.deliveryName}</span>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
                             <Phone className="h-3 w-3 shrink-0" />
                             {order.deliveryPhone}
                           </span>
@@ -472,19 +485,19 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                         {order.paymentConfirmation ? (
                           <div className="flex flex-col gap-0.5">
                             {order.paymentConfirmation.paymentMethod === "cod" ? (
-                              <span className="inline-flex items-center rounded bg-zinc-900 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider self-start">
+                              <span className="inline-flex items-center rounded bg-primary text-primary-foreground px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider self-start">
                                 COD
                               </span>
                             ) : (
-                              <span className="font-semibold capitalize text-ink">
+                              <span className="font-semibold capitalize text-foreground">
                                 {order.paymentConfirmation.paymentMethod}
                               </span>
                             )}
-                            <span className="text-[12px] font-mono text-shade-50 flex items-center gap-1">
+                            <span className="text-xs font-mono text-muted-foreground flex items-center gap-1">
                               TxID: {txId}
                               <button
                                 onClick={(e) => handleCopy(e, txId || "", "txid")}
-                                className="text-shade-40 hover:text-ink cursor-pointer p-0.5"
+                                className="text-muted-foreground hover:text-foreground cursor-pointer p-0.5"
                               >
                                 {isTxCopied ? (
                                   <Check className="h-3 w-3 text-emerald-700" />
@@ -495,10 +508,10 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                             </span>
                           </div>
                         ) : (
-                          <span className="text-shade-40 italic">Not submitted</span>
+                          <span className="text-muted-foreground italic">Not submitted</span>
                         )}
                       </td>
-                      <td className="p-4 font-mono font-bold text-ink align-middle">
+                      <td className="p-4 font-mono font-bold text-foreground align-middle">
                         {formatTaka(order.totalPaisa)}
                       </td>
                       <td className="p-4 align-middle">
@@ -509,7 +522,6 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                           {/* Quick Action Button for Desktop */}
                           {order.status === "pending_payment" && (
                             <Button
-                              variant="primary"
                               size="sm"
                               onClick={() => {
                                 confirmQuickAction(
@@ -523,7 +535,7 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                                 )
                               }}
                               disabled={isPending || activeActionOrderId !== null}
-                              className="h-8 py-1 px-3 text-caption flex items-center gap-1.5 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 border-none text-white shrink-0 cursor-pointer"
+                              className="h-8 py-1 px-3 text-sm flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-550 active:bg-emerald-700 border-none text-white shrink-0 cursor-pointer"
                             >
                               {activeActionOrderId === `${order.id}-confirm` ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -536,7 +548,6 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
 
                           {order.status === "processing" && (
                             <Button
-                              variant="primary"
                               size="sm"
                               onClick={() => {
                                 confirmQuickAction(
@@ -550,7 +561,7 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                                 )
                               }}
                               disabled={isPending || activeActionOrderId !== null}
-                              className="h-8 py-1 px-3 text-caption flex items-center gap-1.5 bg-primary text-on-primary hover:bg-shade-70 shrink-0 cursor-pointer"
+                              className="h-8 py-1 px-3 text-sm flex items-center gap-1.5 shrink-0 cursor-pointer"
                             >
                               {activeActionOrderId === `${order.id}-ship` ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -563,7 +574,6 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
 
                           {order.status === "shipped" && (
                             <Button
-                              variant="primary"
                               size="sm"
                               onClick={() => {
                                 confirmQuickAction(
@@ -577,7 +587,7 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                                 )
                               }}
                               disabled={isPending || activeActionOrderId !== null}
-                              className="h-8 py-1 px-3 text-caption flex items-center gap-1.5 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 border-none text-white shrink-0 cursor-pointer"
+                              className="h-8 py-1 px-3 text-sm flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-550 active:bg-emerald-700 border-none text-white shrink-0 cursor-pointer"
                             >
                               {activeActionOrderId === `${order.id}-deliver` ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -590,9 +600,9 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
 
                           <Link href={`/dashboard/orders/${order.id}`}>
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="sm"
-                              className="h-8 py-1 px-3 text-caption flex items-center gap-1 border border-hairline-light cursor-pointer"
+                              className="h-8 py-1 px-3 text-sm flex items-center gap-1 cursor-pointer"
                             >
                               <Eye className="h-3.5 w-3.5" />
                               <span>View</span>
@@ -607,7 +617,7 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
             </table>
           </div>
 
-          {/* Mobile Card List View (A11y Fixed) */}
+          {/* Mobile Card List View */}
           <div className="flex flex-col gap-4 md:hidden">
             {orders.map((order) => {
               const txId = order.paymentConfirmation?.transactionId
@@ -619,21 +629,23 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
               return (
                 <Card
                   key={order.id}
-                  className={`border border-hairline-light bg-canvas-light p-5 hover:border-shade-40 transition-colors duration-200 ${isNewOrder ? "animate-new-order-highlight" : ""
-                    }`}
+                  className={cn(
+                    "border border-border bg-card p-5 hover:border-muted-foreground/50 transition-colors duration-200",
+                    isNewOrder && "animate-new-order-highlight"
+                  )}
                 >
-                  <div className="flex items-start justify-between gap-2 border-b border-hairline-light/50 pb-3 mb-3">
+                  <div className="flex items-start justify-between gap-2 border-b border-border/50 pb-3 mb-3">
                     <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1.5 font-mono text-[13px] font-semibold text-ink">
+                      <div className="flex items-center gap-1.5 font-mono text-[13px] font-semibold text-foreground">
                         <span>#{order.id.slice(0, 8)}</span>
                         <button
                           onClick={(e) => handleCopy(e, order.id, "id")}
-                          className="text-shade-40 hover:text-ink cursor-pointer p-0.5"
+                          className="text-muted-foreground hover:text-foreground cursor-pointer p-0.5"
                         >
                           {isIdCopied ? <Check className="h-3.5 w-3.5 text-emerald-700" /> : <Copy className="h-3.5 w-3.5" />}
                         </button>
                       </div>
-                      <span className="text-[12px] text-shade-40 flex items-center gap-1 font-medium">
+                      <span className="text-xs text-muted-foreground flex items-center gap-1 font-medium">
                         <Calendar className="h-3 w-3 shrink-0" />
                         {formatDate(order.createdAt)}
                       </span>
@@ -643,31 +655,31 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
 
                   <div className="flex flex-col gap-2.5">
                     <div className="flex justify-between items-baseline gap-2">
-                      <span className="text-eyebrow-cap font-semibold text-shade-40 uppercase tracking-wider">
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                         Customer
                       </span>
-                      <span className="text-body-md font-semibold text-ink">
+                      <span className="text-sm font-semibold text-foreground">
                         {order.deliveryName}
                       </span>
                     </div>
 
                     <div className="flex justify-between items-baseline gap-2">
-                      <span className="text-eyebrow-cap font-semibold text-shade-40 uppercase tracking-wider">
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                         Phone
                       </span>
-                      <span className="text-caption text-ink font-medium">
+                      <span className="text-sm text-foreground font-medium">
                         {order.deliveryPhone}
                       </span>
                     </div>
 
                     {order.paymentConfirmation && (
                       <div className="flex justify-between items-baseline gap-2">
-                        <span className="text-eyebrow-cap font-semibold text-shade-40 uppercase tracking-wider">
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                           Payment
                         </span>
-                        <div className="flex items-center gap-1.5 text-caption text-ink font-mono text-[13px]">
+                        <div className="flex items-center gap-1.5 text-sm text-foreground font-mono">
                           {order.paymentConfirmation.paymentMethod === "cod" ? (
-                            <span className="inline-flex items-center rounded bg-zinc-900 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
+                            <span className="inline-flex items-center rounded bg-primary text-primary-foreground px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                               COD
                             </span>
                           ) : (
@@ -678,7 +690,7 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                           <span>({txId})</span>
                           <button
                             onClick={(e) => handleCopy(e, txId || "", "txid")}
-                            className="text-shade-40 hover:text-ink cursor-pointer p-0.5"
+                            className="text-muted-foreground hover:text-foreground cursor-pointer p-0.5"
                           >
                             {isTxCopied ? (
                               <Check className="h-3 w-3 text-emerald-700" />
@@ -690,22 +702,22 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                       </div>
                     )}
 
-                    <div className="flex justify-between items-baseline gap-2 border-t border-hairline-light/40 pt-3 mt-1">
-                      <span className="text-eyebrow-cap font-bold text-shade-40 uppercase tracking-wider">
+                    <div className="flex justify-between items-baseline gap-2 border-t border-border/40 pt-3 mt-1">
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                         Total Amount
                       </span>
-                      <span className="text-body-strong font-mono font-bold text-ink">
+                      <span className="text-base font-mono font-bold text-foreground">
                         {formatTaka(order.totalPaisa)}
                       </span>
                     </div>
 
-                    {/* Bottom Action Bar for Mobile Cards (Fixes Nested Link A11y Violations) */}
-                    <div className="flex items-center justify-between gap-3 border-t border-hairline-light/40 pt-4 mt-4">
+                    {/* Bottom Action Bar for Mobile Cards */}
+                    <div className="flex items-center justify-between gap-3 border-t border-border/40 pt-4 mt-4">
                       <Link href={`/dashboard/orders/${order.id}`} className="grow sm:grow-0">
                         <Button
-                          variant="outline-light"
+                          variant="outline"
                           size="sm"
-                          className="w-full text-caption h-9 px-3 flex items-center justify-center gap-1.5 cursor-pointer"
+                          className="w-full text-sm h-9 px-3 flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <Eye className="h-3.5 w-3.5" />
                           <span>View Details</span>
@@ -714,7 +726,6 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
 
                       {order.status === "pending_payment" && (
                         <Button
-                          variant="primary"
                           size="sm"
                           onClick={() => {
                             confirmQuickAction(
@@ -728,7 +739,7 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                             )
                           }}
                           disabled={isPending || activeActionOrderId !== null}
-                          className="grow sm:grow-0 h-9 py-1.5 px-3 text-caption flex items-center justify-center gap-1.5 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 border-none text-white cursor-pointer"
+                          className="grow sm:grow-0 h-9 py-1.5 px-3 text-sm flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-550 active:bg-emerald-700 border-none text-white cursor-pointer"
                         >
                           {activeActionOrderId === `${order.id}-confirm` ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -741,7 +752,6 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
 
                       {order.status === "processing" && (
                         <Button
-                          variant="primary"
                           size="sm"
                           onClick={() => {
                             confirmQuickAction(
@@ -755,7 +765,7 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                             )
                           }}
                           disabled={isPending || activeActionOrderId !== null}
-                          className="grow sm:grow-0 h-9 py-1.5 px-3 text-caption flex items-center justify-center gap-1.5 bg-primary text-on-primary hover:bg-shade-70 cursor-pointer"
+                          className="grow sm:grow-0 h-9 py-1.5 px-3 text-sm flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           {activeActionOrderId === `${order.id}-ship` ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -768,7 +778,6 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
 
                       {order.status === "shipped" && (
                         <Button
-                          variant="primary"
                           size="sm"
                           onClick={() => {
                             confirmQuickAction(
@@ -782,7 +791,7 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
                             )
                           }}
                           disabled={isPending || activeActionOrderId !== null}
-                          className="grow sm:grow-0 h-9 py-1.5 px-3 text-caption flex items-center justify-center gap-1.5 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 border-none text-white cursor-pointer"
+                          className="grow sm:grow-0 h-9 py-1.5 px-3 text-sm flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-550 active:bg-emerald-700 border-none text-white cursor-pointer"
                         >
                           {activeActionOrderId === `${order.id}-deliver` ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -801,26 +810,26 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
 
           {/* Pagination Controls */}
           {ordersData.totalPages > 1 && (
-            <div className="flex items-center justify-between gap-4 mt-2 pt-4 border-t border-hairline-light">
-              <span className="text-caption text-shade-50">
-                Page <span className="font-semibold text-ink">{currentPage}</span> of{" "}
-                <span className="font-semibold text-ink">{ordersData.totalPages}</span>
+            <div className="flex items-center justify-between gap-4 mt-2 pt-4 border-t border-border">
+              <span className="text-sm text-muted-foreground">
+                Page <span className="font-semibold text-foreground">{currentPage}</span> of{" "}
+                <span className="font-semibold text-foreground">{ordersData.totalPages}</span>
               </span>
               <div className="flex gap-2">
                 <Button
-                  variant="outline-light"
+                  variant="outline"
                   disabled={currentPage <= 1 || isPending}
                   onClick={() => updateFilters({ page: currentPage - 1 })}
-                  className="py-1.5 px-3 min-h-9 gap-1 text-caption cursor-pointer"
+                  className="py-1.5 px-3 min-h-9 gap-1 text-sm cursor-pointer"
                 >
                   <ChevronLeft className="h-4 w-4" />
                   Previous
                 </Button>
                 <Button
-                  variant="outline-light"
+                  variant="outline"
                   disabled={currentPage >= ordersData.totalPages || isPending}
                   onClick={() => updateFilters({ page: currentPage + 1 })}
-                  className="py-1.5 px-3 min-h-9 gap-1 text-caption cursor-pointer"
+                  className="py-1.5 px-3 min-h-9 gap-1 text-sm cursor-pointer"
                 >
                   Next
                   <ChevronRight className="h-4 w-4" />
@@ -833,16 +842,32 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
 
       {/* Confirmation Dialog */}
       {dialogConfig && (
-        <AlertDialog
-          isOpen={dialogOpen}
-          onClose={() => setDialogOpen(false)}
-          onConfirm={dialogConfig.onConfirm}
-          title={dialogConfig.title}
-          description={dialogConfig.description}
-          confirmText={dialogConfig.confirmText}
-          variant={dialogConfig.variant}
-          isPending={isPending}
-        />
+        <AlertDialog open={dialogOpen} onOpenChange={(open) => !open && !isPending && setDialogOpen(false)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{dialogConfig.title}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {dialogConfig.description}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isPending} onClick={() => setDialogOpen(false)}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                disabled={isPending}
+                onClick={(e) => {
+                  e.preventDefault()
+                  dialogConfig.onConfirm()
+                }}
+                className={dialogConfig.variant === "danger" ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : undefined}
+              >
+                {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}
+                {dialogConfig.confirmText}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </div>
   )

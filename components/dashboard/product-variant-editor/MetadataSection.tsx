@@ -5,20 +5,16 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { saveProductMetadataAction, getProductMetadataAction } from "@/app/actions/variants";
 import { MetadataEditor } from "./MetadataEditor";
 import type { MetadataEntryInput } from "@/lib/validations/variants";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface MetadataSectionProps {
   productId: string;
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
-
 export function MetadataSection({ productId }: MetadataSectionProps) {
   const queryClient = useQueryClient();
-  // Initialize from query cache to prevent flash on tab switch.
-  // When the component re-mounts (tab switch), the cache has data within
-  // staleTime, so we hydrate state synchronously before the first render.
   const [entries, setEntries] = useState<MetadataEntryInput[]>(
     () => {
       const cached = queryClient.getQueryData(["product-metadata", productId]);
@@ -41,8 +37,6 @@ export function MetadataSection({ productId }: MetadataSectionProps) {
     staleTime: 30_000,
   });
 
-  // Sync query data into local editing state after first fetch or cache update.
-  // On initial mount with no cache, this populates entries after the query completes.
   useEffect(() => {
     if (data) {
       setEntries(data);
@@ -74,38 +68,41 @@ export function MetadataSection({ productId }: MetadataSectionProps) {
   }, [productId, entries, queryClient]);
 
   return (
-    <div className="rounded-lg border border-hairline-light bg-canvas-light p-6">
-      <MetadataEditor
-        entries={entries}
-        onChange={setEntries}
-        disabled={isSaving}
-      />
-
-      <div className="mt-4 flex items-center justify-end gap-3">
-        <button
-          type="button"
-          onClick={handleSave}
+    <Card className="text-foreground">
+      <CardContent className="pt-6">
+        <MetadataEditor
+          entries={entries}
+          onChange={setEntries}
           disabled={isSaving}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2 text-body-md text-on-primary hover:bg-shade-70 transition-colors disabled:opacity-50 w-full sm:w-auto"
-        >
-          {isSaving ? "Saving..." : "Save Metadata"}
-        </button>
-        {message && (
-          <span
-            className={`text-sm ${
-              message.type === "success" ? "text-aloe-10" : "text-red-500"
-            }`}
-          >
-            {message.text}
-          </span>
-        )}
-      </div>
+        />
 
-      {isLoading && (
-        <p className="mt-4 text-center text-sm text-shade-40">
-          Loading metadata...
-        </p>
-      )}
-    </div>
+        <div className="mt-4 flex items-center justify-end gap-3 flex-wrap">
+          {message && (
+            <span
+              className={cn(
+                "text-xs font-semibold mr-auto",
+                message.type === "success" ? "text-emerald-700 dark:text-emerald-350" : "text-destructive"
+              )}
+            >
+              {message.text}
+            </span>
+          )}
+          <Button
+            type="button"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="w-full sm:w-auto"
+          >
+            {isSaving ? "Saving..." : "Save Metadata"}
+          </Button>
+        </div>
+
+        {isLoading && (
+          <p className="mt-4 text-center text-xs text-muted-foreground animate-pulse">
+            Loading metadata...
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 }

@@ -24,6 +24,8 @@ import {
   Check
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 interface RichTextEditorProps {
   value: string
@@ -71,14 +73,13 @@ export function RichTextEditor({
     }
   })
 
-  // Keep editor content in sync with external value changes (e.g. form reset or initial load)
+  // Keep editor content in sync with external value changes
   useEffect(() => {
     if (!editor) return
 
     const current = editor.getHTML()
     const normalizedCurrent = editor.isEmpty || current === "<p></p>" || current === "<p><br></p>" ? "" : current
     
-    // Only update if value is different AND editor is not focused (meaning it's an external change)
     if (value !== normalizedCurrent && !editor.isFocused) {
       editor.commands.setContent(value, false)
     }
@@ -93,7 +94,6 @@ export function RichTextEditor({
       editor.chain().focus().extendMarkRange("link").unsetLink().run()
     } else {
       let url = linkUrl.trim()
-      // Normalize external URLs
       if (!/^https?:\/\//i.test(url) && !/^\//.test(url)) {
         url = `https://${url}`
       }
@@ -150,18 +150,17 @@ export function RichTextEditor({
   }
 
   return (
-
     <div
       className={cn(
-        "flex flex-col w-full bg-transparent text-ink font-sans transition-all duration-200",
+        "flex flex-col w-full bg-background text-foreground transition-all duration-200 border border-input rounded-2xl overflow-hidden focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/30",
         className
       )}
     >
       {/* Toolbar */}
-      <div className="sticky top-[73px] z-30 flex flex-wrap items-center justify-between border-y border-hairline-light py-1.5 bg-canvas-cream/95 backdrop-blur-md gap-1 mb-4">
+      <div className="flex flex-wrap items-center justify-between border-b border-border bg-muted/40 p-2 gap-1 select-none">
         {isLinking ? (
           <div className="flex items-center gap-1.5 w-full">
-            <input
+            <Input
               type="text"
               placeholder="Enter URL (e.g. google.com or /about)"
               value={linkUrl}
@@ -173,235 +172,218 @@ export function RichTextEditor({
                   handleSetLink()
                 }
               }}
-              className="flex-1 h-8 text-micro bg-canvas-light text-ink border border-hairline-light rounded-full px-3 focus:outline-none focus:border-shade-60"
+              className="flex-1 h-8 text-xs px-3 focus-visible:ring-1"
               autoFocus
             />
-            <button
+            <Button
               type="button"
+              variant="default"
+              size="icon"
               onClick={handleSetLink}
-              className="w-8 h-8 rounded-full flex items-center justify-center bg-primary text-on-primary hover:bg-shade-70 transition-colors cursor-pointer"
+              className="rounded-full h-8 w-8 shrink-0"
             >
-              <Check className="w-3.5 h-3.5" />
-            </button>
-            <button
+              <Check className="w-4 h-4" />
+            </Button>
+            <Button
               type="button"
+              variant="outline"
+              size="icon"
               onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
                 setIsLinking(false)
                 setLinkUrl("")
               }}
-              className="w-8 h-8 rounded-full flex items-center justify-center border border-hairline-light text-ink bg-canvas-light hover:bg-hairline-light transition-colors cursor-pointer"
+              className="rounded-full h-8 w-8 shrink-0"
             >
-              <X className="w-3.5 h-3.5" />
-            </button>
+              <X className="w-4 h-4" />
+            </Button>
           </div>
         ) : (
           <>
             <div className="flex flex-wrap items-center gap-0.5">
               {/* Headings */}
-              <button
+              <Button
                 type="button"
+                variant={activeStates.h1 ? "default" : "ghost"}
+                size="icon"
                 onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
-                  activeStates.h1
-                    ? "bg-primary text-on-primary hover:bg-shade-70 font-bold"
-                    : "text-ink hover:bg-hairline-light"
-                )}
+                className="h-8 w-8 rounded-md shrink-0"
                 title="Heading 1"
               >
                 <Heading1 className="w-4 h-4" />
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant={activeStates.h2 ? "default" : "ghost"}
+                size="icon"
                 onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
-                  activeStates.h2
-                    ? "bg-primary text-on-primary hover:bg-shade-70 font-bold"
-                    : "text-ink hover:bg-hairline-light"
-                )}
+                className="h-8 w-8 rounded-md shrink-0"
                 title="Heading 2"
               >
                 <Heading2 className="w-4 h-4" />
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant={activeStates.h3 ? "default" : "ghost"}
+                size="icon"
                 onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
-                  activeStates.h3
-                    ? "bg-primary text-on-primary hover:bg-shade-70 font-bold"
-                    : "text-ink hover:bg-hairline-light"
-                )}
+                className="h-8 w-8 rounded-md shrink-0"
                 title="Heading 3"
               >
                 <Heading3 className="w-4 h-4" />
-              </button>
+              </Button>
 
-              <div className="w-px h-5 bg-hairline-light mx-1" />
+              <div className="w-px h-5 bg-border mx-1" />
 
               {/* Formatting */}
-              <button
+              <Button
                 type="button"
+                variant={activeStates.bold ? "default" : "ghost"}
+                size="icon"
                 onClick={() => editor.chain().focus().toggleBold().run()}
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
-                  activeStates.bold
-                    ? "bg-primary text-on-primary hover:bg-shade-70 font-bold"
-                    : "text-ink hover:bg-hairline-light"
-                )}
+                className="h-8 w-8 rounded-md shrink-0"
                 title="Bold"
               >
                 <Bold className="w-4 h-4" />
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant={activeStates.italic ? "default" : "ghost"}
+                size="icon"
                 onClick={() => editor.chain().focus().toggleItalic().run()}
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
-                  activeStates.italic
-                    ? "bg-primary text-on-primary hover:bg-shade-70 italic"
-                    : "text-ink hover:bg-hairline-light"
-                )}
+                className="h-8 w-8 rounded-md shrink-0"
                 title="Italic"
               >
                 <Italic className="w-4 h-4" />
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant={activeStates.strike ? "default" : "ghost"}
+                size="icon"
                 onClick={() => editor.chain().focus().toggleStrike().run()}
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
-                  activeStates.strike
-                    ? "bg-primary text-on-primary hover:bg-shade-70"
-                    : "text-ink hover:bg-hairline-light"
-                )}
+                className="h-8 w-8 rounded-md shrink-0"
                 title="Strike-through"
               >
                 <Strikethrough className="w-4 h-4" />
-              </button>
+              </Button>
 
-              <div className="w-px h-5 bg-hairline-light mx-1" />
+              <div className="w-px h-5 bg-border mx-1" />
 
               {/* Lists */}
-              <button
+              <Button
                 type="button"
+                variant={activeStates.bulletList ? "default" : "ghost"}
+                size="icon"
                 onClick={() => editor.chain().focus().toggleBulletList().run()}
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
-                  activeStates.bulletList
-                    ? "bg-primary text-on-primary hover:bg-shade-70"
-                    : "text-ink hover:bg-hairline-light"
-                )}
+                className="h-8 w-8 rounded-md shrink-0"
                 title="Bullet List"
               >
                 <List className="w-4 h-4" />
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant={activeStates.orderedList ? "default" : "ghost"}
+                size="icon"
                 onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
-                  activeStates.orderedList
-                    ? "bg-primary text-on-primary hover:bg-shade-70"
-                    : "text-ink hover:bg-hairline-light"
-                )}
+                className="h-8 w-8 rounded-md shrink-0"
                 title="Numbered List"
               >
                 <ListOrdered className="w-4 h-4" />
-              </button>
+              </Button>
 
-              <div className="w-px h-5 bg-hairline-light mx-1" />
+              <div className="w-px h-5 bg-border mx-1" />
 
               {/* Quotes & Code */}
-              <button
+              <Button
                 type="button"
+                variant={activeStates.blockquote ? "default" : "ghost"}
+                size="icon"
                 onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
-                  activeStates.blockquote
-                    ? "bg-primary text-on-primary hover:bg-shade-70"
-                    : "text-ink hover:bg-hairline-light"
-                )}
+                className="h-8 w-8 rounded-md shrink-0"
                 title="Blockquote"
               >
                 <Quote className="w-4 h-4" />
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant={activeStates.code ? "default" : "ghost"}
+                size="icon"
                 onClick={() => editor.chain().focus().toggleCode().run()}
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
-                  activeStates.code
-                    ? "bg-primary text-on-primary hover:bg-shade-70"
-                    : "text-ink hover:bg-hairline-light"
-                )}
+                className="h-8 w-8 rounded-md shrink-0"
                 title="Code"
               >
                 <Code className="w-4 h-4" />
-              </button>
+              </Button>
 
-              <div className="w-px h-5 bg-hairline-light mx-1" />
+              <div className="w-px h-5 bg-border mx-1" />
 
               {/* Links */}
-              <button
+              <Button
                 type="button"
+                variant={activeStates.link ? "default" : "ghost"}
+                size="icon"
                 onClick={handleOpenLinkInput}
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
-                  activeStates.link
-                    ? "bg-primary text-on-primary hover:bg-shade-70"
-                    : "text-ink hover:bg-hairline-light"
-                )}
+                className="h-8 w-8 rounded-md shrink-0"
                 title="Insert Link"
               >
                 <LinkIcon className="w-4 h-4" />
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => editor.chain().focus().unsetLink().run()}
                 disabled={!activeStates.link}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-ink hover:bg-hairline-light transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                className="h-8 w-8 rounded-md shrink-0"
                 title="Remove Link"
               >
                 <Unlink className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
 
             {/* History */}
             <div className="flex items-center gap-0.5">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => editor.chain().focus().undo().run()}
                 disabled={!activeStates.canUndo}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-ink hover:bg-hairline-light transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                className="h-8 w-8 rounded-md shrink-0"
                 title="Undo"
               >
                 <Undo className="w-4 h-4" />
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => editor.chain().focus().redo().run()}
                 disabled={!activeStates.canRedo}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-ink hover:bg-hairline-light transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                className="h-8 w-8 rounded-md shrink-0"
                 title="Redo"
               >
                 <Redo className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
           </>
         )}
       </div>
 
       {/* Editor Workspace */}
-      <div className="min-h-[500px] cursor-text" onClick={() => editor.chain().focus().run()}>
-        <EditorContent editor={editor} className="flex-1 prose prose-stone max-w-none prose-headings:font-display prose-headings:font-semibold prose-a:text-primary prose-a:no-underline hover:prose-a:underline focus:outline-none" />
+      <div 
+        className="min-h-[150px] p-4 cursor-text focus-visible:outline-none" 
+        onClick={() => editor.chain().focus().run()}
+      >
+        <EditorContent 
+          editor={editor} 
+          className="flex-1 prose prose-stone dark:prose-invert max-w-none prose-headings:font-display prose-headings:font-semibold prose-a:text-primary prose-a:no-underline hover:prose-a:underline focus:outline-none" 
+        />
       </div>
 
       {/* Status Bar / Word Count */}
-      <div className="flex items-center justify-end py-4 text-micro text-shade-40 font-mono gap-4 select-none border-t border-hairline-light mt-8">
+      <div className="flex items-center justify-end px-4 py-2 text-xs text-muted-foreground font-mono gap-4 select-none border-t border-border bg-muted/20">
         <span>{activeStates.words} words</span>
         <span>{activeStates.characters} characters</span>
       </div>

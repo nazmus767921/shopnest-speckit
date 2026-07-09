@@ -4,8 +4,6 @@ import { auth } from "@/lib/auth/auth"
 import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { getPageById } from "@/db/queries/pages"
 import { PageForm } from "../components/page-form"
-import Link from "next/link"
-import { ChevronLeft } from "lucide-react"
 import { notFound } from "next/navigation"
 
 export const metadata = {
@@ -18,7 +16,7 @@ interface PageProps {
 
 export default function EditPage({ params }: PageProps) {
   return (
-    <React.Suspense fallback={<div className="flex flex-col animate-pulse w-full h-[600px] bg-canvas-cream rounded-2xl" />}>
+    <React.Suspense fallback={<div className="flex flex-col animate-pulse w-full h-[600px] bg-muted rounded-xl" />}>
       <EditPageContent params={params} />
     </React.Suspense>
   )
@@ -32,8 +30,8 @@ async function EditPageContent({ params }: PageProps) {
 
   if (!merchant) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <p className="text-shade-50">Merchant account not found.</p>
+      <div className="flex items-center justify-center min-h-64 text-foreground">
+        <p className="text-muted-foreground">Merchant account not found.</p>
       </div>
     )
   }

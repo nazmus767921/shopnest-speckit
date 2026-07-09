@@ -1,21 +1,21 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import { useForm } from "@tanstack/react-form"
 import { storeSettingsSchema } from "@/lib/validations/settings"
 import { updateStoreSettingsAction } from "@/app/actions/settings"
-import { Button } from "@/components/ui/primitives/Button"
-import { Input } from "@/components/ui/primitives/Input"
-import { FormLabel } from "@/components/ui/primitives/FormLabel"
-import { Select } from "@/components/ui/primitives/Select"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/layout/Card"
-import { CheckCircle2, AlertCircle, Save, Lock, Smartphone, Landmark, Sliders, LayoutTemplate, Trash2, Plus, UploadCloud, X, Truck, Bell } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label as FormLabel } from "@/components/ui/label"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Switch } from "@/components/ui/switch"
+import { Save, Lock, Smartphone, Landmark, Sliders, Trash2, Plus, UploadCloud, X, Truck, Bell } from "lucide-react"
 import { z } from "zod"
 import { ShippingDeliveryTab } from "./ShippingDeliveryTab"
 import { NotificationsTab } from "./NotificationsTab"
-import { supabase } from "@/lib/supabase/client"
-import { toast } from "@/components/ui/feedback/Toast"
+import { toast } from "sonner"
 import type { ResolvedPlan } from "@/lib/plans/types"
+import { cn } from "@/lib/utils"
 
 interface Merchant {
   id: string
@@ -53,7 +53,6 @@ interface StoreSettingsFormProps {
 
 type Tab = "profile" | "payments" | "inventory" | "shipping" | "notifications"
 
-// Specialized sub-schemas derived from main schema shape
 const profileSchema = z.object({
   name: storeSettingsSchema.shape.name,
   phoneNumber: storeSettingsSchema.shape.phoneNumber,
@@ -75,7 +74,6 @@ const inventorySchema = z.object({
 export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettingsFormProps) {
   const [activeTab, setActiveTab] = useState<Tab>("profile")
 
-
   // 1. Profile Form setup
   const profileForm = useForm({
     defaultValues: {
@@ -89,7 +87,6 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
         return
       }
 
-      // Build full save payload retaining other merchant fields
       const payload = {
         name: value.name,
         phoneNumber: value.phoneNumber || null,
@@ -177,17 +174,22 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
   return (
     <div className="flex flex-col md:flex-row gap-6 lg:gap-8 select-text">
       {/* Settings Navigation Sidebar */}
-      <div className="bg-zinc-50 border border-hairline-light rounded-2xl p-2.5 flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-x-visible shrink-0 w-full md:w-60 lg:w-64 md:sticky md:top-20 self-start scrollbar-none">
+      <div className="bg-muted/50 border border-border rounded-xl p-2.5 flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-x-visible shrink-0 w-full md:w-60 lg:w-64 md:sticky md:top-20 self-start scrollbar-none">
         <button
           type="button"
           onClick={() => setActiveTab("profile")}
-          className={`flex items-center justify-between gap-3 px-3.5 py-2 text-caption transition-all duration-200 cursor-pointer text-left rounded-xl w-full shrink-0 md:shrink ${activeTab === "profile"
-            ? "bg-zinc-950 text-white font-semibold"
-            : "text-shade-60 hover:text-ink hover:bg-zinc-200/50 font-semibold"
-            }`}
+          className={cn(
+            "flex items-center justify-between gap-3 px-3.5 py-2 text-sm transition-all duration-200 cursor-pointer text-left rounded-lg w-full shrink-0 md:shrink font-semibold",
+            activeTab === "profile"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          )}
         >
           <span className="flex items-center gap-3">
-            <span className={`w-7 h-7 flex items-center justify-center rounded-lg text-white ${activeTab === "profile" ? "bg-white/15" : "bg-blue-600"}`}>
+            <span className={cn(
+              "w-7 h-7 flex items-center justify-center rounded-lg text-white",
+              activeTab === "profile" ? "bg-white/15" : "bg-blue-600"
+            )}>
               <Smartphone className="h-4 w-4 shrink-0" />
             </span>
             <span>Store Profile</span>
@@ -198,13 +200,18 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
         <button
           type="button"
           onClick={() => setActiveTab("inventory")}
-          className={`flex items-center justify-between gap-3 px-3.5 py-2 text-caption transition-all duration-200 cursor-pointer text-left rounded-xl w-full shrink-0 md:shrink ${activeTab === "inventory"
-            ? "bg-zinc-950 text-white font-semibold"
-            : "text-shade-60 hover:text-ink hover:bg-zinc-200/50 font-semibold"
-            }`}
+          className={cn(
+            "flex items-center justify-between gap-3 px-3.5 py-2 text-sm transition-all duration-200 cursor-pointer text-left rounded-lg w-full shrink-0 md:shrink font-semibold",
+            activeTab === "inventory"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          )}
         >
           <span className="flex items-center gap-3">
-            <span className={`w-7 h-7 flex items-center justify-center rounded-lg text-white ${activeTab === "inventory" ? "bg-white/15" : "bg-purple-600"}`}>
+            <span className={cn(
+              "w-7 h-7 flex items-center justify-center rounded-lg text-white",
+              activeTab === "inventory" ? "bg-white/15" : "bg-purple-600"
+            )}>
               <Sliders className="h-4 w-4 shrink-0" />
             </span>
             <span>Inventory</span>
@@ -215,13 +222,18 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
         <button
           type="button"
           onClick={() => setActiveTab("payments")}
-          className={`flex items-center justify-between gap-3 px-3.5 py-2 text-caption transition-all duration-200 cursor-pointer text-left rounded-xl w-full shrink-0 md:shrink ${activeTab === "payments"
-            ? "bg-zinc-950 text-white font-semibold"
-            : "text-shade-60 hover:text-ink hover:bg-zinc-200/50 font-semibold"
-            }`}
+          className={cn(
+            "flex items-center justify-between gap-3 px-3.5 py-2 text-sm transition-all duration-200 cursor-pointer text-left rounded-lg w-full shrink-0 md:shrink font-semibold",
+            activeTab === "payments"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          )}
         >
           <span className="flex items-center gap-3">
-            <span className={`w-7 h-7 flex items-center justify-center rounded-lg text-white ${activeTab === "payments" ? "bg-white/15" : "bg-emerald-600"}`}>
+            <span className={cn(
+              "w-7 h-7 flex items-center justify-center rounded-lg text-white",
+              activeTab === "payments" ? "bg-white/15" : "bg-emerald-600"
+            )}>
               <Landmark className="h-4 w-4 shrink-0" />
             </span>
             <span>Payment Options</span>
@@ -232,13 +244,18 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
         <button
           type="button"
           onClick={() => setActiveTab("shipping")}
-          className={`flex items-center justify-between gap-3 px-3.5 py-2 text-caption transition-all duration-200 cursor-pointer text-left rounded-xl w-full shrink-0 md:shrink ${activeTab === "shipping"
-            ? "bg-zinc-950 text-white font-semibold"
-            : "text-shade-60 hover:text-ink hover:bg-zinc-200/50 font-semibold"
-            }`}
+          className={cn(
+            "flex items-center justify-between gap-3 px-3.5 py-2 text-sm transition-all duration-200 cursor-pointer text-left rounded-lg w-full shrink-0 md:shrink font-semibold",
+            activeTab === "shipping"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          )}
         >
           <span className="flex items-center gap-3">
-            <span className={`w-7 h-7 flex items-center justify-center rounded-lg text-white ${activeTab === "shipping" ? "bg-white/15" : "bg-orange-500"}`}>
+            <span className={cn(
+              "w-7 h-7 flex items-center justify-center rounded-lg text-white",
+              activeTab === "shipping" ? "bg-white/15" : "bg-orange-500"
+            )}>
               <Truck className="h-4 w-4 shrink-0" />
             </span>
             <span>Shipping & Delivery</span>
@@ -246,17 +263,21 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
           {activeTab === "shipping" && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />}
         </button>
 
-
         <button
           type="button"
           onClick={() => setActiveTab("notifications")}
-          className={`flex items-center justify-between gap-3 px-3.5 py-2 text-caption transition-all duration-200 cursor-pointer text-left rounded-xl w-full shrink-0 md:shrink ${activeTab === "notifications"
-            ? "bg-zinc-950 text-white font-semibold"
-            : "text-shade-60 hover:text-ink hover:bg-zinc-200/50 font-semibold"
-            }`}
+          className={cn(
+            "flex items-center justify-between gap-3 px-3.5 py-2 text-sm transition-all duration-200 cursor-pointer text-left rounded-lg w-full shrink-0 md:shrink font-semibold",
+            activeTab === "notifications"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          )}
         >
           <span className="flex items-center gap-3">
-            <span className={`w-7 h-7 flex items-center justify-center rounded-lg text-white ${activeTab === "notifications" ? "bg-white/15" : "bg-red-500"}`}>
+            <span className={cn(
+              "w-7 h-7 flex items-center justify-center rounded-lg text-white",
+              activeTab === "notifications" ? "bg-white/15" : "bg-red-500"
+            )}>
               <Bell className="h-4 w-4 shrink-0" />
             </span>
             <span>Notifications</span>
@@ -277,11 +298,11 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
             className="animate-fade-in"
           >
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Bento Card 1: Store Profile Info */}
-              <Card variant="default" className="lg:col-span-8 p-6 sm:p-8 flex flex-col gap-6 rounded-2xl">
-                <CardHeader className="p-0 border-b border-hairline-light pb-4">
-                  <CardTitle className="text-heading-md font-bold text-ink">Store Profile</CardTitle>
-                  <CardDescription className="text-caption text-shade-50 mt-1">
+              {/* Card 1: Store Profile Info */}
+              <Card className="lg:col-span-8 p-6 sm:p-8 flex flex-col gap-6 rounded-xl border border-border">
+                <CardHeader className="p-0 border-b border-border pb-4">
+                  <CardTitle className="text-lg font-bold text-foreground">Store Profile</CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground mt-1">
                     Basic information about your store shown to customers on your storefront.
                   </CardDescription>
                 </CardHeader>
@@ -300,10 +321,10 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                           onChange={(e) => field.handleChange(e.target.value)}
                           onBlur={field.handleBlur}
                           placeholder="e.g. Niha's Boutique"
-                          className="bg-canvas-cream/40 border-hairline-light focus:border-ink rounded-lg"
+                          className="bg-background border-border rounded-lg"
                         />
                         {field.state.meta.errors.length > 0 && (
-                          <p className="text-micro text-red-500">{String(field.state.meta.errors[0])}</p>
+                          <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
                         )}
                       </div>
                     )}
@@ -321,25 +342,23 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                           onChange={(e) => field.handleChange(e.target.value)}
                           onBlur={field.handleBlur}
                           placeholder="e.g. 01700000000"
-                          className="bg-canvas-cream/40 border-hairline-light focus:border-ink rounded-lg"
+                          className="bg-background border-border rounded-lg"
                         />
                         {field.state.meta.errors.length > 0 && (
-                          <p className="text-micro text-red-500">{String(field.state.meta.errors[0])}</p>
+                          <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
                         )}
                       </div>
                     )}
                   </profileForm.Field>
                 </CardContent>
 
-                <CardFooter className="p-0 justify-end border-t border-hairline-light pt-4">
+                <CardFooter className="p-0 justify-end border-t border-border pt-4">
                   <profileForm.Subscribe selector={(state) => state.isSubmitting}>
                     {(isSubmitting) => (
                       <Button
                         type="submit"
-                        variant="primary"
-                        size="md"
                         disabled={isSubmitting}
-                        className="flex items-center gap-2 w-full sm:w-auto rounded-full"
+                        className="flex items-center gap-2 w-full sm:w-auto rounded-md"
                       >
                         <Save className="h-4 w-4" />
                         {isSubmitting ? "Saving Profile…" : "Save Profile Settings"}
@@ -349,22 +368,22 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                 </CardFooter>
               </Card>
 
-              {/* Bento Card 2: Permanent Subdomain Lock */}
-              <Card variant="default" className="lg:col-span-4 p-6 sm:p-8 flex flex-col gap-5 rounded-2xl bg-zinc-50/50 justify-between">
+              {/* Card 2: Permanent Subdomain Lock */}
+              <Card className="lg:col-span-4 p-6 sm:p-8 flex flex-col gap-5 rounded-xl bg-muted/30 border border-border justify-between">
                 <div className="flex flex-col gap-4">
-                  <div className="w-10 h-10 bg-zinc-950 text-white rounded-xl flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-primary text-primary-foreground rounded-lg flex items-center justify-center shrink-0">
                     <Lock className="h-5 w-5" />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <span className="text-body-strong font-bold text-ink leading-tight">
+                    <span className="text-base font-semibold text-foreground leading-tight">
                       Permanent Subdomain
                     </span>
-                    <p className="text-caption text-shade-50 leading-relaxed">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
                       Your storefront URL is permanent and cannot be modified.
                     </p>
                   </div>
                 </div>
-                <div className="mt-4 p-3.5 bg-white border border-hairline-light rounded-xl font-mono text-[11px] font-semibold text-ink break-all text-center">
+                <div className="mt-4 p-3.5 bg-background border border-border rounded-lg font-mono text-xs font-semibold text-foreground break-all text-center">
                   {merchant.subdomain}.shopnest.com.bd
                 </div>
               </Card>
@@ -381,25 +400,25 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
             }}
             className="animate-fade-in"
           >
-            <Card variant="default" className="p-6 sm:p-8 flex flex-col gap-6 rounded-2xl">
-              <CardHeader className="p-0 border-b border-hairline-light pb-4">
-                <CardTitle className="text-heading-md font-bold text-ink">Payment Details</CardTitle>
-                <CardDescription className="text-caption text-shade-50 mt-1">
+            <Card className="p-6 sm:p-8 flex flex-col gap-6 rounded-xl border border-border">
+              <CardHeader className="p-0 border-b border-border pb-4">
+                <CardTitle className="text-lg font-bold text-foreground">Payment Details</CardTitle>
+                <CardDescription className="text-sm text-muted-foreground mt-1">
                   Configure the mobile financial service numbers where customers will send manual payments during checkout.
                 </CardDescription>
               </CardHeader>
 
               <CardContent className="p-0 flex flex-col gap-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* bKash Wallet Bento Card */}
-                  <div className="bg-pink-50/20 border border-pink-100/70 rounded-2xl p-5 flex flex-col gap-4">
+                  {/* bKash Wallet Card */}
+                  <div className="bg-rose-500/5 border border-rose-500/10 rounded-xl p-5 flex flex-col gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-[#d12053] text-white rounded-xl flex items-center justify-center font-bold text-body-md shrink-0">
+                      <div className="w-9 h-9 bg-[#d12053] text-white rounded-lg flex items-center justify-center font-bold text-base shrink-0">
                         b
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-body-strong font-bold text-ink leading-tight">bKash Account</span>
-                        <span className="text-[10px] text-pink-700 font-semibold uppercase tracking-wider">Personal Wallet</span>
+                        <span className="text-base font-semibold text-foreground leading-tight">bKash Account</span>
+                        <span className="text-[10px] text-[#d12053] font-semibold uppercase tracking-wider">Personal Wallet</span>
                       </div>
                     </div>
                     {/* bKash Number */}
@@ -414,25 +433,25 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                             onChange={(e) => field.handleChange(e.target.value)}
                             onBlur={field.handleBlur}
                             placeholder="e.g. 01700000000"
-                            className="bg-white border-hairline-light focus:border-ink rounded-lg"
+                            className="bg-background border-border rounded-lg"
                           />
                           {field.state.meta.errors.length > 0 && (
-                            <p className="text-micro text-red-500">{String(field.state.meta.errors[0])}</p>
+                            <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
                           )}
                         </div>
                       )}
                     </paymentsForm.Field>
                   </div>
 
-                  {/* Nagad Wallet Bento Card */}
-                  <div className="bg-orange-50/20 border border-orange-100/70 rounded-2xl p-5 flex flex-col gap-4">
+                  {/* Nagad Wallet Card */}
+                  <div className="bg-orange-500/5 border border-orange-500/10 rounded-xl p-5 flex flex-col gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-[#f04f23] text-white rounded-xl flex items-center justify-center font-bold text-body-md shrink-0">
+                      <div className="w-9 h-9 bg-[#f04f23] text-white rounded-lg flex items-center justify-center font-bold text-base shrink-0">
                         n
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-body-strong font-bold text-ink leading-tight">Nagad Account</span>
-                        <span className="text-[10px] text-orange-700 font-semibold uppercase tracking-wider">Personal Wallet</span>
+                        <span className="text-base font-semibold text-foreground leading-tight">Nagad Account</span>
+                        <span className="text-[10px] text-[#f04f23] font-semibold uppercase tracking-wider">Personal Wallet</span>
                       </div>
                     </div>
                     {/* Nagad Number */}
@@ -447,54 +466,49 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                             onChange={(e) => field.handleChange(e.target.value)}
                             onBlur={field.handleBlur}
                             placeholder="e.g. 01700000000"
-                            className="bg-white border-hairline-light focus:border-ink rounded-lg"
+                            className="bg-background border-border rounded-lg"
                           />
                           {field.state.meta.errors.length > 0 && (
-                            <p className="text-micro text-red-500">{String(field.state.meta.errors[0])}</p>
+                            <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
                           )}
                         </div>
                       )}
                     </paymentsForm.Field>
                   </div>
 
-                  {/* Cash on Delivery Bento Card */}
-                  <div className="bg-zinc-50/50 border border-hairline-light rounded-2xl p-5 md:col-span-2 flex flex-col gap-5">
+                  {/* Cash on Delivery Card */}
+                  <div className="bg-muted/10 border border-border rounded-xl p-5 md:col-span-2 flex flex-col gap-5">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-zinc-900 text-white rounded-xl flex items-center justify-center font-bold text-body-md shrink-0">
+                        <div className="w-9 h-9 bg-primary text-primary-foreground rounded-lg flex items-center justify-center font-bold text-base shrink-0">
                           C
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-body-strong font-bold text-ink leading-tight">Cash on Delivery (COD)</span>
-                          <span className="text-[10px] text-zinc-500 font-semibold uppercase tracking-wider">Storefront Delivery Payment</span>
+                          <span className="text-base font-semibold text-foreground leading-tight">Cash on Delivery (COD)</span>
+                          <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Storefront Delivery Payment</span>
                         </div>
                       </div>
-                      
-                      {/* codEnabled Toggle */}
+
+                      {/* codEnabled Switch */}
                       <paymentsForm.Field name="codEnabled">
                         {(field) => (
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={field.state.value}
-                              disabled={!plan?.features.cod}
-                              onChange={(e) => {
-                                field.handleChange(e.target.checked)
-                                if (!e.target.checked) {
-                                  paymentsForm.setFieldValue("payDeliveryChargeFirst", false)
-                                }
-                              }}
-                              className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-shade-30 rounded-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-canvas-light after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-disabled:opacity-50"></div>
-                          </label>
+                          <Switch
+                            checked={field.state.value}
+                            disabled={!plan?.features.cod}
+                            onCheckedChange={(checked) => {
+                              field.handleChange(checked)
+                              if (!checked) {
+                                paymentsForm.setFieldValue("payDeliveryChargeFirst", false)
+                              }
+                            }}
+                          />
                         )}
                       </paymentsForm.Field>
                     </div>
 
                     {!plan?.features.cod && (
-                      <div className="p-3.5 bg-amber-50 border border-amber-200/50 rounded-xl text-micro text-amber-800 flex items-center gap-2">
-                        <Lock className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                      <div className="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-xs text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                        <Lock className="h-3.5 w-3.5 shrink-0" />
                         <span>Upgrade your subscription plan to Growth or Pro to enable Cash on Delivery checkout options.</span>
                       </div>
                     )}
@@ -504,32 +518,27 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                         {(state) => (
                           <>
                             {state.values.codEnabled && (
-                              <div className="border-t border-hairline-light pt-4 flex flex-col gap-4 animate-fade-in">
+                              <div className="border-t border-border pt-4 flex flex-col gap-4 animate-fade-in">
                                 <div className="flex items-center justify-between gap-4">
                                   <div className="flex flex-col gap-0.5">
-                                    <span className="text-caption font-semibold text-ink">Pay Delivery Charge First</span>
-                                    <p className="text-micro text-shade-50">Require customers to pay the shipping fee upfront via bKash/Nagad during checkout.</p>
+                                    <span className="text-sm font-semibold text-foreground">Pay Delivery Charge First</span>
+                                    <p className="text-xs text-muted-foreground">Require customers to pay the shipping fee upfront via bKash/Nagad during checkout.</p>
                                   </div>
-                                  
-                                  {/* payDeliveryChargeFirst Toggle */}
+
+                                  {/* payDeliveryChargeFirst Switch */}
                                   <paymentsForm.Field name="payDeliveryChargeFirst">
                                     {(field) => (
-                                      <label className="relative inline-flex items-center cursor-pointer">
-                                        <input
-                                          type="checkbox"
-                                          checked={field.state.value}
-                                          onChange={(e) => field.handleChange(e.target.checked)}
-                                          className="sr-only peer"
-                                        />
-                                        <div className="w-11 h-6 bg-shade-30 rounded-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-canvas-light after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
-                                      </label>
+                                      <Switch
+                                        checked={field.state.value}
+                                        onCheckedChange={(checked) => field.handleChange(checked)}
+                                      />
                                     )}
                                   </paymentsForm.Field>
                                 </div>
 
                                 {state.values.payDeliveryChargeFirst && (
-                                  <div className="bg-canvas-cream/30 border border-hairline-light rounded-xl p-4 flex flex-col gap-4 animate-fade-in">
-                                    <span className="text-micro font-bold text-ink uppercase tracking-wider">Merchant Wallet Numbers for Shipping Collection</span>
+                                  <div className="bg-muted/20 border border-border rounded-lg p-4 flex flex-col gap-4 animate-fade-in">
+                                    <span className="text-xs font-bold text-foreground uppercase tracking-wider">Merchant Wallet Numbers for Shipping Collection</span>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                       <paymentsForm.Field name="bkashWalletNumber">
                                         {(field) => (
@@ -542,12 +551,12 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                                               onChange={(e) => field.handleChange(e.target.value)}
                                               onBlur={field.handleBlur}
                                               placeholder="e.g. 01700000000"
-                                              className="bg-white border-hairline-light focus:border-ink rounded-lg"
+                                              className="bg-background border-border rounded-lg"
                                             />
                                           </div>
                                         )}
                                       </paymentsForm.Field>
-                                      
+
                                       <paymentsForm.Field name="nagadWalletNumber">
                                         {(field) => (
                                           <div className="flex flex-col gap-1.5">
@@ -559,13 +568,13 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                                               onChange={(e) => field.handleChange(e.target.value)}
                                               onBlur={field.handleBlur}
                                               placeholder="e.g. 01700000000"
-                                              className="bg-white border-hairline-light focus:border-ink rounded-lg"
+                                              className="bg-background border-border rounded-lg"
                                             />
                                           </div>
                                         )}
                                       </paymentsForm.Field>
                                     </div>
-                                    <p className="text-micro text-shade-40 leading-relaxed">
+                                    <p className="text-xs text-muted-foreground leading-relaxed">
                                       * These wallet numbers will be displayed to customers during the checkout payment step to submit their shipping fee.
                                     </p>
                                   </div>
@@ -579,20 +588,18 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                   </div>
                 </div>
 
-                <p className="text-micro text-shade-40 leading-relaxed max-w-xl">
+                <p className="text-xs text-muted-foreground leading-relaxed max-w-xl">
                   * Customers will see these numbers at checkout. Ensure they are correct and active to prevent failed payment confirmations.
                 </p>
               </CardContent>
 
-              <CardFooter className="p-0 justify-end border-t border-hairline-light pt-4">
+              <CardFooter className="p-0 justify-end border-t border-border pt-4">
                 <paymentsForm.Subscribe selector={(state) => state.isSubmitting}>
                   {(isSubmitting) => (
                     <Button
                       type="submit"
-                      variant="primary"
-                      size="md"
                       disabled={isSubmitting}
-                      className="flex items-center gap-2 w-full sm:w-auto rounded-full"
+                      className="flex items-center gap-2 w-full sm:w-auto rounded-md"
                     >
                       <Save className="h-4 w-4" />
                       {isSubmitting ? "Saving Payment Details…" : "Save Payment Details"}
@@ -613,10 +620,10 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
             }}
             className="animate-fade-in"
           >
-            <Card variant="default" className="p-6 sm:p-8 flex flex-col gap-6 rounded-2xl">
-              <CardHeader className="p-0 border-b border-hairline-light pb-4">
-                <CardTitle className="text-heading-md font-bold text-ink">Inventory Preferences</CardTitle>
-                <CardDescription className="text-caption text-shade-50 mt-1">
+            <Card className="p-6 sm:p-8 flex flex-col gap-6 rounded-xl border border-border">
+              <CardHeader className="p-0 border-b border-border pb-4">
+                <CardTitle className="text-lg font-bold text-foreground">Inventory Preferences</CardTitle>
+                <CardDescription className="text-sm text-muted-foreground mt-1">
                   Default settings applied to new products. You can override these per product if needed.
                 </CardDescription>
               </CardHeader>
@@ -637,28 +644,26 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                         onChange={(e) => field.handleChange(Number(e.target.value))}
                         onBlur={field.handleBlur}
                         placeholder="5"
-                        className="max-w-xs bg-canvas-cream/40 border-hairline-light focus:border-ink font-mono rounded-lg"
+                        className="max-w-xs bg-background border-border font-mono rounded-lg"
                       />
-                      <p className="text-micro text-shade-40 leading-relaxed">
+                      <p className="text-xs text-muted-foreground leading-relaxed">
                         New products will display a low-stock warning in your dashboard when their quantity drops below this number.
                       </p>
                       {field.state.meta.errors.length > 0 && (
-                        <p className="text-micro text-red-500">{String(field.state.meta.errors[0])}</p>
+                        <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
                       )}
                     </div>
                   )}
                 </inventoryForm.Field>
               </CardContent>
 
-              <CardFooter className="p-0 justify-end border-t border-hairline-light pt-4">
+              <CardFooter className="p-0 justify-end border-t border-border pt-4">
                 <inventoryForm.Subscribe selector={(state) => state.isSubmitting}>
                   {(isSubmitting) => (
                     <Button
                       type="submit"
-                      variant="primary"
-                      size="md"
                       disabled={isSubmitting}
-                      className="flex items-center gap-2 w-full sm:w-auto rounded-full"
+                      className="flex items-center gap-2 w-full sm:w-auto rounded-md"
                     >
                       <Save className="h-4 w-4" />
                       {isSubmitting ? "Saving Inventory…" : "Save Inventory Preferences"}

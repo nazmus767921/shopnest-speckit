@@ -4,10 +4,22 @@ import React, { useState, useEffect } from "react"
 import { TemplatePicker } from "./TemplatePicker"
 import { applyTemplateAction, updateThemeSettingsAction } from "@/app/actions/settings"
 import { saveStorefrontSectionsAction, seedDefaultSectionsAction } from "@/app/actions/storefront-sections"
-import { toast } from "@/components/ui/feedback/Toast"
-import { Button } from "@/components/ui/primitives/Button"
-import { Save, ChevronDown, ChevronRight, LayoutTemplate, Palette, LayoutList } from "lucide-react"
-import { Select } from "@/components/ui/primitives/Select"
+import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
+import { Save, ChevronDown, ChevronRight, LayoutTemplate, Palette, LayoutList, Plus } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { 
   HeroEditor, 
   AnnouncementBarEditor, 
@@ -47,7 +59,6 @@ interface TemplatesPageClientProps {
 
 export function TemplatesPageClient({ templates, currentTemplate, initialSections, initialThemeSettings }: TemplatesPageClientProps) {
   const [selectedTemplate, setSelectedTemplate] = useState(currentTemplate)
-  // Helper to ensure footer exists for backward compatibility with existing stores
   const getSectionsWithFooter = (secs: any[]) => {
     if (secs.length === 0) return secs
     if (secs.some(s => s.sectionKey === "footer")) return secs
@@ -78,7 +89,6 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
   const [isSaving, setIsSaving] = useState(false)
   const [isSavingTheme, setIsSavingTheme] = useState(false)
   
-  // Accordion state
   const [activeAccordion, setActiveAccordion] = useState<string>("sections") // "template", "theme", "sections"
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
 
@@ -169,7 +179,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
       case "footer":
         return <FooterEditor content={section.content} onChange={onChange} />
       default:
-        return <div className="text-sm text-zinc-500">No editor available for {section.sectionKey}</div>
+        return <div className="text-sm text-muted-foreground">No editor available for {section.sectionKey}</div>
     }
   }
 
@@ -195,7 +205,6 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
         
         let newItems = arrayMove(items, oldIndex, newIndex)
         
-        // Ensure footer is always last
         const footerIndex = newItems.findIndex(i => i.sectionKey === "footer")
         if (footerIndex !== -1 && footerIndex !== newItems.length - 1) {
           const footerItem = newItems.splice(footerIndex, 1)[0]
@@ -250,31 +259,31 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
   ]
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-20 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-20 items-start text-foreground">
       
       {/* Left Pane: Controls */}
       <div className="lg:col-span-5 flex flex-col gap-6">
         
         {/* Accordion 1: Active Theme */}
-        <div className="border border-hairline-light rounded-3xl bg-white">
+        <div className="border border-border rounded-xl bg-card">
           <button 
-            className={`w-full flex items-center justify-between p-6 hover:bg-zinc-50/50 transition-colors ${activeAccordion === 'template' ? 'border-b border-hairline-light rounded-t-[23px]' : 'rounded-[23px]'}`}
+            className={`w-full flex items-center justify-between p-6 hover:bg-muted/50 transition-colors ${activeAccordion === 'template' ? 'border-b border-border rounded-t-xl' : 'rounded-xl'}`}
             onClick={() => setActiveAccordion(activeAccordion === 'template' ? '' : 'template')}
           >
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600">
+              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
                 <LayoutTemplate className="w-5 h-5" />
               </div>
               <div className="flex flex-col items-start">
-                <h2 className="text-heading-sm font-bold text-ink">Active Theme</h2>
-                <p className="text-sm text-shade-50">Select your storefront layout</p>
+                <h2 className="text-base font-bold">Active Theme</h2>
+                <p className="text-sm text-muted-foreground">Select your storefront layout</p>
               </div>
             </div>
-            {activeAccordion === 'template' ? <ChevronDown className="w-5 h-5 text-zinc-400" /> : <ChevronRight className="w-5 h-5 text-zinc-400" />}
+            {activeAccordion === 'template' ? <ChevronDown className="w-5 h-5 text-muted-foreground" /> : <ChevronRight className="w-5 h-5 text-muted-foreground" />}
           </button>
           
           {activeAccordion === 'template' && (
-            <div className="p-6 bg-zinc-50/30 rounded-b-[23px]">
+            <div className="p-6 bg-muted/30 rounded-b-xl">
               <TemplatePicker 
                 templates={templates} 
                 loading={false} 
@@ -286,22 +295,22 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
         </div>
 
         {/* Accordion 2: Global Theme Settings */}
-        <div className="border border-hairline-light rounded-3xl bg-white">
-          <div className={`w-full flex items-center justify-between p-6 transition-colors ${activeAccordion === 'theme' ? 'border-b border-hairline-light bg-zinc-50/50 rounded-t-[23px]' : 'hover:bg-zinc-50/50 rounded-[23px]'}`}>
+        <div className="border border-border rounded-xl bg-card">
+          <div className={`w-full flex items-center justify-between p-6 transition-colors ${activeAccordion === 'theme' ? 'border-b border-border bg-muted/50 rounded-t-xl' : 'hover:bg-muted/50 rounded-xl'}`}>
             <button 
               className="flex items-center gap-4 flex-1 text-left"
               onClick={() => setActiveAccordion(activeAccordion === 'theme' ? '' : 'theme')}
             >
-              <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600 relative">
+              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground relative">
                 <Palette className="w-5 h-5" />
-                {hasUnsavedTheme && <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white"></span>}
+                {hasUnsavedTheme && <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-background"></span>}
               </div>
               <div className="flex flex-col items-start">
-                <h2 className="text-heading-sm font-bold text-ink flex items-center gap-2">
+                <h2 className="text-base font-bold flex items-center gap-2">
                   Global Theme Settings
-                  {hasUnsavedTheme && <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full uppercase tracking-wider">Unsaved</span>}
+                  {hasUnsavedTheme && <span className="text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/20 dark:text-amber-300 px-2 py-0.5 rounded-full uppercase tracking-wider">Unsaved</span>}
                 </h2>
-                <p className="text-sm text-shade-50">Colors and typography</p>
+                <p className="text-sm text-muted-foreground">Colors and typography</p>
               </div>
             </button>
             <div className="flex items-center gap-4">
@@ -309,28 +318,28 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                 <Button 
                   onClick={handleSaveThemeSettings} 
                   disabled={isSavingTheme || !hasUnsavedTheme}
-                  className={`rounded-full ${hasUnsavedTheme ? 'bg-amber-500 hover:bg-amber-600 text-white border-transparent' : ''}`}
+                  className={`rounded-md ${hasUnsavedTheme ? 'bg-amber-500 hover:bg-amber-600 text-white dark:text-black border-transparent' : ''}`}
                 >
                   {isSavingTheme ? "Saving..." : "Save"}
                 </Button>
               )}
               <button onClick={() => setActiveAccordion(activeAccordion === 'theme' ? '' : 'theme')}>
-                {activeAccordion === 'theme' ? <ChevronDown className="w-5 h-5 text-zinc-400" /> : <ChevronRight className="w-5 h-5 text-zinc-400" />}
+                {activeAccordion === 'theme' ? <ChevronDown className="w-5 h-5 text-muted-foreground" /> : <ChevronRight className="w-5 h-5 text-muted-foreground" />}
               </button>
             </div>
           </div>
           
           {activeAccordion === 'theme' && (
-            <div className="p-6 bg-zinc-50/30 flex flex-col gap-8 rounded-b-[23px]">
+            <div className="p-6 bg-muted/30 flex flex-col gap-8 rounded-b-xl">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Colors */}
                 <div className="flex flex-col gap-4">
-                  <h3 className="font-semibold text-body-md text-ink">Colors</h3>
+                  <h3 className="font-semibold text-sm">Colors</h3>
                   <div className="flex flex-col gap-3">
                     {['primary', 'secondary', 'background', 'text'].map((colorKey) => (
                       <div key={colorKey} className="flex items-center justify-between">
-                        <label className="text-sm font-medium text-shade-75 capitalize">{colorKey} Color</label>
-                        <div className="flex items-center gap-2 bg-white border border-hairline-light p-1 rounded-full pl-2">
+                        <label className="text-sm font-medium text-muted-foreground capitalize">{colorKey} Color</label>
+                        <div className="flex items-center gap-2 bg-background border border-border p-1 rounded-full pl-2">
                           <input 
                             type="text"
                             value={themeSettings.colors?.[colorKey] || "#000000"}
@@ -338,9 +347,9 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                               ...themeSettings,
                               colors: { ...themeSettings.colors, [colorKey]: e.target.value }
                             })}
-                            className="w-16 bg-transparent border-none p-0 text-xs uppercase font-medium focus:ring-0 text-zinc-600"
+                            className="w-16 bg-transparent border-none p-0 text-xs uppercase font-medium focus:ring-0 text-foreground"
                           />
-                          <div className="relative w-6 h-6 rounded-full overflow-hidden border border-hairline-light">
+                          <div className="relative w-6 h-6 rounded-full overflow-hidden border border-border">
                             <input 
                               type="color" 
                               value={themeSettings.colors?.[colorKey] || "#000000"} 
@@ -359,37 +368,27 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
 
                 {/* Layout */}
                 <div className="flex flex-col gap-4">
-                  <h3 className="font-semibold text-body-md text-ink">Layout & Styling</h3>
+                  <h3 className="font-semibold text-sm">Layout & Styling</h3>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-shade-75">Border Radius</label>
-                    {(() => {
-                      const RADIUS_OPTIONS = [
-                        { value: "none", label: "None (Sharp)" },
-                        { value: "sm", label: "Small (Slightly rounded)" },
-                        { value: "md", label: "Medium (Standard)" },
-                        { value: "lg", label: "Large (Rounded)" },
-                        { value: "full", label: "Full (Pill/Circular)" }
-                      ];
-                      const currentVal = themeSettings.layout?.borderRadius || "md";
-                      const currentOpt = RADIUS_OPTIONS.find(o => o.value === currentVal) || RADIUS_OPTIONS[2];
-                      
-                      return (
-                        <Select
-                          options={RADIUS_OPTIONS}
-                          value={currentOpt}
-                          onChange={(opt) => {
-                            if (opt) {
-                              setThemeSettings({
-                                ...themeSettings,
-                                layout: { ...themeSettings.layout, borderRadius: opt.value }
-                              })
-                            }
-                          }}
-                          getOptionLabel={(opt) => opt.label}
-                          getOptionValue={(opt) => opt.value}
-                        />
-                      );
-                    })()}
+                    <label className="text-sm font-medium text-muted-foreground">Border Radius</label>
+                    <Select
+                      value={themeSettings.layout?.borderRadius || "md"}
+                      onValueChange={(val) => setThemeSettings({
+                        ...themeSettings,
+                        layout: { ...themeSettings.layout, borderRadius: val }
+                      })}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Border Radius" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None (Sharp)</SelectItem>
+                        <SelectItem value="sm">Small (Slightly rounded)</SelectItem>
+                        <SelectItem value="md">Medium (Standard)</SelectItem>
+                        <SelectItem value="lg">Large (Rounded)</SelectItem>
+                        <SelectItem value="full">Full (Pill/Circular)</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
@@ -398,22 +397,22 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
         </div>
 
         {/* Accordion 3: Homepage Sections Editor */}
-        <div className="border border-hairline-light rounded-3xl bg-white">
-          <div className={`w-full flex items-center justify-between p-6 transition-colors ${activeAccordion === 'sections' ? 'border-b border-hairline-light bg-zinc-50/50 rounded-t-[23px]' : 'hover:bg-zinc-50/50 rounded-[23px]'}`}>
+        <div className="border border-border rounded-xl bg-card">
+          <div className={`w-full flex items-center justify-between p-6 transition-colors ${activeAccordion === 'sections' ? 'border-b border-border bg-muted/50 rounded-t-xl' : 'hover:bg-muted/50 rounded-xl'}`}>
             <button 
               className="flex items-center gap-4 flex-1 text-left"
               onClick={() => setActiveAccordion(activeAccordion === 'sections' ? '' : 'sections')}
             >
-              <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-600 relative">
+              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground relative">
                 <LayoutList className="w-5 h-5" />
-                {hasUnsavedSections && <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white"></span>}
+                {hasUnsavedSections && <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-background"></span>}
               </div>
               <div className="flex flex-col items-start">
-                <h2 className="text-heading-sm font-bold text-ink flex items-center gap-2">
+                <h2 className="text-base font-bold flex items-center gap-2">
                   Homepage Sections
-                  {hasUnsavedSections && <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full uppercase tracking-wider">Unsaved</span>}
+                  {hasUnsavedSections && <span className="text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/20 dark:text-amber-300 px-2 py-0.5 rounded-full uppercase tracking-wider">Unsaved</span>}
                 </h2>
-                <p className="text-sm text-shade-50">Manage content blocks</p>
+                <p className="text-sm text-muted-foreground">Manage content blocks</p>
               </div>
             </button>
             <div className="flex items-center gap-4">
@@ -421,39 +420,42 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                 <Button 
                   onClick={handleSaveSections} 
                   disabled={isSaving || !hasUnsavedSections}
-                  className={`rounded-full ${hasUnsavedSections ? 'bg-amber-500 hover:bg-amber-600 text-white border-transparent' : ''}`}
+                  className={`rounded-md ${hasUnsavedSections ? 'bg-amber-500 hover:bg-amber-600 text-white dark:text-black border-transparent' : ''}`}
                 >
                   {isSaving ? "Saving..." : "Save"}
                 </Button>
               )}
               <button onClick={() => setActiveAccordion(activeAccordion === 'sections' ? '' : 'sections')}>
-                {activeAccordion === 'sections' ? <ChevronDown className="w-5 h-5 text-zinc-400" /> : <ChevronRight className="w-5 h-5 text-zinc-400" />}
+                {activeAccordion === 'sections' ? <ChevronDown className="w-5 h-5 text-muted-foreground" /> : <ChevronRight className="w-5 h-5 text-muted-foreground" />}
               </button>
             </div>
           </div>
           
           {activeAccordion === 'sections' && (
-            <div className="p-6 bg-zinc-50/30 flex flex-col gap-6 rounded-b-[23px]">
+            <div className="p-6 bg-muted/30 flex flex-col gap-6 rounded-b-xl">
               
               <div className="flex items-center justify-between">
-                <p className="text-sm text-shade-50 max-w-[200px]">
+                <p className="text-sm text-muted-foreground max-w-[200px]">
                   Drag to reorder sections.
                 </p>
                 <div className="w-48">
-                  <Select
-                    options={AVAILABLE_SECTIONS.filter(s => !sections.some(sec => sec.sectionKey === s.key))}
-                    value={null}
-                    onChange={(option) => {
-                      if (option) {
-                        handleAddSection(option.key)
-                      }
-                    }}
-                    getOptionLabel={(opt) => opt.label}
-                    getOptionValue={(opt) => opt.key}
-                    placeholder="+ Add Section"
-                    noOptionsMessage="All sections added"
-                    className="!py-0"
-                  />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger render={<Button variant="outline" className="w-full justify-start gap-2" />}>
+                      <Plus className="h-4 w-4" /> Add Section
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-48">
+                      {AVAILABLE_SECTIONS.filter(s => !sections.some(sec => sec.sectionKey === s.key)).map(s => (
+                        <DropdownMenuItem key={s.key} onSelect={() => handleAddSection(s.key)}>
+                          {s.label}
+                        </DropdownMenuItem>
+                      ))}
+                      {AVAILABLE_SECTIONS.filter(s => !sections.some(sec => sec.sectionKey === s.key)).length === 0 && (
+                        <div className="px-2 py-1.5 text-xs text-muted-foreground text-center">
+                          All sections added
+                        </div>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
 

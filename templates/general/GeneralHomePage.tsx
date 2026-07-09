@@ -16,7 +16,7 @@ export function GeneralHomePage({ store, sections = [] }: HomePageProps) {
 
       {sections.length === 0 && (
         /* Empty State */
-        <Card variant="default" className="border border-[var(--color-hairline-light)] p-12 flex flex-col items-center justify-center text-center gap-6 min-h-64 bg-[var(--color-canvas-light)] max-w-xl mx-auto rounded-[var(--radius-md)] mt-12">
+        <Card className="border border-[var(--color-hairline-light)] p-12 flex flex-col items-center justify-center text-center gap-6 min-h-64 bg-[var(--color-canvas-light)] max-w-xl mx-auto rounded-[var(--radius-md)] mt-12">
           <div className="w-16 h-16 rounded-[var(--radius-pill)] bg-zinc-100 flex items-center justify-center text-[var(--color-ink)] border border-[var(--color-hairline-light)]">
             <PackageOpen className="h-8 w-8 stroke-[1.5]" />
           </div>

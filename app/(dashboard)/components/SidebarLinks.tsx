@@ -10,12 +10,12 @@ import {
   Tag,
   Settings,
   CreditCard,
-  ChevronRight,
   Percent,
   FolderTree,
   FileText,
   Menu,
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface NavItem {
   label: string
@@ -102,10 +102,10 @@ export function SidebarLinks() {
   ]
 
   return (
-    <div className="flex flex-col gap-6 grow">
+    <div className="flex flex-col gap-6 grow text-foreground">
       {navItems.map((group) => (
         <div key={group.label} className="flex flex-col gap-1">
-          <span className="px-4 text-[10px] font-bold text-shade-45 uppercase tracking-widest mb-1.5 block">
+          <span className="px-4 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest mb-1.5 block">
             {group.label}
           </span>
           {group.items.map((item) => {
@@ -119,19 +119,21 @@ export function SidebarLinks() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl text-caption transition-all duration-200 group ${
+                className={cn(
+                  "flex items-center justify-between gap-3 px-4 py-2.5 rounded-lg text-sm transition-all duration-200 group font-semibold",
                   isActive
-                    ? "bg-zinc-950 text-white font-semibold"
-                    : "text-shade-60 font-semibold hover:bg-zinc-100 hover:text-ink"
-                }`}
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
               >
                 <span className="flex items-center gap-3">
-                  <Icon className={`h-4 w-4 transition-colors ${
-                    isActive ? "text-white" : "text-shade-40 group-hover:text-ink"
-                  }`} />
+                  <Icon className={cn(
+                    "h-4 w-4 transition-colors",
+                    isActive ? "text-primary-foreground" : "text-muted-foreground/80 group-hover:text-foreground"
+                  )} />
                   <span>{item.label}</span>
                 </span>
-                {isActive && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />}
+                {isActive && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />}
               </Link>
             )
           })}

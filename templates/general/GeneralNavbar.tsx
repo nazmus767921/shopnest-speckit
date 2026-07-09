@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import { Menu, X, ShoppingBag, ChevronDown } from "lucide-react"
 import { CartIconButton } from "@/components/storefront/shared/CartIconButton"
 import { type NavbarProps } from "../types"
-import { Sheet } from "@/components/ui/layout/Sheet"
+import { Sheet, SheetContent } from "@/components/ui/sheet"
 
 export function GeneralNavbar({ store, subdomain, menu }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -191,53 +191,55 @@ export function GeneralNavbar({ store, subdomain, menu }: NavbarProps) {
         </div>
       </div>
  
-      <Sheet isOpen={isOpen} onClose={() => setIsOpen(false)} side="right">
-        <div className="flex flex-col gap-5 w-full p-2">
-          <div className="flex flex-col gap-4">
-            <Link
-              href="/"
-              onClick={() => setIsOpen(false)}
-              className="text-storefront-body-md py-1 text-[var(--color-shade-50)] hover:text-[var(--color-ink)] pl-3"
-            >
-              Home
-            </Link>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetContent side="right">
+          <div className="flex flex-col gap-5 w-full p-2 mt-8">
+            <div className="flex flex-col gap-4">
+              <Link
+                href="/"
+                onClick={() => setIsOpen(false)}
+                className="text-storefront-body-md py-1 text-[var(--color-shade-50)] hover:text-[var(--color-ink)] pl-3"
+              >
+                Home
+              </Link>
 
-            {hasCustomMenu ? (
-              topLevelItems.map((item: any) => {
-                const children = getChildren(item.id)
-                return (
-                  <GeneralMobileMenuItem
-                    key={item.id}
-                    item={item}
-                    childrenItems={children}
-                    resolveHref={resolveHref}
-                    setIsOpen={setIsOpen}
-                  />
-                )
-              })
-            ) : (
-              navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`text-storefront-body-md py-1 transition-colors ${
-                    isActive(link.href)
-                      ? "text-[var(--color-ink)] font-semibold border-l-2 border-[var(--color-ink)] pl-3"
-                      : "text-[var(--color-shade-50)] hover:text-[var(--color-ink)] pl-3"
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              ))
-            )}
+              {hasCustomMenu ? (
+                topLevelItems.map((item: any) => {
+                  const children = getChildren(item.id)
+                  return (
+                    <GeneralMobileMenuItem
+                      key={item.id}
+                      item={item}
+                      childrenItems={children}
+                      resolveHref={resolveHref}
+                      setIsOpen={setIsOpen}
+                    />
+                  )
+                })
+              ) : (
+                navLinks.map((link) => (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className={`text-storefront-body-md py-1 transition-colors ${
+                      isActive(link.href)
+                        ? "text-[var(--color-ink)] font-semibold border-l-2 border-[var(--color-ink)] pl-3"
+                        : "text-[var(--color-shade-50)] hover:text-[var(--color-ink)] pl-3"
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                ))
+              )}
+            </div>
+            <div className="border-t border-[var(--color-hairline-light)] pt-4 flex items-center justify-between pl-3">
+              <span className="tag-storefront-discount font-semibold">
+                Active Storefront
+              </span>
+            </div>
           </div>
-          <div className="border-t border-[var(--color-hairline-light)] pt-4 flex items-center justify-between pl-3">
-            <span className="tag-storefront-discount font-semibold">
-              Active Storefront
-            </span>
-          </div>
-        </div>
+        </SheetContent>
       </Sheet>
     </header>
   )

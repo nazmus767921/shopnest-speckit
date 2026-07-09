@@ -4,7 +4,8 @@ import React from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { GripVertical, Trash2, ChevronUp, ChevronDown } from "lucide-react"
-import { Switch } from "@/components/ui/primitives/Switch"
+import { Switch } from "@/components/ui/switch"
+import { cn } from "@/lib/utils"
 
 interface DraggableSectionItemProps {
   id: string
@@ -51,40 +52,43 @@ export function DraggableSectionItem({
     <div 
       ref={setNodeRef} 
       style={style} 
-      className={`border border-hairline-light rounded-2xl overflow-hidden bg-white transition-all duration-200 ${isDragging ? 'ring-2 ring-primary/20' : ''}`}
+      className={cn(
+        "border border-border rounded-xl overflow-hidden bg-card text-foreground transition-all duration-200",
+        isDragging ? "ring-2 ring-primary/20" : ""
+      )}
     >
       {/* Accordion Header */}
-      <div className="flex items-center justify-between p-4 bg-white hover:bg-zinc-50/50 transition-colors">
+      <div className="flex items-center justify-between p-4 bg-card hover:bg-muted/50 transition-colors">
         <div className="flex items-center gap-3 flex-1">
           {isDraggable ? (
             <div 
               {...attributes} 
               {...listeners}
-              className="p-1.5 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded cursor-grab active:cursor-grabbing"
+              className="p-1.5 text-muted-foreground/60 hover:text-foreground hover:bg-muted rounded-md cursor-grab active:cursor-grabbing"
               title="Drag to reorder"
             >
               <GripVertical className="w-4 h-4" />
             </div>
           ) : (
-            <div className="p-1.5 text-zinc-300 w-7 h-7 flex items-center justify-center">
+            <div className="p-1.5 text-muted-foreground/20 w-7 h-7 flex items-center justify-center">
               {/* Spacer for alignment */}
             </div>
           )}
-          <span className="font-semibold text-body-md text-ink capitalize select-none">
+          <span className="text-sm font-semibold text-foreground capitalize select-none">
             {section.sectionKey.replace(/_/g, " ")}
           </span>
         </div>
         
         <div className="flex items-center gap-5">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-shade-50 select-none">Visible</span>
+            <span className="text-sm font-medium text-muted-foreground select-none">Visible</span>
             <Switch 
               checked={section.isVisible} 
               onCheckedChange={onToggleVisibility} 
             />
           </div>
           
-          <div className="flex items-center gap-1 border-l border-hairline-light pl-4">
+          <div className="flex items-center gap-1 border-l border-border pl-4">
             {isDeletable ? (
               <button 
                 type="button" 
@@ -92,7 +96,7 @@ export function DraggableSectionItem({
                   e.stopPropagation();
                   onDelete();
                 }}
-                className="p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                className="p-1.5 text-muted-foreground/65 hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors cursor-pointer"
                 title="Remove section"
               >
                 <Trash2 className="w-4 h-4" />
@@ -106,7 +110,7 @@ export function DraggableSectionItem({
                 e.stopPropagation();
                 onToggleExpand();
               }}
-              className="p-1.5 text-zinc-500 hover:bg-zinc-100 rounded-full transition-colors"
+              className="p-1.5 text-muted-foreground/65 hover:bg-muted rounded-full transition-colors cursor-pointer"
             >
               {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
             </button>
@@ -116,7 +120,7 @@ export function DraggableSectionItem({
 
       {/* Accordion Body */}
       {(isExpanded && !isDragging) && (
-        <div className="p-6 border-t border-hairline-light bg-zinc-50/30">
+        <div className="p-6 border-t border-border bg-muted/30">
           {renderEditor()}
         </div>
       )}
