@@ -479,30 +479,51 @@ export function VariantBulkToolbar({
             {activeSubTab === "status" && (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Status Switch */}
+                  {/* Status Chips */}
                   <div className="space-y-1.5">
                     <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
                       Active Status
                     </span>
-                    <div className="flex items-center gap-2.5 h-9">
-                      <Switch
-                        id="status-toggle"
-                        checked={bulkActive === true}
-                        onCheckedChange={(checked) => setBulkActive(checked ? true : false)}
+                    <div className="flex flex-wrap gap-2 py-1">
+                      <button
+                        type="button"
+                        onClick={() => setBulkActive(null)}
                         disabled={disabled || saving}
-                      />
-                      <span className="text-sm font-medium">
-                        {bulkActive === null ? "Keep current status" : bulkActive ? "Set to Active" : "Set to Inactive"}
-                      </span>
-                      {bulkActive !== null && (
-                        <button
-                          type="button"
-                          onClick={() => setBulkActive(null)}
-                          className="text-xs text-muted-foreground hover:text-foreground font-semibold ml-2 cursor-pointer border-none bg-transparent"
-                        >
-                          Reset
-                        </button>
-                      )}
+                        className={cn(
+                          "px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer select-none",
+                          bulkActive === null
+                            ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                            : "bg-background text-muted-foreground border-border hover:bg-muted"
+                        )}
+                      >
+                        Keep Current
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBulkActive(true)}
+                        disabled={disabled || saving}
+                        className={cn(
+                          "px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer select-none",
+                          bulkActive === true
+                            ? "bg-emerald-500 text-white border-emerald-500 shadow-sm dark:bg-emerald-600 dark:border-emerald-600 font-bold"
+                            : "bg-background text-muted-foreground border-border hover:bg-muted"
+                        )}
+                      >
+                        Active
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBulkActive(false)}
+                        disabled={disabled || saving}
+                        className={cn(
+                          "px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer select-none",
+                          bulkActive === false
+                            ? "bg-red-500 text-white border-red-500 shadow-sm dark:bg-red-600 dark:border-red-600 font-bold"
+                            : "bg-background text-muted-foreground border-border hover:bg-muted"
+                        )}
+                      >
+                        Inactive
+                      </button>
                     </div>
                   </div>
 

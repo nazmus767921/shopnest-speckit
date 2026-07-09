@@ -67,10 +67,10 @@ export function NumberInput({
           onKeyDown={onKeyDown}
           placeholder={placeholder}
           className={cn(
+            'selection:bg-primary selection:text-primary-foreground w-full grow outline-none bg-transparent tabular-nums',
             isCompact
-              ? 'selection:bg-primary selection:text-primary-foreground w-full grow px-2.5 py-1 text-center tabular-nums outline-none bg-transparent'
-              : 'selection:bg-primary selection:text-primary-foreground w-full grow py-1.5 text-left tabular-nums outline-none bg-transparent',
-            leftIcon && !isCompact ? 'pl-1 pr-3' : ''
+              ? cn('py-1 text-center', leftIcon ? 'pl-1 pr-2.5' : 'px-2.5')
+              : cn('py-1.5 text-left', leftIcon ? 'pl-1 pr-3' : 'px-3')
           )}
         />
         {isCompact ? (
