@@ -107,11 +107,24 @@ export async function proxy(request: NextRequest) {
       return NextResponse.rewrite(url)
     }
 
+    // Check for owner template preview override
+    let activeTemplate = merchant.template || "general"
+    const templatePreview = url.searchParams.get("template_preview")
+    if (templatePreview) {
+      const session = await auth.api.getSession({
+        headers: request.headers,
+      })
+      if (session?.user && session.user.id === merchant.ownerId) {
+        activeTemplate = templatePreview
+      }
+    }
+
     // For valid subdomains, rewrite to the dynamic storefront path
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set("x-merchant-id", merchant.id)
     requestHeaders.set("x-merchant-name", merchant.name)
     requestHeaders.set("x-merchant-subdomain", merchant.subdomain)
+    requestHeaders.set("x-merchant-template", activeTemplate)
 
     url.pathname = `/${subdomain}${pathname}`
     return NextResponse.rewrite(url, {

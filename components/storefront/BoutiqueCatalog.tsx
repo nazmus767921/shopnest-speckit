@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import { ProductCard, type ProductVariant, type ProductAttributeInfo } from "./ProductCard"
+import { ProductGrid } from "@/components/storefront/shared/ProductGrid"
 
 interface FormattedProduct {
   id: string
@@ -134,8 +135,10 @@ export function BoutiqueCatalog({ products, categories, subdomain, merchantId, t
           No products found in this category.
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {filteredProducts.map((product) => (
+        <ProductGrid
+          products={filteredProducts}
+          columns={{ mobile: 1, sm: 2, md: 3, lg: 4 }}
+          renderCard={(product) => (
             <ProductCard
               key={product.id}
               product={product}
@@ -143,8 +146,8 @@ export function BoutiqueCatalog({ products, categories, subdomain, merchantId, t
               merchantId={merchantId}
               themeClass={themeClass}
             />
-          ))}
-        </div>
+          )}
+        />
       )}
     </div>
   )

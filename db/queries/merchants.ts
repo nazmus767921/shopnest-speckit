@@ -10,6 +10,7 @@ export async function createMerchant(data: {
   plan: string
   planId?: string
   trialExpiry: Date
+  template?: string
 }) {
   return await db.transaction(async (tx) => {
     const [merchant] = await tx.insert(merchants).values({
@@ -20,6 +21,7 @@ export async function createMerchant(data: {
       plan: data.plan,
       subscriptionStatus: "trial",
       trialExpiry: data.trialExpiry,
+      template: data.template || "general",
     }).returning()
     
     await tx.insert(subscriptions).values({
@@ -113,32 +115,24 @@ export async function updateStoreSettings(
   return updated
 }
 
-export async function updateStorefrontLayout(
+export async function updateMerchantTemplate(
   merchantId: string,
-  data: {
-    heroImageUrl?: string | null
-    subtitle?: string | null
-    storeDescription?: string | null
-    storeAddress?: string | null
-    socialLinks?: Record<string, string> | null
-    customFaqs?: Array<{ question: string; answer: string }> | null
-    theme?: string
-  }
+  template: string
 ) {
   const [updated] = await db
     .update(merchants)
-    .set({
-      heroImageUrl: data.heroImageUrl,
-      subtitle: data.subtitle,
-      storeDescription: data.storeDescription,
-      storeAddress: data.storeAddress,
-      socialLinks: data.socialLinks,
-      customFaqs: data.customFaqs,
-      theme: data.theme,
-    })
+    .set({ template })
     .where(eq(merchants.id, merchantId))
     .returning()
 
   return updated
 }
 
+export async function updateThemeSettings(merchantId: string, themeSettings: any) {
+  const [updated] = await db
+    .update(merchants)
+    .set({ themeSettings })
+    .where(eq(merchants.id, merchantId))
+    .returning()
+  return updated
+}

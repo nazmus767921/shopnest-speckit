@@ -175,7 +175,7 @@ export function CheckoutIdentitySection({ phone, merchantId, onVerified }: Props
       : displayEmail
 
     return (
-      <div className="flex items-center gap-3 p-4 bg-aloe-10/20 border border-aloe-10/40 rounded-xl text-ink">
+      <div className="flex items-center gap-3 p-4 bg-aloe-10/20 border border-aloe-10/40 rounded-[var(--radius)] text-ink">
         <ShieldCheck className="h-5 w-5 text-emerald-700 shrink-0" />
         <div className="text-caption">
           <p className="font-semibold text-ink">Identity Verified</p>
@@ -188,7 +188,7 @@ export function CheckoutIdentitySection({ phone, merchantId, onVerified }: Props
   }
 
   return (
-    <div className="flex flex-col gap-4 border border-hairline-light rounded-xl p-6 bg-canvas-light">
+    <div className="flex flex-col gap-4 border border-hairline-light rounded-[var(--radius)] p-6 bg-canvas-light">
       <div className="flex flex-col gap-1">
         <h3 className="text-body-strong font-semibold text-ink">
           Verify Phone Number
@@ -251,7 +251,7 @@ export function CheckoutIdentitySection({ phone, merchantId, onVerified }: Props
                   onChange={(e) => handleOtpChange(idx, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(idx, e)}
                   disabled={loading}
-                  className="w-12 h-12 text-center text-heading-lg font-bold rounded-lg border border-hairline-light focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-canvas-light text-ink shrink-0"
+                  className="w-12 h-12 text-center text-heading-lg font-bold rounded-[var(--radius)] border border-hairline-light focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-canvas-light text-ink shrink-0"
                 />
               ))}
             </div>

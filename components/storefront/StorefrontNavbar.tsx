@@ -4,7 +4,7 @@ import React, { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu, X, ShoppingBag } from "lucide-react"
-import { CartIconButton } from "./CartIconButton"
+import { CartIconButton } from "@/components/storefront/shared/CartIconButton"
 
 interface StorefrontNavbarProps {
   merchantId: string

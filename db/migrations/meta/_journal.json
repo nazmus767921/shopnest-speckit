@@ -183,6 +183,41 @@
       "when": 1783273306265,
       "tag": "0025_tan_the_professor",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1783353176225,
+      "tag": "0026_add_store_templates",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1783387155547,
+      "tag": "0027_add_storefront_sections",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1783454173427,
+      "tag": "0028_dynamic_templates_v2",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1783479465225,
+      "tag": "0029_add_storefront_navigation_menus",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1783556433458,
+      "tag": "0030_superb_kitty_pryde",
+      "breakpoints": true
     }
   ]
 }

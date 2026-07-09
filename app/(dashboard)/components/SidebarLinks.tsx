@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
+  LayoutTemplate,
   ShoppingBag,
   Tag,
   Settings,
@@ -12,6 +13,8 @@ import {
   ChevronRight,
   Percent,
   FolderTree,
+  FileText,
+  Menu,
 } from "lucide-react"
 
 interface NavItem {
@@ -44,6 +47,21 @@ export function SidebarLinks() {
     {
       label: "Storefront",
       items: [
+        {
+          label: "Templates",
+          href: "/dashboard/templates",
+          icon: LayoutTemplate,
+        },
+        {
+          label: "Pages",
+          href: "/dashboard/pages",
+          icon: FileText,
+        },
+        {
+          label: "Navigation",
+          href: "/dashboard/settings/navigation",
+          icon: Menu,
+        },
         {
           label: "Products",
           href: "/dashboard/products",

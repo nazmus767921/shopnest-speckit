@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import { Button, Card } from "@/components/ui"
 import { X, Loader2 } from "lucide-react"
 
@@ -27,6 +28,12 @@ export function AlertDialog({
   variant = "primary",
   isPending = false,
 }: AlertDialogProps) {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   // Prevent background scrolling when open
   useEffect(() => {
     if (isOpen) {
@@ -50,7 +57,7 @@ export function AlertDialog({
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [isOpen, onClose, isPending])
 
-  if (!isOpen) return null
+  if (!isOpen || !mounted) return null
 
   const getConfirmButtonClasses = () => {
     switch (variant) {
@@ -64,9 +71,9 @@ export function AlertDialog({
     }
   }
 
-  return (
+  return createPortal(
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs select-text"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-xs select-text pb-[calc(env(safe-area-inset-bottom)+1rem)]"
       onClick={(e) => {
         if (!isPending) onClose()
       }}
@@ -121,6 +128,7 @@ export function AlertDialog({
           </Button>
         </div>
       </Card>
-    </div>
+    </div>,
+    document.body
   )
 }

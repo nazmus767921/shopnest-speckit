@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { Check, SlidersHorizontal, ChevronDown } from "lucide-react"
+import { ReviewSection } from "@/components/storefront/shared/ReviewSection"
 
 interface Review {
   id: string
@@ -156,101 +156,7 @@ export function ProductTabs({ description, metadata = [], faqs = [] }: ProductTa
         )}
 
         {activeTab === "reviews" && (
-          <div className="flex flex-col gap-6">
-            {/* Header Controls */}
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-baseline gap-1.5 select-none">
-                <h4 className="text-lg md:text-2xl font-bold font-sans text-ink">All Reviews</h4>
-                <span className="text-xs md:text-sm text-shade-40 font-sans font-medium">({mockReviews.length})</span>
-              </div>
-
-              <div className="flex items-center gap-2 select-none">
-                {/* Filter Icon Button */}
-                <button
-                  type="button"
-                  className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-[#F2F0F1] flex items-center justify-center text-ink hover:bg-[#E5E5E5] transition-colors cursor-pointer"
-                  aria-label="Filter reviews"
-                >
-                  <SlidersHorizontal className="h-4.5 w-4.5 md:h-5 md:w-5" />
-                </button>
-
-                {/* Sorting Dropdown */}
-                <div className="relative hidden sm:block">
-                  <button
-                    type="button"
-                    className="h-12 bg-[#F2F0F1] rounded-full px-5 flex items-center gap-2 text-sm font-bold text-ink hover:bg-[#E5E5E5] transition-colors cursor-pointer"
-                  >
-                    <span>Latest</span>
-                    <ChevronDown className="h-4 w-4" />
-                  </button>
-                </div>
-
-                {/* Write a Review Button */}
-                <button
-                  type="button"
-                  className="h-10 md:h-12 bg-primary text-white rounded-full px-4 md:px-6 text-xs md:text-sm font-bold hover:bg-zinc-800 transition-colors cursor-pointer select-none"
-                >
-                  Write a Review
-                </button>
-              </div>
-            </div>
-            
-            {/* Grid of Reviews */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4">
-              {mockReviews.map((review) => (
-                <div
-                  key={review.id}
-                  className="border border-hairline-light rounded-[16px] p-6 bg-transparent flex flex-col gap-3 h-full hover:border-shade-40 transition-colors"
-                >
-                  {/* Rating Stars */}
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <svg
-                        key={i}
-                        className={`h-4.5 w-4.5 ${
-                          i < review.rating ? "text-[#FFC633] fill-current" : "text-zinc-200"
-                        }`}
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                      </svg>
-                    ))}
-                  </div>
-
-                  {/* Author Name & Checkmark */}
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-base font-bold text-ink font-sans">{review.author}</span>
-                    {review.verified && (
-                      <span className="flex items-center justify-center h-4.5 w-4.5 rounded-full bg-[#01AB31] text-white p-0.5 select-none">
-                        <Check className="h-3 w-3 stroke-[3]" />
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Comment */}
-                  <p className="text-sm md:text-base text-shade-40 leading-relaxed font-sans grow">
-                    "{review.comment}"
-                  </p>
-
-                  {/* Date */}
-                  <span className="text-xs md:text-sm text-shade-40 font-medium font-sans mt-2 select-none">
-                    Posted on {review.date}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* Load More Reviews Button */}
-            <div className="flex justify-center mt-6">
-              <button
-                type="button"
-                className="rounded-full border border-hairline-light px-10 py-3.5 text-sm font-bold font-sans text-ink hover:bg-zinc-50 transition-colors cursor-pointer select-none"
-              >
-                Load More Reviews
-              </button>
-            </div>
-          </div>
+          <ReviewSection />
         )}
 
         {activeTab === "faqs" && (

@@ -2,9 +2,9 @@
 
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth/auth"
-import { getMerchantByOwnerId, updateStoreSettings, updateStorefrontLayout } from "@/db/queries/merchants"
+import { getMerchantByOwnerId, updateStoreSettings, updateMerchantTemplate, updateThemeSettings } from "@/db/queries/merchants"
 import { storeSettingsSchema } from "@/lib/validations/settings"
-import { storefrontLayoutSchema } from "@/lib/validations/storefront"
+
 import { revalidatePath } from "next/cache"
 
 import { getMerchantPlan } from "@/lib/plans/getPlan"
@@ -63,36 +63,76 @@ export async function updateStoreSettingsAction(values: unknown) {
   }
 }
 
-export async function updateStorefrontLayoutAction(values: unknown) {
+
+
+export async function getAvailableTemplatesAction() {
   try {
+    const { getActiveTemplates } = await import("@/db/queries/templates")
     const merchant = await getAuthenticatedMerchant()
-    const result = storefrontLayoutSchema.safeParse(values)
-
-    if (!result.success) {
-      throw new Error(result.error.issues[0].message)
-    }
-
-    const { heroImageUrl, subtitle, storeDescription, storeAddress, socialLinks, customFaqs, theme } = result.data
-
-    // Invariant 7: Subscription plan limits are checked on the server-side
     const plan = await getMerchantPlan(merchant.id)
-    if (theme === "cinematic" && plan?.slug === "starter") {
-      throw new Error("Upgrade your subscription to use premium themes.")
+    const tier = plan?.slug || "starter"
+
+    const templates = await getActiveTemplates()
+
+    const mappedTemplates = templates.map((t) => {
+      const allowed = t.allowedTiers as string[]
+      const isLocked = Array.isArray(allowed) && !allowed.includes(tier)
+      return {
+        id: t.id,
+        slug: t.slug,
+        name: t.name,
+        description: t.description,
+        previewImageUrl: t.previewImageUrl,
+        businessTypes: t.businessTypes,
+        allowedTiers: t.allowedTiers,
+        isLocked,
+      }
+    })
+
+    return { success: true, templates: mappedTemplates }
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to retrieve templates." }
+  }
+}
+
+export async function applyTemplateAction(templateSlug: string) {
+  try {
+    const { getTemplateBySlug } = await import("@/db/queries/templates")
+    const merchant = await getAuthenticatedMerchant()
+    const plan = await getMerchantPlan(merchant.id)
+    const tier = plan?.slug || "starter"
+
+    const template = await getTemplateBySlug(templateSlug)
+    if (!template || !template.isActive) {
+      throw new Error("The selected template is not active or does not exist.")
     }
 
-    const updated = await updateStorefrontLayout(merchant.id, {
-      heroImageUrl: heroImageUrl || null,
-      subtitle: subtitle || null,
-      storeDescription: storeDescription || null,
-      storeAddress: storeAddress || null,
-      socialLinks: socialLinks || null,
-      customFaqs: customFaqs || null,
-      theme,
-    })
+    const allowed = template.allowedTiers as string[]
+    if (Array.isArray(allowed) && !allowed.includes(tier)) {
+      throw new Error(`Your current plan does not support the ${template.name} template. Please upgrade.`)
+    }
+
+    const updated = await updateMerchantTemplate(merchant.id, templateSlug)
 
     revalidatePath("/dashboard/settings")
     return { success: true, merchant: updated }
-  } catch (error: any) {
-    return { success: false, error: error.message || "Failed to update storefront layout." }
+  } catch (err: any) {
+    return { success: false, error: err instanceof Error ? err.message : "Failed to apply template" }
+  }
+}
+
+export async function updateThemeSettingsAction(themeSettings: any) {
+  try {
+    const merchant = await getAuthenticatedMerchant()
+    await updateThemeSettings(merchant.id, themeSettings)
+    
+    // Purge everything related to this merchant from cache
+    revalidatePath("/dashboard/templates")
+    revalidatePath("/", "layout") // Revalidate entire app to ensure storefront picks it up
+    
+    return { success: true }
+  } catch (err: any) {
+    console.error("Failed to update theme settings", err)
+    return { success: false, error: err.message || "Failed to update theme settings" }
   }
 }

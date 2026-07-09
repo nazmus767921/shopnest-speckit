@@ -4,8 +4,8 @@ import React, { useState } from "react"
 import { Card } from "@/components/ui"
 import { ImageIcon } from "lucide-react"
 import { supabase } from "@/lib/supabase/client"
-import { formatTaka } from "@/lib/utils"
 import { useCart } from "@/hooks/use-cart"
+import { PriceDisplay } from "@/components/storefront/shared/PriceDisplay"
 import {
   VariantQuickSelectDialog,
   type DialogProduct,
@@ -14,7 +14,7 @@ import type { VariantOption, AttributeInfo } from "./variant-selector/VariantSel
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-export interface ProductVariant extends VariantOption {}
+export interface ProductVariant extends VariantOption { }
 export type ProductAttributeInfo = AttributeInfo
 
 interface FormattedProduct {
@@ -80,15 +80,15 @@ export function ProductCard({
 
   const dialogProduct: DialogProduct | null = hasVariants
     ? {
-        id: product.id,
-        name: product.name,
-        imageUrl: publicUrl,
-        pricePaisa: product.pricePaisa,
-        compareAtPricePaisa: product.compareAtPricePaisa,
-        stockCount: product.stockCount,
-        attributes: product.attributes ?? [],
-        variants: product.variants ?? [],
-      }
+      id: product.id,
+      name: product.name,
+      imageUrl: publicUrl,
+      pricePaisa: product.pricePaisa,
+      compareAtPricePaisa: product.compareAtPricePaisa,
+      stockCount: product.stockCount,
+      attributes: product.attributes ?? [],
+      variants: product.variants ?? [],
+    }
     : null
 
   const handleAddToCart = async (variantId: string, quantity: number) => {
@@ -167,7 +167,7 @@ export function ProductCard({
   return (
     <>
       <Card
-        className="flex flex-col bg-white overflow-hidden group transition-all duration-300 relative gap-3 w-full border-none shadow-none"
+        className="flex p-2 flex-col bg-white overflow-hidden group transition-all duration-300 relative gap-3 w-full border-none shadow-none"
       >
         <a href={`/product/${product.slug}`} className="flex flex-col gap-3 w-full cursor-pointer">
           {/* Image Container with light gray background (#F0EEED) */}
@@ -258,21 +258,11 @@ export function ProductCard({
 
         {/* Price & Add to Cart button row */}
         <div className="flex px-2 items-center justify-between w-full mt-1 gap-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-sans text-base md:text-lg font-bold text-ink">
-              {formatTaka(product.pricePaisa)}
-            </span>
-            {hasDiscount && (
-              <>
-                <span className="font-sans text-xs md:text-sm text-shade-50 line-through">
-                  {formatTaka(originalPricePaisa)}
-                </span>
-                <span className="bg-[var(--color-discount-bg)] text-[var(--color-discount-text)] text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded-full select-none">
-                  -{discountPercent}%
-                </span>
-              </>
-            )}
-          </div>
+          <PriceDisplay
+            pricePaisa={product.pricePaisa}
+            originalPricePaisa={originalPricePaisa}
+            discountPercent={discountPercent}
+          />
 
           {/* Cart trigger — opens dialog for variant products, direct add for simple products */}
           <button
@@ -286,7 +276,7 @@ export function ProductCard({
                   ? `Select options for ${product.name}`
                   : `Add ${product.name} to cart`
             }
-            className="w-9 h-9 min-h-0 p-0 rounded-full flex items-center justify-center bg-black hover:bg-zinc-800 text-white transition-all select-none shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            className="w-9 h-9 min-h-0 p-0 rounded-[var(--radius)] flex items-center justify-center bg-primary hover:opacity-90 text-on-primary transition-all select-none shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

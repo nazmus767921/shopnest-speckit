@@ -1,10 +1,10 @@
 "use client"
 
 import React from "react"
-import { Trash2, Plus, Minus, ImageIcon } from "lucide-react"
+import { Trash2, ImageIcon } from "lucide-react"
 import { type CartItem } from "@/lib/cart/cart-store"
 import { formatTaka } from "@/lib/utils"
-import { Button } from "@/components/ui"
+import { QuantityAdjuster } from "@/components/storefront/shared/QuantityAdjuster"
 
 interface Props {
   item: CartItem
@@ -95,31 +95,11 @@ export function CartItemRow({ item, onUpdateQuantity, onRemove }: Props) {
         </button>
 
         {/* Quantity Stepper */}
-        <div className="flex items-center bg-[#F2F0F1] rounded-full h-9 md:h-10 px-2.5 md:px-4 gap-2.5 md:gap-3 select-none">
-          <button
-            type="button"
-            onClick={() => onUpdateQuantity(item.productId, item.quantity - 1, item.variantId)}
-            disabled={item.quantity <= 1}
-            className="p-0.5 text-ink disabled:opacity-30 disabled:pointer-events-none hover:opacity-75 transition-opacity"
-            aria-label="Decrease quantity"
-          >
-            <Minus className="h-4 w-4 stroke-[2.5]" />
-          </button>
-          
-          <span className="w-6 text-center text-sm md:text-base font-bold text-ink">
-            {item.quantity}
-          </span>
-
-          <button
-            type="button"
-            onClick={() => onUpdateQuantity(item.productId, item.quantity + 1, item.variantId)}
-            disabled={item.quantity >= item.stockCount}
-            className="p-0.5 text-ink disabled:opacity-30 disabled:pointer-events-none hover:opacity-75 transition-opacity"
-            aria-label="Increase quantity"
-          >
-            <Plus className="h-4 w-4 stroke-[2.5]" />
-          </button>
-        </div>
+        <QuantityAdjuster
+          quantity={item.quantity}
+          maxQuantity={item.stockCount}
+          onChange={(q) => onUpdateQuantity(item.productId, q, item.variantId)}
+        />
       </div>
     </div>
   )

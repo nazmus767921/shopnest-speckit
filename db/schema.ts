@@ -91,21 +91,61 @@ export const merchants = pgTable("merchants", {
   nagadNumber: text("nagad_number"),
   phoneNumber: text("phone_number"),
   lowStockThresholdDefault: integer("low_stock_threshold_default").notNull().default(5),
-  heroImageUrl: text("hero_image_url"),
-  subtitle: text("subtitle"),
-  storeDescription: text("store_description"),
-  storeAddress: text("store_address"),
-  socialLinks: jsonb("social_links").$type<Record<string, string>>(), // jsonb: { facebook?, instagram?, whatsapp?, tiktok? }
-  customFaqs: jsonb("custom_faqs").$type<Array<{ question: string; answer: string }>>(), // jsonb: Array<{ question, answer }>
   telegramChatId: text("telegram_chat_id"), // Opt-in Telegram Chat ID for order notifications
   codEnabled: boolean("cod_enabled").notNull().default(false),
   payDeliveryChargeFirst: boolean("pay_delivery_charge_first").notNull().default(false),
   bkashWalletNumber: text("bkash_wallet_number"),
   nagadWalletNumber: text("nagad_wallet_number"),
-  theme: text("theme").default("default").notNull(),
+  template: text("template").default("general").notNull(),
+  themeSettings: jsonb("theme_settings").$type<{
+    colors?: {
+      primary?: string
+      secondary?: string
+      background?: string
+      text?: string
+    }
+    typography?: {
+      headingFont?: string
+      bodyFont?: string
+    }
+    layout?: {
+      borderRadius?: 'none' | 'sm' | 'md' | 'lg' | 'full'
+    }
+  }>(),
 }, (table) => [
   index("merchants_owner_id_idx").on(table.ownerId),
   index("merchants_subscription_status_idx").on(table.subscriptionStatus),
+]).enableRLS()
+
+export const pages = pgTable("pages", {
+  id: text("id").primaryKey(),
+  merchantId: text("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  slug: text("slug").notNull(),
+  title: text("title").notNull(),
+  content: text("content"),
+  isPublished: boolean("is_published").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("pages_merchant_id_idx").on(table.merchantId),
+  uniqueIndex("pages_merchant_slug_idx").on(table.merchantId, table.slug),
+]).enableRLS()
+
+
+export const storefrontSections = pgTable("storefront_sections", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  merchantId: text("merchant_id")
+    .notNull()
+    .references(() => merchants.id, { onDelete: "cascade" }),
+  sectionKey: text("section_key").notNull(),
+  content: jsonb("content").notNull().default('{}'),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isVisible: boolean("is_visible").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("storefront_sections_merchant_id_section_key_unique_idx").on(table.merchantId, table.sectionKey),
+  index("storefront_sections_merchant_id_idx").on(table.merchantId),
 ]).enableRLS()
 
 export const products = pgTable("products", {
@@ -640,6 +680,7 @@ export const merchantsRelations = relations(merchants, ({ one, many }) => ({
     fields: [merchants.ownerId],
     references: [user.id],
   }),
+  pages: many(pages),
   products: many(products),
   orders: many(orders),
   orderItems: many(orderItems),
@@ -657,6 +698,14 @@ export const merchantsRelations = relations(merchants, ({ one, many }) => ({
   productVariants: many(productVariants),
   variantImages: many(variantImages),
   productMetadata: many(productMetadata),
+  storefrontSections: many(storefrontSections),
+}))
+
+export const storefrontSectionsRelations = relations(storefrontSections, ({ one }) => ({
+  merchant: one(merchants, {
+    fields: [storefrontSections.merchantId],
+    references: [merchants.id],
+  }),
 }))
 
 export const productsRelations = relations(products, ({ one, many }) => ({
@@ -862,3 +911,89 @@ export const notificationPreferencesRelations = relations(notificationPreference
     references: [merchants.id],
   }),
 }))
+
+export const pagesRelations = relations(pages, ({ one }) => ({
+  merchant: one(merchants, {
+    fields: [pages.merchantId],
+    references: [merchants.id],
+  }),
+}))
+
+export const storeTemplates = pgTable("store_templates", {
+  id: text("id").primaryKey(),
+  slug: text("slug").unique().notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  previewImageUrl: text("preview_image_url"),
+  businessTypes: jsonb("business_types").$type<string[]>().default([]).notNull(),
+  allowedTiers: jsonb("allowed_tiers").$type<string[]>().default(["starter", "growth", "pro"]).notNull(),
+  isActive: boolean("is_active").default(false).notNull(),
+  isDefault: boolean("is_default").default(false).notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}).enableRLS()
+
+export const menus = pgTable("menus", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  merchantId: text("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  slug: text("slug").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("menus_merchant_id_idx").on(table.merchantId),
+  uniqueIndex("menus_merchant_slug_idx").on(table.merchantId, table.slug),
+]).enableRLS()
+
+export const menuItems = pgTable("menu_items", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  menuId: text("menu_id").notNull().references(() => menus.id, { onDelete: "cascade" }),
+  parentId: text("parent_id").references((): any => menuItems.id, { onDelete: "cascade" }),
+  label: text("label").notNull(),
+  type: text("type").$type<"url" | "page" | "category" | "product">().notNull(),
+  referenceId: text("reference_id"),
+  url: text("url"),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("menu_items_menu_id_idx").on(table.menuId),
+  index("menu_items_parent_id_idx").on(table.parentId),
+]).enableRLS()
+
+export const menusRelations = relations(menus, ({ one, many }) => ({
+  merchant: one(merchants, {
+    fields: [menus.merchantId],
+    references: [merchants.id],
+  }),
+  items: many(menuItems),
+}))
+
+export const menuItemsRelations = relations(menuItems, ({ one, many }) => ({
+  menu: one(menus, {
+    fields: [menuItems.menuId],
+    references: [menus.id],
+  }),
+  parent: one(menuItems, {
+    fields: [menuItems.parentId],
+    references: [menuItems.id],
+    relationName: "nested_items",
+  }),
+  children: many(menuItems, {
+    relationName: "nested_items",
+  }),
+  page: one(pages, {
+    fields: [menuItems.referenceId],
+    references: [pages.id],
+  }),
+  category: one(categories, {
+    fields: [menuItems.referenceId],
+    references: [categories.id],
+  }),
+  product: one(products, {
+    fields: [menuItems.referenceId],
+    references: [products.id],
+  }),
+}))
+

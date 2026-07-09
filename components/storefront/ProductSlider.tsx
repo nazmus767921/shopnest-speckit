@@ -99,7 +99,7 @@ export function ProductSlider({ products, subdomain, merchantId, totalCount, pro
         {showLeftBtn && (
           <button
             onClick={() => scroll("left")}
-            className="absolute left-4 top-[40%] -translate-y-1/2 bg-white/95 border border-hairline-light hover:bg-canvas-cream text-ink p-2.5 rounded-full z-20 shadow-md cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center"
+            className="absolute left-4 top-[40%] -translate-y-1/2 bg-canvas-light border border-hairline-light hover:bg-canvas-cream text-ink p-2.5 rounded-[var(--radius)] z-20 shadow-md cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center"
             aria-label="Scroll left"
           >
             <ChevronLeft className="h-5 w-5 stroke-[2.5]" />
@@ -110,7 +110,7 @@ export function ProductSlider({ products, subdomain, merchantId, totalCount, pro
         {showRightBtn && (
           <button
             onClick={() => scroll("right")}
-            className="absolute right-4 top-[40%] -translate-y-1/2 bg-white/95 border border-hairline-light hover:bg-canvas-cream text-ink p-2.5 rounded-full z-20 shadow-md cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center"
+            className="absolute right-4 top-[40%] -translate-y-1/2 bg-canvas-light border border-hairline-light hover:bg-canvas-cream text-ink p-2.5 rounded-[var(--radius)] z-20 shadow-md cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center"
             aria-label="Scroll right"
           >
             <ChevronRight className="h-5 w-5 stroke-[2.5]" />

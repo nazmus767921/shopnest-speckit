@@ -175,14 +175,14 @@ export function CheckoutClientPage({
   if (shippingZones.length === 0) {
     return (
       <div className="max-w-xl mx-auto py-12 px-4 text-center select-text">
-        <Card variant="default" className="p-8 flex flex-col items-center gap-4 border border-red-200 bg-red-50/10">
+        <Card variant="default" className="p-8 flex flex-col items-center gap-4 border border-red-200 bg-red-50/10 rounded-[var(--radius)]">
           <AlertCircle className="h-12 w-12 text-red-500" />
           <h2 className="text-heading-lg font-semibold text-ink">Checkout Unavailable</h2>
           <p className="text-body-md text-shade-50 font-light">
             This store has not configured any shipping zones. Checkout is currently unavailable. Please contact the merchant.
           </p>
           <Link href="/" className="mt-4">
-            <Button variant="outline-light">Back to Shop</Button>
+            <Button variant="outline-light" className="rounded-[var(--radius)]">Back to Shop</Button>
           </Link>
         </Card>
       </div>
@@ -422,7 +422,7 @@ export function CheckoutClientPage({
       {step === "address" && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <form onSubmit={handleAddressSubmit} className="md:col-span-2 flex flex-col gap-6">
-            <Card variant="default" className="p-6 flex flex-col gap-6 !overflow-visible">
+            <Card variant="default" className="p-6 flex flex-col gap-6 !overflow-visible rounded-[var(--radius)]">
               <h2 className="text-heading-lg font-semibold text-ink">
                 Fulfillment Address
               </h2>
@@ -437,6 +437,7 @@ export function CheckoutClientPage({
                     value={deliveryName}
                     onChange={(e) => setDeliveryName(e.target.value)}
                     error={!!errors.deliveryName}
+                    className="rounded-[var(--radius)]"
                   />
                   {errors.deliveryName && (
                     <p className="text-xs text-red-500 mt-1">{errors.deliveryName}</p>
@@ -455,6 +456,7 @@ export function CheckoutClientPage({
                         setDeliveryPhone(e.target.value)
                       }}
                       error={!!errors.deliveryPhone}
+                      className="rounded-[var(--radius)]"
                     />
                     {errors.deliveryPhone && (
                       <p className="text-xs text-red-500 mt-1">{errors.deliveryPhone}</p>
@@ -473,6 +475,7 @@ export function CheckoutClientPage({
                         getOptionValue={(d) => d}
                         placeholder="Select Division..."
                         error={errors.deliveryCity}
+                        className="rounded-[var(--radius)]"
                       />
                     </div>
                   ) : (
@@ -485,6 +488,7 @@ export function CheckoutClientPage({
                         value={deliveryCity}
                         onChange={(e) => setDeliveryCity(e.target.value)}
                         error={!!errors.deliveryCity}
+                        className="rounded-[var(--radius)]"
                       />
                       {errors.deliveryCity && (
                         <p className="text-xs text-red-500 mt-1">{errors.deliveryCity}</p>
@@ -506,6 +510,7 @@ export function CheckoutClientPage({
                       placeholder="Select District..."
                       disabled={!selectedDivision}
                       error={errors.deliveryCity}
+                      className="rounded-[var(--radius)]"
                     />
                   </div>
                 )}
@@ -518,7 +523,7 @@ export function CheckoutClientPage({
                     placeholder="House number, flat, road, area, landmarks..."
                     value={deliveryAddress}
                     onChange={(e) => setDeliveryAddress(e.target.value)}
-                    className="w-full text-input rounded-md border border-hairline-light bg-canvas-light text-ink p-3 text-body-md focus:border-primary focus:outline-none"
+                    className="w-full text-input rounded-[var(--radius)] border border-hairline-light bg-canvas-light text-ink p-3 text-body-md focus:border-primary focus:outline-none"
                   />
                   {errors.deliveryAddress && (
                     <p className="text-xs text-red-500 mt-1">{errors.deliveryAddress}</p>
@@ -537,7 +542,7 @@ export function CheckoutClientPage({
               type="submit"
               variant="primary"
               disabled={!isVerified || submitting}
-              className="w-full py-4 min-h-12 text-body-strong font-semibold"
+              className="w-full py-4 min-h-12 text-body-strong font-semibold rounded-[var(--radius)]"
             >
               {submitting ? (
                 <>
@@ -552,7 +557,7 @@ export function CheckoutClientPage({
 
           {/* Checkout Right Summary Panel */}
           <div className="flex flex-col gap-4">
-            <Card variant="default" className="p-6 bg-canvas-light flex flex-col gap-4">
+            <Card variant="default" className="p-6 bg-canvas-light flex flex-col gap-4 rounded-[var(--radius)]">
               <h3 className="text-body-strong font-bold text-ink uppercase tracking-wider pb-3 border-b border-hairline-light">
                 Summary
               </h3>
@@ -601,7 +606,7 @@ export function CheckoutClientPage({
       {step === "payment" && (
         <div className="max-w-2xl mx-auto w-full">
           <form onSubmit={handlePaymentSubmit} className="flex flex-col gap-6">
-            <Card variant="default" className="p-6 flex flex-col gap-6">
+            <Card variant="default" className="p-6 flex flex-col gap-6 rounded-[var(--radius)]">
               <div className="flex flex-col gap-1">
                 <h2 className="text-heading-lg font-semibold text-ink">
                   {paymentMethod === "cod"
@@ -623,7 +628,7 @@ export function CheckoutClientPage({
                     setPaymentMethod("bkash")
                     setTransactionId("")
                   }}
-                  className={`py-3.5 px-6 rounded-xl font-bold flex items-center justify-center border transition-all text-body-strong ${
+                  className={`py-3.5 px-6 rounded-[var(--radius)] font-bold flex items-center justify-center border transition-all text-body-strong ${
                     paymentMethod === "bkash"
                       ? "border-pink-600 bg-pink-50/50 text-pink-700 font-bold"
                       : "border-hairline-light bg-canvas-light text-shade-60 hover:border-shade-40"
@@ -637,7 +642,7 @@ export function CheckoutClientPage({
                     setPaymentMethod("nagad")
                     setTransactionId("")
                   }}
-                  className={`py-3.5 px-6 rounded-xl font-bold flex items-center justify-center border transition-all text-body-strong ${
+                  className={`py-3.5 px-6 rounded-[var(--radius)] font-bold flex items-center justify-center border transition-all text-body-strong ${
                     paymentMethod === "nagad"
                       ? "border-orange-600 bg-orange-50/50 text-orange-700 font-bold"
                       : "border-hairline-light bg-canvas-light text-shade-60 hover:border-shade-40"
@@ -652,7 +657,7 @@ export function CheckoutClientPage({
                       setPaymentMethod("cod")
                       setTransactionId("")
                     }}
-                    className={`py-3.5 px-6 rounded-xl font-bold flex items-center justify-center border transition-all text-body-strong ${
+                    className={`py-3.5 px-6 rounded-[var(--radius)] font-bold flex items-center justify-center border transition-all text-body-strong ${
                       paymentMethod === "cod"
                         ? "border-zinc-950 bg-zinc-100 text-zinc-950 font-bold"
                         : "border-hairline-light bg-canvas-light text-shade-60 hover:border-shade-40"
@@ -795,11 +800,11 @@ export function CheckoutClientPage({
                   <Input
                     id="transaction-id"
                     type="text"
-                    placeholder="8XK9L..."
+                    placeholder="e.g. 7DF..."
                     value={transactionId}
                     onChange={(e) => setTransactionId(e.target.value)}
                     error={!!errors.transactionId}
-                    className="font-mono uppercase"
+                    className="rounded-[var(--radius)] text-center text-heading-md font-mono py-6 font-bold"
                   />
                   <p className="text-xs text-shade-40 mt-1">
                     Enter the unique transaction code received via SMS/App after successful payment.
@@ -812,7 +817,7 @@ export function CheckoutClientPage({
               type="submit"
               variant="primary"
               disabled={submitting || (paymentMethod === "cod" ? (payDeliveryChargeFirst && !activeMerchantNumber) : !activeMerchantNumber)}
-              className="w-full py-4 min-h-12 text-body-strong font-semibold"
+              className="w-full py-4 min-h-12 text-body-strong font-semibold rounded-[var(--radius)]"
             >
               {submitting ? (
                 <>
@@ -864,14 +869,14 @@ export function CheckoutClientPage({
               <Button
                 variant="primary"
                 onClick={() => { window.location.replace(`/orders/${orderId}`) }}
-                className="w-full font-semibold"
+                className="w-full font-semibold rounded-[var(--radius)]"
               >
                 Track Order & Save History
               </Button>
               <Button
                 variant="outline-light"
                 onClick={() => { window.location.replace("/") }}
-                className="w-full font-medium"
+                className="w-full font-medium rounded-[var(--radius)]"
               >
                 Continue Shopping
               </Button>
