@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
-import { Input, FormLabel, Button } from "@/components/ui"
+import { Input, Button } from "@/components/ui"
+import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { authClient } from "@/lib/auth/auth-client"
 
 const registerSchema = z.object({
@@ -86,8 +87,8 @@ export default function RegisterPage() {
           }}
         >
           {(field) => (
-            <div className="flex flex-col gap-1.5">
-              <FormLabel htmlFor={field.name}>Full Name</FormLabel>
+            <Field>
+              <FieldLabel htmlFor={field.name}>Full Name</FieldLabel>
               <Input
                 id={field.name}
                 name={field.name}
@@ -99,11 +100,11 @@ export default function RegisterPage() {
                 error={field.state.meta.isTouched && field.state.meta.errors.length > 0}
               />
               {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <span className="text-caption text-red-500">
+                <FieldError>
                   {field.state.meta.errors.join(", ")}
-                </span>
+                </FieldError>
               )}
-            </div>
+            </Field>
           )}
         </form.Field>
 
@@ -117,8 +118,8 @@ export default function RegisterPage() {
           }}
         >
           {(field) => (
-            <div className="flex flex-col gap-1.5">
-              <FormLabel htmlFor={field.name}>Email Address</FormLabel>
+            <Field>
+              <FieldLabel htmlFor={field.name}>Email Address</FieldLabel>
               <Input
                 id={field.name}
                 name={field.name}
@@ -130,11 +131,11 @@ export default function RegisterPage() {
                 error={field.state.meta.isTouched && field.state.meta.errors.length > 0}
               />
               {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <span className="text-caption text-red-500">
+                <FieldError>
                   {field.state.meta.errors.join(", ")}
-                </span>
+                </FieldError>
               )}
-            </div>
+            </Field>
           )}
         </form.Field>
 
@@ -148,8 +149,8 @@ export default function RegisterPage() {
           }}
         >
           {(field) => (
-            <div className="flex flex-col gap-1.5">
-              <FormLabel htmlFor={field.name}>Password</FormLabel>
+            <Field>
+              <FieldLabel htmlFor={field.name}>Password</FieldLabel>
               <Input
                 id={field.name}
                 name={field.name}
@@ -161,11 +162,11 @@ export default function RegisterPage() {
                 error={field.state.meta.isTouched && field.state.meta.errors.length > 0}
               />
               {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <span className="text-caption text-red-500">
+                <FieldError>
                   {field.state.meta.errors.join(", ")}
-                </span>
+                </FieldError>
               )}
-            </div>
+            </Field>
           )}
         </form.Field>
 

@@ -4,6 +4,7 @@ import { useCallback, useState, useEffect, useRef } from "react";
 import type { VariantUpdateInput } from "@/lib/validations/variants";
 import { VariantImageUpload } from "./VariantImageUpload";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Check, X, ChevronDown, ChevronUp, ImageIcon } from "lucide-react";
@@ -118,17 +119,17 @@ function InlineCell({
       {editing ? (
         <div className={flashBorderClass}>
           {type === "number" ? (
-            <Input
-              type="number"
-              value={input}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+            <NumberInput
+              value={input ? parseFloat(input) : undefined}
+              onChange={(val) => setInput(val !== undefined && !isNaN(val) ? val.toString() : "")}
               onKeyDown={handleKeyDown}
               onBlur={handleSave}
               disabled={disabled || saving}
               placeholder={placeholder}
-              min={0}
-              step={1}
-              className="min-h-9 text-sm"
+              minValue={0}
+              leftIcon={leftIcon}
+              variant="compact"
+              className="w-full text-sm"
             />
           ) : (
             <Input
@@ -166,7 +167,6 @@ function InlineCell({
           )}
         >
           <span className="flex items-center gap-1">
-            {leftIcon && <span className="opacity-70">{leftIcon}</span>}
             <span>{displayValue}</span>
           </span>
         </button>
@@ -188,7 +188,7 @@ export function VariantRowEditor({
 }: VariantRowEditorProps) {
   const priceDisplay =
     variant.pricePaisa != null
-      ? `৳${(variant.pricePaisa / 100).toFixed(0)}`
+      ? `৳ ${(variant.pricePaisa / 100).toFixed(0)}`
       : "Inherit";
 
   const handleSaveSku = useCallback(
@@ -263,7 +263,7 @@ export function VariantRowEditor({
           ? "border-border bg-card"
           : "border-border bg-muted/40 opacity-75",
         selected ? "ring-2 ring-primary/30" : "",
-        focused ? "ring-2 ring-primary/20" : ""
+        focused ? "focus:ring-2 focus:ring-primary/20 focus:outline-none" : ""
       )}
       role="row"
       data-row-index={rowIndex}
@@ -322,7 +322,7 @@ export function VariantRowEditor({
           <span className="text-xs text-muted-foreground block leading-tight">Old Price (৳)</span>
           <InlineCell
             value={variant.compareAtPricePaisa != null ? (variant.compareAtPricePaisa / 100).toFixed(0) : ""}
-            displayValue={variant.compareAtPricePaisa != null ? `৳${(variant.compareAtPricePaisa / 100).toFixed(0)}` : "None"}
+            displayValue={variant.compareAtPricePaisa != null ? `৳ ${(variant.compareAtPricePaisa / 100).toFixed(0)}` : "None"}
             onSave={handleSaveCompareAtPrice}
             type="number"
             placeholder="None"
@@ -416,7 +416,7 @@ export function VariantRowEditor({
           />
           <InlineCell
             value={variant.compareAtPricePaisa != null ? (variant.compareAtPricePaisa / 100).toFixed(0) : ""}
-            displayValue={variant.compareAtPricePaisa != null ? `৳${(variant.compareAtPricePaisa / 100).toFixed(0)}` : "None"}
+            displayValue={variant.compareAtPricePaisa != null ? `৳ ${(variant.compareAtPricePaisa / 100).toFixed(0)}` : "None"}
             onSave={handleSaveCompareAtPrice}
             type="number"
             placeholder="None"

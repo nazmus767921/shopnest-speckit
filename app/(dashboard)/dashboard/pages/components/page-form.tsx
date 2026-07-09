@@ -8,7 +8,7 @@ import { pageSchema, PageFormValues } from "@/lib/validations/pages"
 import { createPageAction, updatePageAction } from "@/app/actions/pages"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label as FormLabel } from "@/components/ui/label"
+import { Field, FieldLabel, FieldError, FieldDescription, FieldGroup, FieldSet } from "@/components/ui/field"
 import { Switch } from "@/components/ui/switch"
 import dynamic from "next/dynamic"
 import Link from "next/link"
@@ -128,7 +128,7 @@ export function PageForm({ initialData }: PageFormProps) {
         <div className="flex-1 flex flex-col min-w-0">
           <form.Field name="title">
             {(field) => (
-              <div className="flex flex-col gap-1.5 mb-6 md:mb-8">
+              <Field className="mb-6 md:mb-8">
                 <input
                   id="title"
                   type="text"
@@ -139,15 +139,15 @@ export function PageForm({ initialData }: PageFormProps) {
                   className="w-full text-3xl md:text-4xl font-bold text-foreground placeholder-muted-foreground/30 bg-transparent border-none outline-none focus:ring-0 p-0"
                 />
                 {field.state.meta.errors.length > 0 && (
-                  <span className="text-[10px] text-destructive">{String(field.state.meta.errors[0])}</span>
+                  <FieldError>{String(field.state.meta.errors[0])}</FieldError>
                 )}
-              </div>
+              </Field>
             )}
           </form.Field>
 
           <form.Field name="content">
             {(field) => (
-              <div className="flex flex-col gap-1.5 flex-1 min-h-[500px]">
+              <Field className="flex-1 min-h-[500px]">
                 <RichTextEditor
                   value={field.state.value || ""}
                   onChange={(val) => field.handleChange(val)}
@@ -155,9 +155,9 @@ export function PageForm({ initialData }: PageFormProps) {
                   placeholder="Start writing..."
                 />
                 {field.state.meta.errors.length > 0 && (
-                  <span className="text-[10px] text-destructive">{String(field.state.meta.errors[0])}</span>
+                  <FieldError>{String(field.state.meta.errors[0])}</FieldError>
                 )}
-              </div>
+              </Field>
             )}
           </form.Field>
         </div>
@@ -171,8 +171,8 @@ export function PageForm({ initialData }: PageFormProps) {
             
             <form.Field name="slug">
               {(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <FormLabel htmlFor="slug">URL Slug</FormLabel>
+                <Field>
+                  <FieldLabel htmlFor="slug">URL Slug</FieldLabel>
                   <Input
                     id="slug"
                     placeholder="about-us"
@@ -181,29 +181,29 @@ export function PageForm({ initialData }: PageFormProps) {
                     onBlur={field.handleBlur}
                     className="bg-muted/30 border-border rounded-lg"
                   />
-                  <p className="text-xs text-muted-foreground leading-snug mt-1">
+                  <FieldDescription>
                     The URL path for this page (e.g. /pages/about-us)
-                  </p>
+                  </FieldDescription>
                   {field.state.meta.errors.length > 0 && (
-                    <span className="text-[10px] text-destructive">{String(field.state.meta.errors[0])}</span>
+                    <FieldError>{String(field.state.meta.errors[0])}</FieldError>
                   )}
-                </div>
+                </Field>
               )}
             </form.Field>
 
             <form.Field name="isPublished">
               {(field) => (
-                <div className="flex items-center justify-between pt-4 border-t border-border">
+                <Field className="flex-row items-center justify-between pt-4 border-t border-border space-y-0">
                   <div className="flex flex-col">
-                    <FormLabel htmlFor="isPublished" className="mb-1 cursor-pointer">Published Status</FormLabel>
-                    <span className="text-xs text-muted-foreground">Make this page visible online</span>
+                    <FieldLabel htmlFor="isPublished" className="mb-1 cursor-pointer">Published Status</FieldLabel>
+                    <FieldDescription>Make this page visible online</FieldDescription>
                   </div>
                   <Switch
                     id="isPublished"
                     checked={field.state.value}
                     onCheckedChange={(checked) => field.handleChange(checked)}
                   />
-                </div>
+                </Field>
               )}
             </form.Field>
           </div>

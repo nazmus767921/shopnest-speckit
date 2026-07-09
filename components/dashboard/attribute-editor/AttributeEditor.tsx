@@ -2,18 +2,21 @@
 
 import { useCallback, useMemo, useId, useState, useRef, useEffect } from "react";
 import type { AttributeInput } from "@/lib/validations/variants";
-import { Plus, X, MoreVertical, Trash2, Palette, List, Circle } from "lucide-react";
+import { Plus, X, Trash2, Palette, List, Circle, GripVertical } from "lucide-react";
 import { DeleteAttributeDialog } from "@/components/dashboard/product-variant-editor/DeleteAttributeDialog";
 import { RemoveOptionDialog } from "@/components/dashboard/attribute-editor/RemoveOptionDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase/client";
 
 interface AttributeEditorProps {
   attributes: AttributeInput[];
   onChange: (attributes: AttributeInput[]) => void;
   disabled?: boolean;
   estimatedExistingVariants?: number;
+  productImages?: { storagePath: string }[];
+  savedAttributes?: AttributeInput[];
 }
 
 const MAX_ATTRIBUTES = 3;
@@ -24,6 +27,120 @@ const DISPLAY_TYPES = [
   { value: "swatch" as const, label: "Color Swatch", icon: Palette },
   { value: "radio" as const, label: "Radio Buttons", icon: Circle },
 ] as const;
+
+const PREMIUM_COLORS = [
+  { hex: "#ef4444", label: "Red" },
+  { hex: "#f97316", label: "Orange" },
+  { hex: "#f59e0b", label: "Amber" },
+  { hex: "#10b981", label: "Emerald" },
+  { hex: "#3b82f6", label: "Blue" },
+  { hex: "#6366f1", label: "Indigo" },
+  { hex: "#8b5cf6", label: "Violet" },
+  { hex: "#ec4899", label: "Pink" },
+  { hex: "#000000", label: "Black" },
+  { hex: "#ffffff", label: "White" },
+  { hex: "#f5f5f7", label: "Off White" },
+  { hex: "#71717a", label: "Slate" },
+];
+
+const SEMANTIC_COLORS: Record<string, string> = {
+  red: "#ef4444",
+  crimson: "#991b1b",
+  maroon: "#7f1d1d",
+  orange: "#f97316",
+  rust: "#c2410c",
+  yellow: "#eab308",
+  gold: "#d97706",
+  green: "#22c55e",
+  emerald: "#10b981",
+  teal: "#0d9488",
+  cyan: "#06b6d4",
+  blue: "#3b82f6",
+  navy: "#1e3a8a",
+  indigo: "#6366f1",
+  purple: "#a855f7",
+  violet: "#8b5cf6",
+  pink: "#ec4899",
+  rose: "#f43f5e",
+  black: "#000000",
+  white: "#ffffff",
+  cream: "#fef08a",
+  beige: "#f5f5dc",
+  khaki: "#f0e68c",
+  grey: "#71717a",
+  gray: "#71717a",
+  brown: "#78350f",
+  chocolate: "#451a03",
+  olive: "#808000",
+  peach: "#ffdab9",
+  lavender: "#e6e6fa",
+  mustard: "#e1ad01",
+};
+
+function matchSemanticColor(name: string): string | null {
+  const lowercase = name.toLowerCase().trim();
+  if (SEMANTIC_COLORS[lowercase]) return SEMANTIC_COLORS[lowercase];
+  for (const [key, hex] of Object.entries(SEMANTIC_COLORS)) {
+    if (lowercase.includes(key)) {
+      return hex;
+    }
+  }
+  return null;
+}
+
+// Client-side dominant colors extractor using canvas
+function extractColorsFromImage(url: string): Promise<string[]> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return resolve([]);
+        
+        canvas.width = 50;
+        canvas.height = 50;
+        ctx.drawImage(img, 0, 0, 50, 50);
+        
+        const imageData = ctx.getImageData(0, 0, 50, 50).data;
+        const colorCounts: Record<string, number> = {};
+        
+        for (let i = 0; i < imageData.length; i += 16) {
+          const r = imageData[i];
+          const g = imageData[i + 1];
+          const b = imageData[i + 2];
+          const a = imageData[i + 3];
+          
+          if (a < 128) continue;
+          
+          const factor = 24;
+          const rRound = Math.round(r / factor) * factor;
+          const gRound = Math.round(g / factor) * factor;
+          const bRound = Math.round(b / factor) * factor;
+          
+          const hex = `#${((1 << 24) + (rRound << 16) + (gRound << 8) + bRound).toString(16).slice(1)}`;
+          
+          const brightness = (r + g + b) / 3;
+          if (brightness > 242) continue; // skip pure white/gray backgrounds
+          
+          colorCounts[hex] = (colorCounts[hex] || 0) + 1;
+        }
+        
+        const sortedColors = Object.entries(colorCounts)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 4)
+          .map(([hex]) => hex);
+          
+        resolve(sortedColors);
+      } catch {
+        resolve([]);
+      }
+    };
+    img.onerror = () => resolve([]);
+    img.src = url;
+  });
+}
 
 function slugify(text: string): string {
   return text
@@ -54,118 +171,44 @@ function estimateOptionVariantCount(
   return otherAttrCounts.reduce((a, b) => a * b, 1);
 }
 
-// ─── Three-Dot Menu ──────────────────────────────────────────────────────────
-
-function ThreeDotMenu({
-  onDelete,
-  displayType,
-  onDisplayTypeChange,
-  disabled,
-}: {
-  onDelete: () => void;
-  displayType: string;
-  onDisplayTypeChange: (t: "swatch" | "dropdown" | "radio") => void;
-  disabled?: boolean;
-}) {
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    if (open) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open]);
-
-  return (
-    <div ref={menuRef} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        disabled={disabled}
-        className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-50 border-none bg-transparent cursor-pointer"
-        aria-label="Attribute options"
-        aria-haspopup="true"
-        aria-expanded={open}
-      >
-        <MoreVertical className="h-4 w-4" />
-      </button>
-
-      {open && (
-        <div
-          className="absolute right-0 top-full mt-1 z-20 w-44 rounded-lg border border-border bg-popover py-1 shadow-md"
-          role="menu"
-        >
-          <div className="px-3 py-1.5 text-xs text-muted-foreground font-semibold uppercase tracking-wider">
-            Display Type
-          </div>
-          {DISPLAY_TYPES.map((dt) => {
-            const Icon = dt.icon;
-            const isActive = displayType === dt.value;
-            return (
-              <button
-                key={dt.value}
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  onDisplayTypeChange(dt.value);
-                  setOpen(false);
-                }}
-                className={cn(
-                  "flex w-full items-center gap-2 px-3 py-1.5 text-sm transition-colors cursor-pointer border-none",
-                  isActive
-                    ? "bg-primary/10 text-foreground font-semibold"
-                    : "text-muted-foreground hover:bg-muted"
-                )}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                <span>{dt.label}</span>
-                {isActive && <span className="ml-auto text-primary font-bold">✓</span>}
-              </button>
-            );
-          })}
-
-          <div className="my-1 border-t border-border" />
-
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              onDelete();
-              setOpen(false);
-            }}
-            className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-destructive hover:bg-destructive/10 transition-colors cursor-pointer border-none"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            <span>Delete Attribute</span>
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Tag Input ───────────────────────────────────────────────────────────────
+// ─── Tag Input with Premium Color Picker & Image Presets ─────────────────────
 
 const MAX_OPTION_LENGTH = 50;
 
 function TagInput({
   options,
+  displayType,
+  extractedColors = [],
   onAddOption,
   onRemoveOption,
+  onUpdateOptionColor,
   disabled,
 }: {
-  options: Array<{ label: string; value: string }>;
-  onAddOption: (label: string, value: string) => void;
+  options: Array<{ label: string; value: string; swatchColor?: string }>;
+  displayType: "swatch" | "dropdown" | "radio";
+  extractedColors?: string[];
+  onAddOption: (label: string, value: string, swatchColor?: string) => void;
   onRemoveOption: (index: number) => void;
+  onUpdateOptionColor: (index: number, color: string) => void;
   disabled?: boolean;
 }) {
   const [input, setInput] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [activePickerIndex, setActivePickerIndex] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function clickOutside(e: MouseEvent) {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+        setActivePickerIndex(null);
+      }
+    }
+    if (activePickerIndex !== null) {
+      document.addEventListener("mousedown", clickOutside);
+    }
+    return () => document.removeEventListener("mousedown", clickOutside);
+  }, [activePickerIndex]);
 
   const commitTag = useCallback(
     (raw: string) => {
@@ -183,10 +226,17 @@ function TagInput({
         return;
       }
       setValidationError(null);
-      onAddOption(trimmed, slugify(trimmed));
+
+      // Smart semantic color matching or default color from index
+      const matched = matchSemanticColor(trimmed);
+      const defaultColor = displayType === "swatch" 
+        ? (matched || PREMIUM_COLORS[options.length % PREMIUM_COLORS.length].hex)
+        : undefined;
+
+      onAddOption(trimmed, slugify(trimmed), defaultColor);
       setInput("");
     },
-    [options, onAddOption],
+    [options, displayType, onAddOption],
   );
 
   const handleKeyDown = useCallback(
@@ -226,33 +276,125 @@ function TagInput({
       )}
       onClick={() => inputRef.current?.focus()}
     >
-      {options.map((opt, i) => (
-        <span
-          key={i}
-          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted px-2.5 py-1 text-xs font-semibold"
-        >
-          <span
-            className="h-1.5 w-1.5 rounded-full shrink-0"
-            style={{
-              backgroundColor: ["#6366f1", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4", "#f97316", "#14b8a6", "#a855f7"][i % 10],
-            }}
-          />
-          <span className="truncate max-w-[120px]">{opt.label}</span>
-          {!disabled && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemoveOption(i);
-              }}
-              className="ml-0.5 rounded p-0.5 text-muted-foreground opacity-60 hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all border-none bg-transparent cursor-pointer"
-              aria-label={`Remove ${opt.label}`}
-            >
-              <X className="h-3 w-3" />
-            </button>
-          )}
-        </span>
-      ))}
+      {options.map((opt, i) => {
+        const hasCustomColor = displayType === "swatch";
+        const dotColor = opt.swatchColor || PREMIUM_COLORS[i % PREMIUM_COLORS.length].hex;
+        
+        return (
+          <div
+            key={i}
+            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted px-2.5 py-1 text-xs font-semibold relative"
+          >
+            {/* Color preview circle */}
+            {hasCustomColor && (
+              <button
+                type="button"
+                disabled={disabled}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActivePickerIndex(activePickerIndex === i ? null : i);
+                }}
+                style={{ backgroundColor: dotColor }}
+                className="h-3 w-3 rounded-full shrink-0 border border-black/15 p-0 cursor-pointer hover:scale-110 active:scale-95 transition-transform"
+                title="Choose Swatch Color"
+              />
+            )}
+
+            <span className="truncate max-w-[120px]">{opt.label}</span>
+
+            {!disabled && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemoveOption(i);
+                }}
+                className="ml-0.5 rounded p-0.5 text-muted-foreground opacity-60 hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all border-none bg-transparent cursor-pointer"
+                aria-label={`Remove ${opt.label}`}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+
+            {/* Custom Swatch Popover Color Picker */}
+            {activePickerIndex === i && (
+              <div
+                ref={popoverRef}
+                onClick={(e) => e.stopPropagation()}
+                className="absolute z-50 top-full left-0 mt-1 bg-popover border border-border rounded-xl p-3 shadow-xl w-48 space-y-2.5 animate-in fade-in-50 duration-150"
+              >
+                {/* Extracted Colors Presets */}
+                {extractedColors.length > 0 && (
+                  <div className="space-y-1.5">
+                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                      From Product Images
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {extractedColors.map((color) => (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => {
+                            onUpdateOptionColor(i, color);
+                            setActivePickerIndex(null);
+                          }}
+                          style={{ backgroundColor: color }}
+                          className={cn(
+                            "w-6 h-6 rounded-full border border-black/15 hover:scale-110 active:scale-95 transition-transform cursor-pointer relative",
+                            opt.swatchColor === color && "ring-2 ring-primary ring-offset-1"
+                          )}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                    Boutique Presets
+                  </div>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {PREMIUM_COLORS.map((pc) => (
+                      <button
+                        key={pc.hex}
+                        type="button"
+                        onClick={() => {
+                          onUpdateOptionColor(i, pc.hex);
+                          setActivePickerIndex(null);
+                        }}
+                        style={{ backgroundColor: pc.hex }}
+                        className={cn(
+                          "w-6 h-6 rounded-full border border-black/15 hover:scale-110 active:scale-95 transition-transform cursor-pointer relative",
+                          opt.swatchColor === pc.hex && "ring-2 ring-primary ring-offset-1"
+                        )}
+                        title={pc.label}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between border-t border-border pt-2 mt-1">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                    Custom Color
+                  </span>
+                  <div className="relative flex items-center justify-center w-6 h-6 rounded-full border border-border overflow-hidden bg-background cursor-pointer">
+                    <input
+                      type="color"
+                      value={opt.swatchColor || "#000000"}
+                      onChange={(e) => onUpdateOptionColor(i, e.target.value)}
+                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                    />
+                    <div
+                      className="w-4 h-4 rounded-full border border-black/15"
+                      style={{ backgroundColor: opt.swatchColor || "#000000" }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
 
       {canAdd && (
         <input
@@ -261,7 +403,7 @@ function TagInput({
           value={input}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          placeholder={options.length === 0 ? "Type and press Enter..." : "Add more..."}
+          placeholder={options.length === 0 ? "Type option and press Enter..." : "Add option..."}
           disabled={disabled}
           className="min-w-[80px] flex-1 border-none bg-transparent py-1 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
         />
@@ -289,6 +431,7 @@ function TagInput({
 function AttributeRow({
   attr,
   attrIndex,
+  extractedColors = [],
   onUpdate,
   onDelete,
   onRemoveOption,
@@ -296,27 +439,28 @@ function AttributeRow({
 }: {
   attr: AttributeInput;
   attrIndex: number;
-  onUpdate: (index: number, field: keyof AttributeInput, value: string) => void;
+  extractedColors?: string[];
+  onUpdate: (index: number, field: keyof AttributeInput, value: any) => void;
   onDelete: (index: number) => void;
   onRemoveOption: (attrIndex: number, optIndex: number) => void;
   disabled?: boolean;
 }) {
   const rowId = useId();
 
-  return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-2 rounded-xl border border-border bg-card p-3 text-foreground">
-      {/* Three-dot Menu */}
-      <div className="order-first sm:order-last self-end sm:self-center">
-        <ThreeDotMenu
-          onDelete={() => onDelete(attrIndex)}
-          displayType={attr.displayType}
-          onDisplayTypeChange={(t) => onUpdate(attrIndex, "displayType", t)}
-          disabled={disabled}
-        />
-      </div>
+  const handleUpdateColor = useCallback(
+    (optIndex: number, newColor: string) => {
+      const updatedOptions = attr.options.map((opt, i) =>
+        i === optIndex ? { ...opt, swatchColor: newColor } : opt
+      );
+      onUpdate(attrIndex, "options", updatedOptions);
+    },
+    [attrIndex, attr.options, onUpdate]
+  );
 
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-xl border border-border bg-card p-3 text-foreground">
       {/* Attribute Name Input */}
-      <div className="w-full sm:w-[200px] shrink-0">
+      <div className="w-full sm:w-[180px] shrink-0">
         <label className="sm:hidden text-xs text-muted-foreground mb-1 block">Attribute Name</label>
         <Input
           id={`${rowId}-name`}
@@ -325,8 +469,37 @@ function AttributeRow({
           onChange={(e) => onUpdate(attrIndex, "name", e.target.value)}
           placeholder="e.g. Color"
           disabled={disabled}
-          className="w-full"
+          className="w-full h-9"
         />
+      </div>
+
+      {/* Inline Display Type Selector Button Group */}
+      <div className="flex flex-col shrink-0">
+        <label className="sm:hidden text-xs text-muted-foreground mb-1 block">Display Type</label>
+        <div className="flex bg-muted/40 rounded-lg p-0.5 border border-border shrink-0 h-9 items-center">
+          {DISPLAY_TYPES.map((dt) => {
+            const Icon = dt.icon;
+            const isActive = attr.displayType === dt.value;
+            return (
+              <button
+                key={dt.value}
+                type="button"
+                onClick={() => onUpdate(attrIndex, "displayType", dt.value)}
+                disabled={disabled}
+                className={cn(
+                  "p-1.5 rounded-md transition-all cursor-pointer flex items-center justify-center border-none h-7 bg-transparent",
+                  isActive
+                    ? "bg-background text-foreground shadow-sm font-semibold"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+                title={`Display as ${dt.label}`}
+              >
+                <Icon className="h-4 w-4" />
+                <span className="sr-only">{dt.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Tag Input */}
@@ -334,15 +507,31 @@ function AttributeRow({
         <label className="sm:hidden text-xs text-muted-foreground mb-1 block">Options</label>
         <TagInput
           options={attr.options}
-          onAddOption={(label, value) => {
-            const updated = [...attr.options, { label, value }];
+          displayType={attr.displayType}
+          extractedColors={extractedColors}
+          onAddOption={(label, value, swatchColor) => {
+            const updated = [...attr.options, { label, value, swatchColor }];
             onUpdate(attrIndex, "options", updated as any);
           }}
           onRemoveOption={(optIndex) => {
             onRemoveOption(attrIndex, optIndex);
           }}
+          onUpdateOptionColor={handleUpdateColor}
           disabled={disabled}
         />
+      </div>
+
+      {/* Delete Attribute Button */}
+      <div className="order-first sm:order-last self-end sm:self-center">
+        <button
+          type="button"
+          onClick={() => onDelete(attrIndex)}
+          disabled={disabled}
+          className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors border-none bg-transparent cursor-pointer shrink-0"
+          title="Delete Attribute"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
       </div>
     </div>
   );
@@ -355,6 +544,8 @@ export function AttributeEditor({
   onChange,
   disabled = false,
   estimatedExistingVariants,
+  productImages = [],
+  savedAttributes = [],
 }: AttributeEditorProps) {
   const variantCount = useMemo(() => estimateVariantCount(attributes), [attributes]);
   const canAddAttribute = attributes.length < MAX_ATTRIBUTES && !disabled;
@@ -364,6 +555,29 @@ export function AttributeEditor({
     attrIndex: number;
     optIndex: number;
   } | null>(null);
+
+  const [extractedColors, setExtractedColors] = useState<string[]>([]);
+
+  // Extract colors from cover image on mount or when images change
+  useEffect(() => {
+    async function getColors() {
+      if (productImages.length === 0) return;
+      
+      // Use cover image (first image)
+      const coverImage = productImages[0];
+      if (!coverImage) return;
+
+      const publicUrl = supabase.storage
+        .from("product-images")
+        .getPublicUrl(coverImage.storagePath).data.publicUrl;
+
+      const colors = await extractColorsFromImage(publicUrl);
+      if (colors.length > 0) {
+        setExtractedColors(colors);
+      }
+    }
+    getColors();
+  }, [productImages]);
 
   const addAttribute = useCallback(() => {
     if (!canAddAttribute) return;
@@ -406,7 +620,19 @@ export function AttributeEditor({
 
   const requestRemoveOption = useCallback(
     (attrIndex: number, optIndex: number) => {
-      if (!estimatedExistingVariants || estimatedExistingVariants === 0) {
+      const currentAttr = attributes[attrIndex];
+      const optionToRemove = currentAttr?.options[optIndex];
+
+      // Find the corresponding saved attribute
+      const savedAttr = savedAttributes.find(
+        (sa, idx) => idx === attrIndex || sa.name.toLowerCase() === currentAttr.name.toLowerCase()
+      );
+
+      const isSavedOption = savedAttr?.options.some(
+        (so) => so.label.toLowerCase() === optionToRemove?.label.toLowerCase()
+      );
+
+      if (!isSavedOption || !estimatedExistingVariants || estimatedExistingVariants === 0) {
         const updated = [...attributes];
         updated[attrIndex] = {
           ...updated[attrIndex],
@@ -417,7 +643,7 @@ export function AttributeEditor({
       }
       setPendingRemoveOption({ attrIndex, optIndex });
     },
-    [attributes, onChange, estimatedExistingVariants],
+    [attributes, onChange, estimatedExistingVariants, savedAttributes],
   );
 
   const confirmRemoveOption = useCallback(() => {
@@ -484,6 +710,7 @@ export function AttributeEditor({
                 key={i}
                 attr={attr}
                 attrIndex={i}
+                extractedColors={extractedColors}
                 onUpdate={updateAttribute}
                 onDelete={requestDeleteAttribute}
                 onRemoveOption={requestRemoveOption}
@@ -501,7 +728,7 @@ export function AttributeEditor({
                   ? "bg-destructive/10 text-destructive"
                   : variantCount > 100
                     ? "bg-amber-500/10 text-amber-600 dark:text-amber-500"
-                    : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                    : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-350"
               )}
               role="status"
               aria-live="polite"

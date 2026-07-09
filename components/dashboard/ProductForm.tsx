@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useTransition, useRef } from "react"
+import { createPortal } from "react-dom"
 import { useRouter } from "next/navigation"
 import { useForm } from "@tanstack/react-form"
 import { supabase } from "@/lib/supabase/client"
@@ -10,7 +11,8 @@ import { getCategoriesAction } from "@/app/actions/categories"
 import { useQuery } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label as FormLabel } from "@/components/ui/label"
+import { NumberInput } from "@/components/ui/number-input"
+import { Field, FieldLabel, FieldError, FieldDescription, FieldGroup, FieldSet } from "@/components/ui/field"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -33,7 +35,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Switch } from "@/components/ui/switch"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
@@ -79,6 +81,11 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
   const [isPending, startTransition] = useTransition()
   const [productId] = useState(() => initialData?.id || initialProductId || crypto.randomUUID())
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -302,23 +309,42 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
     }
   }
 
+  const saveButton = (
+    <Button
+      type="submit"
+      form="product-form"
+      disabled={isPending}
+      className="flex items-center gap-2"
+    >
+      {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+      <span>{initialData ? "Save Changes" : "Create Product"}</span>
+    </Button>
+  )
+
+  const portalContainer = typeof window !== "undefined" ? document.getElementById("edit-product-header-actions") : null
+
   return (
     <div className="flex flex-col gap-6">
       {!hideHeader && (
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" className="rounded-full" render={<Link href="/dashboard/products" />}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight leading-none">
-              {initialData ? "Edit Product" : "Add Product"}
-            </h1>
-            <p className="text-sm text-muted-foreground font-light mt-1">
-              {initialData ? "Manage and update product details" : "List a new boutique item on your storefront"}
-            </p>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="icon" className="rounded-full" render={<Link href="/dashboard/products" />}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight leading-none">
+                {initialData ? "Edit Product" : "Add Product"}
+              </h1>
+              <p className="text-sm text-muted-foreground font-light mt-1">
+                {initialData ? "Manage and update product details" : "List a new boutique item on your storefront"}
+              </p>
+            </div>
           </div>
+          {saveButton}
         </div>
       )}
+
+      {hideHeader && mounted && portalContainer && createPortal(saveButton, portalContainer)}
 
       {errorMsg && (
         <Alert variant="destructive">
@@ -337,6 +363,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
       )}
 
       <form
+        id="product-form"
         onSubmit={(e) => {
           e.preventDefault()
           e.stopPropagation()
@@ -355,8 +382,8 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
               <form.Field
                 name="name"
                 children={(field) => (
-                  <div className="flex flex-col gap-1.5">
-                    <FormLabel htmlFor={field.name}>Product Name *</FormLabel>
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Product Name *</FieldLabel>
                     <Input
                       id={field.name}
                       placeholder="e.g. Premium Cotton Kurti"
@@ -366,11 +393,11 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                       error={field.state.meta.errors.length > 0}
                     />
                     {field.state.meta.errors.length > 0 && (
-                      <span className="text-xs text-destructive font-medium mt-0.5">
+                      <FieldError>
                         {getErrorMessage(field.state.meta.errors[0])}
-                      </span>
+                      </FieldError>
                     )}
-                  </div>
+                  </Field>
                 )}
               />
 
@@ -378,8 +405,8 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
               <form.Field
                 name="description"
                 children={(field) => (
-                  <div className="flex flex-col gap-1.5">
-                    <FormLabel htmlFor={field.name}>Product Description</FormLabel>
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Product Description</FieldLabel>
                     <Textarea
                       id={field.name}
                       placeholder="Provide descriptions including fabric, fit, styling notes..."
@@ -390,11 +417,11 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                       error={field.state.meta.errors.length > 0}
                     />
                     {field.state.meta.errors.length > 0 && (
-                      <span className="text-xs text-destructive font-medium mt-0.5">
+                      <FieldError>
                         {getErrorMessage(field.state.meta.errors[0])}
-                      </span>
+                      </FieldError>
                     )}
-                  </div>
+                  </Field>
                 )}
               />
 
@@ -404,25 +431,23 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                 <form.Field
                   name="price"
                   children={(field) => (
-                    <div className="flex flex-col gap-1.5">
-                      <FormLabel htmlFor={field.name}>Price (BDT) *</FormLabel>
-                      <Input
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Price (BDT) *</FieldLabel>
+                      <NumberInput
                         id={field.name}
-                        type="number"
-                        step="1"
                         placeholder="0"
                         leftIcon="৳"
                         value={field.state.value}
                         onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : 0)}
+                        onChange={(val) => field.handleChange(val)}
                         error={field.state.meta.errors.length > 0}
                       />
                       {field.state.meta.errors.length > 0 && (
-                        <span className="text-xs text-destructive font-medium mt-0.5">
+                        <FieldError>
                           {getErrorMessage(field.state.meta.errors[0])}
-                        </span>
+                        </FieldError>
                       )}
-                    </div>
+                    </Field>
                   )}
                 />
 
@@ -430,35 +455,34 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                 <form.Field
                   name="compareAtPrice"
                   children={(field) => (
-                    <div className="flex flex-col gap-1.5">
-                      <FormLabel htmlFor={field.name}>Old Price (BDT)</FormLabel>
-                      <Input
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Old Price (BDT)</FieldLabel>
+                      <NumberInput
                         id={field.name}
-                        type="number"
                         placeholder="e.g. 150"
                         leftIcon="৳"
-                        value={field.state.value ?? ""}
+                        value={field.state.value ?? undefined}
                         onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : null)}
+                        onChange={(val) => field.handleChange(isNaN(val) ? null : val)}
                         error={field.state.meta.errors.length > 0}
                       />
                       {field.state.meta.errors.length > 0 ? (
-                        <span className="text-xs text-destructive font-medium mt-0.5">
+                        <FieldError>
                           {getErrorMessage(field.state.meta.errors[0])}
-                        </span>
+                        </FieldError>
                       ) : (
-                        <p className="text-xs text-muted-foreground">
+                        <FieldDescription>
                           Optional comparison price.
-                        </p>
+                        </FieldDescription>
                       )}
-                    </div>
+                    </Field>
                   )}
                 />
 
                 {/* Stock count */}
                 {hasVariants ? (
-                  <div className="flex flex-col gap-1.5">
-                    <FormLabel htmlFor="variant-stock">Stock Quantity</FormLabel>
+                  <Field>
+                    <FieldLabel htmlFor="variant-stock">Stock Quantity</FieldLabel>
                     <Input
                       id="variant-stock"
                       type="number"
@@ -466,31 +490,30 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                       value={totalVariantStock}
                       className="cursor-not-allowed opacity-75"
                     />
-                    <p className="text-xs text-amber-600 dark:text-amber-500 font-medium mt-0.5">
+                    <FieldDescription className="text-amber-600 dark:text-amber-500 font-medium">
                       Stock is managed via variants
-                    </p>
-                  </div>
+                    </FieldDescription>
+                  </Field>
                 ) : (
                   <form.Field
                     name="stockCount"
                     children={(field) => (
-                      <div className="flex flex-col gap-1.5">
-                        <FormLabel htmlFor={field.name}>Stock Quantity *</FormLabel>
-                        <Input
+                      <Field>
+                        <FieldLabel htmlFor={field.name}>Stock Quantity *</FieldLabel>
+                        <NumberInput
                           id={field.name}
-                          type="number"
                           placeholder="e.g. 100"
                           value={field.state.value}
                           onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : 0)}
+                          onChange={(val) => field.handleChange(val)}
                           error={field.state.meta.errors.length > 0}
                         />
                         {field.state.meta.errors.length > 0 && (
-                          <span className="text-xs text-destructive font-medium mt-0.5">
+                          <FieldError>
                             {getErrorMessage(field.state.meta.errors[0])}
-                          </span>
+                          </FieldError>
                         )}
-                      </div>
+                      </Field>
                     )}
                   />
                 )}
@@ -501,8 +524,8 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                 name="categoryId"
                 children={(field) => {
                   return (
-                    <div className="flex flex-col gap-1.5">
-                      <FormLabel>Category</FormLabel>
+                    <Field>
+                      <FieldLabel>Category</FieldLabel>
                       <Combobox
                         value={field.state.value || ""}
                         onValueChange={(val) => field.handleChange(val || null)}
@@ -528,11 +551,11 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                         </ComboboxContent>
                       </Combobox>
                       {field.state.meta.errors.length > 0 && (
-                        <span className="text-xs text-destructive font-medium">
+                        <FieldError>
                           {getErrorMessage(field.state.meta.errors[0])}
-                        </span>
+                        </FieldError>
                       )}
-                    </div>
+                    </Field>
                   )
                 }}
               />
@@ -552,21 +575,21 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
               <form.Field
                 name="isPublished"
                 children={(field) => (
-                  <div className="flex items-center gap-3">
-                    <Checkbox
+                  <Field orientation="horizontal">
+                    <Switch
                       id={field.name}
                       checked={field.state.value}
                       onCheckedChange={(checked) => field.handleChange(!!checked)}
                     />
                     <div className="flex flex-col">
-                      <FormLabel htmlFor={field.name} className="cursor-pointer font-semibold leading-tight">
+                      <FieldLabel htmlFor={field.name} className="cursor-pointer font-semibold leading-tight">
                         Publish Storefront
-                      </FormLabel>
-                      <span className="text-xs text-muted-foreground leading-none mt-1">
+                      </FieldLabel>
+                      <FieldDescription className="mt-1">
                         Make this product immediately visible to customers
-                      </span>
+                      </FieldDescription>
                     </div>
-                  </div>
+                  </Field>
                 )}
               />
 
@@ -574,25 +597,24 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
               <form.Field
                 name="lowStockThreshold"
                 children={(field) => (
-                  <div className="flex flex-col gap-1.5 mt-2">
-                    <FormLabel htmlFor={field.name}>Low Stock Threshold</FormLabel>
-                    <Input
+                  <Field className="mt-2">
+                    <FieldLabel htmlFor={field.name}>Low Stock Threshold</FieldLabel>
+                    <NumberInput
                       id={field.name}
-                      type="number"
                       value={field.state.value}
                       onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value ? Number(e.target.value) : 0)}
+                      onChange={(val) => field.handleChange(val)}
                       error={field.state.meta.errors.length > 0}
                     />
-                    <span className="text-xs text-muted-foreground mt-0.5">
+                    <FieldDescription>
                       We will send an SMS notification when stock count drops to or below this count.
-                    </span>
+                    </FieldDescription>
                     {field.state.meta.errors.length > 0 && (
-                      <span className="text-xs text-destructive font-medium">
+                      <FieldError>
                         {getErrorMessage(field.state.meta.errors[0])}
-                      </span>
+                      </FieldError>
                     )}
-                  </div>
+                  </Field>
                 )}
               />
 
@@ -610,11 +632,11 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                   }
 
                   return (
-                    <div className="flex flex-col gap-3 border-t border-border pt-4 mt-2">
-                      <FormLabel>Storefront Promotions</FormLabel>
-                      <span className="text-xs text-muted-foreground leading-normal -mt-1 block">
+                    <Field className="border-t border-border pt-4 mt-2">
+                      <FieldLabel>Storefront Promotions</FieldLabel>
+                      <FieldDescription className="leading-normal -mt-1 block">
                         Feature this product in specialized landing page collections
-                      </span>
+                      </FieldDescription>
                       <div className="flex flex-wrap gap-2.5 mt-1">
                         {[
                           { type: "featured", label: "Featured" },
@@ -639,7 +661,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                           )
                         })}
                       </div>
-                    </div>
+                    </Field>
                   )
                 }}
               />
@@ -770,23 +792,6 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                 </span>
               </div>
             )}
-          </div>
-
-          {/* Form controls */}
-          <div className="flex gap-4 border-t border-border pt-6 mt-4">
-            <Link href="/dashboard/products" className="grow">
-              <Button type="button" variant="outline" className="w-full justify-center">
-                Cancel
-              </Button>
-            </Link>
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="grow justify-center flex items-center gap-2"
-            >
-              {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              <span>{initialData ? "Save Changes" : "Create Product"}</span>
-            </Button>
           </div>
         </div>
       </form>

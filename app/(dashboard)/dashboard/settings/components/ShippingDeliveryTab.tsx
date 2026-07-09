@@ -9,7 +9,7 @@ import {
 } from "@/app/actions/shippingZones"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label as FormLabel } from "@/components/ui/label"
+import { Field, FieldLabel, FieldError, FieldDescription, FieldGroup, FieldSet } from "@/components/ui/field"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Trash2, Plus, Loader2, ChevronDown, ChevronUp } from "lucide-react"
 import { formatTaka } from "@/lib/utils"
@@ -220,8 +220,8 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <zoneForm.Field name="name">
                   {(field) => (
-                    <div className="flex flex-col gap-1.5">
-                      <FormLabel htmlFor="zone-name">Zone Name</FormLabel>
+                    <Field>
+                      <FieldLabel htmlFor="zone-name">Zone Name</FieldLabel>
                       <Input
                         id="zone-name"
                         placeholder="e.g. Inside Dhaka, Chittagong division"
@@ -229,14 +229,14 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                         onChange={(e) => field.handleChange(e.target.value)}
                         required
                       />
-                    </div>
+                    </Field>
                   )}
                 </zoneForm.Field>
 
                 <zoneForm.Field name="chargeTaka">
                   {(field) => (
-                    <div className="flex flex-col gap-1.5">
-                      <FormLabel htmlFor="zone-charge">Delivery Charge (৳)</FormLabel>
+                    <Field>
+                      <FieldLabel htmlFor="zone-charge">Delivery Charge (৳)</FieldLabel>
                       <Input
                         id="zone-charge"
                         type="number"
@@ -247,14 +247,14 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                         onChange={(e) => field.handleChange(e.target.value)}
                         required
                       />
-                    </div>
+                    </Field>
                   )}
                 </zoneForm.Field>
 
                 <zoneForm.Field name="thresholdTaka">
                   {(field) => (
-                    <div className="flex flex-col gap-1.5">
-                      <FormLabel htmlFor="zone-threshold">Free Shipping Limit (৳ - Optional)</FormLabel>
+                    <Field>
+                      <FieldLabel htmlFor="zone-threshold">Free Shipping Limit (৳ - Optional)</FieldLabel>
                       <Input
                         id="zone-threshold"
                         type="number"
@@ -264,14 +264,14 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                       />
-                    </div>
+                    </Field>
                   )}
                 </zoneForm.Field>
               </div>
 
               {/* District Select accordion checklist */}
-              <div className="flex flex-col gap-2 mt-2">
-                <FormLabel>Assign Districts / Cities</FormLabel>
+              <Field className="mt-2">
+                <FieldLabel>Assign Districts / Cities</FieldLabel>
                 <div className="flex flex-col gap-2 border border-border rounded-lg max-h-96 overflow-y-auto p-3">
                   {BANGLADESH_GEOGRAPHY.map((div) => {
                     const expanded = !!expandedDivisions[div.id]
@@ -341,7 +341,7 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                     )
                   })}
                 </div>
-              </div>
+              </Field>
 
               <div className="flex justify-end gap-3 border-t border-border/60 pt-4 mt-2">
                 <Button

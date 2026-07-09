@@ -5,7 +5,7 @@ import { Lock, TriangleAlert, Check, Copy, ArrowRight, ArrowLeft, QrCode, Wallet
 import { useForm } from "@tanstack/react-form"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label as FormLabel } from "@/components/ui/label"
+import { Field, FieldLabel, FieldError, FieldDescription, FieldGroup, FieldSet, FieldLegend } from "@/components/ui/field"
 import { submitPaymentAction } from "../actions"
 import { cn } from "@/lib/utils"
 
@@ -231,8 +231,8 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
           <form.Field name="targetPlan">
             {(field) => {
               return (
-                <div className="flex flex-col gap-4 animate-fade-in">
-                  <FormLabel>Step 1: Choose Your Plan</FormLabel>
+                <Field className="animate-fade-in">
+                  <FieldLabel>Step 1: Choose Your Plan</FieldLabel>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {activePlans.map((p) => {
                       const maxProducts = p.features.max_products
@@ -330,7 +330,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
                     <span>Continue to Payment Method</span>
                     <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
-                </div>
+                </Field>
               )
             }}
           </form.Field>
@@ -339,7 +339,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
         {/* STEP 2: CHOOSE PAYMENT CHANNEL & DETAILS */}
         {step === 2 && (
           <div className="flex flex-col gap-5 animate-fade-in">
-            <FormLabel>Step 2: Send Money to Wallet</FormLabel>
+            <FieldLabel>Step 2: Send Money to Wallet</FieldLabel>
 
             <form.Field name="paymentMethod">
               {(field) => (
@@ -450,7 +450,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
         {/* STEP 3: SUBMIT TRANSACTION ID */}
         {step === 3 && (
           <div className="flex flex-col gap-5 animate-fade-in">
-            <FormLabel>Step 3: Verification Details</FormLabel>
+            <FieldLabel>Step 3: Verification Details</FieldLabel>
 
             <form.Subscribe selector={(state) => state.values}>
               {({ paymentMethod, targetPlan }) => {
@@ -499,8 +499,8 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
               {(field) => {
                 const hasError = field.state.meta.isTouched && field.state.meta.errors.length > 0
                 return (
-                  <div className="flex flex-col gap-1.5">
-                    <FormLabel htmlFor={field.name}>Transaction ID (TxID)</FormLabel>
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Transaction ID (TxID)</FieldLabel>
                     <Input
                       id={field.name}
                       placeholder="e.g. 8N52B3X9"
@@ -513,16 +513,18 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
                       )}
                     />
                     {hasError ? (
-                      <span className="text-xs text-destructive flex items-center gap-1 font-medium mt-0.5">
-                        <TriangleAlert className="w-3.5 h-3.5 shrink-0" />
-                        <span>{field.state.meta.errors[0]}</span>
-                      </span>
+                      <FieldError>
+                        <span className="flex items-center gap-1">
+                          <TriangleAlert className="w-3.5 h-3.5 shrink-0" />
+                          <span>{field.state.meta.errors[0]}</span>
+                        </span>
+                      </FieldError>
                     ) : (
-                      <span className="text-xs text-muted-foreground">
+                      <FieldDescription>
                         Input the 8+ digit transaction code from your wallet sms receipt.
-                      </span>
+                      </FieldDescription>
                     )}
-                  </div>
+                  </Field>
                 )
               }}
             </form.Field>

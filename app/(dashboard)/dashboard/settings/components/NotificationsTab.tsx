@@ -5,7 +5,7 @@ import { useForm } from "@tanstack/react-form"
 import { saveTelegramSchema } from "@/lib/validations/notifications"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label as FormLabel } from "@/components/ui/label"
+import { Field, FieldLabel, FieldError, FieldDescription, FieldGroup, FieldSet } from "@/components/ui/field"
 import {
   Card,
   CardHeader,
@@ -281,8 +281,8 @@ export function NotificationsTab({ merchant, plan }: NotificationsTabProps) {
           >
             <form.Field name="telegramChatId">
               {(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <FormLabel htmlFor="telegram-chat-id">Telegram Chat ID</FormLabel>
+                <Field>
+                  <FieldLabel htmlFor="telegram-chat-id">Telegram Chat ID</FieldLabel>
                   <Input
                     id="telegram-chat-id"
                     type="text"
@@ -294,14 +294,16 @@ export function NotificationsTab({ merchant, plan }: NotificationsTabProps) {
                     className="bg-background border-border font-mono rounded-lg"
                   />
                   {field.state.meta.errors.length > 0 && (
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <AlertCircle className="h-3.5 w-3.5 text-red-500 shrink-0" />
-                      <p className="text-xs text-red-500">
-                        {String(field.state.meta.errors[0])}
-                      </p>
-                    </div>
+                    <FieldError>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <AlertCircle className="h-3.5 w-3.5 text-red-500 shrink-0" />
+                        <p className="text-xs text-red-500">
+                          {String(field.state.meta.errors[0])}
+                        </p>
+                      </div>
+                    </FieldError>
                   )}
-                </div>
+                </Field>
               )}
             </form.Field>
           </form>

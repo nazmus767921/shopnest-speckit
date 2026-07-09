@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useState, useId } from "react";
-import { CheckSquare, Square, X, RefreshCw } from "lucide-react";
+import { CheckSquare, Square, X, RefreshCw, DollarSign, Layers, Tag } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/ui/number-input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -12,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
 type PriceAdjustmentType = "fixed" | "percent" | "add_amount";
@@ -20,14 +22,14 @@ const PRICE_ADJUSTMENT_OPTIONS = [
   { value: "fixed", label: "Fixed (৳)" },
   { value: "percent", label: "%" },
   { value: "add_amount", label: "+/- ৳" },
-]
+];
 
 const COMPARE_AT_OPTIONS = [
   { value: "fixed", label: "Fixed (৳)" },
   { value: "percent", label: "%" },
   { value: "add_amount", label: "+/- ৳" },
   { value: "clear", label: "Clear Old Price" },
-]
+];
 
 interface UndoSnapshot {
   variants: Array<{ id: string; pricePaisa: number | null; stockCount: number; isActive: boolean; sku: string }>;
@@ -64,6 +66,7 @@ export function VariantBulkToolbar({
 }: BulkToolbarProps) {
   const uid = useId();
   const [expanded, setExpanded] = useState(false);
+  const [activeSubTab, setActiveSubTab] = useState<"price" | "stock" | "status">("price");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -99,44 +102,67 @@ export function VariantBulkToolbar({
         skuPrefix?: string;
       } = {};
 
-      if (priceValue) {
-        let value = parseFloat(priceValue);
-        if (priceType === "fixed" || priceType === "add_amount") {
-          value = Math.round(value * 100);
+      if (activeSubTab === "price") {
+        if (priceValue) {
+          let value = parseFloat(priceValue);
+          if (priceType === "fixed" || priceType === "add_amount") {
+            value = Math.round(value * 100);
+          }
+          data.priceAdjustment = { type: priceType, value };
         }
-        data.priceAdjustment = { type: priceType, value };
-      }
 
-      if (compareAtPriceType === "clear") {
-        data.compareAtPriceAdjustment = null;
-      } else if (compareAtPriceValue) {
-        let value = parseFloat(compareAtPriceValue);
-        if (compareAtPriceType === "fixed" || compareAtPriceType === "add_amount") {
-          value = Math.round(value * 100);
+        if (compareAtPriceType === "clear") {
+          data.compareAtPriceAdjustment = null;
+        } else if (compareAtPriceValue) {
+          let value = parseFloat(compareAtPriceValue);
+          if (compareAtPriceType === "fixed" || compareAtPriceType === "add_amount") {
+            value = Math.round(value * 100);
+          }
+          data.compareAtPriceAdjustment = { type: compareAtPriceType, value };
         }
-        data.compareAtPriceAdjustment = { type: compareAtPriceType, value };
       }
 
-      if (stockValue) {
-        data.stockCount = parseInt(stockValue, 10);
+      if (activeSubTab === "stock") {
+        if (stockValue) {
+          data.stockCount = parseInt(stockValue, 10);
+        }
       }
 
-      if (bulkActive !== null) {
-        data.isActive = bulkActive;
-      }
-
-      if (skuPrefix.trim()) {
-        data.skuPrefix = skuPrefix.trim();
+      if (activeSubTab === "status") {
+        if (bulkActive !== null) {
+          data.isActive = bulkActive;
+        }
+        if (skuPrefix.trim()) {
+          data.skuPrefix = skuPrefix.trim();
+        }
       }
 
       if (Object.keys(data).length === 0) {
-        setMessage({ type: "error", text: "No changes to apply." });
+        setMessage({ type: "error", text: "No changes to apply. Please adjust the fields first." });
+        setSaving(false);
         return;
       }
 
       await onBulkUpdate(data as any);
       setMessage({ type: "success", text: "Updated successfully." });
-      setExpanded(false);
+      
+      // Reset active tab fields
+      if (activeSubTab === "price") {
+        setPriceValue("");
+        setCompareAtPriceValue("");
+      } else if (activeSubTab === "stock") {
+        setStockValue("");
+      } else if (activeSubTab === "status") {
+        setBulkActive(null);
+        setSkuPrefix("");
+      }
+      
+      // Auto close after 1.5s on success
+      setTimeout(() => {
+        setExpanded(false);
+        setMessage(null);
+      }, 1500);
+
     } catch (err) {
       setMessage({
         type: "error",
@@ -145,17 +171,17 @@ export function VariantBulkToolbar({
     } finally {
       setSaving(false);
     }
-  }, [hasSelection, priceValue, priceType, compareAtPriceValue, compareAtPriceType, stockValue, bulkActive, skuPrefix, onBulkUpdate]);
+  }, [hasSelection, activeSubTab, priceValue, priceType, compareAtPriceValue, compareAtPriceType, stockValue, bulkActive, skuPrefix, onBulkUpdate]);
 
   if (totalCount === 0) return null;
 
   return (
-    <div className="rounded-xl bg-muted/40 text-foreground">
+    <div className="rounded-xl bg-muted/40 text-foreground border border-border/50">
       {/* Undo banner */}
       {undoSnapshot && onUndo && (
         <div className="flex items-center justify-between gap-2 px-4 py-2 bg-emerald-500/10 border-b border-border text-sm">
           <span className="text-emerald-700 dark:text-emerald-350 font-medium">
-            Bulk update applied.
+            Bulk update applied successfully.
           </span>
           <Button
             variant="default"
@@ -169,7 +195,7 @@ export function VariantBulkToolbar({
       )}
 
       {/* Selection bar */}
-      <div className="flex items-center gap-2 px-3 py-2">
+      <div className="flex items-center gap-2 px-3 py-2.5">
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <Checkbox
             checked={selectedCount === totalCount && totalCount > 0}
@@ -183,7 +209,7 @@ export function VariantBulkToolbar({
             }
           />
 
-          <span className="text-sm text-muted-foreground truncate font-medium">
+          <span className="text-sm text-muted-foreground truncate font-semibold">
             {selectedCount > 0
               ? `${selectedCount} of ${totalCount} selected`
               : `${totalCount} variant${totalCount !== 1 ? "s" : ""}`}
@@ -207,7 +233,7 @@ export function VariantBulkToolbar({
               type="button"
               onClick={onDeselectAll}
               disabled={disabled}
-              className="rounded-full p-1.5 text-muted-foreground hover:bg-muted transition-colors shrink-0 cursor-pointer border-none"
+              className="rounded-full p-1.5 text-muted-foreground hover:bg-muted transition-colors shrink-0 cursor-pointer border-none bg-transparent"
               aria-label="Clear selection"
             >
               <X className="h-3.5 w-3.5" />
@@ -218,7 +244,7 @@ export function VariantBulkToolbar({
 
       {/* Expanded bulk editor */}
       {expanded && hasSelection && (
-        <div className="border-t border-border px-4 py-4 space-y-4">
+        <div className="border-t border-border px-4 py-4 space-y-4 bg-background rounded-b-xl animate-in slide-in-from-top-2 duration-200">
           {message && (
             <div
               className={cn(
@@ -233,7 +259,7 @@ export function VariantBulkToolbar({
               <button
                 type="button"
                 onClick={clearMessage}
-                className="text-muted-foreground hover:text-foreground cursor-pointer border-none"
+                className="text-muted-foreground hover:text-foreground cursor-pointer border-none bg-transparent"
                 aria-label="Dismiss"
               >
                 <X className="h-3.5 w-3.5" />
@@ -241,179 +267,267 @@ export function VariantBulkToolbar({
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Price Adjustment */}
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-foreground">
-                Price Adjustment
-              </label>
-              <div className="flex gap-1.5">
-                <Select
-                  value={priceType}
-                  onValueChange={(val) => setPriceType(val as PriceAdjustmentType)}
-                  disabled={disabled || saving}
+          {/* Sub-tabs Header */}
+          <div className="flex border-b border-border gap-1" role="tablist">
+            {[
+              { id: "price" as const, label: "Price & Discounts", icon: DollarSign },
+              { id: "stock" as const, label: "Stock Inventory", icon: Layers },
+              { id: "status" as const, label: "Status & SKU", icon: Tag },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeSubTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => {
+                    setActiveSubTab(tab.id);
+                    clearMessage();
+                  }}
+                  className={cn(
+                    "flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold border-b-2 -mb-px transition-all cursor-pointer bg-transparent border-none",
+                    isActive
+                      ? "border-primary text-foreground font-bold"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
                 >
-                  <SelectTrigger className="w-28 shrink-0">
-                    <SelectValue placeholder="Price Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PRICE_ADJUSTMENT_OPTIONS.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>
-                        {o.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  type="number"
-                  value={priceValue}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPriceValue(e.target.value)}
-                  placeholder={priceType === "percent" ? "+10" : "100"}
-                  disabled={disabled || saving}
-                  min={0}
-                  className="min-h-9 text-sm flex-1"
-                />
-              </div>
-              <p className="mt-1 text-[11px] text-muted-foreground leading-normal">
-                {priceType === "fixed"
-                  ? "Set exact price in ৳"
-                  : priceType === "percent"
-                    ? "Adjust by % (use negative for discount)"
-                    : "Add/subtract in ৳ (use - for subtract)"}
-              </p>
-            </div>
-
-            {/* Old Price Adjustment */}
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-foreground">
-                Old Price Adjustment
-              </label>
-              <div className="flex gap-1.5">
-                <Select
-                  value={compareAtPriceType}
-                  onValueChange={(val) => setCompareAtPriceType(val as any)}
-                  disabled={disabled || saving}
-                >
-                  <SelectTrigger className="w-28 shrink-0">
-                    <SelectValue placeholder="Old Price Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {COMPARE_AT_OPTIONS.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>
-                        {o.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {compareAtPriceType !== "clear" && (
-                  <Input
-                    type="number"
-                    value={compareAtPriceValue}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCompareAtPriceValue(e.target.value)}
-                    placeholder={compareAtPriceType === "percent" ? "+10" : "150"}
-                    disabled={disabled || saving}
-                    min={0}
-                    className="min-h-9 text-sm flex-1"
-                  />
-                )}
-              </div>
-              <p className="mt-1 text-[11px] text-muted-foreground leading-normal">
-                {compareAtPriceType === "clear"
-                  ? "Clear old price"
-                  : compareAtPriceType === "fixed"
-                    ? "Set exact old price in ৳"
-                    : compareAtPriceType === "percent"
-                      ? "Adjust old price by %"
-                      : "Add/subtract old price in ৳"}
-              </p>
-            </div>
-
-            {/* Stock Count */}
-            <div>
-              <label
-                htmlFor={`${uid}-stock`}
-                className="mb-1 block text-xs font-semibold text-foreground"
-              >
-                Set Stock Count
-              </label>
-              <Input
-                id={`${uid}-stock`}
-                type="number"
-                value={stockValue}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStockValue(e.target.value)}
-                placeholder="Leave empty to keep"
-                min={0}
-                disabled={disabled || saving}
-                className="min-h-9 text-sm"
-              />
-            </div>
-
-            {/* Status */}
-            <div>
-              <span className="mb-1.5 block text-xs font-semibold text-foreground">
-                Set Status
-              </span>
-              <div className="flex items-center gap-3 py-1">
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                  <input
-                    type="radio"
-                    name={`${uid}-status`}
-                    checked={bulkActive === true}
-                    onChange={() => setBulkActive(true)}
-                    disabled={disabled || saving}
-                    className="h-4 w-4 accent-primary"
-                  />
-                  <span className="text-sm font-medium">Active</span>
-                </label>
-                <label className="flex items-center gap-1.5 cursor-pointer">
-                  <input
-                    type="radio"
-                    name={`${uid}-status`}
-                    checked={bulkActive === false}
-                    onChange={() => setBulkActive(false)}
-                    disabled={disabled || saving}
-                    className="h-4 w-4 accent-primary"
-                  />
-                  <span className="text-sm font-medium">Inactive</span>
-                </label>
-                {bulkActive !== null && (
-                  <button
-                    type="button"
-                    onClick={() => setBulkActive(null)}
-                    className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer border-none bg-transparent"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* SKU Prefix */}
-            <div>
-              <label
-                htmlFor={`${uid}-sku`}
-                className="mb-1 block text-xs font-semibold text-foreground"
-              >
-                SKU Prefix
-              </label>
-              <Input
-                id={`${uid}-sku`}
-                type="text"
-                value={skuPrefix}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSkuPrefix(e.target.value)}
-                placeholder="Leave empty to keep"
-                maxLength={20}
-                disabled={disabled || saving}
-                className="min-h-9 text-sm"
-              />
-              <p className="mt-1 text-[11px] text-muted-foreground leading-normal">
-                Replaces first segment of SKU
-              </p>
-            </div>
+                  <Icon className="h-3.5 w-3.5" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Apply button */}
-          <div className="flex justify-end pt-1">
+          {/* Tab Content Panels */}
+          <div className="pt-2">
+            {activeSubTab === "price" && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Price */}
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+                      Price Adjustment
+                    </label>
+                    <div className="flex gap-1.5">
+                      <Select
+                        value={priceType}
+                        onValueChange={(val) => setPriceType(val as PriceAdjustmentType)}
+                        disabled={disabled || saving}
+                      >
+                        <SelectTrigger className="w-28 shrink-0 h-9">
+                          <SelectValue placeholder="Price Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PRICE_ADJUSTMENT_OPTIONS.map((o) => (
+                            <SelectItem key={o.value} value={o.value}>
+                              {o.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <NumberInput
+                        value={priceValue ? parseFloat(priceValue) : undefined}
+                        onChange={(val) => setPriceValue(val !== undefined && !isNaN(val) ? val.toString() : "")}
+                        placeholder={priceType === "percent" ? "+10" : "100"}
+                        disabled={disabled || saving}
+                        minValue={priceType === "fixed" ? 0 : undefined}
+                        className="h-9 text-sm flex-1"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Old Price / Compare At */}
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+                      Old Price Adjustment
+                    </label>
+                    <div className="flex gap-1.5">
+                      <Select
+                        value={compareAtPriceType}
+                        onValueChange={(val) => setCompareAtPriceType(val as any)}
+                        disabled={disabled || saving}
+                      >
+                        <SelectTrigger className="w-28 shrink-0 h-9">
+                          <SelectValue placeholder="Old Price Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {COMPARE_AT_OPTIONS.map((o) => (
+                            <SelectItem key={o.value} value={o.value}>
+                              {o.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {compareAtPriceType !== "clear" && (
+                        <NumberInput
+                          value={compareAtPriceValue ? parseFloat(compareAtPriceValue) : undefined}
+                          onChange={(val) => setCompareAtPriceValue(val !== undefined && !isNaN(val) ? val.toString() : "")}
+                          placeholder={compareAtPriceType === "percent" ? "+10" : "150"}
+                          disabled={disabled || saving}
+                          minValue={compareAtPriceType === "fixed" ? 0 : undefined}
+                          className="h-9 text-sm flex-1"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Price Presets */}
+                <div className="space-y-2 bg-muted/20 p-3 rounded-lg border border-border/50">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                    Quick Price Presets
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPriceType("percent");
+                        setPriceValue("-10");
+                      }}
+                      disabled={disabled || saving}
+                      className="px-2.5 py-1 text-xs rounded-full border border-border bg-background text-foreground hover:bg-muted transition-colors cursor-pointer select-none"
+                    >
+                      10% Discount
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPriceType("percent");
+                        setPriceValue("-20");
+                      }}
+                      disabled={disabled || saving}
+                      className="px-2.5 py-1 text-xs rounded-full border border-border bg-background text-foreground hover:bg-muted transition-colors cursor-pointer select-none"
+                    >
+                      20% Discount
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCompareAtPriceType("clear");
+                      }}
+                      disabled={disabled || saving}
+                      className="px-2.5 py-1 text-xs rounded-full border border-border bg-background text-foreground hover:bg-muted transition-colors cursor-pointer select-none"
+                    >
+                      Clear Compare Prices
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeSubTab === "stock" && (
+              <div className="space-y-4">
+                <div className="max-w-xs space-y-1.5">
+                  <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+                    Set Stock Count
+                  </label>
+                  <NumberInput
+                    value={stockValue ? parseFloat(stockValue) : undefined}
+                    onChange={(val) => setStockValue(val !== undefined && !isNaN(val) ? val.toString() : "")}
+                    placeholder="e.g. 50"
+                    disabled={disabled || saving}
+                    minValue={0}
+                    className="h-9 text-sm"
+                  />
+                </div>
+
+                {/* Stock Presets */}
+                <div className="space-y-2 bg-muted/20 p-3 rounded-lg border border-border/50">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                    Quick Inventory Presets
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setStockValue("0")}
+                      disabled={disabled || saving}
+                      className="px-2.5 py-1 text-xs rounded-full border border-red-200 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-400 hover:bg-red-100/70 dark:hover:bg-red-950/40 transition-colors cursor-pointer select-none font-medium"
+                    >
+                      Out of Stock (0)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStockValue("5")}
+                      disabled={disabled || saving}
+                      className="px-2.5 py-1 text-xs rounded-full border border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/30 dark:bg-amber-950/20 dark:text-amber-400 hover:bg-amber-100/70 dark:hover:bg-amber-950/40 transition-colors cursor-pointer select-none font-medium"
+                    >
+                      Low Stock (5)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStockValue("50")}
+                      disabled={disabled || saving}
+                      className="px-2.5 py-1 text-xs rounded-full border border-emerald-250 bg-emerald-50 text-emerald-700 dark:border-emerald-900/30 dark:bg-emerald-950/20 dark:text-emerald-350 hover:bg-emerald-100/70 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer select-none font-medium"
+                    >
+                      Standard (50)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStockValue("100")}
+                      disabled={disabled || saving}
+                      className="px-2.5 py-1 text-xs rounded-full border border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/30 dark:bg-blue-950/20 dark:text-blue-400 hover:bg-blue-100/70 dark:hover:bg-blue-950/40 transition-colors cursor-pointer select-none font-medium"
+                    >
+                      High Stock (100)
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeSubTab === "status" && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Status Switch */}
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+                      Active Status
+                    </span>
+                    <div className="flex items-center gap-2.5 h-9">
+                      <Switch
+                        id="status-toggle"
+                        checked={bulkActive === true}
+                        onCheckedChange={(checked) => setBulkActive(checked ? true : false)}
+                        disabled={disabled || saving}
+                      />
+                      <span className="text-sm font-medium">
+                        {bulkActive === null ? "Keep current status" : bulkActive ? "Set to Active" : "Set to Inactive"}
+                      </span>
+                      {bulkActive !== null && (
+                        <button
+                          type="button"
+                          onClick={() => setBulkActive(null)}
+                          className="text-xs text-muted-foreground hover:text-foreground font-semibold ml-2 cursor-pointer border-none bg-transparent"
+                        >
+                          Reset
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* SKU Prefix */}
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+                      SKU Prefix
+                    </label>
+                    <Input
+                      type="text"
+                      value={skuPrefix}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSkuPrefix(e.target.value)}
+                      placeholder="e.g. BOUTIQUE-"
+                      maxLength={20}
+                      disabled={disabled || saving}
+                      className="h-9 text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Action Row */}
+          <div className="flex justify-end pt-3 border-t border-border/60">
             <Button
               type="button"
               onClick={handleApply}

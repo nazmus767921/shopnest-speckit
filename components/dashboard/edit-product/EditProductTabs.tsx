@@ -86,18 +86,21 @@ export function EditProductTabs({
 
   return (
     <div className="text-foreground">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="outline" size="icon" className="rounded-full" render={<Link href="/dashboard/products" />}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground leading-none">
-            Edit Product
-          </h1>
-          <p className="text-sm text-muted-foreground font-light mt-1">
-            Manage and update product details
-          </p>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" className="rounded-full" render={<Link href="/dashboard/products" />}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground leading-none">
+              Edit Product
+            </h1>
+            <p className="text-sm text-muted-foreground font-light mt-1">
+              Manage and update product details
+            </p>
+          </div>
         </div>
+        <div id="edit-product-header-actions" />
       </div>
 
       {/* ── Tab bar ── */}
@@ -134,6 +137,7 @@ export function EditProductTabs({
             hasVariants={product.hasVariants}
             baseSku={product.id.slice(0, 8).toUpperCase()}
             basePricePaisa={product.pricePaisa}
+            productImages={product.images}
           />
         )}
 

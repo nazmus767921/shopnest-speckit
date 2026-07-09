@@ -5,7 +5,7 @@ import { useForm } from "@tanstack/react-form"
 import { X, CheckCircle2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label as FormLabel } from "@/components/ui/label"
+import { Field, FieldLabel, FieldError, FieldDescription, FieldGroup, FieldSet } from "@/components/ui/field"
 import { createCategoryAction, updateCategoryAction } from "@/app/actions/categories"
 import { z } from "zod"
 
@@ -102,8 +102,8 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
           {/* Category Name */}
           <form.Field name="name">
             {(field) => (
-              <div className="flex flex-col gap-1.5">
-                <FormLabel htmlFor="modal-cat-name">Category Name *</FormLabel>
+              <Field>
+                <FieldLabel htmlFor="modal-cat-name">Category Name *</FieldLabel>
                 <Input
                   id="modal-cat-name"
                   autoFocus
@@ -119,17 +119,17 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
                   placeholder="e.g. Traditional Salwar"
                 />
                 {field.state.meta.errors.length > 0 && (
-                  <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
+                  <FieldError>{String(field.state.meta.errors[0])}</FieldError>
                 )}
-              </div>
+              </Field>
             )}
           </form.Field>
 
           {/* Slug */}
           <form.Field name="slug">
             {(field) => (
-              <div className="flex flex-col gap-1.5">
-                <FormLabel htmlFor="modal-cat-slug">Category Slug *</FormLabel>
+              <Field>
+                <FieldLabel htmlFor="modal-cat-slug">Category Slug *</FieldLabel>
                 <Input
                   id="modal-cat-slug"
                   value={field.state.value}
@@ -140,13 +140,13 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
                   onBlur={field.handleBlur}
                   placeholder="e.g. traditional-salwar"
                 />
-                <p className="text-xs text-muted-foreground leading-normal">
+                <FieldDescription>
                   Used for SEO friendly URLs on the storefront (lowercase letters, numbers, and hyphens only).
-                </p>
+                </FieldDescription>
                 {field.state.meta.errors.length > 0 && (
-                  <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
+                  <FieldError>{String(field.state.meta.errors[0])}</FieldError>
                 )}
-              </div>
+              </Field>
             )}
           </form.Field>
 

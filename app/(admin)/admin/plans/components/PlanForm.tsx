@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "@tanstack/react-form"
 import { planSchema, type PlanInput } from "@/lib/validations/plans"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, FormLabel, Input, Alert } from "@/components/ui"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Input, Alert } from "@/components/ui"
+import { Field, FieldLabel, FieldError, FieldDescription } from "@/components/ui/field"
 import {
   Loader2,
   Save,
@@ -235,10 +236,10 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                 }}
               >
                 {(field) => (
-                  <div className="flex flex-col gap-1.5">
-                    <FormLabel htmlFor={field.name} className="text-shade-60 font-semibold">
+                  <Field>
+                    <FieldLabel htmlFor={field.name} className="text-shade-60 font-semibold">
                       Plan Name
-                    </FormLabel>
+                    </FieldLabel>
                     <Input
                       id={field.name}
                       name={field.name}
@@ -250,11 +251,11 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                       error={field.state.meta.isTouched && field.state.meta.errors.length > 0}
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <span className="text-caption text-red-500 font-medium">
+                      <FieldError className="font-medium">
                         {field.state.meta.errors[0]}
-                      </span>
+                      </FieldError>
                     )}
-                  </div>
+                  </Field>
                 )}
               </form.Field>
 
@@ -270,10 +271,10 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                 }}
               >
                 {(field) => (
-                  <div className="flex flex-col gap-1.5">
-                    <FormLabel htmlFor={field.name} className="text-shade-60 font-semibold">
+                  <Field>
+                    <FieldLabel htmlFor={field.name} className="text-shade-60 font-semibold">
                       Plan Slug (Unique URL Segment)
-                    </FormLabel>
+                    </FieldLabel>
                     <Input
                       id={field.name}
                       name={field.name}
@@ -287,17 +288,17 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                       error={field.state.meta.isTouched && field.state.meta.errors.length > 0}
                     />
                     {isEdit ? (
-                      <span className="text-micro text-shade-40">
+                      <FieldDescription>
                         * The identifier slug is locked and cannot be changed after creation.
-                      </span>
+                      </FieldDescription>
                     ) : (
                       field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                        <span className="text-caption text-red-500 font-medium">
+                        <FieldError className="font-medium">
                           {field.state.meta.errors[0]}
-                        </span>
+                        </FieldError>
                       )
                     )}
-                  </div>
+                  </Field>
                 )}
               </form.Field>
             </div>
@@ -313,10 +314,10 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
               }}
             >
               {(field) => (
-                <div className="flex flex-col gap-2.5 max-w-lg">
-                  <FormLabel htmlFor={field.name} className="text-shade-60 font-semibold">
+                <Field className="max-w-lg space-y-2.5">
+                  <FieldLabel htmlFor={field.name} className="text-shade-60 font-semibold">
                     Monthly Price (৳ Taka)
-                  </FormLabel>
+                  </FieldLabel>
                   <div className="flex rounded-md border border-hairline-light bg-canvas-light focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 overflow-hidden transition-all duration-200 w-full max-w-sm">
                     <span className="bg-canvas-cream text-ink text-body-md font-semibold px-4 flex items-center border-r border-hairline-light select-none font-mono">
                       ৳
@@ -337,9 +338,9 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                     </span>
                   </div>
                   {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <span className="text-caption text-red-500 font-medium">
+                    <FieldError className="font-medium">
                       {field.state.meta.errors[0]}
-                    </span>
+                    </FieldError>
                   )}
 
                   {/* Visual Pricing Presets */}
@@ -363,7 +364,7 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                       </button>
                     ))}
                   </div>
-                </div>
+                </Field>
               )}
             </form.Field>
           </CardContent>

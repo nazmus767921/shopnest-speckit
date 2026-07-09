@@ -18,6 +18,7 @@ interface VariantsSectionProps {
   hasVariants: boolean;
   baseSku: string;
   basePricePaisa: number;
+  productImages?: { storagePath: string }[];
 }
 
 interface VariantFromDb {
@@ -62,6 +63,7 @@ export function VariantsSection({
   hasVariants,
   baseSku,
   basePricePaisa,
+  productImages = [],
 }: VariantsSectionProps) {
   const queryClient = useQueryClient();
   const savedAttrsRef = useRef<AttributeInput[]>([]);
@@ -342,6 +344,8 @@ export function VariantsSection({
           attributes={attributes}
           onChange={setAttributes}
           estimatedExistingVariants={data?.variants.length ?? 0}
+          productImages={productImages}
+          savedAttributes={data?.attributes ?? []}
         />
 
         {message && (

@@ -5,7 +5,7 @@ import { useForm } from "@tanstack/react-form"
 import { X, CheckCircle2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label as FormLabel } from "@/components/ui/label"
+import { Field, FieldLabel, FieldError, FieldDescription, FieldGroup, FieldSet } from "@/components/ui/field"
 import { discountCodeSchema, type DiscountCodeValues } from "@/lib/validations/discounts"
 import {
   createDiscountCodeAction,
@@ -105,10 +105,10 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
           {/* Code */}
           <form.Field name="code">
             {(field) => (
-              <div className="flex flex-col gap-1.5">
-                <FormLabel htmlFor="modal-code">
+              <Field>
+                <FieldLabel htmlFor="modal-code">
                   Coupon Code *
-                </FormLabel>
+                </FieldLabel>
                 <Input
                   id="modal-code"
                   value={field.state.value}
@@ -117,21 +117,21 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
                   placeholder="e.g. SUMMER20"
                   className="font-mono uppercase bg-background border-border rounded-lg"
                 />
-                <p className="text-xs text-muted-foreground">
+                <FieldDescription>
                   Letters, numbers, hyphens and underscores only.
-                </p>
+                </FieldDescription>
                 {field.state.meta.errors.length > 0 && (
-                  <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
+                  <FieldError>{String(field.state.meta.errors[0])}</FieldError>
                 )}
-              </div>
+              </Field>
             )}
           </form.Field>
 
           {/* Discount Type */}
           <form.Field name="discountType">
             {(field) => (
-              <div className="flex flex-col gap-1.5">
-                <FormLabel>Discount Type *</FormLabel>
+              <Field>
+                <FieldLabel>Discount Type *</FieldLabel>
                 <div className="flex gap-3">
                   {(["fixed", "percent"] as const).map((type) => (
                     <label
@@ -157,7 +157,7 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
                     </label>
                   ))}
                 </div>
-              </div>
+              </Field>
             )}
           </form.Field>
 
@@ -166,12 +166,12 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
             {(field) => (
               <form.Subscribe selector={(state) => state.values.discountType}>
                 {(discountType) => (
-                  <div className="flex flex-col gap-1.5">
-                    <FormLabel htmlFor="modal-value">
+                  <Field>
+                    <FieldLabel htmlFor="modal-value">
                       {discountType === "percent"
                         ? "Percentage (%) *"
                         : "Amount (৳) *"}
-                    </FormLabel>
+                    </FieldLabel>
                     <Input
                       id="modal-value"
                       type="number"
@@ -186,9 +186,9 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
                       className="bg-background border-border rounded-lg"
                     />
                     {field.state.meta.errors.length > 0 && (
-                      <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
+                      <FieldError>{String(field.state.meta.errors[0])}</FieldError>
                     )}
-                  </div>
+                  </Field>
                 )}
               </form.Subscribe>
             )}
@@ -197,8 +197,8 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
           {/* Usage Limit */}
           <form.Field name="usageLimit">
             {(field) => (
-              <div className="flex flex-col gap-1.5">
-                <FormLabel htmlFor="modal-usage-limit">Usage Limit (optional)</FormLabel>
+              <Field>
+                <FieldLabel htmlFor="modal-usage-limit">Usage Limit (optional)</FieldLabel>
                 <Input
                   id="modal-usage-limit"
                   type="number"
@@ -211,15 +211,15 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
                   placeholder="Leave blank for unlimited"
                   className="bg-background border-border rounded-lg"
                 />
-              </div>
+              </Field>
             )}
           </form.Field>
 
           {/* Expiry */}
           <form.Field name="expiresAt">
             {(field) => (
-              <div className="flex flex-col gap-1.5">
-                <FormLabel htmlFor="modal-expires-at">Expiry Date (optional)</FormLabel>
+              <Field>
+                <FieldLabel htmlFor="modal-expires-at">Expiry Date (optional)</FieldLabel>
                 <Input
                   id="modal-expires-at"
                   type="datetime-local"
@@ -228,7 +228,7 @@ export function DiscountCodeModal({ editingCode, onClose }: DiscountCodeModalPro
                   onBlur={field.handleBlur}
                   className="bg-background border-border rounded-lg"
                 />
-              </div>
+              </Field>
             )}
           </form.Field>
 

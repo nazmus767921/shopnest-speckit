@@ -6,7 +6,7 @@ import { storeSettingsSchema } from "@/lib/validations/settings"
 import { updateStoreSettingsAction } from "@/app/actions/settings"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label as FormLabel } from "@/components/ui/label"
+import { Field, FieldLabel, FieldError, FieldDescription, FieldGroup, FieldSet } from "@/components/ui/field"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Save, Lock, Smartphone, Landmark, Sliders, Trash2, Plus, UploadCloud, X, Truck, Bell } from "lucide-react"
@@ -311,10 +311,10 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                   {/* Store Name Input */}
                   <profileForm.Field name="name">
                     {(field) => (
-                      <div className="flex flex-col gap-1.5">
-                        <FormLabel htmlFor="store-name">
+                      <Field>
+                        <FieldLabel htmlFor="store-name">
                           Store Name <span className="text-red-500">*</span>
-                        </FormLabel>
+                        </FieldLabel>
                         <Input
                           id="store-name"
                           value={field.state.value}
@@ -324,17 +324,17 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                           className="bg-background border-border rounded-lg"
                         />
                         {field.state.meta.errors.length > 0 && (
-                          <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
+                          <FieldError>{String(field.state.meta.errors[0])}</FieldError>
                         )}
-                      </div>
+                      </Field>
                     )}
                   </profileForm.Field>
 
                   {/* Store Phone Number Input */}
                   <profileForm.Field name="phoneNumber">
                     {(field) => (
-                      <div className="flex flex-col gap-1.5">
-                        <FormLabel htmlFor="phone-number">Store Phone Number</FormLabel>
+                      <Field>
+                        <FieldLabel htmlFor="phone-number">Store Phone Number</FieldLabel>
                         <Input
                           id="phone-number"
                           type="tel"
@@ -345,9 +345,9 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                           className="bg-background border-border rounded-lg"
                         />
                         {field.state.meta.errors.length > 0 && (
-                          <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
+                          <FieldError>{String(field.state.meta.errors[0])}</FieldError>
                         )}
-                      </div>
+                      </Field>
                     )}
                   </profileForm.Field>
                 </CardContent>
@@ -424,8 +424,8 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                     {/* bKash Number */}
                     <paymentsForm.Field name="bkashNumber">
                       {(field) => (
-                        <div className="flex flex-col gap-1.5">
-                          <FormLabel htmlFor="bkash-number">bKash Wallet Number</FormLabel>
+                        <Field>
+                          <FieldLabel htmlFor="bkash-number">bKash Wallet Number</FieldLabel>
                           <Input
                             id="bkash-number"
                             type="tel"
@@ -436,9 +436,9 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                             className="bg-background border-border rounded-lg"
                           />
                           {field.state.meta.errors.length > 0 && (
-                            <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
+                            <FieldError>{String(field.state.meta.errors[0])}</FieldError>
                           )}
-                        </div>
+                        </Field>
                       )}
                     </paymentsForm.Field>
                   </div>
@@ -457,8 +457,8 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                     {/* Nagad Number */}
                     <paymentsForm.Field name="nagadNumber">
                       {(field) => (
-                        <div className="flex flex-col gap-1.5">
-                          <FormLabel htmlFor="nagad-number">Nagad Wallet Number</FormLabel>
+                        <Field>
+                          <FieldLabel htmlFor="nagad-number">Nagad Wallet Number</FieldLabel>
                           <Input
                             id="nagad-number"
                             type="tel"
@@ -469,9 +469,9 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                             className="bg-background border-border rounded-lg"
                           />
                           {field.state.meta.errors.length > 0 && (
-                            <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
+                            <FieldError>{String(field.state.meta.errors[0])}</FieldError>
                           )}
-                        </div>
+                        </Field>
                       )}
                     </paymentsForm.Field>
                   </div>
@@ -542,8 +542,8 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                       <paymentsForm.Field name="bkashWalletNumber">
                                         {(field) => (
-                                          <div className="flex flex-col gap-1.5">
-                                            <FormLabel htmlFor="bkash-wallet-number">bKash Personal Number</FormLabel>
+                                          <Field>
+                                            <FieldLabel htmlFor="bkash-wallet-number">bKash Personal Number</FieldLabel>
                                             <Input
                                               id="bkash-wallet-number"
                                               type="tel"
@@ -553,14 +553,14 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                                               placeholder="e.g. 01700000000"
                                               className="bg-background border-border rounded-lg"
                                             />
-                                          </div>
+                                          </Field>
                                         )}
                                       </paymentsForm.Field>
 
                                       <paymentsForm.Field name="nagadWalletNumber">
                                         {(field) => (
-                                          <div className="flex flex-col gap-1.5">
-                                            <FormLabel htmlFor="nagad-wallet-number">Nagad Personal Number</FormLabel>
+                                          <Field>
+                                            <FieldLabel htmlFor="nagad-wallet-number">Nagad Personal Number</FieldLabel>
                                             <Input
                                               id="nagad-wallet-number"
                                               type="tel"
@@ -570,7 +570,7 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                                               placeholder="e.g. 01700000000"
                                               className="bg-background border-border rounded-lg"
                                             />
-                                          </div>
+                                          </Field>
                                         )}
                                       </paymentsForm.Field>
                                     </div>
@@ -631,10 +631,10 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
               <CardContent className="p-0 flex flex-col gap-5">
                 <inventoryForm.Field name="lowStockThresholdDefault">
                   {(field) => (
-                    <div className="flex flex-col gap-1.5">
-                      <FormLabel htmlFor="low-stock-threshold">
+                    <Field>
+                      <FieldLabel htmlFor="low-stock-threshold">
                         Default Low Stock Threshold <span className="text-red-500">*</span>
-                      </FormLabel>
+                      </FieldLabel>
                       <Input
                         id="low-stock-threshold"
                         type="number"
@@ -646,13 +646,13 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                         placeholder="5"
                         className="max-w-xs bg-background border-border font-mono rounded-lg"
                       />
-                      <p className="text-xs text-muted-foreground leading-relaxed">
+                      <FieldDescription>
                         New products will display a low-stock warning in your dashboard when their quantity drops below this number.
-                      </p>
+                      </FieldDescription>
                       {field.state.meta.errors.length > 0 && (
-                        <p className="text-xs text-destructive">{String(field.state.meta.errors[0])}</p>
+                        <FieldError>{String(field.state.meta.errors[0])}</FieldError>
                       )}
-                    </div>
+                    </Field>
                   )}
                 </inventoryForm.Field>
               </CardContent>

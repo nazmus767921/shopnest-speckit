@@ -3,7 +3,8 @@
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "@tanstack/react-form"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, FormLabel, Input } from "@/components/ui"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Input } from "@/components/ui"
+import { Field, FieldLabel, FieldError, FieldDescription } from "@/components/ui/field"
 import { createMerchantAction } from "./actions"
 import { onboardingSchema } from "./schema"
 import { Globe, Store, Check, ArrowRight } from "lucide-react"
@@ -143,11 +144,11 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
                         }}
                     >
                       {(field) => (
-                          <div className="flex flex-col gap-1.5">
-                            <FormLabel htmlFor={field.name} className="flex items-center gap-1.5 text-shade-60">
+                          <Field>
+                            <FieldLabel htmlFor={field.name} className="flex items-center gap-1.5 text-shade-60">
                               <Store className="h-4 w-4 text-shade-40" />
                               Boutique / Store Name
-                            </FormLabel>
+                            </FieldLabel>
                             <Input
                                 id={field.name}
                                 name={field.name}
@@ -168,11 +169,11 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
                                 error={field.state.meta.isTouched && field.state.meta.errors.length > 0}
                             />
                             {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                                <span className="text-caption text-red-500 animate-fade-in">
+                                <FieldError className="animate-fade-in">
                                   {field.state.meta.errors[0]}
-                                </span>
+                                </FieldError>
                             )}
-                          </div>
+                          </Field>
                       )}
                     </form.Field>
 
@@ -187,11 +188,11 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
                         }}
                     >
                       {(field) => (
-                          <div className="flex flex-col gap-1.5">
-                            <FormLabel htmlFor={field.name} className="flex items-center gap-1.5 text-shade-60">
+                          <Field>
+                            <FieldLabel htmlFor={field.name} className="flex items-center gap-1.5 text-shade-60">
                               <Globe className="h-4 w-4 text-shade-40" />
                               Store Subdomain URL
-                            </FormLabel>
+                            </FieldLabel>
                             <div className="flex rounded-md border border-hairline-light bg-canvas-light focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 overflow-hidden transition-all duration-200">
                               <input
                                   id={field.name}
@@ -207,26 +208,26 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
                                 .shopnest.com.bd
                               </span>
                             </div>
-                            <span className="text-micro text-shade-50 px-1">
+                            <FieldDescription className="px-1">
                               Use lowercase letters, numbers, and hyphens only (e.g. <code>my-brand</code>).
-                            </span>
+                            </FieldDescription>
                             {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                                <span className="text-caption text-red-500 animate-fade-in">
+                                <FieldError className="animate-fade-in">
                                   {field.state.meta.errors[0]}
-                                </span>
+                                </FieldError>
                             )}
-                          </div>
+                          </Field>
                       )}
                     </form.Field>
 
                     {/* Plan Selection */}
                     <form.Field name="plan">
                       {(field) => (
-                          <div className="flex flex-col gap-1.5 mt-2">
-                            <FormLabel className="flex items-center gap-1.5 text-shade-60">
+                          <Field className="mt-2">
+                            <FieldLabel className="flex items-center gap-1.5 text-shade-60">
                               <Check className="h-4 w-4 text-shade-40" />
                               Select a Plan
-                            </FormLabel>
+                            </FieldLabel>
                             <div className="grid grid-cols-2 gap-3 mt-1">
                               {plans.map((p) => (
                                   <label
@@ -263,18 +264,18 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
                                   </label>
                               ))}
                             </div>
-                          </div>
+                          </Field>
                       )}
                     </form.Field>
 
                     {/* Business Type Selection */}
                     <form.Field name="businessType">
                       {(field) => (
-                        <div className="flex flex-col gap-1.5 mt-2">
-                          <FormLabel className="flex items-center gap-1.5 text-shade-60">
+                        <Field className="mt-2">
+                          <FieldLabel className="flex items-center gap-1.5 text-shade-60">
                             <Store className="h-4 w-4 text-shade-40" />
                             Business Type / Niche
-                          </FormLabel>
+                          </FieldLabel>
                           <div className="grid grid-cols-2 gap-3 mt-1">
                             {[
                               { label: "Clothing & Fashion", value: "clothing", desc: "Suited for fashion boutiques" },
@@ -316,7 +317,7 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
                               </label>
                             ))}
                           </div>
-                        </div>
+                        </Field>
                       )}
                     </form.Field>
 
