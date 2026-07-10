@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth/auth"
 import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { createProduct, updateProduct, deleteProduct, getProducts, getProductById } from "@/db/queries/products"
 import { productFormSchema } from "@/lib/validations/products"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { assertPlanLimit } from "@/lib/plans/assertPlan"
 import { db } from "@/db"
 import { productPromotions } from "@/db/schema"
@@ -66,6 +66,7 @@ export async function createProductAction(values: unknown) {
     )
 
     revalidatePath("/dashboard/products")
+    revalidateTag("product-images")
     return { success: true, product }
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to create product." }
@@ -113,6 +114,7 @@ export async function updateProductAction(productId: string, values: unknown) {
 
     revalidatePath("/dashboard/products")
     revalidatePath(`/dashboard/products/${productId}/edit`)
+    revalidateTag("product-images")
     return { success: true, product }
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to update product." }

@@ -218,6 +218,13 @@
       "when": 1783556433458,
       "tag": "0030_superb_kitty_pryde",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1783647636272,
+      "tag": "0031_amusing_slapstick",
+      "breakpoints": true
     }
   ]
 }

@@ -14,7 +14,6 @@ import {
   attributeOptions,
   productVariants,
   variantAttributeLinks,
-  variantImages,
   productMetadata,
   products,
   orderItems,
@@ -341,39 +340,7 @@ export async function getVariantsWithCombinationsByProductId(productId: string) 
   return Array.from(variantMap.values());
 }
 
-// ─── Variant Images ───────────────────────────────────────────────────────────
 
-export async function getVariantImages(variantId: string) {
-  return db
-    .select()
-    .from(variantImages)
-    .where(eq(variantImages.variantId, variantId))
-    .orderBy(variantImages.displayOrder);
-}
-
-export async function createVariantImage(
-  data: typeof variantImages.$inferInsert,
-) {
-  const [result] = await db
-    .insert(variantImages)
-    .values(data)
-    .returning();
-  return result;
-}
-
-export async function deleteVariantImage(
-  imageId: string,
-  merchantId: string,
-) {
-  await db
-    .delete(variantImages)
-    .where(
-      and(
-        eq(variantImages.id, imageId),
-        eq(variantImages.merchantId, merchantId),
-      ),
-    );
-}
 
 // ─── Product Metadata ─────────────────────────────────────────────────────────
 
