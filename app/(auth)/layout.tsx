@@ -7,7 +7,7 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-12 bg-canvas-cream text-ink select-none">
+    <div className="theme-compact-sharp min-h-screen grid grid-cols-1 lg:grid-cols-12 bg-canvas-cream text-ink select-none">
       {/* Left Column: Cinematic Brand Showcase (Desktop Only) */}
       <div className="hidden lg:flex lg:col-span-5 bg-canvas-night text-on-primary flex-col justify-between p-12 border-r border-white/5 relative overflow-hidden">
         {/* Subtle background glow to add premium aesthetic depth without utilizing shadows */}

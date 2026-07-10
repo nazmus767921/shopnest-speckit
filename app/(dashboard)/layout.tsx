@@ -11,7 +11,7 @@ export const instant = false
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background text-foreground select-none antialiased">
+      <div className="theme-compact-sharp flex min-h-screen w-full bg-background text-foreground select-none antialiased">
         {/* Sidebar Component */}
         <Suspense fallback={<SidebarSkeleton />}>
           <DashboardSidebarWrapper />

@@ -9,7 +9,7 @@ export default function MarketingLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col min-h-screen bg-canvas-night text-on-primary">
+    <div className="theme-compact-sharp flex flex-col min-h-screen bg-canvas-night text-on-primary">
       {/* Sticky Navbar */}
       <Navbar />
 

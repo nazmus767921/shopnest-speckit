@@ -13,9 +13,11 @@ export const instant = false
 
 export default function AdminLayout({ children }: Props) {
   return (
-    <Suspense fallback={<AdminLayoutSkeleton />}>
-      <AdminLayoutContent>{children}</AdminLayoutContent>
-    </Suspense>
+    <div className="theme-compact-sharp">
+      <Suspense fallback={<AdminLayoutSkeleton />}>
+        <AdminLayoutContent>{children}</AdminLayoutContent>
+      </Suspense>
+    </div>
   )
 }
 

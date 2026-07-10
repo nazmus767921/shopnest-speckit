@@ -98,7 +98,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="w-full justify-between hover:bg-sidebar-accent cursor-pointer border border-sidebar-border/60 rounded-none px-3 py-1.5 transition-colors duration-150"
+              className="w-full justify-between hover:bg-sidebar-accent cursor-pointer border border-sidebar-border/60 rounded-none px-3 py-2.5 transition-colors duration-150"
             >
               <div className="flex items-center gap-3 text-left min-w-0 grow">
                 <div className="w-8 h-8 rounded-none bg-zinc-950 text-white flex items-center justify-center shrink-0 shadow-sm border border-zinc-900">
@@ -157,7 +157,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
                       asChild
                       isActive={isActive}
                       className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-none text-sm transition-all duration-150 font-medium",
+                        "w-full flex items-center gap-3 px-3 py-3 rounded-none text-sm transition-all duration-150 font-medium",
                         isActive
                           ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-red-500 font-bold shadow-xs"
                           : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
@@ -187,7 +187,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="w-full justify-between hover:bg-sidebar-accent cursor-pointer border border-sidebar-border/40 rounded-none px-3 py-2.5 transition-colors duration-150"
+              className="w-full justify-between hover:bg-sidebar-accent cursor-pointer border border-sidebar-border/40 rounded-none px-3 py-3 transition-colors duration-150"
             >
               <div className="flex items-center gap-3 text-left min-w-0 grow">
                 <div className="w-8 h-8 rounded-none bg-zinc-950 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm border border-zinc-900">
