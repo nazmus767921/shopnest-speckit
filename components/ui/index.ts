@@ -9,3 +9,4 @@ export { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader,
 export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose } from "./dialog"
 export { Alert, AlertTitle, AlertDescription } from "./alert"
 export { Label as FormLabel } from "./label"
+export { Combobox } from "./combobox"
