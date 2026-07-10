@@ -11,13 +11,13 @@ import {
   attributeOptions,
   productVariants,
   variantAttributeLinks,
-  variantImages,
+
   productMetadata,
   products,
 } from "@/db/schema";
 import { generateVariantMatrix, variantFingerprint, smartMergeVariants } from "@/lib/products/variants";
-import { getMetadataByProductId, getVariantsByProductId, getAttributesByProductId, getOptionsByAttributeId, getAttributesWithOptionsByProductId, getVariantsWithCombinationsByProductId, getVariantImages, createVariantImage, deleteVariantImage } from "@/db/queries/variants";
-import { saveAttributesSchema, variantUpdateSchema, saveMetadataSchema, bulkVariantUpdateSchema, variantImageUploadSchema } from "@/lib/validations/variants";
+import { getMetadataByProductId, getVariantsByProductId, getAttributesByProductId, getOptionsByAttributeId, getAttributesWithOptionsByProductId, getVariantsWithCombinationsByProductId } from "@/db/queries/variants";
+import { saveAttributesSchema, variantUpdateSchema, saveMetadataSchema, bulkVariantUpdateSchema } from "@/lib/validations/variants";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { syncParentProductStock } from "@/db/queries/products";
 
@@ -212,26 +212,8 @@ export async function saveProductAttributesAction(
 
     // ── Execute merge in a transaction ─────────────────────────────────────
     await db.transaction(async (tx) => {
-      // 1. Cascade-delete removed combinations: delete variant images from Storage,
-      //    then let ON DELETE CASCADE handle DB rows
+      // 1. Delete variant — ON DELETE CASCADE handles variant_attribute_links
       for (const variantId of toDelete) {
-        // Clean up variant images from Supabase Storage before DB delete
-        const images = await tx
-          .select({ storagePath: variantImages.storagePath })
-          .from(variantImages)
-          .where(eq(variantImages.variantId, variantId));
-
-        for (const img of images) {
-          try {
-            const path = img.storagePath.replace(/^product-images\//, '');
-            await supabaseAdmin.storage.from('product-images').remove([path]);
-          } catch {
-            // Storage cleanup is best-effort — log failure but don't block cascade
-            console.error(`Failed to delete variant image: ${img.storagePath}`);
-          }
-        }
-
-        // Delete variant — ON DELETE CASCADE handles variant_attribute_links
         await tx
           .delete(productVariants)
           .where(
@@ -791,171 +773,6 @@ export async function bulkUpdateVariantsAction(data: unknown) {
     return {
       success: false as const,
       error: error instanceof Error ? error.message : "Failed to update variants.",
-    };
-  }
-}
-
-// ─── Variant Image Upload ──────────────────────────────────────────────────────
-
-export async function getVariantImagesAction(
-  variantId: string,
-): Promise<{ success: true; images: Array<{ id: string; storagePath: string; url: string }> } | { success: false; error: string }> {
-  try {
-    const images = await getVariantImages(variantId);
-    const result = images.map((img) => ({
-      id: img.id,
-      storagePath: img.storagePath,
-      url: supabaseAdmin.storage.from("product-images").getPublicUrl(img.storagePath).data.publicUrl,
-    }));
-    return { success: true, images: result };
-  } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to fetch images." };
-  }
-}
-
-export async function uploadVariantImageAction(
-  variantId: string,
-  formData: FormData,
-): Promise<{ success: true; image: { id: string; storagePath: string; url: string } } | { success: false; error: string }> {
-  try {
-    const merchant = await getAuthenticatedMerchant();
-    const merchantId = merchant.id;
-
-    const file = formData.get("file") as File | null;
-    if (!file) {
-      return { success: false, error: "No file provided." };
-    }
-
-    // Validate file type
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/avif"];
-    if (!allowedTypes.includes(file.type)) {
-      return { success: false, error: "Invalid file type. Allowed: JPEG, PNG, WebP, AVIF." };
-    }
-
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      return { success: false, error: "File too large. Maximum 5MB." };
-    }
-
-    // Check existing image count (max 5 per variant)
-    const existing = await getVariantImages(variantId);
-    if (existing.length >= 5) {
-      return { success: false, error: "Maximum 5 images per variant." };
-    }
-
-    // Verify the variant belongs to this merchant
-    const variant = await db.query.productVariants.findFirst({
-      where: and(
-        eq(productVariants.id, variantId),
-        eq(productVariants.merchantId, merchantId),
-      ),
-    });
-    if (!variant) {
-      return { success: false, error: "Variant not found." };
-    }
-
-    // Get product ID for storage path
-    const productId = variant.productId;
-
-    // Generate unique filename
-    const ext = file.name.split(".").pop() || "jpg";
-    const fileId = crypto.randomUUID();
-    const storagePath = `${merchantId}/${productId}/variants/${variantId}/${fileId}.${ext}`;
-
-    // Upload to Supabase Storage
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = new Uint8Array(arrayBuffer);
-
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from("product-images")
-      .upload(storagePath, buffer, {
-        contentType: file.type,
-        upsert: false,
-      });
-
-    if (uploadError) {
-      return { success: false, error: `Upload failed: ${uploadError.message}` };
-    }
-
-    // Get public URL
-    const { data: urlData } = supabaseAdmin.storage
-      .from("product-images")
-      .getPublicUrl(storagePath);
-
-    // Create DB record
-    const imageId = crypto.randomUUID();
-    const imageRecord = await createVariantImage({
-      id: imageId,
-      variantId,
-      merchantId,
-      storagePath,
-      displayOrder: existing.length,
-    });
-
-    revalidatePath(`/dashboard/products/${productId}/edit`);
-
-    return {
-      success: true,
-      image: {
-        id: imageRecord.id,
-        storagePath: imageRecord.storagePath,
-        url: urlData.publicUrl,
-      },
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to upload image.",
-    };
-  }
-}
-
-export async function deleteVariantImageAction(
-  imageId: string,
-): Promise<{ success: true } | { success: false; error: string }> {
-  try {
-    const merchant = await getAuthenticatedMerchant();
-    const merchantId = merchant.id;
-
-    // Get the image record to find storage path
-    const image = await db.query.variantImages.findFirst({
-      where: and(
-        eq(variantImages.id, imageId),
-        eq(variantImages.merchantId, merchantId),
-      ),
-    });
-
-    if (!image) {
-      return { success: false, error: "Image not found." };
-    }
-
-    // Delete from Supabase Storage
-    const { error: deleteError } = await supabaseAdmin.storage
-      .from("product-images")
-      .remove([image.storagePath]);
-
-    if (deleteError) {
-      console.error("Storage delete error:", deleteError);
-      // Continue anyway — DB record should be cleaned up
-    }
-
-    // Get variant to find product ID for revalidation
-    const variant = await db.query.productVariants.findFirst({
-      where: eq(productVariants.id, image.variantId),
-      columns: { productId: true },
-    });
-
-    // Delete DB record
-    await deleteVariantImage(imageId, merchantId);
-
-    revalidatePath(`/dashboard/products/${variant?.productId ?? ""}/edit`);
-
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to delete image.",
     };
   }
 }

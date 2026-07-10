@@ -2,6 +2,8 @@
 
 import React, { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { type ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table"
 import { Plus, Tag, Pencil, Trash2, Percent, DollarSign, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -108,6 +110,106 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
     queryClient.invalidateQueries({ queryKey: ["discounts", merchantId] })
   }
 
+  const columns = React.useMemo<ColumnDef<DiscountCode>[]>(
+    () => [
+      {
+        accessorKey: "code",
+        header: "Code",
+        cell: ({ row }) => (
+          <span className="font-mono font-semibold text-foreground text-sm bg-muted border border-border px-2 py-0.5 rounded">
+            {row.original.code}
+          </span>
+        )
+      },
+      {
+        id: "typeValue",
+        header: "Type / Value",
+        cell: ({ row }) => {
+          const code = row.original
+          return (
+            <div className="flex items-center gap-1.5">
+              {code.discountType === "percent" ? (
+                <Percent className="h-3.5 w-3.5 text-muted-foreground" />
+              ) : (
+                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
+              )}
+              <span className="text-sm font-semibold text-foreground">
+                {code.discountType === "percent"
+                  ? `${code.value}% off`
+                  : `৳ ${parseFloat(code.value).toFixed(0)} off`}
+              </span>
+            </div>
+          )
+        }
+      },
+      {
+        id: "usage",
+        header: "Usage",
+        cell: ({ row }) => {
+          const code = row.original
+          return (
+            <span className="text-sm text-muted-foreground">
+              {code.usageCount}
+              {code.usageLimit !== null ? ` / ${code.usageLimit}` : ""}
+            </span>
+          )
+        }
+      },
+      {
+        accessorKey: "expiresAt",
+        header: "Expires",
+        cell: ({ row }) => (
+          <span className="text-sm text-muted-foreground">
+            {formatDate(row.original.expiresAt)}
+          </span>
+        )
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const code = row.original
+          const expired = isExpired(code.expiresAt)
+          const exhausted = code.usageLimit !== null && code.usageCount >= code.usageLimit
+          return expired ? (
+            <Badge variant="secondary" className="bg-red-50 text-red-700 dark:bg-red-950/20">Expired</Badge>
+          ) : exhausted ? (
+            <Badge variant="secondary" className="bg-amber-50 text-amber-700 dark:bg-amber-950/20">Exhausted</Badge>
+          ) : (
+            <Badge variant="default">Active</Badge>
+          )
+        }
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => {
+          const code = row.original
+          return (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleOpenEdit(code)}
+                className="p-1.5 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
+                title="Edit"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => handleDelete(code.id, code.code)}
+                disabled={deleteMutation.isPending}
+                className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-md transition-colors text-muted-foreground hover:text-red-650 cursor-pointer"
+                title="Delete"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          )
+        }
+      }
+    ],
+    [deleteMutation.isPending]
+  )
+
   return (
     <div className="flex flex-col gap-6 text-foreground">
       {/* Toolbar */}
@@ -147,113 +249,12 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
           </Button>
         </Card>
       ) : (
-        /* Discount Codes Table */
-        <div className="border border-border rounded-xl bg-card overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="border-b border-border bg-muted/30">
-              <tr>
-                <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                  Code
-                </th>
-                <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                  Type / Value
-                </th>
-                <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                  Usage
-                </th>
-                <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                  Expires
-                </th>
-                <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {codes.map((code) => {
-                const expired = isExpired(code.expiresAt)
-                const exhausted =
-                  code.usageLimit !== null && code.usageCount >= code.usageLimit
-
-                return (
-                  <tr
-                    key={code.id}
-                    className="hover:bg-muted/10 transition-colors"
-                  >
-                    {/* Code string */}
-                    <td className="px-5 py-3.5">
-                      <span className="font-mono font-semibold text-foreground text-sm bg-muted border border-border px-2 py-0.5 rounded">
-                        {code.code}
-                      </span>
-                    </td>
-
-                    {/* Type / Value */}
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-1.5">
-                        {code.discountType === "percent" ? (
-                          <Percent className="h-3.5 w-3.5 text-muted-foreground" />
-                        ) : (
-                          <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
-                        )}
-                        <span className="text-sm font-semibold text-foreground">
-                          {code.discountType === "percent"
-                            ? `${code.value}% off`
-                            : `৳ ${parseFloat(code.value).toFixed(0)} off`}
-                        </span>
-                      </div>
-                    </td>
-
-                    {/* Usage */}
-                    <td className="px-5 py-3.5 text-sm text-muted-foreground">
-                      {code.usageCount}
-                      {code.usageLimit !== null ? ` / ${code.usageLimit}` : ""}
-                    </td>
-
-                    {/* Expires */}
-                    <td className="px-5 py-3.5 text-sm text-muted-foreground">
-                      {formatDate(code.expiresAt)}
-                    </td>
-
-                    {/* Status */}
-                    <td className="px-5 py-3.5">
-                      {expired ? (
-                        <Badge variant="secondary" className="bg-red-50 text-red-700 dark:bg-red-950/20">Expired</Badge>
-                      ) : exhausted ? (
-                        <Badge variant="secondary" className="bg-amber-50 text-amber-700 dark:bg-amber-950/20">Exhausted</Badge>
-                      ) : (
-                        <Badge variant="default">Active</Badge>
-                      )}
-                    </td>
-
-                    {/* Actions */}
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleOpenEdit(code)}
-                          className="p-1.5 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground"
-                          title="Edit"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(code.id, code.code)}
-                          disabled={deleteMutation.isPending}
-                          className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-md transition-colors text-muted-foreground hover:text-red-650"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={columns}
+          data={codes}
+          getRowId={(row) => row.id}
+          hideSelectionCount={true}
+        />
       )}
 
       {/* Create / Edit Modal */}

@@ -2,6 +2,8 @@
 
 import React, { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { type ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table"
 import { Plus, FolderTree, Pencil, Trash2, Search, Info, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -102,6 +104,65 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
     queryClient.invalidateQueries({ queryKey: ["categories", merchantId] })
   }
 
+  const columns = React.useMemo<ColumnDef<Category>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Category Name",
+        cell: ({ row }) => (
+          <span className="text-base font-semibold text-foreground">
+            {row.original.name}
+          </span>
+        )
+      },
+      {
+        accessorKey: "slug",
+        header: "Slug",
+        cell: ({ row }) => (
+          <span className="text-sm text-muted-foreground font-mono">
+            {row.original.slug}
+          </span>
+        )
+      },
+      {
+        accessorKey: "productCount",
+        header: "Product Count",
+        cell: ({ row }) => (
+          <span className="text-sm text-muted-foreground">
+            {row.original.productCount} product{row.original.productCount !== 1 ? "s" : ""}
+          </span>
+        )
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-right">Actions</div>,
+        cell: ({ row }) => {
+          const cat = row.original
+          return (
+            <div className="flex items-center justify-end gap-2">
+              <button
+                onClick={() => handleOpenEdit(cat)}
+                className="p-1.5 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
+                title="Edit Category"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => handleDelete(cat.id, cat.name)}
+                disabled={deleteMutation.isPending}
+                className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-md transition-colors text-muted-foreground hover:text-red-650 cursor-pointer disabled:opacity-50"
+                title="Delete Category"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          )
+        }
+      }
+    ],
+    [deleteMutation.isPending]
+  )
+
   return (
     <div className="flex flex-col gap-6 text-foreground">
       {/* Plan limit indicator banner */}
@@ -188,70 +249,12 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
       ) : (
         <div className="flex flex-col gap-4">
           {/* Desktop Table View (>= md viewports) */}
-          <div className="hidden md:block border border-border rounded-xl bg-card overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead className="border-b border-border bg-muted/30">
-                <tr>
-                  <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                    Category Name
-                  </th>
-                  <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                    Slug
-                  </th>
-                  <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                    Product Count
-                  </th>
-                  <th className="px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {filteredCategories.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="px-5 py-8 text-center text-sm text-muted-foreground italic">
-                      No matching categories found.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredCategories.map((cat) => (
-                    <tr key={cat.id} className="hover:bg-muted/10 transition-colors">
-                      <td className="px-5 py-3.5 text-base font-semibold text-foreground">
-                        {cat.name}
-                      </td>
-
-                      <td className="px-5 py-3.5 text-sm text-muted-foreground font-mono">
-                        {cat.slug}
-                      </td>
-
-                      <td className="px-5 py-3.5 text-sm text-muted-foreground">
-                        {cat.productCount} product{cat.productCount !== 1 ? "s" : ""}
-                      </td>
-
-                      <td className="px-5 py-3.5 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleOpenEdit(cat)}
-                            className="p-1.5 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
-                            title="Edit Category"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(cat.id, cat.name)}
-                            disabled={deleteMutation.isPending}
-                            className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-md transition-colors text-muted-foreground hover:text-red-650 cursor-pointer disabled:opacity-50"
-                            title="Delete Category"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+          <div className="hidden md:block">
+            <DataTable
+              columns={columns}
+              data={filteredCategories}
+              getRowId={(row) => row.id}
+            />
           </div>
 
           {/* Mobile Cards View (< md viewports) */}

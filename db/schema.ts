@@ -491,27 +491,6 @@ export const variantAttributeLinks = pgTable("variant_attribute_links", {
   uniqueIndex("uq_variant_links_variant_option").on(table.variantId, table.attributeOptionId),
 ]).enableRLS()
 
-/**
- * Variant images — stored in Supabase Storage `product-images` bucket.
- * Path format: `{merchant_id}/{product_id}/variants/{variant_id}/{uuid}.{ext}`.
- * Max 5 images per variant. Display order is user-controllable.
- * @see specs/20-product-variants-metadata/spec.md §FR-014
- */
-export const variantImages = pgTable("variant_images", {
-  id: text("id").primaryKey(),
-  variantId: text("variant_id")
-    .notNull()
-    .references(() => productVariants.id, { onDelete: "cascade" }),
-  merchantId: text("merchant_id")
-    .notNull()
-    .references(() => merchants.id, { onDelete: "cascade" }),
-  storagePath: text("storage_path").notNull(),
-  displayOrder: integer("display_order").notNull().default(0),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-}, (table) => [
-  index("idx_variant_images_variant").on(table.variantId, table.displayOrder),
-]).enableRLS()
-
 export const productMetadata = pgTable("product_metadata", {
   id: text("id").primaryKey(),
   productId: text("product_id")
@@ -637,7 +616,6 @@ export const productVariantsRelations = relations(productVariants, ({ one, many 
     references: [products.id],
   }),
   attributeLinks: many(variantAttributeLinks),
-  images: many(variantImages),
 }))
 
 export const variantAttributeLinksRelations = relations(variantAttributeLinks, ({ one }) => ({
@@ -648,17 +626,6 @@ export const variantAttributeLinksRelations = relations(variantAttributeLinks, (
   attributeOption: one(attributeOptions, {
     fields: [variantAttributeLinks.attributeOptionId],
     references: [attributeOptions.id],
-  }),
-}))
-
-export const variantImagesRelations = relations(variantImages, ({ one }) => ({
-  variant: one(productVariants, {
-    fields: [variantImages.variantId],
-    references: [productVariants.id],
-  }),
-  merchant: one(merchants, {
-    fields: [variantImages.merchantId],
-    references: [merchants.id],
   }),
 }))
 
@@ -696,7 +663,6 @@ export const merchantsRelations = relations(merchants, ({ one, many }) => ({
   notificationPreferences: many(notificationPreferences),
   productAttributes: many(productAttributes),
   productVariants: many(productVariants),
-  variantImages: many(variantImages),
   productMetadata: many(productMetadata),
   storefrontSections: many(storefrontSections),
 }))

@@ -2,12 +2,12 @@
 
 import { useCallback, useState, useEffect, useRef } from "react";
 import type { VariantUpdateInput } from "@/lib/validations/variants";
-import { VariantImageUpload } from "./VariantImageUpload";
+
 import { Input } from "@/components/ui/input";
 import { NumberInput } from "@/components/ui/number-input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Check, X, ChevronDown, ChevronUp, ImageIcon } from "lucide-react";
+import { Loader2, Check, X, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type VariantRow = {
@@ -253,7 +253,6 @@ export function VariantRowEditor({
     await onUpdate(variant.id, { isActive: !variant.isActive });
   }, [variant.id, variant.isActive, onUpdate]);
 
-  const [showImages, setShowImages] = useState(false);
 
   return (
     <div
@@ -437,28 +436,6 @@ export function VariantRowEditor({
       </div>
 
       {/* ── Variant Images (expandable) ── */}
-      <div className="border-t border-border/50">
-        <button
-          type="button"
-          onClick={() => setShowImages(!showImages)}
-          className="flex w-full items-center gap-1.5 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors cursor-pointer border-none bg-transparent"
-          aria-expanded={showImages}
-        >
-          <ImageIcon className="h-3.5 w-3.5" />
-          <span>Images</span>
-          {showImages ? (
-            <ChevronUp className="h-3.5 w-3.5 ml-auto opacity-70" />
-          ) : (
-            <ChevronDown className="h-3.5 w-3.5 ml-auto opacity-70" />
-          )}
-        </button>
-
-        {showImages && (
-          <div className="px-3 pb-3">
-            <VariantImageUpload variantId={variant.id} disabled={disabled} />
-          </div>
-        )}
-      </div>
     </div>
   );
 }

@@ -39,6 +39,34 @@ describe("T078 — bulkVariantUpdateSchema", () => {
     expect(result.success).toBe(true);
   });
 
+  it("should accept negative percent adjustments down to -100 and reject below -100", () => {
+    // -100% is valid (sets price to 0)
+    const okInput = {
+      variantIds: ["v1"],
+      priceAdjustment: { type: "percent" as const, value: -100 },
+      compareAtPriceAdjustment: { type: "percent" as const, value: -50 },
+    };
+    const okResult = bulkVariantUpdateSchema.safeParse(okInput);
+    expect(okResult.success).toBe(true);
+
+    // -101% is invalid
+    const badInput = {
+      variantIds: ["v1"],
+      priceAdjustment: { type: "percent" as const, value: -101 },
+    };
+    const badResult = bulkVariantUpdateSchema.safeParse(badInput);
+    expect(badResult.success).toBe(false);
+  });
+
+  it("should reject negative fixed price adjustments", () => {
+    const input = {
+      variantIds: ["v1"],
+      priceAdjustment: { type: "fixed" as const, value: -100 },
+    };
+    const result = bulkVariantUpdateSchema.safeParse(input);
+    expect(result.success).toBe(false);
+  });
+
   it("should accept stock count update", () => {
     const input = {
       variantIds: ["v1", "v2"],

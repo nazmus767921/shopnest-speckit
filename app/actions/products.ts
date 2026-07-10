@@ -5,11 +5,11 @@ import { auth } from "@/lib/auth/auth"
 import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { createProduct, updateProduct, deleteProduct, getProducts, getProductById } from "@/db/queries/products"
 import { productFormSchema } from "@/lib/validations/products"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { assertPlanLimit } from "@/lib/plans/assertPlan"
 import { db } from "@/db"
 import { productPromotions } from "@/db/schema"
-import { eq, and } from "drizzle-orm"
+import { eq, and, inArray } from "drizzle-orm"
 
 async function getAuthenticatedMerchant() {
   const session = await auth.api.getSession({
@@ -66,6 +66,7 @@ export async function createProductAction(values: unknown) {
     )
 
     revalidatePath("/dashboard/products")
+    revalidateTag("product-images")
     return { success: true, product }
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to create product." }
@@ -113,6 +114,7 @@ export async function updateProductAction(productId: string, values: unknown) {
 
     revalidatePath("/dashboard/products")
     revalidatePath(`/dashboard/products/${productId}/edit`)
+    revalidateTag("product-images")
     return { success: true, product }
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to update product." }
@@ -233,6 +235,81 @@ export async function toggleProductPromotionAction(
     return { success: true }
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to toggle promotion." }
+  }
+}
+
+export async function bulkDeleteProductsAction(productIds: string[]) {
+  try {
+    const merchant = await getAuthenticatedMerchant()
+    if (!productIds.length) return { success: true }
+
+    await db
+      .update(products)
+      .set({
+        deletedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(products.merchantId, merchant.id),
+          inArray(products.id, productIds)
+        )
+      )
+
+    revalidatePath("/dashboard/products")
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to bulk delete products." }
+  }
+}
+
+export async function bulkTogglePublishAction(productIds: string[], isPublished: boolean) {
+  try {
+    const merchant = await getAuthenticatedMerchant()
+    if (!productIds.length) return { success: true }
+
+    await db
+      .update(products)
+      .set({
+        isPublished,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(products.merchantId, merchant.id),
+          inArray(products.id, productIds)
+        )
+      )
+
+    revalidatePath("/dashboard/products")
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to bulk update status." }
+  }
+}
+
+export async function bulkUpdateCategoryAction(productIds: string[], categoryId: string | null) {
+  try {
+    const merchant = await getAuthenticatedMerchant()
+    if (!productIds.length) return { success: true }
+
+    await db
+      .update(products)
+      .set({
+        categoryId,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(products.merchantId, merchant.id),
+          inArray(products.id, productIds)
+        )
+      )
+
+    revalidatePath("/dashboard/products")
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to bulk update categories." }
   }
 }
 

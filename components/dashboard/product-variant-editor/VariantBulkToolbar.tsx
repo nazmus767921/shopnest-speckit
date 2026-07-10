@@ -332,7 +332,7 @@ export function VariantBulkToolbar({
                         onChange={(val) => setPriceValue(val !== undefined && !isNaN(val) ? val.toString() : "")}
                         placeholder={priceType === "percent" ? "+10" : "100"}
                         disabled={disabled || saving}
-                        minValue={priceType === "fixed" ? 0 : undefined}
+                        minValue={priceType === "fixed" ? 0 : priceType === "percent" ? -100 : undefined}
                         className="h-9 text-sm flex-1"
                       />
                     </div>
@@ -366,7 +366,7 @@ export function VariantBulkToolbar({
                           onChange={(val) => setCompareAtPriceValue(val !== undefined && !isNaN(val) ? val.toString() : "")}
                           placeholder={compareAtPriceType === "percent" ? "+10" : "150"}
                           disabled={disabled || saving}
-                          minValue={compareAtPriceType === "fixed" ? 0 : undefined}
+                          minValue={compareAtPriceType === "fixed" ? 0 : compareAtPriceType === "percent" ? -100 : undefined}
                           className="h-9 text-sm flex-1"
                         />
                       )}
