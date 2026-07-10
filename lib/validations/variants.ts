@@ -94,7 +94,21 @@ export const variantStockUpdateSchema = z.object({
 export const priceAdjustmentSchema = z.object({
   type: z.enum(["fixed", "percent", "add_amount"]),
   value: z.int(),
-});
+}).refine(
+  (data) => {
+    if (data.type === "fixed") {
+      return data.value >= 0;
+    }
+    if (data.type === "percent") {
+      return data.value >= -100;
+    }
+    return true;
+  },
+  {
+    message: "Value must be non-negative for fixed price, and at least -100 for percent",
+    path: ["value"],
+  }
+);
 
 export const bulkVariantUpdateSchema = z.object({
   variantIds: z.array(z.string().min(1)).min(1, "Select at least one variant"),
