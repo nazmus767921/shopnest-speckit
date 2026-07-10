@@ -115,6 +115,12 @@
       "skillPath": "plugins/tanstack-table/skills/tanstack-table/SKILL.md",
       "computedHash": "5527e42e541ac26fc1157e49d58c399b95e44eb276ef3caa7576ab138558d593"
     },
+    "upstash": {
+      "source": "upstash/skills",
+      "sourceType": "github",
+      "skillPath": "skills/upstash/SKILL.md",
+      "computedHash": "8222369bfc06abbae7fa51755e8b26246c1039389ea9589874e1514ea2e62c41"
+    },
     "vitest": {
       "source": "antfu/skills",
       "sourceType": "github",
