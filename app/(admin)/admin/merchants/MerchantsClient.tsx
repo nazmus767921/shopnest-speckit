@@ -1,6 +1,8 @@
 "use client"
 
 import React, { useState } from "react"
+import { type ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table"
 import {
   updateMerchantStatusAction,
   overrideTrialExpiryAction,
@@ -158,6 +160,128 @@ export function MerchantsClient({ initialMerchants }: Props) {
     })
   }
 
+  const columns = React.useMemo<ColumnDef<Merchant>[]>(
+    () => [
+      {
+        id: "boutiqueStore",
+        header: "Boutique Store",
+        cell: ({ row }) => {
+          const merchant = row.original
+          return (
+            <div className="flex flex-col">
+              <span className="font-semibold text-ink">{merchant.name}</span>
+              <a
+                href={`http://${merchant.subdomain}.localhost:3000`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-caption text-emerald-800 hover:underline inline-flex items-center gap-0.5 font-mono"
+              >
+                {merchant.subdomain}.shopnest.com.bd
+                <ArrowUpRight className="h-3 w-3" />
+              </a>
+            </div>
+          )
+        }
+      },
+      {
+        id: "owner",
+        header: "Owner",
+        cell: ({ row }) => {
+          const merchant = row.original
+          return merchant.owner ? (
+            <div className="flex flex-col">
+              <span className="text-ink font-medium">{merchant.owner.name}</span>
+              <span className="text-caption text-shade-40">{merchant.owner.email}</span>
+            </div>
+          ) : (
+            <span className="text-shade-40 italic">No Owner</span>
+          )
+        }
+      },
+      {
+        id: "planLimits",
+        header: "Plan / Limits",
+        cell: ({ row }) => {
+          const merchant = row.original
+          return (
+            <div className="flex flex-col">
+              <span className="capitalize font-medium text-ink">{merchant.plan}</span>
+              <span className="text-micro text-shade-40">
+                {merchant.plan === "starter" ? "50 prod / 200 orders" : "Unlimited"}
+              </span>
+            </div>
+          )
+        }
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const status = row.original.subscriptionStatus
+          return (
+            <span className={`text-micro font-semibold px-2 py-0.5 rounded-full border ${getStatusBadgeClass(status)}`}>
+              {status}
+            </span>
+          )
+        }
+      },
+      {
+        id: "periodTrialEnd",
+        header: "Period / Trial End",
+        cell: ({ row }) => {
+          const merchant = row.original
+          const activePeriodEnd = merchant.subscription?.currentPeriodEnd
+          return merchant.subscriptionStatus === "active" ? (
+            <span className="text-emerald-800 font-mono text-caption">
+              Renew: {formatDate(activePeriodEnd)}
+            </span>
+          ) : (
+            <span className="font-mono text-caption text-shade-70">
+              Trial: {formatDate(merchant.trialExpiry)}
+            </span>
+          )
+        }
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-right">Actions</div>,
+        cell: ({ row }) => {
+          const merchant = row.original
+          const isSuspended = merchant.subscriptionStatus === "suspended"
+          return (
+            <div className="flex items-center justify-end gap-2">
+              {merchant.subscriptionStatus !== "active" && (
+                <button
+                  onClick={() => openExpiryModal(merchant)}
+                  className="p-1.5 hover:bg-canvas-cream border border-hairline-light rounded text-shade-50 hover:text-ink transition cursor-pointer"
+                  title="Override Trial Expiry"
+                >
+                  <Calendar className="h-4 w-4" />
+                </button>
+              )}
+              {isSuspended ? (
+                <button
+                  onClick={() => openStatusModal(merchant, "active")}
+                  className="px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-100 hover:bg-emerald-100 rounded text-caption font-semibold transition cursor-pointer"
+                >
+                  Unsuspend
+                </button>
+              ) : (
+                <button
+                  onClick={() => openStatusModal(merchant, "suspended")}
+                  className="px-3 py-1 bg-red-50 text-red-800 border border-red-100 hover:bg-red-100 rounded text-caption font-semibold transition cursor-pointer"
+                >
+                  Suspend
+                </button>
+              )}
+            </div>
+          )
+        }
+      }
+    ],
+    [merchants]
+  )
+
   return (
     <div className="flex flex-col gap-6">
       {/* Search Filter */}
@@ -212,113 +336,12 @@ export function MerchantsClient({ initialMerchants }: Props) {
       </div>
 
       {/* Directory Table */}
-      <div className="bg-canvas-light border border-hairline-light rounded-2xl overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-hairline-light bg-zinc-50/50 text-[10px] font-bold text-shade-60 uppercase tracking-wider">
-              <th className="px-6 py-4">Boutique Store</th>
-              <th className="px-6 py-4">Owner</th>
-              <th className="px-6 py-4">Plan / Limits</th>
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Period / Trial End</th>
-              <th className="px-6 py-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-hairline-light text-caption text-ink">
-            {filteredMerchants.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="text-center py-12 text-shade-40 font-light">
-                  No merchants found matching your query.
-                </td>
-              </tr>
-            ) : (
-              filteredMerchants.map((merchant) => {
-                const isSuspended = merchant.subscriptionStatus === "suspended"
-                const activePeriodEnd = merchant.subscription?.currentPeriodEnd
-                
-                return (
-                  <tr key={merchant.id} className="hover:bg-canvas-cream/10 transition">
-                    <td className="px-6 py-4 flex flex-col">
-                      <span className="font-semibold text-ink">{merchant.name}</span>
-                      <a
-                        href={`http://${merchant.subdomain}.localhost:3000`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-caption text-emerald-800 hover:underline inline-flex items-center gap-0.5 font-mono"
-                      >
-                        {merchant.subdomain}.shopnest.com.bd
-                        <ArrowUpRight className="h-3 w-3" />
-                      </a>
-                    </td>
-                    <td className="px-6 py-4">
-                      {merchant.owner ? (
-                        <div className="flex flex-col">
-                          <span className="text-ink font-medium">{merchant.owner.name}</span>
-                          <span className="text-caption text-shade-40">{merchant.owner.email}</span>
-                        </div>
-                      ) : (
-                        <span className="text-shade-40 italic">No Owner</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="capitalize font-medium text-ink">{merchant.plan}</span>
-                        <span className="text-micro text-shade-40">
-                          {merchant.plan === "starter" ? "50 prod / 200 orders" : "Unlimited"}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`text-micro font-semibold px-2 py-0.5 rounded-full border ${getStatusBadgeClass(merchant.subscriptionStatus)}`}>
-                        {merchant.subscriptionStatus}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 font-mono text-caption text-shade-70">
-                      {merchant.subscriptionStatus === "active" ? (
-                        <span className="text-emerald-800">
-                          Renew: {formatDate(activePeriodEnd)}
-                        </span>
-                      ) : (
-                        <span>
-                          Trial: {formatDate(merchant.trialExpiry)}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        {merchant.subscriptionStatus !== "active" && (
-                          <button
-                            onClick={() => openExpiryModal(merchant)}
-                            className="p-1.5 hover:bg-canvas-cream border border-hairline-light rounded text-shade-50 hover:text-ink transition"
-                            title="Override Trial Expiry"
-                          >
-                            <Calendar className="h-4 w-4" />
-                          </button>
-                        )}
-                        {isSuspended ? (
-                          <button
-                            onClick={() => openStatusModal(merchant, "active")}
-                            className="px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-100 hover:bg-emerald-100 rounded text-caption font-semibold transition"
-                          >
-                            Unsuspend
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => openStatusModal(merchant, "suspended")}
-                            className="px-3 py-1 bg-red-50 text-red-800 border border-red-100 hover:bg-red-100 rounded text-caption font-semibold transition"
-                          >
-                            Suspend
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        columns={columns}
+        data={filteredMerchants}
+        getRowId={(row) => row.id}
+        hideSelectionCount={true}
+      />
 
       {/* Action Modals */}
       {showStatusModal && selectedMerchant && (

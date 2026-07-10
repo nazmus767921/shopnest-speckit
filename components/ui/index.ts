@@ -10,3 +10,4 @@ export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, Dialo
 export { Alert, AlertTitle, AlertDescription } from "./alert"
 export { Label as FormLabel } from "./label"
 export { Combobox } from "./combobox"
+export { DataTable } from "./data-table"

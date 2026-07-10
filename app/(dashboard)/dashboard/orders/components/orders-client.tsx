@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useTransition } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
+import { type ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -297,6 +299,207 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
     { label: "Cancelled", value: "cancelled", count: counts.cancelled },
   ]
 
+  const columns = React.useMemo<ColumnDef<OrderListItem>[]>(
+    () => [
+      {
+        accessorKey: "id",
+        header: "Order ID",
+        cell: ({ row }) => {
+          const order = row.original
+          const isIdCopied = copiedId === `id-${order.id}`
+          return (
+            <div className="flex items-center gap-1.5 font-mono font-medium align-middle">
+              <span className="truncate max-w-20" title={order.id}>
+                #{order.id.slice(0, 8)}
+              </span>
+              <button
+                onClick={(e) => handleCopy(e, order.id, "id")}
+                className="text-muted-foreground hover:text-foreground cursor-pointer p-0.5"
+              >
+                {isIdCopied ? <Check className="h-3 w-3 text-emerald-700" /> : <Copy className="h-3 w-3" />}
+              </button>
+            </div>
+          )
+        }
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Date",
+        cell: ({ row }) => (
+          <span className="text-muted-foreground align-middle">
+            {formatDate(row.original.createdAt)}
+          </span>
+        )
+      },
+      {
+        id: "customer",
+        header: "Customer",
+        cell: ({ row }) => (
+          <div className="flex flex-col gap-0.5">
+            <span className="font-semibold text-foreground">{row.original.deliveryName}</span>
+            <span className="text-xs text-muted-foreground flex items-center gap-1">
+              <Phone className="h-3 w-3 shrink-0" />
+              {row.original.deliveryPhone}
+            </span>
+          </div>
+        )
+      },
+      {
+        id: "payment",
+        header: "Payment Info",
+        cell: ({ row }) => {
+          const order = row.original
+          const txId = order.paymentConfirmation?.transactionId
+          const isTxCopied = copiedId === `txid-${txId}`
+          return order.paymentConfirmation ? (
+            <div className="flex flex-col gap-0.5">
+              {order.paymentConfirmation.paymentMethod === "cod" ? (
+                <span className="inline-flex items-center rounded bg-primary text-primary-foreground px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider self-start">
+                  COD
+                </span>
+              ) : (
+                <span className="font-semibold capitalize text-foreground">
+                  {order.paymentConfirmation.paymentMethod}
+                </span>
+              )}
+              {txId && (
+                <span className="text-xs font-mono text-muted-foreground flex items-center gap-1">
+                  TxID: {txId}
+                  <button
+                    onClick={(e) => handleCopy(e, txId || "", "txid")}
+                    className="text-muted-foreground hover:text-foreground cursor-pointer p-0.5"
+                  >
+                    {isTxCopied ? <Check className="h-3 w-3 text-emerald-700" /> : <Copy className="h-3 w-3" />}
+                  </button>
+                </span>
+              )}
+            </div>
+          ) : (
+            <span className="text-muted-foreground italic">Not submitted</span>
+          )
+        }
+      },
+      {
+        accessorKey: "totalPaisa",
+        header: "Total",
+        cell: ({ row }) => (
+          <span className="font-mono font-bold text-foreground align-middle">
+            {formatTaka(row.original.totalPaisa)}
+          </span>
+        )
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => (
+          <div className="align-middle">
+            <StatusBadge status={row.original.status} />
+          </div>
+        )
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-right">Actions</div>,
+        cell: ({ row }) => {
+          const order = row.original
+          return (
+            <div className="flex items-center justify-end gap-2 align-middle">
+              {order.status === "pending_payment" && (
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    confirmQuickAction(
+                      order.id,
+                      "confirm",
+                      "Confirm Payment",
+                      `Have you verified this transaction in your bKash/Nagad merchant statement? Confirming will update order #${order.id.slice(0, 8)} status to processing and email the customer.`,
+                      "Confirm Payment",
+                      "emerald",
+                      () => confirmPaymentAction(order.id)
+                    )
+                  }}
+                  disabled={isPending || activeActionOrderId !== null}
+                  className="h-8 py-1 px-3 text-sm flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-555 active:bg-emerald-700 border-none text-white shrink-0 cursor-pointer"
+                >
+                  {activeActionOrderId === `${order.id}-confirm` ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                  )}
+                  <span>Confirm</span>
+                </Button>
+              )}
+
+              {order.status === "processing" && (
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    confirmQuickAction(
+                      order.id,
+                      "ship",
+                      "Mark as Shipped",
+                      `Are you sure you want to mark order #${order.id.slice(0, 8)} as shipped? This will notify the customer via email.`,
+                      "Mark as Shipped",
+                      "primary",
+                      () => updateOrderStatusAction(order.id, "shipped")
+                    )
+                  }}
+                  disabled={isPending || activeActionOrderId !== null}
+                  className="h-8 py-1 px-3 text-sm flex items-center gap-1.5 shrink-0 cursor-pointer"
+                >
+                  {activeActionOrderId === `${order.id}-ship` ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Truck className="h-3.5 w-3.5" />
+                  )}
+                  <span>Ship</span>
+                </Button>
+              )}
+
+              {order.status === "shipped" && (
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    confirmQuickAction(
+                      order.id,
+                      "deliver",
+                      "Mark as Delivered",
+                      `Are you sure order #${order.id.slice(0, 8)} has been delivered? This will finalize the order and complete processing.`,
+                      "Mark as Delivered",
+                      "emerald",
+                      () => updateOrderStatusAction(order.id, "delivered")
+                    )
+                  }}
+                  disabled={isPending || activeActionOrderId !== null}
+                  className="h-8 py-1 px-3 text-sm flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-555 active:bg-emerald-700 border-none text-white shrink-0 cursor-pointer"
+                >
+                  {activeActionOrderId === `${order.id}-deliver` ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Check className="h-3.5 w-3.5" />
+                  )}
+                  <span>Deliver</span>
+                </Button>
+              )}
+
+              <Link href={`/dashboard/orders/${order.id}`}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 py-1 px-3 text-sm flex items-center gap-1 cursor-pointer"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  <span>View</span>
+                </Button>
+              </Link>
+            </div>
+          )
+        }
+      }
+    ],
+    [copiedId, isPending, activeActionOrderId]
+  )
+
   return (
     <div className="flex flex-col gap-6 text-foreground">
       {/* Header */}
@@ -427,194 +630,14 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
       ) : (
         <div className="flex flex-col gap-4">
           {/* Desktop Table View */}
-          <div className="hidden md:block overflow-hidden rounded-xl border border-border bg-card">
-            <table className="w-full border-collapse text-left text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/30 text-muted-foreground font-semibold">
-                  <th className="p-4">Order ID</th>
-                  <th className="p-4">Date</th>
-                  <th className="p-4">Customer</th>
-                  <th className="p-4">Payment Info</th>
-                  <th className="p-4">Total</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {orders.map((order) => {
-                  const txId = order.paymentConfirmation?.transactionId
-                  const isIdCopied = copiedId === `id-${order.id}`
-                  const isTxCopied = copiedId === `txid-${txId}`
-
-                  const isNewOrder = order.id === latestOrderId
-
-                  return (
-                    <tr
-                      key={order.id}
-                      className={cn(
-                        "hover:bg-muted/10 transition-colors duration-150",
-                        isNewOrder && "animate-new-order-highlight"
-                      )}
-                    >
-                      <td className="p-4 font-mono font-medium align-middle">
-                        <div className="flex items-center gap-1.5">
-                          <span className="truncate max-w-20" title={order.id}>
-                            #{order.id.slice(0, 8)}
-                          </span>
-                          <button
-                            onClick={(e) => handleCopy(e, order.id, "id")}
-                            className="text-muted-foreground hover:text-foreground cursor-pointer p-0.5"
-                          >
-                            {isIdCopied ? <Check className="h-3 w-3 text-emerald-700" /> : <Copy className="h-3 w-3" />}
-                          </button>
-                        </div>
-                      </td>
-                      <td className="p-4 text-muted-foreground align-middle">
-                        {formatDate(order.createdAt)}
-                      </td>
-                      <td className="p-4 align-middle">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-semibold text-foreground">{order.deliveryName}</span>
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Phone className="h-3 w-3 shrink-0" />
-                            {order.deliveryPhone}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-4 align-middle">
-                        {order.paymentConfirmation ? (
-                          <div className="flex flex-col gap-0.5">
-                            {order.paymentConfirmation.paymentMethod === "cod" ? (
-                              <span className="inline-flex items-center rounded bg-primary text-primary-foreground px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider self-start">
-                                COD
-                              </span>
-                            ) : (
-                              <span className="font-semibold capitalize text-foreground">
-                                {order.paymentConfirmation.paymentMethod}
-                              </span>
-                            )}
-                            <span className="text-xs font-mono text-muted-foreground flex items-center gap-1">
-                              TxID: {txId}
-                              <button
-                                onClick={(e) => handleCopy(e, txId || "", "txid")}
-                                className="text-muted-foreground hover:text-foreground cursor-pointer p-0.5"
-                              >
-                                {isTxCopied ? (
-                                  <Check className="h-3 w-3 text-emerald-700" />
-                                ) : (
-                                  <Copy className="h-3 w-3" />
-                                )}
-                              </button>
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground italic">Not submitted</span>
-                        )}
-                      </td>
-                      <td className="p-4 font-mono font-bold text-foreground align-middle">
-                        {formatTaka(order.totalPaisa)}
-                      </td>
-                      <td className="p-4 align-middle">
-                        <StatusBadge status={order.status} />
-                      </td>
-                      <td className="p-4 text-right align-middle">
-                        <div className="flex items-center justify-end gap-2">
-                          {/* Quick Action Button for Desktop */}
-                          {order.status === "pending_payment" && (
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                confirmQuickAction(
-                                  order.id,
-                                  "confirm",
-                                  "Confirm Payment",
-                                  `Have you verified this transaction in your bKash/Nagad merchant statement? Confirming will update order #${order.id.slice(0, 8)} status to processing and email the customer.`,
-                                  "Confirm Payment",
-                                  "emerald",
-                                  () => confirmPaymentAction(order.id)
-                                )
-                              }}
-                              disabled={isPending || activeActionOrderId !== null}
-                              className="h-8 py-1 px-3 text-sm flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-550 active:bg-emerald-700 border-none text-white shrink-0 cursor-pointer"
-                            >
-                              {activeActionOrderId === `${order.id}-confirm` ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <CheckCircle2 className="h-3.5 w-3.5" />
-                              )}
-                              <span>Confirm</span>
-                            </Button>
-                          )}
-
-                          {order.status === "processing" && (
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                confirmQuickAction(
-                                  order.id,
-                                  "ship",
-                                  "Mark as Shipped",
-                                  `Are you sure you want to mark order #${order.id.slice(0, 8)} as shipped? This will notify the customer via email.`,
-                                  "Mark as Shipped",
-                                  "primary",
-                                  () => updateOrderStatusAction(order.id, "shipped")
-                                )
-                              }}
-                              disabled={isPending || activeActionOrderId !== null}
-                              className="h-8 py-1 px-3 text-sm flex items-center gap-1.5 shrink-0 cursor-pointer"
-                            >
-                              {activeActionOrderId === `${order.id}-ship` ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <Truck className="h-3.5 w-3.5" />
-                              )}
-                              <span>Ship</span>
-                            </Button>
-                          )}
-
-                          {order.status === "shipped" && (
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                confirmQuickAction(
-                                  order.id,
-                                  "deliver",
-                                  "Mark as Delivered",
-                                  `Are you sure order #${order.id.slice(0, 8)} has been delivered? This will finalize the order and complete processing.`,
-                                  "Mark as Delivered",
-                                  "emerald",
-                                  () => updateOrderStatusAction(order.id, "delivered")
-                                )
-                              }}
-                              disabled={isPending || activeActionOrderId !== null}
-                              className="h-8 py-1 px-3 text-sm flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-550 active:bg-emerald-700 border-none text-white shrink-0 cursor-pointer"
-                            >
-                              {activeActionOrderId === `${order.id}-deliver` ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <Check className="h-3.5 w-3.5" />
-                              )}
-                              <span>Deliver</span>
-                            </Button>
-                          )}
-
-                          <Link href={`/dashboard/orders/${order.id}`}>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-8 py-1 px-3 text-sm flex items-center gap-1 cursor-pointer"
-                            >
-                              <Eye className="h-3.5 w-3.5" />
-                              <span>View</span>
-                            </Button>
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+          <div className="hidden md:block">
+            <DataTable
+              columns={columns}
+              data={orders}
+              getRowId={(row) => row.id}
+              hidePagination={true}
+              rowClassName={(row) => row.id === latestOrderId ? "animate-new-order-highlight" : ""}
+            />
           </div>
 
           {/* Mobile Card List View */}
