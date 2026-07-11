@@ -5,24 +5,8 @@ import { useEditor, EditorContent, useEditorState } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import Link from "@tiptap/extension-link"
 import Placeholder from "@tiptap/extension-placeholder"
-import {
-  Bold,
-  Italic,
-  Strikethrough,
-  Heading1,
-  Heading2,
-  Heading3,
-  List,
-  ListOrdered,
-  Quote,
-  Code,
-  Undo,
-  Redo,
-  Link as LinkIcon,
-  Unlink,
-  X,
-  Check
-} from "lucide-react"
+import { BoldIcon, ItalicIcon, StrikethroughIcon, Heading1Icon, Heading2Icon, Heading3Icon, ListIcon, ListOrderedIcon, QuoteIcon, CodeIcon, UndoIcon, RedoIcon, LinkIcon, UnlinkIcon, XIcon, CheckIcon } from "@/lib/icons";
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -182,7 +166,7 @@ export function RichTextEditor({
               onClick={handleSetLink}
               className="rounded-full h-8 w-8 shrink-0"
             >
-              <Check className="w-4 h-4" />
+              <CheckIcon className="w-4 h-4" />
             </Button>
             <Button
               type="button"
@@ -196,7 +180,7 @@ export function RichTextEditor({
               }}
               className="rounded-full h-8 w-8 shrink-0"
             >
-              <X className="w-4 h-4" />
+              <XIcon className="w-4 h-4" />
             </Button>
           </div>
         ) : (
@@ -211,7 +195,7 @@ export function RichTextEditor({
                 className="h-8 w-8 rounded-md shrink-0"
                 title="Heading 1"
               >
-                <Heading1 className="w-4 h-4" />
+                <Heading1Icon className="w-4 h-4" />
               </Button>
               <Button
                 type="button"
@@ -221,7 +205,7 @@ export function RichTextEditor({
                 className="h-8 w-8 rounded-md shrink-0"
                 title="Heading 2"
               >
-                <Heading2 className="w-4 h-4" />
+                <Heading2Icon className="w-4 h-4" />
               </Button>
               <Button
                 type="button"
@@ -231,7 +215,7 @@ export function RichTextEditor({
                 className="h-8 w-8 rounded-md shrink-0"
                 title="Heading 3"
               >
-                <Heading3 className="w-4 h-4" />
+                <Heading3Icon className="w-4 h-4" />
               </Button>
 
               <div className="w-px h-5 bg-border mx-1" />
@@ -245,7 +229,7 @@ export function RichTextEditor({
                 className="h-8 w-8 rounded-md shrink-0"
                 title="Bold"
               >
-                <Bold className="w-4 h-4" />
+                <BoldIcon className="w-4 h-4" />
               </Button>
               <Button
                 type="button"
@@ -255,7 +239,7 @@ export function RichTextEditor({
                 className="h-8 w-8 rounded-md shrink-0"
                 title="Italic"
               >
-                <Italic className="w-4 h-4" />
+                <ItalicIcon className="w-4 h-4" />
               </Button>
               <Button
                 type="button"
@@ -265,7 +249,7 @@ export function RichTextEditor({
                 className="h-8 w-8 rounded-md shrink-0"
                 title="Strike-through"
               >
-                <Strikethrough className="w-4 h-4" />
+                <StrikethroughIcon className="w-4 h-4" />
               </Button>
 
               <div className="w-px h-5 bg-border mx-1" />
@@ -279,7 +263,7 @@ export function RichTextEditor({
                 className="h-8 w-8 rounded-md shrink-0"
                 title="Bullet List"
               >
-                <List className="w-4 h-4" />
+                <ListIcon className="w-4 h-4" />
               </Button>
               <Button
                 type="button"
@@ -289,7 +273,7 @@ export function RichTextEditor({
                 className="h-8 w-8 rounded-md shrink-0"
                 title="Numbered List"
               >
-                <ListOrdered className="w-4 h-4" />
+                <ListOrderedIcon className="w-4 h-4" />
               </Button>
 
               <div className="w-px h-5 bg-border mx-1" />
@@ -303,7 +287,7 @@ export function RichTextEditor({
                 className="h-8 w-8 rounded-md shrink-0"
                 title="Blockquote"
               >
-                <Quote className="w-4 h-4" />
+                <QuoteIcon className="w-4 h-4" />
               </Button>
               <Button
                 type="button"
@@ -313,7 +297,7 @@ export function RichTextEditor({
                 className="h-8 w-8 rounded-md shrink-0"
                 title="Code"
               >
-                <Code className="w-4 h-4" />
+                <CodeIcon className="w-4 h-4" />
               </Button>
 
               <div className="w-px h-5 bg-border mx-1" />
@@ -338,7 +322,7 @@ export function RichTextEditor({
                 className="h-8 w-8 rounded-md shrink-0"
                 title="Remove Link"
               >
-                <Unlink className="w-4 h-4" />
+                <UnlinkIcon className="w-4 h-4" />
               </Button>
             </div>
 
@@ -353,7 +337,7 @@ export function RichTextEditor({
                 className="h-8 w-8 rounded-md shrink-0"
                 title="Undo"
               >
-                <Undo className="w-4 h-4" />
+                <UndoIcon className="w-4 h-4" />
               </Button>
               <Button
                 type="button"
@@ -364,7 +348,7 @@ export function RichTextEditor({
                 className="h-8 w-8 rounded-md shrink-0"
                 title="Redo"
               >
-                <Redo className="w-4 h-4" />
+                <RedoIcon className="w-4 h-4" />
               </Button>
             </div>
           </>

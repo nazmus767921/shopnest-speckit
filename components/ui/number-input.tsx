@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { Button, Group, Input, NumberField } from 'react-aria-components'
-import { MinusIcon, PlusIcon, ChevronUp, ChevronDown } from 'lucide-react'
+import { MinusIcon, PlusIcon, ChevronUpIcon, ChevronDownIcon } from "@/lib/icons";
 import { cn } from '@/lib/utils'
 
 export interface NumberInputProps {
@@ -79,14 +79,14 @@ export function NumberInput({
               slot='increment'
               className='border-input bg-background text-muted-foreground hover:bg-muted hover:text-foreground -me-px flex h-1/2 w-6 flex-1 items-center justify-center border text-sm transition-colors disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50'
             >
-              <ChevronUp className='size-3' />
+              <ChevronUpIcon className='size-3' />
               <span className='sr-only'>Increment</span>
             </Button>
             <Button
               slot='decrement'
               className='border-input bg-background text-muted-foreground hover:bg-muted hover:text-foreground -me-px -mt-px flex h-1/2 w-6 flex-1 items-center justify-center border text-sm transition-colors disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50'
             >
-              <ChevronDown className='size-3' />
+              <ChevronDownIcon className='size-3' />
               <span className='sr-only'>Decrement</span>
             </Button>
           </div>
