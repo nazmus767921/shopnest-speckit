@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import { useMutation } from "@tanstack/react-query"
-import { Plus, Trash2, ArrowUp, ArrowDown, ChevronRight, Menu, Save, RotateCcw, X, Edit, Link2 } from "lucide-react"
+import { Plus, Trash2, ArrowUp, ArrowDown, ChevronRight, Menu, Save, RotateCcw, X, Edit, Link2, PanelBottom } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label as FormLabel } from "@/components/ui/label"
@@ -50,6 +50,9 @@ export function NavigationClient({
   )
 
   const [items, setItems] = useState<LocalMenuItem[]>([])
+  const [initialItems, setInitialItems] = useState<LocalMenuItem[]>([])
+
+  const hasChanges = JSON.stringify(items) !== JSON.stringify(initialItems)
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
@@ -85,8 +88,10 @@ export function NavigationClient({
       }
 
       setItems(sortedList)
+      setInitialItems(sortedList)
     } else {
       setItems([])
+      setInitialItems([])
     }
     closeDrawer()
   }, [selectedMenuId, menus])
@@ -323,7 +328,13 @@ export function NavigationClient({
           </h2>
 
           <div className="flex flex-col gap-2">
-            {menus.map((m) => (
+            {[...menus].sort((a, b) => {
+              if (a.slug === "main-menu") return -1
+              if (b.slug === "main-menu") return 1
+              if (a.slug === "footer-menu") return -1
+              if (b.slug === "footer-menu") return 1
+              return 0
+            }).map((m) => (
               <button
                 key={m.id}
                 onClick={() => setSelectedMenuId(m.id)}
@@ -334,7 +345,16 @@ export function NavigationClient({
                     : "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                <span>{m.name}</span>
+                <span className="flex items-center gap-2">
+                  {m.slug === "main-menu" ? (
+                    <Menu className="h-4 w-4" />
+                  ) : m.slug === "footer-menu" ? (
+                    <PanelBottom className="h-4 w-4" />
+                  ) : (
+                    <Link2 className="h-4 w-4" />
+                  )}
+                  {m.name}
+                </span>
                 <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-mono uppercase tracking-wider">
                   {m.slug}
                 </span>
@@ -386,7 +406,7 @@ export function NavigationClient({
 
                 <Button
                   onClick={() => saveItemsMutation.mutate()}
-                  disabled={saveItemsMutation.isPending}
+                  disabled={saveItemsMutation.isPending || !hasChanges}
                   className="rounded-md px-5 py-2 text-sm font-semibold flex items-center gap-2"
                 >
                   <Save className="h-4 w-4" />
