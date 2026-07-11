@@ -1,9 +1,8 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useTransition } from "react"
 import { useForm } from "@tanstack/react-form"
 import { useRouter } from "next/navigation"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { pageSchema, PageFormValues } from "@/lib/validations/pages"
 import { createPageAction, updatePageAction } from "@/app/actions/pages"
 import { Button } from "@/components/ui/button"
@@ -30,30 +29,25 @@ interface PageFormProps {
 
 export function PageForm({ initialData }: PageFormProps) {
   const router = useRouter()
-  const queryClient = useQueryClient()
+  const [isPending, startTransition] = useTransition()
   const isEditing = !!initialData?.id
   const [error, setError] = useState<string | null>(null)
 
-  const mutation = useMutation({
-    mutationFn: async (values: PageFormValues) => {
+  const handleSubmit = async (values: PageFormValues) => {
+    setError(null)
+    startTransition(async () => {
       const res = isEditing
         ? await updatePageAction(initialData.id!, values)
         : await createPageAction(values)
 
-      if (!res.success) {
-        throw new Error(res.error)
+      if (res.success) {
+        router.push("/dashboard/pages")
+        router.refresh()
+      } else {
+        setError(res.error || "An error occurred.")
       }
-      return res
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pages"] })
-      router.push("/dashboard/pages")
-      router.refresh()
-    },
-    onError: (err: any) => {
-      setError(err.message)
-    },
-  })
+    })
+  }
 
   const form = useForm({
     defaultValues: initialData || {
@@ -71,7 +65,7 @@ export function PageForm({ initialData }: PageFormProps) {
         return
       }
 
-      mutation.mutate(value)
+      handleSubmit(value)
     },
   })
 
@@ -103,20 +97,24 @@ export function PageForm({ initialData }: PageFormProps) {
               {isEditing ? "Edit Page" : "Create Page"}
             </span>
             <span className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider font-medium">
-              {mutation.isPending ? "Saving..." : (isEditing ? "Saved" : "Unsaved")}
+              {isPending ? "Saving..." : (isEditing ? "Saved" : "Unsaved")}
             </span>
           </div>
         </div>
         
         <div className="flex items-center gap-3">
-          <form.Subscribe selector={(state) => state.isSubmitting}>
-            {(isSubmitting) => (
+          <form.Subscribe selector={(state) => {
+            const fields = ['title', 'slug', 'content', 'isPublished'] as const
+            const allAtDefault = fields.every((f) => state.fieldMeta[f]?.isDefaultValue)
+            return { isSubmitting: state.isSubmitting, allAtDefault }
+          }}>
+            {({ isSubmitting, allAtDefault }) => (
               <Button
                 type="submit"
                 className="rounded-md px-6"
-                disabled={isSubmitting || mutation.isPending}
+                disabled={isSubmitting || isPending || (isEditing && allAtDefault)}
               >
-                {isSubmitting || mutation.isPending ? "Publishing..." : "Publish"}
+                {isSubmitting || isPending ? "Saving..." : "Publish"}
               </Button>
             )}
           </form.Subscribe>
