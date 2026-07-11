@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useEffect, useState, useCallback } from "react"
-import { ShoppingCart, ArrowLeft, AlertTriangle, Tag, ArrowRight } from "lucide-react"
+import { ShoppingCartIcon, ArrowLeftIcon, AlertTriangleIcon, TagIcon, ArrowRightIcon } from "@/lib/icons";
+
 import { useCart } from "@/hooks/use-cart"
 import { FashionCartItemRow } from "./components/FashionCartItemRow"
 import { type CartItem } from "@/lib/cart/cart-store"
@@ -111,7 +112,7 @@ export function FashionCartPage({ store }: CartPageProps) {
           href="/"
           className="flex items-center gap-1.5 text-xs font-sans tracking-wide uppercase text-[var(--color-shade-60)] hover:text-[var(--color-ink)] transition-colors font-semibold"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeftIcon className="h-4 w-4" />
           <span>Continue Shopping</span>
         </a>
       </div>
@@ -120,7 +121,7 @@ export function FashionCartPage({ store }: CartPageProps) {
         /* Elegant Minimalist Empty State */
         <div className="border border-[var(--color-hairline-warm)] py-24 px-6 flex flex-col items-center justify-center text-center gap-6 min-h-[350px] bg-[var(--color-surface-product)]/20 max-w-lg mx-auto w-full mt-6 rounded-2xl">
           <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-[var(--color-ink)] border border-[var(--color-hairline-warm)] shrink-0">
-            <ShoppingCart className="h-5 w-5 stroke-[1.2] text-zinc-400" />
+            <ShoppingCartIcon className="h-5 w-5 stroke-[1.2] text-zinc-400" />
           </div>
           <div className="flex flex-col gap-3 max-w-sm">
             <h2 className="font-display text-2xl md:text-3xl font-light uppercase tracking-[0.15em] text-[var(--color-ink)]">
@@ -228,7 +229,7 @@ export function FashionCartPage({ store }: CartPageProps) {
               {/* Unavailable items warning */}
               {hasUnavailableItems && (
                 <div className="flex items-start gap-2.5 p-4 rounded-xl bg-red-50 border border-red-200 mt-6 font-sans" role="alert">
-                  <AlertTriangle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                  <AlertTriangleIcon className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
                   <p className="text-xs text-red-700 leading-normal">
                     Some items are no longer available.{" "}
                     <strong>Please remove them to checkout.</strong>
@@ -243,7 +244,7 @@ export function FashionCartPage({ store }: CartPageProps) {
                   className="w-full h-14 bg-[var(--color-primary)] hover:opacity-90 text-[var(--color-primary-foreground)] rounded-[var(--radius)] font-sans font-bold uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 border-none disabled:opacity-50 disabled:pointer-events-none transition-opacity cursor-pointer"
                 >
                   <span>Go to Checkout</span>
-                  <ArrowRight className="h-4 w-4 stroke-[1.5]" />
+                  <ArrowRightIcon className="h-4 w-4 stroke-[1.5]" />
                 </button>
               </div>
             </div>

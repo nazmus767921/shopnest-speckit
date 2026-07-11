@@ -3,7 +3,8 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, ShoppingBag, ChevronDown } from "lucide-react"
+import { MenuIcon, XIcon, ShoppingBagIcon, ChevronDownIcon } from "@/lib/icons";
+
 import { CartIconButton } from "@/components/storefront/shared/CartIconButton"
 import { type NavbarProps } from "../types"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
@@ -47,7 +48,7 @@ export function GeneralNavbar({ store, subdomain, menu }: NavbarProps) {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo / Name */}
         <Link href="/" className="flex items-center gap-3 select-none">
-          <ShoppingBag className="h-5 w-5 text-[var(--color-ink)] stroke-[1.8]" />
+          <ShoppingBagIcon className="h-5 w-5 text-[var(--color-ink)] stroke-[1.8]" />
           <span className="text-storefront-heading-lg tracking-tight font-bold text-[var(--color-ink)] uppercase">
             {store.name}
           </span>
@@ -66,7 +67,7 @@ export function GeneralNavbar({ store, subdomain, menu }: NavbarProps) {
                     <div key={item.id} className="relative group py-2">
                       <button className="text-storefront-body-md text-[var(--color-shade-50)] hover:text-[var(--color-ink)] flex items-center gap-1 cursor-pointer bg-transparent border-none">
                         {item.label}
-                        <ChevronDown className="h-3.5 w-3.5 stroke-[1.5]" />
+                        <ChevronDownIcon className="h-3.5 w-3.5 stroke-[1.5]" />
                       </button>
                       <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-[var(--color-canvas-light)] border border-[var(--color-hairline-light)] rounded-xl p-2 hidden group-hover:block hover:block transition-all shadow-lg z-50">
                         {children.map((child: any) => {
@@ -128,7 +129,7 @@ export function GeneralNavbar({ store, subdomain, menu }: NavbarProps) {
                 <div className="relative group py-2">
                   <button className="text-storefront-body-md text-[var(--color-shade-50)] hover:text-[var(--color-ink)] flex items-center gap-1 cursor-pointer bg-transparent border-none">
                     More
-                    <ChevronDown className="h-3.5 w-3.5 stroke-[1.5]" />
+                    <ChevronDownIcon className="h-3.5 w-3.5 stroke-[1.5]" />
                   </button>
                   <div className="absolute top-full right-0 mt-2 w-48 bg-[var(--color-canvas-light)] border border-[var(--color-hairline-light)] rounded-xl p-2 hidden group-hover:block hover:block transition-all shadow-lg z-50">
                     {overflowItems.map((item: any) => {
@@ -186,7 +187,7 @@ export function GeneralNavbar({ store, subdomain, menu }: NavbarProps) {
             className="p-1.5 rounded-[var(--radius-sm)] text-[var(--color-ink)] hover:bg-[var(--color-surface-secondary)] transition-colors cursor-pointer border-none bg-transparent"
             aria-label="Toggle Menu"
           >
-            {isOpen ? <X className="h-5.5 w-5.5" /> : <Menu className="h-5.5 w-5.5" />}
+            {isOpen ? <XIcon className="h-5.5 w-5.5" /> : <MenuIcon className="h-5.5 w-5.5" />}
           </button>
         </div>
       </div>
@@ -278,7 +279,7 @@ function GeneralMobileMenuItem({ item, childrenItems, resolveHref, setIsOpen }: 
         className="w-full flex items-center justify-between gap-1 text-storefront-body-md text-[var(--color-shade-50)] hover:text-[var(--color-ink)] py-1 cursor-pointer bg-transparent border-none text-left"
       >
         <span className="truncate">{item.label}</span>
-        <ChevronDown className={`h-4 w-4 stroke-[1.5] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+        <ChevronDownIcon className={`h-4 w-4 stroke-[1.5] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
       </button>
       
       {isOpen && (

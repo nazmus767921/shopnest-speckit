@@ -1,7 +1,8 @@
 "use client"
 
 import React from "react"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeftIcon } from "@/lib/icons";
+
 import Link from "next/link"
 import { ImageGallery } from "@/components/storefront/shared/ImageGallery"
 import { PriceDisplay } from "@/components/storefront/shared/PriceDisplay"
@@ -47,7 +48,7 @@ export function GeneralPDP({ store, product, relatedProducts, faqs }: PDPProps) 
           className="flex items-center gap-1.5 text-base tracking-tighter font-sans text-[var(--color-shade-60)] hover:text-[var(--color-ink)] transition-colors self-start sm:self-auto font-semibold"
           prefetch={false}
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeftIcon className="h-4 w-4" />
           <span>Back to Catalog</span>
         </Link>
       </div>

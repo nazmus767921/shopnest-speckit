@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { ChevronDown, ChevronUp, Filter, X, Search } from "lucide-react"
+import { ChevronDownIcon, ChevronUpIcon, FilterIcon, XIcon, SearchIcon } from "@/lib/icons";
+
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet"
 
 interface Category {
@@ -144,10 +145,10 @@ export function FashionProductFilters({
 
   return (
     <div className="w-full flex flex-col gap-6" ref={containerRef}>
-      {/* Search and Horizontal Filters Row */}
+      {/* SearchIcon and Horizontal Filters Row */}
       <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-y border-[var(--color-hairline-warm)] py-4 select-none relative z-40">
         
-        {/* Left Side: Filter Dropdowns (Desktop) */}
+        {/* Left Side: FilterIcon Dropdowns (Desktop) */}
         <div className="hidden md:flex items-center gap-3">
           {/* Category Dropdown */}
           <div className="relative">
@@ -162,7 +163,7 @@ export function FashionProductFilters({
               aria-haspopup="true"
             >
               <span>{getCategoryLabel()}</span>
-              {activeDropdown === "category" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              {activeDropdown === "category" ? <ChevronUpIcon className="h-3 w-3" /> : <ChevronDownIcon className="h-3 w-3" />}
             </button>
             {activeDropdown === "category" && (
               <div className="absolute top-full left-0 mt-2 bg-white border border-zinc-200 rounded-xl p-3 min-w-[200px] max-h-[300px] overflow-y-auto flex flex-col gap-1.5 z-50">
@@ -202,7 +203,7 @@ export function FashionProductFilters({
               aria-haspopup="true"
             >
               <span>{getPriceLabel()}</span>
-              {activeDropdown === "price" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              {activeDropdown === "price" ? <ChevronUpIcon className="h-3 w-3" /> : <ChevronDownIcon className="h-3 w-3" />}
             </button>
             {activeDropdown === "price" && (
               <div className="absolute top-full left-0 mt-2 bg-white border border-zinc-200 rounded-xl p-3 min-w-[200px] max-h-[300px] overflow-y-auto flex flex-col gap-1.5 z-50">
@@ -234,7 +235,7 @@ export function FashionProductFilters({
               aria-haspopup="true"
             >
               <span>{getColorLabel()}</span>
-              {activeDropdown === "color" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              {activeDropdown === "color" ? <ChevronUpIcon className="h-3 w-3" /> : <ChevronDownIcon className="h-3 w-3" />}
             </button>
             {activeDropdown === "color" && (
               <div className="absolute top-full left-0 mt-2 bg-white border border-zinc-200 rounded-xl p-4 min-w-[240px] z-50 flex flex-wrap gap-2.5">
@@ -278,7 +279,7 @@ export function FashionProductFilters({
               aria-haspopup="true"
             >
               <span>{getSizeLabel()}</span>
-              {activeDropdown === "size" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              {activeDropdown === "size" ? <ChevronUpIcon className="h-3 w-3" /> : <ChevronDownIcon className="h-3 w-3" />}
             </button>
             {activeDropdown === "size" && (
               <div className="absolute top-full left-0 mt-2 bg-white border border-zinc-200 rounded-xl p-3 min-w-[200px] z-50 grid grid-cols-3 gap-2">
@@ -315,20 +316,20 @@ export function FashionProductFilters({
           )}
         </div>
 
-        {/* Mobile Filter Trigger Button */}
+        {/* Mobile FilterIcon Trigger Button */}
         <div className="block md:hidden w-full">
           <button
             onClick={() => setDrawerOpen(true)}
             className="w-full flex items-center justify-center gap-2 border border-zinc-200 py-3.5 text-xs uppercase tracking-[0.2em] font-sans font-medium rounded-full bg-white text-black hover:border-black transition-colors"
             aria-label="Open Filter Panel"
           >
-            <Filter className="h-4 w-4 stroke-[1.5]" />
-            <span>Filter By</span>
+            <FilterIcon className="h-4 w-4 stroke-[1.5]" />
+            <span>FilterIcon By</span>
             {hasActiveFilters && <span className="h-2 w-2 rounded-full bg-black ml-1" />}
           </button>
         </div>
 
-        {/* Right Side: Search Input Bar (Minimal Form) */}
+        {/* Right Side: SearchIcon Input Bar (Minimal Form) */}
         <form onSubmit={handleSearchSubmit} className="w-full md:max-w-xs relative" role="search">
           <input
             type="text"
@@ -343,7 +344,7 @@ export function FashionProductFilters({
             className="absolute right-0 top-1/2 -translate-y-1/2 p-2 hover:text-black text-zinc-400 cursor-pointer border-none bg-transparent"
             aria-label="Submit search query"
           >
-            <Search className="h-4 w-4 stroke-[1.5]" />
+            <SearchIcon className="h-4 w-4 stroke-[1.5]" />
           </button>
         </form>
       </div>
@@ -361,7 +362,7 @@ export function FashionProductFilters({
                 className="flex items-center justify-between w-full text-xs font-bold font-sans uppercase tracking-[0.1em] text-ink cursor-pointer border-none bg-transparent py-2"
               >
                 <span>Category</span>
-                {mobileSections.categories ? <ChevronUp className="h-4 w-4 stroke-[1.5]" /> : <ChevronDown className="h-4 w-4 stroke-[1.5]" />}
+                {mobileSections.categories ? <ChevronUpIcon className="h-4 w-4 stroke-[1.5]" /> : <ChevronDownIcon className="h-4 w-4 stroke-[1.5]" />}
               </button>
               {mobileSections.categories && (
                 <div className="flex flex-col gap-2.5 pt-2 pl-1.5">
@@ -395,7 +396,7 @@ export function FashionProductFilters({
                 className="flex items-center justify-between w-full text-xs font-bold font-sans uppercase tracking-[0.1em] text-ink cursor-pointer border-none bg-transparent py-2"
               >
                 <span>Price Range</span>
-                {mobileSections.price ? <ChevronUp className="h-4 w-4 stroke-[1.5]" /> : <ChevronDown className="h-4 w-4 stroke-[1.5]" />}
+                {mobileSections.price ? <ChevronUpIcon className="h-4 w-4 stroke-[1.5]" /> : <ChevronDownIcon className="h-4 w-4 stroke-[1.5]" />}
               </button>
               {mobileSections.price && (
                 <div className="flex flex-col gap-2.5 pt-2 pl-1.5">
@@ -421,7 +422,7 @@ export function FashionProductFilters({
                 className="flex items-center justify-between w-full text-xs font-bold font-sans uppercase tracking-[0.1em] text-ink cursor-pointer border-none bg-transparent py-2"
               >
                 <span>Color</span>
-                {mobileSections.colors ? <ChevronUp className="h-4 w-4 stroke-[1.5]" /> : <ChevronDown className="h-4 w-4 stroke-[1.5]" />}
+                {mobileSections.colors ? <ChevronUpIcon className="h-4 w-4 stroke-[1.5]" /> : <ChevronDownIcon className="h-4 w-4 stroke-[1.5]" />}
               </button>
               {mobileSections.colors && (
                 <div className="flex flex-wrap gap-3 pt-3 pl-1">
@@ -459,7 +460,7 @@ export function FashionProductFilters({
                 className="flex items-center justify-between w-full text-xs font-bold font-sans uppercase tracking-[0.1em] text-ink cursor-pointer border-none bg-transparent py-2"
               >
                 <span>Size</span>
-                {mobileSections.sizes ? <ChevronUp className="h-4 w-4 stroke-[1.5]" /> : <ChevronDown className="h-4 w-4 stroke-[1.5]" />}
+                {mobileSections.sizes ? <ChevronUpIcon className="h-4 w-4 stroke-[1.5]" /> : <ChevronDownIcon className="h-4 w-4 stroke-[1.5]" />}
               </button>
               {mobileSections.sizes && (
                 <div className="grid grid-cols-4 gap-2 pt-3 pl-1">

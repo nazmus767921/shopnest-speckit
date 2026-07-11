@@ -2,7 +2,8 @@
 import React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { PackageOpen, Sparkles, Flame } from "lucide-react"
+import { PackageOpenIcon, SparklesIcon, FlameIcon } from "@/lib/icons";
+
 import { Card } from "@/components/ui"
 import { ProductSlider } from "@/components/storefront/ProductSlider"
 import { type HomePageProps } from "../types"
@@ -18,7 +19,7 @@ export function GeneralHomePage({ store, sections = [] }: HomePageProps) {
         /* Empty State */
         <Card className="border border-[var(--color-hairline-light)] p-12 flex flex-col items-center justify-center text-center gap-6 min-h-64 bg-[var(--color-canvas-light)] max-w-xl mx-auto rounded-[var(--radius-md)] mt-12">
           <div className="w-16 h-16 rounded-[var(--radius-pill)] bg-zinc-100 flex items-center justify-center text-[var(--color-ink)] border border-[var(--color-hairline-light)]">
-            <PackageOpen className="h-8 w-8 stroke-[1.5]" />
+            <PackageOpenIcon className="h-8 w-8 stroke-[1.5]" />
           </div>
           <div className="flex flex-col gap-2 max-w-sm">
             <h2 className="text-2xl font-medium text-[var(--color-ink)]">

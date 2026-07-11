@@ -1,7 +1,8 @@
 
 import React from "react"
 import Link from "next/link"
-import { Sparkles, Flame, PackageOpen } from "lucide-react"
+import { SparklesIcon, FlameIcon, PackageOpenIcon } from "@/lib/icons";
+
 import { Card } from "@/components/ui"
 import { ProductSlider } from "@/components/storefront/ProductSlider"
 import { SectionRenderer } from "@/components/storefront/sections/SectionRenderer"
@@ -18,7 +19,7 @@ export function FashionHomePage({ store, sections = [] }: HomePageProps) {
         /* Empty State */
         <div className="flex flex-col items-center justify-center text-center gap-8 py-32 max-w-xl mx-auto mt-24">
           <div className="w-20 h-20 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400">
-            <PackageOpen className="h-8 w-8 stroke-[1]" />
+            <PackageOpenIcon className="h-8 w-8 stroke-[1]" />
           </div>
           <div className="flex flex-col gap-4">
             <h2 className="font-sans text-3xl font-light text-ink tracking-tight">
