@@ -183,14 +183,14 @@ export function AppSidebar({
                   asChild
                   isActive={pathname === "/dashboard"}
                   className={cn(
-                    "w-full flex items-center gap-3 px-3 py-3 rounded-none text-sm transition-all duration-150 font-medium",
+                    "w-full flex items-center gap-3 px-3 py-5 rounded-none text-[15px] transition-all duration-150 font-medium",
                     pathname === "/dashboard"
                       ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-primary font-bold shadow-xs"
                       : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                   )}
                 >
                   <Link href="/dashboard" onClick={handleLinkClick}>
-                    <LayoutDashboardIcon className="h-4 w-4 shrink-0" />
+                    <LayoutDashboardIcon className="shrink-0" style={{ width: '18px', height: '18px' }} />
                     <span>Dashboard</span>
                   </Link>
                 </SidebarMenuButton>
@@ -266,7 +266,7 @@ export function AppSidebar({
                         asChild
                         isActive={isActive}
                         className={cn(
-                          "w-full flex items-center justify-between gap-3 px-3 py-3 rounded-none text-sm transition-all duration-150 font-medium",
+                          "w-full flex items-center justify-between gap-3 px-3 py-5 rounded-none text-[15px] transition-all duration-150 font-medium",
                           isActive
                             ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-primary font-bold shadow-xs"
                             : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
@@ -274,7 +274,7 @@ export function AppSidebar({
                       >
                         <Link href={item.href} onClick={handleLinkClick}>
                           <span className="flex items-center gap-3">
-                            <Icon className="h-4 w-4 shrink-0" />
+                            <Icon className="h-5 w-5 shrink-0" />
                             <span>{item.label}</span>
                           </span>
                         </Link>
@@ -302,14 +302,14 @@ export function AppSidebar({
                   asChild
                   isActive={pathname.startsWith("/dashboard/billing")}
                   className={cn(
-                    "w-full flex items-center gap-3 px-3 py-3 rounded-none text-sm transition-all duration-150 font-medium",
+                    "w-full flex items-center gap-3 px-3 py-5 rounded-none text-[15px] transition-all duration-150 font-medium",
                     pathname.startsWith("/dashboard/billing")
                       ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-primary font-bold shadow-xs"
                       : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                   )}
                 >
                   <Link href="/dashboard/billing" onClick={handleLinkClick}>
-                    <CreditCardIcon className="h-4 w-4 shrink-0" />
+                    <CreditCardIcon className="shrink-0" style={{ width: '18px', height: '18px' }} />
                     <span>Billing & Plan</span>
                   </Link>
                 </SidebarMenuButton>
