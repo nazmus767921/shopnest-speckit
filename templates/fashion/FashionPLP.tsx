@@ -2,7 +2,8 @@
 
 import React from "react"
 import Link from "next/link"
-import { PackageOpen } from "lucide-react"
+import { PackageOpenIcon } from "@/lib/icons";
+
 import { Card } from "@/components/ui"
 import { FashionProductFilters } from "./components/FashionProductFilters"
 import { ProductCard } from "@/components/storefront/ProductCard"
@@ -66,7 +67,7 @@ export function FashionPLP({
           /* Elegant Minimalist Empty State */
           <div className="border border-[var(--color-hairline-warm)] py-24 px-6 flex flex-col items-center justify-center text-center gap-6 min-h-[350px] bg-[var(--color-surface-product)]/20 w-full rounded-2xl">
             <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-[var(--color-ink)] border border-[var(--color-hairline-warm)] shrink-0">
-              <PackageOpen className="h-5 w-5 stroke-[1.2] text-zinc-400" />
+              <PackageOpenIcon className="h-5 w-5 stroke-[1.2] text-zinc-400" />
             </div>
             <div className="flex flex-col gap-3 max-w-sm">
               <h2 className="font-display text-2xl md:text-3xl font-light uppercase tracking-[0.1em] text-[var(--color-ink)]">

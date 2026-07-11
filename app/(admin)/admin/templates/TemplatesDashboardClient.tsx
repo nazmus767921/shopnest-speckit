@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useState } from "react"
-import { LayoutTemplate, Edit2, CheckCircle2, AlertCircle, X, Check, Star } from "lucide-react"
+import { LayoutTemplateIcon, Edit2Icon, CheckCircle2Icon, AlertCircleIcon, XIcon, CheckIcon, StarIcon } from "@/lib/icons";
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label as FormLabel } from "@/components/ui/label"
@@ -156,7 +157,7 @@ export function TemplatesDashboardClient({ initialTemplates }: Props) {
               />
               {tpl.isDefault && (
                 <div className="absolute top-4 left-4 bg-emerald-500 text-white text-micro font-bold py-1 px-3 rounded-full flex items-center gap-1.5 shadow-md uppercase tracking-wider">
-                  <Star className="h-3 w-3 fill-white" />
+                  <StarIcon className="h-3 w-3 fill-white" />
                   <span>Default Template</span>
                 </div>
               )}
@@ -210,7 +211,7 @@ export function TemplatesDashboardClient({ initialTemplates }: Props) {
                   variant="outline"
                   className="flex items-center gap-1.5 rounded-full grow cursor-pointer"
                 >
-                  <Edit2 className="h-3.5 w-3.5" />
+                  <Edit2Icon className="h-3.5 w-3.5" />
                   <span>Edit Metadata</span>
                 </Button>
                 <Button
@@ -234,7 +235,7 @@ export function TemplatesDashboardClient({ initialTemplates }: Props) {
             <div className="flex items-center justify-between pb-3 border-b border-hairline-light">
               <h3 className="font-display text-heading-md font-bold text-ink">Edit Template: {editingTemplate.name}</h3>
               <button onClick={closeEditModal} className="p-1 hover:bg-zinc-100 rounded-full cursor-pointer">
-                <X className="h-5 w-5 text-shade-50" />
+                <XIcon className="h-5 w-5 text-shade-50" />
               </button>
             </div>
 

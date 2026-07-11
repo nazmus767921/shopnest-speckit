@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { Copy, Check } from "lucide-react"
+import { CopyIcon, CheckIcon } from "@/lib/icons";
 
 interface CopyButtonProps {
   text: string
@@ -26,9 +26,9 @@ export function CopyButton({ text, className = "" }: CopyButtonProps) {
       title="Copy to clipboard"
     >
       {copied ? (
-        <Check className="h-3.5 w-3.5 text-emerald-700 stroke-[2.5px]" />
+        <CheckIcon className="h-3.5 w-3.5 text-emerald-700 stroke-[2.5px]" />
       ) : (
-        <Copy className="h-3.5 w-3.5" />
+        <CopyIcon className="h-3.5 w-3.5" />
       )}
     </button>
   )

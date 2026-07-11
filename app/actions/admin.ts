@@ -7,10 +7,11 @@ import {
   overrideTrialExpiry,
   recordSubscriptionPayment,
 } from "@/db/queries/admin"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { z } from "zod"
 import { db } from "@/db"
 import { subscriptionPayments, subscriptionPlans, subscriptions, merchants } from "@/db/schema"
+import { invalidateProxyCache } from "@/lib/redis/proxy-cache"
 import { sendPlanChangedEmail } from "@/lib/email"
 import type { DowngradeViolation } from "@/lib/plans/validateDowngrade"
 import type { PlanFeatures } from "@/lib/plans/types"
@@ -50,6 +51,9 @@ export async function updateMerchantStatusAction(params: {
 
     await updateMerchantStatus(parsed.merchantId, parsed.status)
     
+    await invalidateProxyCache(parsed.merchantId)
+    revalidateTag(`plan-${parsed.merchantId}`, "max")
+    revalidateTag(`merchant-${parsed.merchantId}`, "max")
     revalidatePath("/admin/merchants")
     revalidatePath("/admin")
     return { success: true }
@@ -77,6 +81,9 @@ export async function overrideTrialExpiryAction(params: {
 
     await overrideTrialExpiry(parsed.merchantId, new Date(parsed.trialExpiry))
 
+    await invalidateProxyCache(parsed.merchantId)
+    revalidateTag(`plan-${parsed.merchantId}`, "max")
+    revalidateTag(`merchant-${parsed.merchantId}`, "max")
     revalidatePath("/admin/merchants")
     revalidatePath("/admin")
     return { success: true }
@@ -147,6 +154,9 @@ export async function recordSubscriptionPaymentAction(params: {
       featuresAtPaymentTime: targetPlan.features,
     })
 
+    await invalidateProxyCache(parsed.merchantId)
+    revalidateTag(`plan-${parsed.merchantId}`, "max")
+    revalidateTag(`merchant-${parsed.merchantId}`, "max")
     revalidatePath("/admin/subscriptions")
     revalidatePath("/admin/merchants")
     revalidatePath("/admin")
@@ -222,6 +232,9 @@ export async function verifySubscriptionPaymentAction(params: { paymentId: strin
       await db.update(merchants).set({ plan: targetPlan.slug }).where(eq(merchants.id, payment.merchantId))
     }
 
+    await invalidateProxyCache(payment.merchantId)
+    revalidateTag(`plan-${payment.merchantId}`, "max")
+    revalidateTag(`merchant-${payment.merchantId}`, "max")
     revalidatePath("/admin/subscriptions")
     revalidatePath("/admin/merchants")
     revalidatePath("/admin")
@@ -326,6 +339,7 @@ export async function changeMerchantPlanAction(params: {
       console.error("[changeMerchantPlanAction] Failed to send plan_changed email:", err)
     })
 
+    await invalidateProxyCache(parsed.merchantId)
     revalidatePath("/admin/merchants")
     revalidatePath("/admin/subscriptions")
     revalidatePath("/admin")

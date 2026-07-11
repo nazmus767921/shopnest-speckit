@@ -9,7 +9,7 @@ import {
   disableChannelPreferences,
 } from "@/db/queries/notifications"
 import { saveTelegramSchema } from "@/lib/validations/notifications"
-import { getMerchantPlan } from "@/lib/plans/getPlan"
+import { getCachedMerchantPlan } from "@/lib/cache/plans"
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
 
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Merchant not found" }, { status: 404 })
     }
 
-    const plan = await getMerchantPlan(merchant.id)
+    const plan = await getCachedMerchantPlan(merchant.id)
     if (!plan || !plan.features.telegram_notifications) {
       return NextResponse.json(
         { error: "Telegram notifications are not enabled on your current plan. Upgrade to access this feature." },

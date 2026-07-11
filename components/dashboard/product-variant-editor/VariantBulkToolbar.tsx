@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useState, useId } from "react";
-import { CheckSquare, Square, X, RefreshCw, DollarSign, Layers, Tag } from "lucide-react";
+import { CheckSquareIcon, SquareIcon, XIcon, RefreshCwIcon, DollarSignIcon, LayersIcon, TagIcon } from "@/lib/icons";
+
 import { Input } from "@/components/ui/input";
 import { NumberInput } from "@/components/ui/number-input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -236,7 +237,7 @@ export function VariantBulkToolbar({
               className="rounded-full p-1.5 text-muted-foreground hover:bg-muted transition-colors shrink-0 cursor-pointer border-none bg-transparent"
               aria-label="Clear selection"
             >
-              <X className="h-3.5 w-3.5" />
+              <XIcon className="h-3.5 w-3.5" />
             </button>
           </div>
         )}
@@ -262,7 +263,7 @@ export function VariantBulkToolbar({
                 className="text-muted-foreground hover:text-foreground cursor-pointer border-none bg-transparent"
                 aria-label="Dismiss"
               >
-                <X className="h-3.5 w-3.5" />
+                <XIcon className="h-3.5 w-3.5" />
               </button>
             </div>
           )}
@@ -270,9 +271,9 @@ export function VariantBulkToolbar({
           {/* Sub-tabs Header */}
           <div className="flex border-b border-border gap-1" role="tablist">
             {[
-              { id: "price" as const, label: "Price & Discounts", icon: DollarSign },
-              { id: "stock" as const, label: "Stock Inventory", icon: Layers },
-              { id: "status" as const, label: "Status & SKU", icon: Tag },
+              { id: "price" as const, label: "Price & Discounts", icon: DollarSignIcon },
+              { id: "stock" as const, label: "Stock Inventory", icon: LayersIcon },
+              { id: "status" as const, label: "Status & SKU", icon: TagIcon },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeSubTab === tab.id;
@@ -557,7 +558,7 @@ export function VariantBulkToolbar({
             >
               {saving ? (
                 <>
-                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  <RefreshCwIcon className="h-4 w-4 animate-spin" />
                   <span>Applying...</span>
                 </>
               ) : (

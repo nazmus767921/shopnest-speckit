@@ -24,7 +24,9 @@ import {
   ComboboxItem,
   ComboboxEmpty,
 } from "@/components/ui/combobox"
-import { UploadCloud, X, Loader2, ArrowLeft, ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { UploadCloudIcon, XIcon, Loader2Icon, ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "@/lib/icons";
+
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -82,6 +84,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
   const [productId] = useState(() => initialData?.id || initialProductId || crypto.randomUUID())
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
+  const isEditMode = !!initialData
 
   React.useEffect(() => {
     setMounted(true)
@@ -100,7 +103,29 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
     }))
   })
 
-  const { data: categories = [] } = useQuery({
+  // Track image dirty state separately (images aren't part of TanStack Form state)
+  const initialImagePaths = React.useMemo(
+    () => (initialData?.images ? initialData.images.map((img) => img.storagePath).sort() : []),
+    [initialData]
+  )
+  const imageDirty = React.useMemo(() => {
+    if (!isEditMode) {
+      // New product: dirty if any images added
+      return images.length > 0
+    }
+    // Edit mode: compare current images to initial
+    const currentPaths = images
+      .filter((img) => img.storagePath)
+      .map((img) => img.storagePath!)
+      .sort()
+    const hasNewFiles = images.some((img) => img.file)
+    const pathsChanged =
+      currentPaths.length !== initialImagePaths.length ||
+      currentPaths.some((path, i) => path !== initialImagePaths[i])
+    return hasNewFiles || pathsChanged
+  }, [images, isEditMode, initialImagePaths])
+
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
     queryKey: ["categories", merchantId],
     queryFn: async () => {
       const res = await getCategoriesAction()
@@ -310,15 +335,42 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
   }
 
   const saveButton = (
-    <Button
-      type="submit"
-      form="product-form"
-      disabled={isPending}
-      className="flex items-center gap-2"
-    >
-      {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-      <span>{initialData ? "Save Changes" : "Create Product"}</span>
-    </Button>
+    <form.Subscribe
+      selector={(state) => ({
+        isDefaultValue: state.isDefaultValue,
+        isValid: state.isValid,
+      })}
+      children={({ isDefaultValue, isValid }) => {
+        // Edit mode: only need changes. New mode: need changes AND valid.
+        const formChanged = !isDefaultValue || imageDirty
+        const canSave = isEditMode ? formChanged : formChanged && isValid
+
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={0} className="inline-flex">
+                  <Button
+                    type="submit"
+                    form="product-form"
+                    disabled={isPending || !canSave}
+                    className="flex items-center gap-2"
+                  >
+                    {isPending && <Loader2Icon className="h-4 w-4 animate-spin" />}
+                    <span>{isEditMode ? "Save Changes" : "Create Product"}</span>
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {!canSave && !isPending && (
+                <TooltipContent side="bottom">
+                  {isEditMode ? "No changes to save" : "Fill in the form to continue"}
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        )
+      }}
+    />
   )
 
   const portalContainer = typeof window !== "undefined" ? document.getElementById("edit-product-header-actions") : null
@@ -328,8 +380,10 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
       {!hideHeader && (
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" className="rounded-full" render={<Link href="/dashboard/products" />}>
-              <ArrowLeft className="h-4 w-4" />
+            <Button variant="outline" size="icon-lg" className="rounded-sm" type="button" asChild>
+              <Link href="/dashboard/products">
+                <ArrowLeftIcon className="h-4 w-4" />
+              </Link>
             </Button>
             <div>
               <h1 className="text-2xl font-bold tracking-tight leading-none">
@@ -356,7 +410,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
               onClick={() => setErrorMsg(null)}
               className="h-auto w-auto p-1 hover:bg-transparent"
             >
-              <X className="h-4 w-4" />
+              <XIcon className="h-4 w-4" />
             </Button>
           </div>
         </Alert>
@@ -526,30 +580,37 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                   return (
                     <Field>
                       <FieldLabel>Category</FieldLabel>
-                      <Combobox
-                        value={field.state.value || ""}
-                        onValueChange={(val) => field.handleChange(val || null)}
-                        inputValue={searchQuery}
-                        onInputValueChange={(val) => setSearchQuery(val)}
-                        itemToStringLabel={(val) => {
-                          const cat = categories.find((c) => c.id === val)
-                          return cat ? cat.name : ""
-                        }}
-                      >
-                        <ComboboxInput placeholder="Select a category..." className="w-full" />
-                        <ComboboxContent>
-                          <ComboboxList>
-                            {filteredCategories.map((cat) => (
-                              <ComboboxItem key={cat.id} value={cat.id}>
-                                {cat.name}
-                              </ComboboxItem>
-                            ))}
-                            {filteredCategories.length === 0 && (
-                              <ComboboxEmpty>No categories found.</ComboboxEmpty>
-                            )}
-                          </ComboboxList>
-                        </ComboboxContent>
-                      </Combobox>
+                      {categoriesLoading ? (
+                        <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-input bg-muted/50">
+                          <Loader2Icon className="h-4 w-4 animate-spin text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">Loading categories...</span>
+                        </div>
+                      ) : (
+                        <Combobox
+                          value={field.state.value || ""}
+                          onValueChange={(val) => field.handleChange(val || null)}
+                          inputValue={searchQuery}
+                          onInputValueChange={(val) => setSearchQuery(val)}
+                          itemToStringLabel={(val) => {
+                            const cat = categories.find((c) => c.id === val)
+                            return cat ? cat.name : ""
+                          }}
+                        >
+                          <ComboboxInput placeholder="Select a category..." className="w-full" />
+                          <ComboboxContent>
+                            <ComboboxList>
+                              {filteredCategories.map((cat) => (
+                                <ComboboxItem key={cat.id} value={cat.id}>
+                                  {cat.name}
+                                </ComboboxItem>
+                              ))}
+                              {filteredCategories.length === 0 && (
+                                <ComboboxEmpty>No categories found.</ComboboxEmpty>
+                              )}
+                            </ComboboxList>
+                          </ComboboxContent>
+                        </Combobox>
+                      )}
                       {field.state.meta.errors.length > 0 && (
                         <FieldError>
                           {getErrorMessage(field.state.meta.errors[0])}
@@ -711,7 +772,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                                 className="p-1 bg-red-650 hover:bg-red-600 text-white rounded-full transition-colors duration-150 cursor-pointer border-none"
                                 title="Delete Image"
                               >
-                                <X className="h-3 w-3" />
+                                <XIcon className="h-3 w-3" />
                               </button>
                             </div>
 
@@ -723,7 +784,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                                   className="p-1.5 bg-black/60 hover:bg-black/90 text-white rounded-full transition-colors duration-150 cursor-pointer border-none"
                                   title="Move Left"
                                 >
-                                  <ChevronLeft className="h-3.5 w-3.5 stroke-[2.5]" />
+                                  <ChevronLeftIcon className="h-3.5 w-3.5 stroke-[2.5]" />
                                 </button>
                               ) : (
                                 <div className="w-6.5" />
@@ -736,7 +797,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                                   className="p-1.5 bg-black/60 hover:bg-black/90 text-white rounded-full transition-colors duration-150 cursor-pointer border-none"
                                   title="Move Right"
                                 >
-                                  <ChevronRight className="h-3.5 w-3.5 stroke-[2.5]" />
+                                  <ChevronRightIcon className="h-3.5 w-3.5 stroke-[2.5]" />
                                 </button>
                               ) : (
                                 <div className="w-6.5" />
@@ -754,7 +815,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                         onClick={() => fileInputRef.current?.click()}
                         className="border-2 border-dashed border-border rounded-xl bg-muted/10 hover:bg-muted/30 hover:border-muted-foreground/30 transition-all flex flex-col items-center justify-center aspect-square gap-1.5 text-muted-foreground hover:text-foreground cursor-pointer group"
                       >
-                        <Plus className="h-5 w-5 stroke-2 transition-transform duration-200 group-hover:scale-110" />
+                        <PlusIcon className="h-5 w-5 stroke-2 transition-transform duration-200 group-hover:scale-110" />
                         <span className="text-[10px] font-semibold tracking-wide uppercase select-none">
                           {index === 0 ? "Add Cover" : `Add Image`}
                         </span>
@@ -773,7 +834,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                 />
 
                 <div className="text-xs text-muted-foreground font-light mt-1 flex items-center gap-1.5">
-                  <UploadCloud className="h-4.5 w-4.5 stroke-[1.5]" />
+                  <UploadCloudIcon className="h-4.5 w-4.5 stroke-[1.5]" />
                   <span>Drag and drop anywhere on this card, or click any slot to upload (PNG, JPG, WebP up to {imageSizeLimitMb}MB each).</span>
                 </div>
               </CardContent>
@@ -782,7 +843,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
             {isDragging && (
               <div className="absolute inset-0 bg-emerald-950/10 backdrop-blur-[2px] border-2 border-dashed border-emerald-700/60 rounded-xl z-20 flex flex-col items-center justify-center pointer-events-none animate-fade-in">
                 <div className="p-4 bg-card text-emerald-800 rounded-full border border-emerald-250 shadow-sm flex items-center justify-center">
-                  <UploadCloud className="h-8 w-8 animate-bounce" />
+                  <UploadCloudIcon className="h-8 w-8 animate-bounce" />
                 </div>
                 <span className="text-base font-semibold text-emerald-950 mt-3">
                   Drop images to upload

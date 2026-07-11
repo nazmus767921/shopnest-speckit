@@ -8,7 +8,8 @@ import { VariantRowEditor } from "./VariantRowEditor";
 import { VariantBulkToolbar } from "./VariantBulkToolbar";
 import { VariantFilterBar, type FilterCriteria } from "./VariantFilterBar";
 import type { AttributeInput, VariantUpdateInput } from "@/lib/validations/variants";
-import { Save, RefreshCw, Loader2, AlertCircle, CheckCircle2, Tags, Layers } from "lucide-react";
+import { SaveIcon, RefreshCwIcon, Loader2Icon, AlertCircleIcon, CheckCircle2Icon, TagsIcon, LayersIcon } from "@/lib/icons";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -291,20 +292,20 @@ export function VariantsSection({
       <Card className="text-foreground">
         <div className="flex items-center gap-3 px-4 sm:px-6 py-3 border-b border-border bg-muted/10">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/10">
-            <AlertCircle className="h-4 w-4 text-destructive" />
+            <AlertCircleIcon className="h-4 w-4 text-destructive" />
           </div>
           <h3 className="text-base font-semibold">Variants</h3>
         </div>
         <div className="flex items-center justify-center min-h-[160px]">
           <div className="text-center">
-            <AlertCircle className="mx-auto mb-3 h-8 w-8 text-destructive" />
+            <AlertCircleIcon className="mx-auto mb-3 h-8 w-8 text-destructive" />
             <p className="text-sm text-muted-foreground mb-3">Could not load variant data</p>
             <Button
               variant="outline"
               onClick={() => refetch()}
               className="inline-flex items-center gap-1.5"
             >
-              <RefreshCw className="h-3.5 w-3.5" />
+              <RefreshCwIcon className="h-3.5 w-3.5" />
               <span>Try Again</span>
             </Button>
           </div>
@@ -330,7 +331,7 @@ export function VariantsSection({
 
         <div className="flex items-center gap-3 mb-4">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/5">
-            <Tags className="h-4 w-4 text-primary" />
+            <TagsIcon className="h-4 w-4 text-primary" />
           </div>
           <div>
             <h2 className="text-base font-semibold">Product Attributes</h2>
@@ -358,9 +359,9 @@ export function VariantsSection({
             aria-live="polite"
           >
             {message.type === "success" ? (
-              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+              <CheckCircle2Icon className="h-3.5 w-3.5 shrink-0" />
             ) : (
-              <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+              <AlertCircleIcon className="h-3.5 w-3.5 shrink-0" />
             )}
             <span>{message.text}</span>
           </div>
@@ -376,12 +377,12 @@ export function VariantsSection({
           >
             {isSaving ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2Icon className="h-4 w-4 animate-spin" />
                 <span>Saving...</span>
               </>
             ) : (
               <>
-                <Save className="h-4 w-4" />
+                <SaveIcon className="h-4 w-4" />
                 <span>Save &amp; Generate</span>
               </>
             )}
@@ -395,14 +396,14 @@ export function VariantsSection({
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 px-(--card-spacing) py-3 border-b border-border bg-muted/10">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/5">
-                <Layers className="h-4 w-4 text-primary" />
+                <LayersIcon className="h-4 w-4 text-primary" />
               </div>
               <h3 className="text-base font-semibold">Variants</h3>
               <span
                 className="inline-flex items-center gap-1 rounded-md bg-primary/5 border border-primary/10 px-2 py-0.5 text-xs font-semibold"
                 aria-label={`${data.variants.length} variants total`}
               >
-                <Layers className="h-3 w-3 text-primary/60" />
+                <LayersIcon className="h-3 w-3 text-primary/60" />
                 {data.variants.length}
               </span>
             </div>
@@ -483,7 +484,7 @@ export function VariantsSection({
           >
             {paginatedVariants.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Layers className="h-8 w-8 text-muted-foreground/60 mb-2" />
+                <LayersIcon className="h-8 w-8 text-muted-foreground/60 mb-2" />
                 <p className="text-sm text-muted-foreground">No variants match the current filters.</p>
               </div>
             ) : (

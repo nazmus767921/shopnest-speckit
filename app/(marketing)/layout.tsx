@@ -1,7 +1,8 @@
 import * as React from "react"
 import Link from "next/link"
 import { Navbar } from "@/components/shared/Navbar"
-import { ArrowRight, Globe } from "lucide-react"
+import { ArrowRightIcon, GlobeIcon } from "@/lib/icons";
+
 
 export default function MarketingLayout({
   children,
@@ -44,7 +45,7 @@ export default function MarketingLayout({
                       className="bg-transparent text-body-md text-on-primary placeholder-shade-60 focus:outline-none w-full"
                     />
                     <button className="text-aloe-10 hover:text-on-primary transition-colors focus:outline-none cursor-pointer">
-                      <ArrowRight className="h-5 w-5" />
+                      <ArrowRightIcon className="h-5 w-5" />
                     </button>
                   </div>
                 </div>
@@ -110,7 +111,7 @@ export default function MarketingLayout({
                   </svg>
                 </a>
                 <a href="https://shopnest.com.bd" className="hover:text-on-primary transition-colors" aria-label="Website">
-                  <Globe className="h-5 w-5" />
+                  <GlobeIcon className="h-5 w-5" />
                 </a>
               </div>
             </div>

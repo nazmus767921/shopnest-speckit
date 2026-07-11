@@ -3,14 +3,12 @@
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth/auth"
 import { getMerchantByOwnerId } from "@/db/queries/merchants"
-import {
-  getCategories,
-  createCategory,
+import { getCachedCategories } from "@/lib/cache/categories"
+import { createCategory,
   updateCategory,
-  deleteCategory,
-} from "@/db/queries/categories"
+  deleteCategory } from "@/db/queries/categories"
 import { z } from "zod"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 
 const categorySchema = z.object({
   name: z.string().min(2, "Category name must be at least 2 characters."),
@@ -35,7 +33,7 @@ async function getAuthenticatedMerchant() {
 export async function getCategoriesAction() {
   try {
     const merchant = await getAuthenticatedMerchant()
-    const categoriesList = await getCategories(merchant.id)
+    const categoriesList = await getCachedCategories(merchant.id)
     return { success: true, categories: categoriesList, plan: merchant.plan }
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to fetch categories." }
@@ -53,6 +51,7 @@ export async function createCategoryAction(values: unknown) {
     const { name, slug } = result.data
     const created = await createCategory(merchant.id, { name, slug })
 
+    revalidateTag(`categories-${merchant.id}`, "max");
     revalidatePath("/dashboard/categories")
     revalidatePath("/dashboard/products")
     return { success: true, category: created }
@@ -72,6 +71,7 @@ export async function updateCategoryAction(categoryId: string, values: unknown) 
     const { name, slug } = result.data
     const updated = await updateCategory(merchant.id, categoryId, { name, slug })
 
+    revalidateTag(`categories-${merchant.id}`, "max");
     revalidatePath("/dashboard/categories")
     revalidatePath("/dashboard/products")
     return { success: true, category: updated }
@@ -85,6 +85,7 @@ export async function deleteCategoryAction(categoryId: string) {
     const merchant = await getAuthenticatedMerchant()
     await deleteCategory(merchant.id, categoryId)
 
+    revalidateTag(`categories-${merchant.id}`, "max");
     revalidatePath("/dashboard/categories")
     revalidatePath("/dashboard/products")
     return { success: true }

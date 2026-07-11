@@ -2,7 +2,8 @@
 
 import React from "react"
 import Link from "next/link"
-import { PackageOpen } from "lucide-react"
+import { PackageOpenIcon } from "@/lib/icons";
+
 import { Card } from "@/components/ui"
 import { ProductCard } from "@/components/storefront/ProductCard"
 import { ProductFilters } from "@/components/storefront/ProductFilters"
@@ -93,7 +94,7 @@ export function GeneralPLP({
             /* Empty State */
             <Card className="border border-[var(--color-hairline-light)] p-12 flex flex-col items-center justify-center text-center gap-6 min-h-64 bg-[var(--color-canvas-light)] w-full rounded-[var(--radius-md)]">
               <div className="w-16 h-16 rounded-[var(--radius-pill)] bg-[var(--color-surface-secondary)] flex items-center justify-center text-[var(--color-ink)] border border-[var(--color-hairline-light)]">
-                <PackageOpen className="h-8 w-8 stroke-[1.5]" />
+                <PackageOpenIcon className="h-8 w-8 stroke-[1.5]" />
               </div>
               <div className="flex flex-col gap-2 max-w-sm">
                 <h2 className="text-storefront-heading-md font-bold text-[var(--color-ink)]">

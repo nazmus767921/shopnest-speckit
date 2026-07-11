@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth/auth"
 import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { getMenus } from "@/db/queries/navigation"
 import { getPages } from "@/db/queries/pages"
-import { getCategories } from "@/db/queries/categories"
+import { getCachedCategories } from "@/lib/cache/categories"
 import { getProducts } from "@/db/queries/products"
 import { NavigationClient } from "./components/navigation-client"
 
@@ -35,7 +35,7 @@ async function NavigationPageContent() {
 
   const menus = await getMenus(merchant.id)
   const pages = await getPages(merchant.id)
-  const categories = await getCategories(merchant.id)
+  const categories = await getCachedCategories(merchant.id)
   const products = await getProducts(merchant.id)
 
   return (

@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useState, useId, useMemo } from "react";
-import { Search, X, Filter } from "lucide-react";
+import { SearchIcon, XIcon, FilterIcon } from "@/lib/icons";
+
 import {
   Select,
   SelectContent,
@@ -153,14 +154,14 @@ export function VariantFilterBar({
   return (
     <div className="flex flex-col gap-2 w-full">
       <div className="flex items-center gap-2 text-foreground w-full">
-        {/* SKU Search */}
+        {/* SKU SearchIcon */}
         <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/60" />
+          <SearchIcon className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/60" />
           <Input
             type="text"
             value={skuQuery}
             onChange={(e) => handleSkuChange(e.target.value)}
-            placeholder="Search SKU..."
+            placeholder="SearchIcon SKU..."
             disabled={disabled}
             className="pl-8 pr-8 h-9"
           />
@@ -171,12 +172,12 @@ export function VariantFilterBar({
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer border-none bg-transparent"
               aria-label="Clear SKU search"
             >
-              <X className="h-3.5 w-3.5" />
+              <XIcon className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
 
-        {/* Filter Sheet */}
+        {/* FilterIcon Sheet */}
         <Sheet>
           <SheetTrigger asChild>
             <Button
@@ -185,7 +186,7 @@ export function VariantFilterBar({
               disabled={disabled}
               className="gap-2 shrink-0 h-9"
             >
-              <Filter className="h-4 w-4" />
+              <FilterIcon className="h-4 w-4" />
               <span className="hidden sm:inline">Filters</span>
               {activeFiltersCount > 0 && (
                 <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
@@ -196,7 +197,7 @@ export function VariantFilterBar({
           </SheetTrigger>
           <SheetContent side="right" className="w-full sm:max-w-xs flex flex-col h-full p-0">
             <SheetHeader className="px-6 py-5 border-b border-border">
-              <SheetTitle>Filter Variants</SheetTitle>
+              <SheetTitle>FilterIcon Variants</SheetTitle>
               <SheetDescription>
                 Narrow down the variants list using the options below.
               </SheetDescription>
@@ -287,7 +288,7 @@ export function VariantFilterBar({
                   disabled={disabled}
                   className="w-full gap-2 h-9"
                 >
-                  <X className="h-4 w-4" />
+                  <XIcon className="h-4 w-4" />
                   Clear All Filters
                 </Button>
               </div>
@@ -296,7 +297,7 @@ export function VariantFilterBar({
         </Sheet>
       </div>
 
-      {/* Active Filter Tags */}
+      {/* Active FilterIcon Tags */}
       {hasActiveFilters && (
         <div className="flex flex-wrap items-center gap-1.5 text-xs text-foreground mt-0.5 animate-in fade-in-50 duration-200">
           {skuQuery && (
@@ -308,7 +309,7 @@ export function VariantFilterBar({
                 className="text-muted-foreground hover:text-foreground cursor-pointer border-none bg-transparent p-0 flex items-center"
                 aria-label="Remove SKU filter"
               >
-                <X className="h-3 w-3 ml-1" />
+                <XIcon className="h-3 w-3 ml-1" />
               </button>
             </span>
           )}
@@ -322,7 +323,7 @@ export function VariantFilterBar({
                 className="text-muted-foreground hover:text-foreground cursor-pointer border-none bg-transparent p-0 flex items-center"
                 aria-label="Remove stock filter"
               >
-                <X className="h-3 w-3 ml-1" />
+                <XIcon className="h-3 w-3 ml-1" />
               </button>
             </span>
           )}
@@ -336,7 +337,7 @@ export function VariantFilterBar({
                 className="text-muted-foreground hover:text-foreground cursor-pointer border-none bg-transparent p-0 flex items-center"
                 aria-label="Remove status filter"
               >
-                <X className="h-3 w-3 ml-1" />
+                <XIcon className="h-3 w-3 ml-1" />
               </button>
             </span>
           )}
@@ -355,7 +356,7 @@ export function VariantFilterBar({
                 className="text-muted-foreground hover:text-foreground cursor-pointer border-none bg-transparent p-0 flex items-center"
                 aria-label={`Remove ${name} filter`}
               >
-                <X className="h-3 w-3 ml-1" />
+                <XIcon className="h-3 w-3 ml-1" />
               </button>
             </span>
           ))}

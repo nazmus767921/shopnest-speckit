@@ -6,7 +6,8 @@ import { applyTemplateAction, updateThemeSettingsAction } from "@/app/actions/se
 import { saveStorefrontSectionsAction, seedDefaultSectionsAction } from "@/app/actions/storefront-sections"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { Save, ChevronDown, ChevronRight, LayoutTemplate, Palette, LayoutList, Plus } from "lucide-react"
+import { SaveIcon, ChevronDownIcon, ChevronRightIcon, LayoutTemplateIcon, PaletteIcon, LayoutListIcon, PlusIcon } from "@/lib/icons";
+
 import {
   Select,
   SelectContent,
@@ -20,9 +21,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { 
-  HeroEditor, 
-  AnnouncementBarEditor, 
+import {
+  HeroEditor,
+  AnnouncementBarEditor,
   CategoryShowcaseEditor,
   AboutEditor,
   ProductGridEditor,
@@ -75,20 +76,20 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
 
   const [baselineSections, setBaselineSections] = useState<any[]>(initialSections)
   const [sections, setSections] = useState<any[]>(getSectionsWithFooter(initialSections))
-  
+
   const defaultTheme = {
     colors: { primary: "#000000", secondary: "#4b5563", background: "#ffffff", text: "#000000" },
     layout: { borderRadius: "md" }
   }
   const [baselineTheme, setBaselineTheme] = useState<any>(initialThemeSettings || defaultTheme)
   const [themeSettings, setThemeSettings] = useState<any>(initialThemeSettings || defaultTheme)
-  
+
   const hasUnsavedSections = JSON.stringify(sections) !== JSON.stringify(baselineSections)
   const hasUnsavedTheme = JSON.stringify(themeSettings) !== JSON.stringify(baselineTheme)
-  
+
   const [isSaving, setIsSaving] = useState(false)
   const [isSavingTheme, setIsSavingTheme] = useState(false)
-  
+
   const [activeAccordion, setActiveAccordion] = useState<string>("sections") // "template", "theme", "sections"
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
 
@@ -197,20 +198,20 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
-    
+
     if (over && active.id !== over.id) {
       setSections((items) => {
         const oldIndex = items.findIndex((i) => (i.id || i.sectionKey) === active.id)
         const newIndex = items.findIndex((i) => (i.id || i.sectionKey) === over.id)
-        
+
         let newItems = arrayMove(items, oldIndex, newIndex)
-        
+
         const footerIndex = newItems.findIndex(i => i.sectionKey === "footer")
         if (footerIndex !== -1 && footerIndex !== newItems.length - 1) {
           const footerItem = newItems.splice(footerIndex, 1)[0]
           newItems.push(footerItem)
         }
-        
+
         return newItems
       })
     }
@@ -226,7 +227,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
       isVisible: true,
       isNew: true
     }
-    
+
     setSections(prev => {
       const footerIndex = prev.findIndex(s => s.sectionKey === "footer")
       if (footerIndex !== -1) {
@@ -236,7 +237,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
       }
       return [...prev, newSection]
     })
-    
+
     setExpandedSection(newSection.id || newSection.sectionKey)
   }
 
@@ -260,35 +261,35 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-20 items-start text-foreground">
-      
+
       {/* Left Pane: Controls */}
       <div className="lg:col-span-5 flex flex-col gap-6">
-        
+
         {/* Accordion 1: Active Theme */}
         <div className="border border-border rounded-xl bg-card">
-          <button 
+          <button
             className={`w-full flex items-center justify-between p-6 hover:bg-muted/50 transition-colors ${activeAccordion === 'template' ? 'border-b border-border rounded-t-xl' : 'rounded-xl'}`}
             onClick={() => setActiveAccordion(activeAccordion === 'template' ? '' : 'template')}
           >
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
-                <LayoutTemplate className="w-5 h-5" />
+                <LayoutTemplateIcon className="w-5 h-5" />
               </div>
               <div className="flex flex-col items-start">
                 <h2 className="text-base font-bold">Active Theme</h2>
                 <p className="text-sm text-muted-foreground">Select your storefront layout</p>
               </div>
             </div>
-            {activeAccordion === 'template' ? <ChevronDown className="w-5 h-5 text-muted-foreground" /> : <ChevronRight className="w-5 h-5 text-muted-foreground" />}
+            {activeAccordion === 'template' ? <ChevronDownIcon className="w-5 h-5 text-muted-foreground" /> : <ChevronRightIcon className="w-5 h-5 text-muted-foreground" />}
           </button>
-          
+
           {activeAccordion === 'template' && (
             <div className="p-6 bg-muted/30 rounded-b-xl">
-              <TemplatePicker 
-                templates={templates} 
-                loading={false} 
-                selectedTemplate={selectedTemplate} 
-                onSelect={handleApplyTemplate} 
+              <TemplatePicker
+                templates={templates}
+                loading={false}
+                selectedTemplate={selectedTemplate}
+                onSelect={handleApplyTemplate}
               />
             </div>
           )}
@@ -297,12 +298,12 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
         {/* Accordion 2: Global Theme Settings */}
         <div className="border border-border rounded-xl bg-card">
           <div className={`w-full flex items-center justify-between p-6 transition-colors ${activeAccordion === 'theme' ? 'border-b border-border bg-muted/50 rounded-t-xl' : 'hover:bg-muted/50 rounded-xl'}`}>
-            <button 
+            <button
               className="flex items-center gap-4 flex-1 text-left"
               onClick={() => setActiveAccordion(activeAccordion === 'theme' ? '' : 'theme')}
             >
               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground relative">
-                <Palette className="w-5 h-5" />
+                <PaletteIcon className="w-5 h-5" />
                 {hasUnsavedTheme && <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-background"></span>}
               </div>
               <div className="flex flex-col items-start">
@@ -315,8 +316,8 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
             </button>
             <div className="flex items-center gap-4">
               {activeAccordion === 'theme' && (
-                <Button 
-                  onClick={handleSaveThemeSettings} 
+                <Button
+                  onClick={handleSaveThemeSettings}
                   disabled={isSavingTheme || !hasUnsavedTheme}
                   className={`rounded-md ${hasUnsavedTheme ? 'bg-amber-500 hover:bg-amber-600 text-white dark:text-black border-transparent' : ''}`}
                 >
@@ -324,11 +325,11 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                 </Button>
               )}
               <button onClick={() => setActiveAccordion(activeAccordion === 'theme' ? '' : 'theme')}>
-                {activeAccordion === 'theme' ? <ChevronDown className="w-5 h-5 text-muted-foreground" /> : <ChevronRight className="w-5 h-5 text-muted-foreground" />}
+                {activeAccordion === 'theme' ? <ChevronDownIcon className="w-5 h-5 text-muted-foreground" /> : <ChevronRightIcon className="w-5 h-5 text-muted-foreground" />}
               </button>
             </div>
           </div>
-          
+
           {activeAccordion === 'theme' && (
             <div className="p-6 bg-muted/30 flex flex-col gap-8 rounded-b-xl">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -340,7 +341,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                       <div key={colorKey} className="flex items-center justify-between">
                         <label className="text-sm font-medium text-muted-foreground capitalize">{colorKey} Color</label>
                         <div className="flex items-center gap-2 bg-background border border-border p-1 rounded-full pl-2">
-                          <input 
+                          <input
                             type="text"
                             value={themeSettings.colors?.[colorKey] || "#000000"}
                             onChange={(e) => setThemeSettings({
@@ -350,9 +351,9 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                             className="w-16 bg-transparent border-none p-0 text-xs uppercase font-medium focus:ring-0 text-foreground"
                           />
                           <div className="relative w-6 h-6 rounded-full overflow-hidden border border-border">
-                            <input 
-                              type="color" 
-                              value={themeSettings.colors?.[colorKey] || "#000000"} 
+                            <input
+                              type="color"
+                              value={themeSettings.colors?.[colorKey] || "#000000"}
                               onChange={(e) => setThemeSettings({
                                 ...themeSettings,
                                 colors: { ...themeSettings.colors, [colorKey]: e.target.value }
@@ -399,12 +400,12 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
         {/* Accordion 3: Homepage Sections Editor */}
         <div className="border border-border rounded-xl bg-card">
           <div className={`w-full flex items-center justify-between p-6 transition-colors ${activeAccordion === 'sections' ? 'border-b border-border bg-muted/50 rounded-t-xl' : 'hover:bg-muted/50 rounded-xl'}`}>
-            <button 
+            <button
               className="flex items-center gap-4 flex-1 text-left"
               onClick={() => setActiveAccordion(activeAccordion === 'sections' ? '' : 'sections')}
             >
               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground relative">
-                <LayoutList className="w-5 h-5" />
+                <LayoutListIcon className="w-5 h-5" />
                 {hasUnsavedSections && <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-background"></span>}
               </div>
               <div className="flex flex-col items-start">
@@ -417,8 +418,8 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
             </button>
             <div className="flex items-center gap-4">
               {activeAccordion === 'sections' && (
-                <Button 
-                  onClick={handleSaveSections} 
+                <Button
+                  onClick={handleSaveSections}
                   disabled={isSaving || !hasUnsavedSections}
                   className={`rounded-md ${hasUnsavedSections ? 'bg-amber-500 hover:bg-amber-600 text-white dark:text-black border-transparent' : ''}`}
                 >
@@ -426,22 +427,24 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                 </Button>
               )}
               <button onClick={() => setActiveAccordion(activeAccordion === 'sections' ? '' : 'sections')}>
-                {activeAccordion === 'sections' ? <ChevronDown className="w-5 h-5 text-muted-foreground" /> : <ChevronRight className="w-5 h-5 text-muted-foreground" />}
+                {activeAccordion === 'sections' ? <ChevronDownIcon className="w-5 h-5 text-muted-foreground" /> : <ChevronRightIcon className="w-5 h-5 text-muted-foreground" />}
               </button>
             </div>
           </div>
-          
+
           {activeAccordion === 'sections' && (
             <div className="p-6 bg-muted/30 flex flex-col gap-6 rounded-b-xl">
-              
+
               <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground max-w-[200px]">
+                <p className="text-sm text-muted-foreground max-w-50">
                   Drag to reorder sections.
                 </p>
                 <div className="w-48">
                   <DropdownMenu>
-                    <DropdownMenuTrigger render={<Button variant="outline" className="w-full justify-start gap-2" />}>
-                      <Plus className="h-4 w-4" /> Add Section
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start gap-2">
+                        <PlusIcon className="h-4 w-4" /> Add Section
+                      </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-48">
                       {AVAILABLE_SECTIONS.filter(s => !sections.some(sec => sec.sectionKey === s.key)).map(s => (
@@ -460,21 +463,21 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
               </div>
 
               <div className="flex flex-col gap-3">
-                <DndContext 
+                <DndContext
                   sensors={sensors}
                   collisionDetection={closestCenter}
                   onDragEnd={handleDragEnd}
                 >
-                  <SortableContext 
+                  <SortableContext
                     items={sections.map(s => s.id || s.sectionKey)}
                     strategy={verticalListSortingStrategy}
                   >
                     {sections.map((section, index) => {
                       const id = section.id || section.sectionKey
                       const isExpanded = expandedSection === id
-                      
+
                       return (
-                        <DraggableSectionItem 
+                        <DraggableSectionItem
                           key={id}
                           id={id}
                           section={section}
@@ -495,14 +498,14 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
             </div>
           )}
         </div>
-        
+
       </div>
 
       {/* Right Pane: Live Preview Canvas */}
       <div className="lg:col-span-7">
-        <LivePreviewCanvas 
-          sections={sections} 
-          themeSettings={themeSettings} 
+        <LivePreviewCanvas
+          sections={sections}
+          themeSettings={themeSettings}
         />
       </div>
 

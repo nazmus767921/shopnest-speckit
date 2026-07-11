@@ -3,10 +3,10 @@ import { headers } from "next/headers"
 import type { Metadata } from "next"
 import "@/templates/general/styles.css"
 import "@/templates/fashion/styles.css"
-import { getMerchantById } from "@/db/queries/merchants"
+import { getCachedMerchantById } from "@/lib/cache/merchants"
 import { getCachedMenuBySlug } from "@/db/queries/navigation"
 import { getTemplate } from "@/templates/registry"
-import { getStorefrontSections } from "@/db/queries/storefront-sections"
+import { getCachedStorefrontSections } from "@/lib/cache/storefront"
 import { defaultStorefrontSections } from "@/lib/storefront-sections/defaults"
 import { Archivo_Black } from "next/font/google"
 import { Suspense } from "react"
@@ -51,7 +51,7 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
   const merchantId = headersList.get("x-merchant-id") || ""
   
   // Fetch full merchant record from DB
-  const merchant = merchantId ? await getMerchantById(merchantId) : null
+  const merchant = merchantId ? await getCachedMerchantById(merchantId) : null
   const template = headersList.get("x-merchant-template") || merchant?.template || "general"
   const templateModule = getTemplate(template)
 
@@ -63,7 +63,7 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
     themeSettings: merchant?.themeSettings || null,
   }
 
-  let sections = merchantId ? await getStorefrontSections(merchantId) : []
+  let sections = merchantId ? await getCachedStorefrontSections(merchantId) : []
   if (!sections || sections.length === 0) {
     sections = defaultStorefrontSections as any
   }

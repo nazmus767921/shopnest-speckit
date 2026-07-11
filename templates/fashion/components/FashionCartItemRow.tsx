@@ -1,7 +1,8 @@
 "use client"
 
 import React from "react"
-import { Trash2, ImageIcon, Minus, Plus } from "lucide-react"
+import { Trash2Icon, ImageIcon, MinusIcon, PlusIcon } from "@/lib/icons";
+
 import { type CartItem } from "@/lib/cart/cart-store"
 import { formatTaka } from "@/lib/utils"
 
@@ -88,7 +89,7 @@ export function FashionCartItemRow({ item, onUpdateQuantity, onRemove }: Props) 
             className="w-7 h-7 rounded-[var(--radius)] border border-shade-30 hover:border-ink flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none bg-canvas-light text-shade-50 hover:text-ink"
             aria-label="Decrease quantity"
           >
-            <Minus className="h-3 w-3 stroke-[1.5]" />
+            <MinusIcon className="h-3 w-3 stroke-[1.5]" />
           </button>
           <span className="w-8 text-center text-xs font-sans font-medium text-ink">
             {item.quantity}
@@ -100,7 +101,7 @@ export function FashionCartItemRow({ item, onUpdateQuantity, onRemove }: Props) 
             className="w-7 h-7 rounded-[var(--radius)] border border-shade-30 hover:border-ink flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none bg-canvas-light text-shade-50 hover:text-ink"
             aria-label="Increase quantity"
           >
-            <Plus className="h-3 w-3 stroke-[1.5]" />
+            <PlusIcon className="h-3 w-3 stroke-[1.5]" />
           </button>
         </div>
       </div>
@@ -114,7 +115,7 @@ export function FashionCartItemRow({ item, onUpdateQuantity, onRemove }: Props) 
           className="p-1.5 text-shade-40 hover:text-ink transition-colors rounded-[var(--radius)] hover:bg-canvas-cream cursor-pointer border-none bg-transparent"
           aria-label={`Remove ${item.name} from cart`}
         >
-          <Trash2 className="h-4 w-4 stroke-[1.5]" />
+          <Trash2Icon className="h-4 w-4 stroke-[1.5]" />
         </button>
 
         <p className="text-xs md:text-sm font-sans font-semibold text-[var(--color-ink)]">

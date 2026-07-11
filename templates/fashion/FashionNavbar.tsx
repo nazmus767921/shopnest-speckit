@@ -3,7 +3,8 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, ChevronDown } from "lucide-react"
+import { MenuIcon, XIcon, ChevronDownIcon } from "@/lib/icons";
+
 import { CartIconButton } from "@/components/storefront/shared/CartIconButton"
 import { type NavbarProps } from "../types"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
@@ -67,7 +68,7 @@ export function FashionNavbar({ store, subdomain, menu }: NavbarProps) {
                     <div key={item.id} className="relative group py-2">
                       <button className="text-sm font-sans tracking-[0.2em] uppercase text-zinc-500 hover:text-ink font-light flex items-center gap-1 cursor-pointer bg-transparent border-none">
                         {item.label}
-                        <ChevronDown className="h-3 w-3 stroke-[1.5]" />
+                        <ChevronDownIcon className="h-3 w-3 stroke-[1.5]" />
                       </button>
                       <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-white border border-zinc-100 rounded-xl p-2 hidden group-hover:block hover:block transition-all shadow-lg z-50">
                         {children.map((child: any) => {
@@ -129,7 +130,7 @@ export function FashionNavbar({ store, subdomain, menu }: NavbarProps) {
                 <div className="relative group py-2">
                   <button className="text-sm font-sans tracking-[0.2em] uppercase text-zinc-500 hover:text-ink font-light flex items-center gap-1 cursor-pointer bg-transparent border-none">
                     More
-                    <ChevronDown className="h-3 w-3 stroke-[1.5]" />
+                    <ChevronDownIcon className="h-3 w-3 stroke-[1.5]" />
                   </button>
                   <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-zinc-100 rounded-xl p-2 hidden group-hover:block hover:block transition-all shadow-lg z-50">
                     {overflowItems.map((item: any) => {
@@ -175,7 +176,7 @@ export function FashionNavbar({ store, subdomain, menu }: NavbarProps) {
           )}
         </nav>
 
-        {/* Right: Cart, Menu */}
+        {/* Right: Cart, MenuIcon */}
         <div className="flex items-center gap-6">
           <CartIconButton merchantId={store.id} subdomain={subdomain} />
           
@@ -184,7 +185,7 @@ export function FashionNavbar({ store, subdomain, menu }: NavbarProps) {
             className="p-2 -mr-2 rounded-full text-zinc-500 hover:text-ink hover:bg-zinc-50 transition-all cursor-pointer border-none bg-transparent md:hidden"
             aria-label="Toggle Menu"
           >
-            {isOpen ? <X className="h-6 w-6 stroke-[1.5]" /> : <Menu className="h-6 w-6 stroke-[1.5]" />}
+            {isOpen ? <XIcon className="h-6 w-6 stroke-[1.5]" /> : <MenuIcon className="h-6 w-6 stroke-[1.5]" />}
           </button>
         </div>
 
@@ -271,7 +272,7 @@ function MobileMenuItem({ item, childrenItems, resolveHref, setIsOpen }: any) {
         className="w-full flex items-center justify-center gap-1 text-xs font-sans tracking-[0.2em] uppercase text-zinc-500 hover:text-primary font-light py-2 cursor-pointer bg-transparent border-none"
       >
         <span className="truncate max-w-[200px]">{item.label}</span>
-        <ChevronDown className={`h-3 w-3 stroke-[1.5] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+        <ChevronDownIcon className={`h-3 w-3 stroke-[1.5] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
       </button>
       
       {isOpen && (

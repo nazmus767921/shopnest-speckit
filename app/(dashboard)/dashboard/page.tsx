@@ -4,14 +4,8 @@ import { auth } from "@/lib/auth/auth"
 import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
-import {
-  Store,
-  ShoppingBag,
-  Plus,
-  Globe,
-  Tag,
-  ExternalLink,
-} from "lucide-react"
+import { StoreIcon, ShoppingBagIcon, PlusIcon, GlobeIcon, TagIcon, ExternalLinkIcon } from "@/lib/icons";
+
 import Link from "next/link"
 import { db } from "@/db"
 import { orders, products, paymentConfirmations, shippingZones } from "@/db/schema"
@@ -148,7 +142,7 @@ async function DashboardPageContent() {
             "inline-flex w-full md:w-fit items-center justify-center rounded-md font-semibold py-2.5 px-6 text-sm gap-2"
           )}
         >
-          <Plus className="h-4 w-4 stroke-[3]" />
+          <PlusIcon className="h-4 w-4 stroke-[3]" />
           Add Product
         </Link>
       </div>
@@ -165,7 +159,7 @@ async function DashboardPageContent() {
               </span>
             </div>
             <div className="p-2.5 bg-muted text-muted-foreground rounded-lg border border-border">
-              <ShoppingBag className="h-4 w-4" />
+              <ShoppingBagIcon className="h-4 w-4" />
             </div>
           </div>
           <span className="text-xs text-muted-foreground font-light mt-4">
@@ -190,7 +184,7 @@ async function DashboardPageContent() {
               </div>
             </div>
             <div className="p-2.5 bg-muted text-muted-foreground rounded-lg border border-border">
-              <Store className="h-4 w-4" />
+              <StoreIcon className="h-4 w-4" />
             </div>
           </div>
           <div className="flex flex-col gap-2 mt-4">
@@ -222,7 +216,7 @@ async function DashboardPageContent() {
               <span className="text-2xl font-bold text-foreground leading-tight">{activeOrdersCount}</span>
             </div>
             <div className="p-2.5 bg-muted text-muted-foreground rounded-lg border border-border">
-              <Tag className="h-4 w-4" />
+              <TagIcon className="h-4 w-4" />
             </div>
           </div>
           <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
@@ -256,7 +250,7 @@ async function DashboardPageContent() {
           <Card className="border border-border bg-card p-6 flex flex-col gap-5 justify-between rounded-xl min-h-[280px]">
             <div className="flex flex-col gap-4">
               <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center border border-border">
-                <Globe className="h-6 w-6 text-muted-foreground" />
+                <GlobeIcon className="h-6 w-6 text-muted-foreground" />
               </div>
 
               <div className="flex flex-col gap-1">
@@ -270,7 +264,7 @@ async function DashboardPageContent() {
                       className="text-lg font-semibold text-primary hover:underline break-all inline-flex items-center gap-1.5 group select-all"
                     >
                       {merchant.subdomain}.shopnest.com.bd
-                      <ExternalLink className="h-4 w-4 stroke-[2.5] opacity-60 group-hover:opacity-100 transition-opacity shrink-0" />
+                      <ExternalLinkIcon className="h-4 w-4 stroke-[2.5] opacity-60 group-hover:opacity-100 transition-opacity shrink-0" />
                     </a>
                     <span className="text-sm text-muted-foreground font-light leading-relaxed">
                       Copy this URL to share in your Facebook Page about section, Instagram bio, posts, and DMs.

@@ -4,21 +4,13 @@ import React, { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { type ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table"
-import { Plus, Tag, Pencil, Trash2, Percent, DollarSign, Loader2 } from "lucide-react"
+import { PlusIcon, TagIcon, PencilIcon, Trash2Icon, PercentIcon, DollarSignIcon, Loader2Icon } from "@/lib/icons";
+
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { DiscountCodeModal } from "./DiscountCodeModal"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import {
   getDiscountCodesAction,
   deleteDiscountCodeAction,
@@ -129,9 +121,9 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
           return (
             <div className="flex items-center gap-1.5">
               {code.discountType === "percent" ? (
-                <Percent className="h-3.5 w-3.5 text-muted-foreground" />
+                <PercentIcon className="h-3.5 w-3.5 text-muted-foreground" />
               ) : (
-                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
+                <DollarSignIcon className="h-3.5 w-3.5 text-muted-foreground" />
               )}
               <span className="text-sm font-semibold text-foreground">
                 {code.discountType === "percent"
@@ -192,7 +184,7 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
                 className="p-1.5 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
                 title="Edit"
               >
-                <Pencil className="h-4 w-4" />
+                <PencilIcon className="h-4 w-4" />
               </button>
               <button
                 onClick={() => handleDelete(code.id, code.code)}
@@ -200,7 +192,7 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
                 className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-md transition-colors text-muted-foreground hover:text-red-650 cursor-pointer"
                 title="Delete"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2Icon className="h-4 w-4" />
               </button>
             </div>
           )
@@ -222,7 +214,7 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
           onClick={handleOpenCreate}
           className="flex items-center gap-2"
         >
-          <Plus className="h-4 w-4" />
+          <PlusIcon className="h-4 w-4" />
           Create Code
         </Button>
       </div>
@@ -233,7 +225,7 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
           className="flex flex-col items-center justify-center text-center p-12 border border-border bg-card rounded-xl"
         >
           <div className="p-3 bg-muted rounded-full mb-4">
-            <Tag className="h-8 w-8 text-foreground stroke-1.5" />
+            <TagIcon className="h-8 w-8 text-foreground stroke-1.5" />
           </div>
           <h3 className="text-lg font-semibold text-foreground">
             No discount codes yet
@@ -265,33 +257,17 @@ export function DiscountsClient({ initialCodes, merchantId }: DiscountsClientPro
         />
       )}
 
-      {/* Delete Confirmation Alert Dialog */}
-      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && !deleteMutation.isPending && setDeleteTarget(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Discount Code &ldquo;{deleteTarget?.codeStr}&rdquo;?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. Customers will no longer be able to apply this discount code during checkout.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteMutation.isPending} onClick={() => setDeleteTarget(null)}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              disabled={deleteMutation.isPending}
-              onClick={(e) => {
-                e.preventDefault()
-                handleDeleteConfirm()
-              }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {deleteMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}
-              Delete Code
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        onClose={() => !deleteMutation.isPending && setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+        title={`Delete Discount Code "${deleteTarget?.codeStr}"?`}
+        description="This action cannot be undone. Customers will no longer be able to apply this discount code during checkout."
+        confirmText="Delete Code"
+        variant="danger"
+        isPending={deleteMutation.isPending}
+      />
     </div>
   )
 }

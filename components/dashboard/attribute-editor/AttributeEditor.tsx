@@ -2,7 +2,8 @@
 
 import { useCallback, useMemo, useId, useState, useRef, useEffect } from "react";
 import type { AttributeInput } from "@/lib/validations/variants";
-import { Plus, X, Trash2, Palette, List, Circle, GripVertical } from "lucide-react";
+import { PlusIcon, XIcon, Trash2Icon, PaletteIcon, ListIcon, CircleIcon, GripVerticalIcon } from "@/lib/icons";
+
 import { DeleteAttributeDialog } from "@/components/dashboard/product-variant-editor/DeleteAttributeDialog";
 import { RemoveOptionDialog } from "@/components/dashboard/attribute-editor/RemoveOptionDialog";
 import { Button } from "@/components/ui/button";
@@ -23,9 +24,9 @@ const MAX_ATTRIBUTES = 3;
 const MAX_OPTIONS = 10;
 
 const DISPLAY_TYPES = [
-  { value: "dropdown" as const, label: "Dropdown", icon: List },
-  { value: "swatch" as const, label: "Color Swatch", icon: Palette },
-  { value: "radio" as const, label: "Radio Buttons", icon: Circle },
+  { value: "dropdown" as const, label: "Dropdown", icon: ListIcon },
+  { value: "swatch" as const, label: "Color Swatch", icon: PaletteIcon },
+  { value: "radio" as const, label: "Radio Buttons", icon: CircleIcon },
 ] as const;
 
 const PREMIUM_COLORS = [
@@ -98,40 +99,40 @@ function extractColorsFromImage(url: string): Promise<string[]> {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         if (!ctx) return resolve([]);
-        
+
         canvas.width = 50;
         canvas.height = 50;
         ctx.drawImage(img, 0, 0, 50, 50);
-        
+
         const imageData = ctx.getImageData(0, 0, 50, 50).data;
         const colorCounts: Record<string, number> = {};
-        
+
         for (let i = 0; i < imageData.length; i += 16) {
           const r = imageData[i];
           const g = imageData[i + 1];
           const b = imageData[i + 2];
           const a = imageData[i + 3];
-          
+
           if (a < 128) continue;
-          
+
           const factor = 24;
           const rRound = Math.round(r / factor) * factor;
           const gRound = Math.round(g / factor) * factor;
           const bRound = Math.round(b / factor) * factor;
-          
+
           const hex = `#${((1 << 24) + (rRound << 16) + (gRound << 8) + bRound).toString(16).slice(1)}`;
-          
+
           const brightness = (r + g + b) / 3;
           if (brightness > 242) continue; // skip pure white/gray backgrounds
-          
+
           colorCounts[hex] = (colorCounts[hex] || 0) + 1;
         }
-        
+
         const sortedColors = Object.entries(colorCounts)
           .sort((a, b) => b[1] - a[1])
           .slice(0, 4)
           .map(([hex]) => hex);
-          
+
         resolve(sortedColors);
       } catch {
         resolve([]);
@@ -229,7 +230,7 @@ function TagInput({
 
       // Smart semantic color matching or default color from index
       const matched = matchSemanticColor(trimmed);
-      const defaultColor = displayType === "swatch" 
+      const defaultColor = displayType === "swatch"
         ? (matched || PREMIUM_COLORS[options.length % PREMIUM_COLORS.length].hex)
         : undefined;
 
@@ -279,7 +280,7 @@ function TagInput({
       {options.map((opt, i) => {
         const hasCustomColor = displayType === "swatch";
         const dotColor = opt.swatchColor || PREMIUM_COLORS[i % PREMIUM_COLORS.length].hex;
-        
+
         return (
           <div
             key={i}
@@ -312,7 +313,7 @@ function TagInput({
                 className="ml-0.5 rounded p-0.5 text-muted-foreground opacity-60 hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all border-none bg-transparent cursor-pointer"
                 aria-label={`Remove ${opt.label}`}
               >
-                <X className="h-3 w-3" />
+                <XIcon className="h-3 w-3" />
               </button>
             )}
 
@@ -523,15 +524,17 @@ function AttributeRow({
 
       {/* Delete Attribute Button */}
       <div className="order-first sm:order-last self-end sm:self-center">
-        <button
+        <Button
           type="button"
           onClick={() => onDelete(attrIndex)}
           disabled={disabled}
-          className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors border-none bg-transparent cursor-pointer shrink-0"
-          title="Delete Attribute"
+          variant={'destructive'}
+          size={'icon-sm'}
+          className="shrink-0 border-none bg-transparent! hover:bg-destructive/20!"
+          title="Remove Attribute"
         >
-          <Trash2 className="h-4 w-4" />
-        </button>
+          <Trash2Icon className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
@@ -562,7 +565,7 @@ export function AttributeEditor({
   useEffect(() => {
     async function getColors() {
       if (productImages.length === 0) return;
-      
+
       // Use cover image (first image)
       const coverImage = productImages[0];
       if (!coverImage) return;
@@ -673,10 +676,10 @@ export function AttributeEditor({
 
   const removeOptionVariantCount = pendingRemoveOption
     ? estimateOptionVariantCount(
-        attributes,
-        pendingRemoveOption.attrIndex,
-        pendingRemoveOption.optIndex,
-      )
+      attributes,
+      pendingRemoveOption.attrIndex,
+      pendingRemoveOption.optIndex,
+    )
     : 0;
 
   return (
@@ -685,7 +688,7 @@ export function AttributeEditor({
       {attributes.length === 0 ? (
         <div className="rounded-xl border-2 border-dashed border-border bg-muted/20 p-8 text-center">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-            <Plus className="h-5 w-5 text-muted-foreground" />
+            <PlusIcon className="h-5 w-5 text-muted-foreground" />
           </div>
           <h4 className="text-base font-semibold text-foreground mb-1">No attributes yet</h4>
           <p className="text-xs text-muted-foreground mb-4 max-w-xs mx-auto">
@@ -697,7 +700,7 @@ export function AttributeEditor({
             disabled={!canAddAttribute}
             className="flex items-center gap-2"
           >
-            <Plus className="h-4 w-4" />
+            <PlusIcon className="h-4 w-4" />
             <span>Add Attribute</span>
           </Button>
         </div>
@@ -747,9 +750,9 @@ export function AttributeEditor({
               type="button"
               variant="outline"
               onClick={addAttribute}
-              className="w-full justify-center border-dashed flex items-center gap-1.5 rounded-full"
+              className="w-full justify-center border-dashed flex items-center gap-1.5 rounded-sm"
             >
-              <Plus className="h-3.5 w-3.5" />
+              <PlusIcon className="h-3.5 w-3.5" />
               <span>Add {attributes.length >= MAX_ATTRIBUTES ? "" : "Another Attribute"}</span>
               <span className="text-xs text-muted-foreground ml-1">
                 ({MAX_ATTRIBUTES - attributes.length} left)

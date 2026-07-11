@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useRef } from "react"
 import { authClient } from "@/lib/auth/auth-client"
 import { Button, Input, FormLabel } from "@/components/ui"
-import { ShieldCheck, Loader2 } from "lucide-react"
+import { ShieldCheckIcon, Loader2Icon } from "@/lib/icons";
+
 
 interface Props {
   phone: string
@@ -161,7 +162,7 @@ export function CheckoutIdentitySection({ phone, merchantId, onVerified }: Props
   if (sessionLoading) {
     return (
       <div className="flex items-center gap-2 text-caption text-shade-50">
-        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+        <Loader2Icon className="h-4 w-4 animate-spin text-primary" />
         <span>Checking verification state...</span>
       </div>
     )
@@ -176,7 +177,7 @@ export function CheckoutIdentitySection({ phone, merchantId, onVerified }: Props
 
     return (
       <div className="flex items-center gap-3 p-4 bg-aloe-10/20 border border-aloe-10/40 rounded-[var(--radius)] text-ink">
-        <ShieldCheck className="h-5 w-5 text-emerald-700 shrink-0" />
+        <ShieldCheckIcon className="h-5 w-5 text-emerald-700 shrink-0" />
         <div className="text-caption">
           <p className="font-semibold text-ink">Identity Verified</p>
           <p className="text-shade-60 text-xs">
@@ -226,7 +227,7 @@ export function CheckoutIdentitySection({ phone, merchantId, onVerified }: Props
           >
             {loading ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                <Loader2Icon className="h-4 w-4 animate-spin mr-1.5" />
                 Sending...
               </>
             ) : (
@@ -276,7 +277,7 @@ export function CheckoutIdentitySection({ phone, merchantId, onVerified }: Props
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                  <Loader2Icon className="h-4 w-4 animate-spin mr-1.5" />
                   Verifying...
                 </>
               ) : (

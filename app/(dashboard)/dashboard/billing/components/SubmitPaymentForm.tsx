@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useState } from "react"
-import { Lock, TriangleAlert, Check, Copy, ArrowRight, ArrowLeft, QrCode, Wallet } from "lucide-react"
+import { LockIcon, TriangleAlertIcon, CheckIcon, CopyIcon, ArrowRightIcon, ArrowLeftIcon, QrCodeIcon, WalletIcon } from "@/lib/icons";
+
 import { useForm } from "@tanstack/react-form"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -142,7 +143,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
       <div className="flex items-center justify-between border-b border-border pb-4">
         <div className="flex items-center gap-1.5">
           <div className="p-1.5 bg-muted rounded-lg text-foreground">
-            <Wallet className="h-4.5 w-4.5" />
+            <WalletIcon className="h-4.5 w-4.5" />
           </div>
           <div>
             <h3 className="text-base font-bold text-foreground">Renewal &amp; Upgrade Portal</h3>
@@ -163,7 +164,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
                     : "bg-muted/30 text-muted-foreground border-border"
               )}
             >
-              {step > s ? <Check className="w-3.5 h-3.5" /> : s}
+              {step > s ? <CheckIcon className="w-3.5 h-3.5" /> : s}
             </div>
           ))}
         </div>
@@ -171,13 +172,13 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
 
       {error && (
         <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 p-3.5 rounded-xl flex items-start gap-2">
-          <TriangleAlert className="w-4 h-4 shrink-0 mt-0.5" />
+          <TriangleAlertIcon className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
       {success && (
         <div className="text-sm text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 p-3.5 rounded-xl flex items-start gap-2">
-          <Check className="w-4 h-4 shrink-0 mt-0.5" />
+          <CheckIcon className="w-4 h-4 shrink-0 mt-0.5" />
           <span>Payment submitted successfully. Awaiting admin verification.</span>
         </div>
       )}
@@ -199,7 +200,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
             return (
               <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 p-3.5 rounded-xl flex flex-col gap-1">
                 <span className="font-semibold flex items-center gap-1.5">
-                  <TriangleAlert className="w-4 h-4" /> Cannot Downgrade Plan
+                  <TriangleAlertIcon className="w-4 h-4" /> Cannot Downgrade Plan
                 </span>
                 {exceedsProductLimit && (
                   <span>
@@ -268,7 +269,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
                                 {p.name}
                                 {planLocked && (
                                   <span className="text-destructive text-xs flex items-center gap-1 font-bold">
-                                    <Lock className="w-2.5 h-2.5" /> Locked
+                                    <LockIcon className="w-2.5 h-2.5" /> Locked
                                   </span>
                                 )}
                               </span>
@@ -297,7 +298,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
                           {planLocked && (
                             <div className="text-xs text-destructive bg-destructive/5 border border-destructive/20 p-2.5 rounded-lg flex flex-col gap-1 mt-2">
                               <span className="font-semibold flex items-center gap-1">
-                                <TriangleAlert className="w-3 h-3" /> Downgrade Blocked:
+                                <TriangleAlertIcon className="w-3 h-3" /> Downgrade Blocked:
                               </span>
                               <ul className="list-disc pl-4 space-y-0.5 font-medium">
                                 {exceedsProductLimit && (
@@ -328,7 +329,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
                     className="w-full mt-2"
                   >
                     <span>Continue to Payment Method</span>
-                    <ArrowRight className="w-4 h-4 ml-1.5" />
+                    <ArrowRightIcon className="w-4 h-4 ml-1.5" />
                   </Button>
                 </Field>
               )
@@ -339,7 +340,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
         {/* STEP 2: CHOOSE PAYMENT CHANNEL & DETAILS */}
         {step === 2 && (
           <div className="flex flex-col gap-5 animate-fade-in">
-            <FieldLabel>Step 2: Send Money to Wallet</FieldLabel>
+            <FieldLabel>Step 2: Send Money to WalletIcon</FieldLabel>
 
             <form.Field name="paymentMethod">
               {(field) => (
@@ -392,7 +393,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
                           <span className="font-bold text-foreground">{amount}</span>
                         </div>
                         <div className="flex justify-between items-center text-sm">
-                          <span className="text-muted-foreground">Wallet Number:</span>
+                          <span className="text-muted-foreground">WalletIcon Number:</span>
                           <div className="flex items-center gap-1.5">
                             <span className="font-mono font-bold text-foreground bg-card border border-border px-2 py-0.5 rounded text-xs">
                               {number}
@@ -404,9 +405,9 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
                               title="Copy Wallet Number"
                             >
                               {copied ? (
-                                <Check className="w-3.5 h-3.5 text-emerald-650 font-bold" />
+                                <CheckIcon className="w-3.5 h-3.5 text-emerald-650 font-bold" />
                               ) : (
-                                <Copy className="w-3.5 h-3.5" />
+                                <CopyIcon className="w-3.5 h-3.5" />
                               )}
                             </button>
                           </div>
@@ -415,7 +416,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
                     </div>
 
                     <div className="text-xs text-muted-foreground bg-muted p-3 rounded-lg leading-normal flex items-start gap-1.5">
-                      <QrCode className="w-4 h-4 shrink-0 text-muted-foreground mt-0.5" />
+                      <QrCodeIcon className="w-4 h-4 shrink-0 text-muted-foreground mt-0.5" />
                       <span>
                         Use your {paymentMethod === "bkash" ? "bKash" : "Nagad"} App to scan the QR code or send personal Send Money of <strong>{amount}</strong> to the number above.
                       </span>
@@ -432,7 +433,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
                 onClick={() => setStep(1)}
                 className="flex-1 min-w-30"
               >
-                <ArrowLeft className="w-4 h-4 mr-1.5" />
+                <ArrowLeftIcon className="w-4 h-4 mr-1.5" />
                 <span>Plans</span>
               </Button>
               <Button
@@ -441,7 +442,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
                 className="flex-2 min-w-40"
               >
                 <span>Verification</span>
-                <ArrowRight className="w-4 h-4 ml-1.5" />
+                <ArrowRightIcon className="w-4 h-4 ml-1.5" />
               </Button>
             </div>
           </div>
@@ -515,7 +516,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
                     {hasError ? (
                       <FieldError>
                         <span className="flex items-center gap-1">
-                          <TriangleAlert className="w-3.5 h-3.5 shrink-0" />
+                          <TriangleAlertIcon className="w-3.5 h-3.5 shrink-0" />
                           <span>{field.state.meta.errors[0]}</span>
                         </span>
                       </FieldError>
@@ -536,8 +537,8 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
                 onClick={() => setStep(2)}
                 className="flex-1 min-w-[120px]"
               >
-                <ArrowLeft className="w-4 h-4 mr-1.5" />
-                <span>Wallet Info</span>
+                <ArrowLeftIcon className="w-4 h-4 mr-1.5" />
+                <span>WalletIcon Info</span>
               </Button>
 
               <form.Subscribe
@@ -564,7 +565,7 @@ export function SubmitPaymentForm({ usageCounts, currentPlan, plans, preselected
         )}
 
         <span className="text-xs text-muted-foreground text-center leading-normal flex items-center justify-center gap-1 pt-2 border-t border-border">
-          <TriangleAlert className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+          <TriangleAlertIcon className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
           <span>Renewals take effect immediately upon Admin verification.</span>
         </span>
       </form>

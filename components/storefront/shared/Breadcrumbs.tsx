@@ -2,7 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
-import { ChevronRightIcon } from "lucide-react"
+import { ChevronRightIcon } from "@/lib/icons";
 
 export interface BreadcrumbItem {
   label: string

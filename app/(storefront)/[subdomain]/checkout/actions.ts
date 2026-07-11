@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth/auth"
 import { db } from "@/db"
 import { merchants, orders } from "@/db/schema"
 import { eq } from "drizzle-orm"
+import { checkRateLimit, checkoutRateLimiter } from "@/lib/redis/rate-limit"
 
 export async function submitAddress(formData: {
   deliveryName: string
@@ -22,6 +23,14 @@ export async function submitAddress(formData: {
   const merchantId = headersList.get("x-merchant-id")
   if (!merchantId) {
     return { error: "Merchant configuration not found." }
+  }
+
+  // Rate Limiting
+  const ip = headersList.get("x-forwarded-for") || "unknown"
+  const { checkRateLimit, checkoutRateLimiter } = await import("@/lib/redis/rate-limit")
+  const rateLimit = await checkRateLimit(checkoutRateLimiter, ip)
+  if (!rateLimit.success) {
+    return { error: "Too many checkout attempts. Please try again later." }
   }
 
   // 2. Validate input with Zod
@@ -77,6 +86,14 @@ export async function submitPayment(formData: {
   const merchantId = headersList.get("x-merchant-id")
   if (!merchantId) {
     return { error: "Merchant configuration not found." }
+  }
+
+  // Rate Limiting
+  const ip = headersList.get("x-forwarded-for") || "unknown"
+  const { checkRateLimit, checkoutRateLimiter } = await import("@/lib/redis/rate-limit")
+  const rateLimit = await checkRateLimit(checkoutRateLimiter, ip)
+  if (!rateLimit.success) {
+    return { error: "Too many checkout attempts. Please try again later." }
   }
 
   // 2. Validate input with Zod

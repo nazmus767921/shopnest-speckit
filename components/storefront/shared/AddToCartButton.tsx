@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useState } from "react"
-import { ShoppingCart, Check } from "lucide-react"
+import { ShoppingCartIcon, CheckIcon } from "@/lib/icons";
+
 import { useCart } from "@/hooks/use-cart"
 import { Button } from "@/components/ui"
 
@@ -52,9 +53,9 @@ export function AddToCartButton({ merchantId, product, quantity = 1, size = "sm"
         className={`w-10 h-10 min-h-0 p-0 rounded-[var(--radius-pill)] flex items-center justify-center bg-[var(--color-primary)] hover:opacity-90 text-[var(--color-on-primary)] transition-all select-none shrink-0 ${className || ""}`}
       >
         {added ? (
-          <Check className="h-5 w-5 stroke-[2.5]" />
+          <CheckIcon className="h-5 w-5 stroke-[2.5]" />
         ) : (
-          <ShoppingCart className="h-5 w-5 stroke-[1.5]" />
+          <ShoppingCartIcon className="h-5 w-5 stroke-[1.5]" />
         )}
       </Button>
     )
@@ -73,7 +74,7 @@ export function AddToCartButton({ merchantId, product, quantity = 1, size = "sm"
       ) : (
         <span className="flex items-center gap-1.5 justify-center">
           <span>Add to Cart</span>
-          <ShoppingCart className="h-4 w-4 stroke-[1.5]" />
+          <ShoppingCartIcon className="h-4 w-4 stroke-[1.5]" />
         </span>
       )}
     </Button>

@@ -4,7 +4,8 @@ import React, { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { type ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table"
-import { Plus, FolderTree, Pencil, Trash2, Search, Info, Loader2 } from "lucide-react"
+import { PlusIcon, FolderTreeIcon, PencilIcon, Trash2Icon, SearchIcon, InfoIcon, Loader2Icon } from "@/lib/icons";
+
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
@@ -145,7 +146,7 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
                 className="p-1.5 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
                 title="Edit Category"
               >
-                <Pencil className="h-4 w-4" />
+                <PencilIcon className="h-4 w-4" />
               </button>
               <button
                 onClick={() => handleDelete(cat.id, cat.name)}
@@ -153,7 +154,7 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
                 className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-md transition-colors text-muted-foreground hover:text-red-650 cursor-pointer disabled:opacity-50"
                 title="Delete Category"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2Icon className="h-4 w-4" />
               </button>
             </div>
           )
@@ -168,7 +169,7 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
       {/* Plan limit indicator banner */}
       <div className="bg-muted/10 border border-border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-start gap-3">
-          <Info className="h-5 w-5 text-emerald-800 dark:text-emerald-400 shrink-0 mt-0.5" />
+          <InfoIcon className="h-5 w-5 text-emerald-800 dark:text-emerald-400 shrink-0 mt-0.5" />
           <div className="flex flex-col">
             <span className="text-base font-semibold text-foreground">
               Plan Categories Usage
@@ -198,10 +199,10 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
 
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        {/* Search */}
+        {/* SearchIcon */}
         <div className="relative max-w-sm w-full">
           <span className="absolute inset-y-0 left-3.5 flex items-center text-muted-foreground">
-            <Search className="h-4 w-4" />
+            <SearchIcon className="h-4 w-4" />
           </span>
           <input
             type="text"
@@ -219,7 +220,7 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
           disabled={isLimitReached}
           className="flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center rounded-md"
         >
-          <Plus className="h-4 w-4" />
+          <PlusIcon className="h-4 w-4" />
           <span>{isLimitReached ? "Plan Limit Reached" : "Create Category"}</span>
         </Button>
       </div>
@@ -230,7 +231,7 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
           className="flex flex-col items-center justify-center text-center p-12 border border-border bg-card rounded-xl"
         >
           <div className="p-3 bg-muted rounded-full mb-4">
-            <FolderTree className="h-8 w-8 text-foreground stroke-1.5" />
+            <FolderTreeIcon className="h-8 w-8 text-foreground stroke-1.5" />
           </div>
           <h3 className="text-lg font-semibold text-foreground">
             No categories yet
@@ -291,7 +292,7 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
                       onClick={() => handleOpenEdit(cat)}
                       className="flex-1 justify-center items-center gap-1.5 py-2 min-h-10 cursor-pointer"
                     >
-                      <Pencil className="h-4 w-4 text-muted-foreground" />
+                      <PencilIcon className="h-4 w-4 text-muted-foreground" />
                       <span>Edit</span>
                     </Button>
 
@@ -302,7 +303,7 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
                       disabled={deleteMutation.isPending}
                       className="flex-1 justify-center items-center gap-1.5 py-2 min-h-10 border-red-200 text-red-650 hover:bg-red-50 dark:hover:bg-red-950/20 hover:border-red-300 hover:text-red-700 cursor-pointer disabled:opacity-50"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2Icon className="h-4 w-4" />
                       <span>Delete</span>
                     </Button>
                   </div>
@@ -335,14 +336,14 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
+              variant="destructive"
               disabled={deleteMutation.isPending}
               onClick={(e) => {
                 e.preventDefault()
                 handleDeleteConfirm()
               }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}
+              {deleteMutation.isPending && <Loader2Icon className="h-3.5 w-3.5 animate-spin mr-1" />}
               Delete Category
             </AlertDialogAction>
           </AlertDialogFooter>

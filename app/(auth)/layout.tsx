@@ -1,5 +1,5 @@
 import React from "react"
-import { Check } from "lucide-react"
+import { CheckIcon } from "@/lib/icons";
 
 export default function AuthLayout({
   children,
@@ -47,7 +47,7 @@ export default function AuthLayout({
           ].map((feature, idx) => (
             <div key={idx} className="flex items-center gap-3 text-shade-30">
               <div className="p-1 bg-white/5 rounded-full text-aloe-10">
-                <Check className="h-4 w-4" />
+                <CheckIcon className="h-4 w-4" />
               </div>
               <span className="text-caption font-light">{feature}</span>
             </div>

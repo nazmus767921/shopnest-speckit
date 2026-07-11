@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { ShoppingCart } from "lucide-react"
+import { ShoppingCartIcon } from "@/lib/icons";
+
 import { useCart } from "@/hooks/use-cart"
 import Link from "next/link"
 
@@ -22,7 +23,7 @@ export function CartIconButton({ merchantId, subdomain }: Props) {
   if (!mounted) {
     return (
       <div className="p-2 text-[var(--color-ink)] relative min-w-9 min-h-9 flex items-center justify-center">
-        <ShoppingCart className="h-5 w-5" />
+        <ShoppingCartIcon className="h-5 w-5" />
       </div>
     )
   }
@@ -33,7 +34,7 @@ export function CartIconButton({ merchantId, subdomain }: Props) {
       className="p-2 text-[var(--color-ink)] hover:opacity-75 transition-opacity relative flex items-center justify-center min-w-9 min-h-9"
       aria-label="Cart"
     >
-      <ShoppingCart className="h-5 w-5" />
+      <ShoppingCartIcon className="h-5 w-5" />
       {totalItems > 0 && (
         <span
           className="absolute -top-1 -right-1 h-5 min-w-5 px-1 flex items-center justify-center rounded-[var(--radius-pill)] bg-[var(--color-primary)] text-[var(--color-on-primary)] text-[10px] font-bold border-2 border-[var(--color-canvas-light)]"

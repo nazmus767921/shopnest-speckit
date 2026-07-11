@@ -6,22 +6,8 @@ import { useForm } from "@tanstack/react-form"
 import { planSchema, type PlanInput } from "@/lib/validations/plans"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Input, Alert } from "@/components/ui"
 import { Field, FieldLabel, FieldError, FieldDescription } from "@/components/ui/field"
-import {
-  Loader2,
-  Save,
-  Package,
-  Receipt,
-  FolderOpen,
-  Layers,
-  Image as ImageIcon,
-  HardDrive,
-  Percent,
-  Send,
-  Coins,
-  Check,
-  Minus,
-  Plus
-} from "lucide-react"
+import { Loader2Icon, SaveIcon, PackageIcon, ReceiptIcon, FolderOpenIcon, LayersIcon, ImageIcon, HardDriveIcon, PercentIcon, SendIcon, CoinsIcon, CheckIcon, MinusIcon, PlusIcon } from "@/lib/icons";
+
 
 interface PlanFormProps {
   initialData?: PlanInput & { id: string }
@@ -87,7 +73,7 @@ function NumberAdjuster({ id, value, onChange, min = 1, required = false }: Numb
         }}
         className="px-3.5 py-2 text-shade-60 hover:bg-canvas-cream border-r border-hairline-light h-11 flex items-center justify-center cursor-pointer select-none transition-colors"
       >
-        <Minus className="h-4 w-4" />
+        <MinusIcon className="h-4 w-4" />
       </button>
       <input
         id={id}
@@ -109,7 +95,7 @@ function NumberAdjuster({ id, value, onChange, min = 1, required = false }: Numb
         }}
         className="px-3.5 py-2 text-shade-60 hover:bg-canvas-cream border-l border-hairline-light h-11 flex items-center justify-center cursor-pointer select-none transition-colors"
       >
-        <Plus className="h-4 w-4" />
+        <PlusIcon className="h-4 w-4" />
       </button>
     </div>
   )
@@ -388,7 +374,7 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                 <div className="flex flex-col gap-4 p-5 border border-hairline-light rounded-lg bg-canvas-cream/15 transition-all duration-200">
                   <div className="flex items-start gap-3 border-b border-hairline-light/50 pb-3">
                     <div className="p-2 bg-canvas-cream rounded-md text-shade-60">
-                      <Package className="h-5 w-5" />
+                      <PackageIcon className="h-5 w-5" />
                     </div>
                     <div className="grow">
                       <IosSwitch
@@ -421,7 +407,7 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
 
                   {productsUnlimited && (
                     <div className="flex items-center gap-2 text-emerald-800 text-micro font-semibold bg-emerald-50/50 border border-emerald-100 rounded-md py-2.5 px-3.5 self-start">
-                      <Check className="h-4 w-4" />
+                      <CheckIcon className="h-4 w-4" />
                       <span>Unlimited Active Products Enabled</span>
                     </div>
                   )}
@@ -435,7 +421,7 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                 <div className="flex flex-col gap-4 p-5 border border-hairline-light rounded-lg bg-canvas-cream/15 transition-all duration-200">
                   <div className="flex items-start gap-3 border-b border-hairline-light/50 pb-3">
                     <div className="p-2 bg-canvas-cream rounded-md text-shade-60">
-                      <Receipt className="h-5 w-5" />
+                      <ReceiptIcon className="h-5 w-5" />
                     </div>
                     <div className="grow">
                       <IosSwitch
@@ -468,7 +454,7 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
 
                   {ordersUnlimited && (
                     <div className="flex items-center gap-2 text-emerald-800 text-micro font-semibold bg-emerald-50/50 border border-emerald-100 rounded-md py-2.5 px-3.5 self-start">
-                      <Check className="h-4 w-4" />
+                      <CheckIcon className="h-4 w-4" />
                       <span>Unlimited Orders Enabled</span>
                     </div>
                   )}
@@ -482,7 +468,7 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                 <div className="flex flex-col gap-4 p-5 border border-hairline-light rounded-lg bg-canvas-cream/15 transition-all duration-200">
                   <div className="flex items-start gap-3 border-b border-hairline-light/50 pb-3">
                     <div className="p-2 bg-canvas-cream rounded-md text-shade-60">
-                      <FolderOpen className="h-5 w-5" />
+                      <FolderOpenIcon className="h-5 w-5" />
                     </div>
                     <div className="grow">
                       <IosSwitch
@@ -515,7 +501,7 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
 
                   {categoriesUnlimited && (
                     <div className="flex items-center gap-2 text-emerald-800 text-micro font-semibold bg-emerald-50/50 border border-emerald-100 rounded-md py-2.5 px-3.5 self-start">
-                      <Check className="h-4 w-4" />
+                      <CheckIcon className="h-4 w-4" />
                       <span>Unlimited Categories Enabled</span>
                     </div>
                   )}
@@ -529,7 +515,7 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                 <div className="flex flex-col gap-4 p-5 border border-hairline-light rounded-lg bg-canvas-cream/15 transition-all duration-200">
                   <div className="flex items-start gap-3 border-b border-hairline-light/50 pb-3">
                     <div className="p-2 bg-canvas-cream rounded-md text-shade-60">
-                      <Layers className="h-5 w-5" />
+                      <LayersIcon className="h-5 w-5" />
                     </div>
                     <div className="grow">
                       <IosSwitch
@@ -562,7 +548,7 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
 
                   {variantsUnlimited && (
                     <div className="flex items-center gap-2 text-emerald-800 text-micro font-semibold bg-emerald-50/50 border border-emerald-100 rounded-md py-2.5 px-3.5 self-start">
-                      <Check className="h-4 w-4" />
+                      <CheckIcon className="h-4 w-4" />
                       <span>Unlimited Variants Enabled</span>
                     </div>
                   )}
@@ -607,7 +593,7 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                 <div className="flex flex-col gap-4 p-5 border border-hairline-light rounded-lg bg-canvas-cream/15">
                   <div className="flex items-start gap-3">
                     <div className="p-2 bg-canvas-cream rounded-md text-shade-60 shrink-0">
-                      <HardDrive className="h-5 w-5" />
+                      <HardDriveIcon className="h-5 w-5" />
                     </div>
                     <div className="flex flex-col">
                       <span className="text-caption font-semibold text-ink leading-tight">
@@ -660,7 +646,7 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                         }`}
                     >
                       <div className={`p-2.5 rounded-full shrink-0 ${isChecked ? "bg-emerald-800 text-white" : "bg-canvas-cream text-shade-60"}`}>
-                        <Percent className="h-5 w-5" />
+                        <PercentIcon className="h-5 w-5" />
                       </div>
                       <div className="flex flex-col grow">
                         <div className="flex items-center justify-between">
@@ -693,7 +679,7 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                         }`}
                     >
                       <div className={`p-2.5 rounded-full shrink-0 ${isChecked ? "bg-emerald-800 text-white" : "bg-canvas-cream text-shade-60"}`}>
-                        <Send className="h-5 w-5" />
+                        <SendIcon className="h-5 w-5" />
                       </div>
                       <div className="flex flex-col grow">
                         <div className="flex items-center justify-between">
@@ -726,7 +712,7 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                         }`}
                     >
                       <div className={`p-2.5 rounded-full shrink-0 ${isChecked ? "bg-emerald-800 text-white" : "bg-canvas-cream text-shade-60"}`}>
-                        <Coins className="h-5 w-5" />
+                        <CoinsIcon className="h-5 w-5" />
                       </div>
                       <div className="flex flex-col grow">
                         <div className="flex items-center justify-between">
@@ -765,9 +751,9 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
                 className="flex items-center gap-2 font-medium px-8 py-3 cursor-pointer"
               >
                 {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2Icon className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Save className="h-4 w-4" />
+                  <SaveIcon className="h-4 w-4" />
                 )}
                 <span>{isEdit ? "Save Plan Changes" : "Create & Launch Plan"}</span>
               </Button>

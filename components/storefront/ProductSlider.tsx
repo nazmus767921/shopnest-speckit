@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useRef, useState, useEffect } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeftIcon, ChevronRightIcon } from "@/lib/icons";
+
 import { ProductCard, type ProductVariant, type ProductAttributeInfo } from "./ProductCard"
 
 interface FormattedProduct {
@@ -102,7 +103,7 @@ export function ProductSlider({ products, subdomain, merchantId, totalCount, pro
             className="absolute left-4 top-[40%] -translate-y-1/2 bg-canvas-light border border-hairline-light hover:bg-canvas-cream text-ink p-2.5 rounded-[var(--radius)] z-20 shadow-md cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center"
             aria-label="Scroll left"
           >
-            <ChevronLeft className="h-5 w-5 stroke-[2.5]" />
+            <ChevronLeftIcon className="h-5 w-5 stroke-[2.5]" />
           </button>
         )}
 
@@ -113,7 +114,7 @@ export function ProductSlider({ products, subdomain, merchantId, totalCount, pro
             className="absolute right-4 top-[40%] -translate-y-1/2 bg-canvas-light border border-hairline-light hover:bg-canvas-cream text-ink p-2.5 rounded-[var(--radius)] z-20 shadow-md cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center"
             aria-label="Scroll right"
           >
-            <ChevronRight className="h-5 w-5 stroke-[2.5]" />
+            <ChevronRightIcon className="h-5 w-5 stroke-[2.5]" />
           </button>
         )}
       </div>

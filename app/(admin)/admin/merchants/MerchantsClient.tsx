@@ -7,7 +7,7 @@ import {
   updateMerchantStatusAction,
   overrideTrialExpiryAction,
 } from "@/app/actions/admin"
-import { ShieldAlert, Calendar, Search, Edit2, Loader2, ArrowUpRight, Ban, CheckCircle } from "lucide-react"
+import { ShieldAlertIcon, CalendarIcon, SearchIcon, Edit2Icon, Loader2Icon, ArrowUpRightIcon, BanIcon, CheckCircleIcon } from "@/lib/icons";
 
 interface Merchant {
   id: string
@@ -53,7 +53,7 @@ export function MerchantsClient({ initialMerchants }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   const filteredMerchants = merchants.filter((m) => {
-    // 1. Search term
+    // 1. SearchIcon term
     const term = searchTerm.toLowerCase()
     const matchesSearch =
       m.name.toLowerCase().includes(term) ||
@@ -177,7 +177,7 @@ export function MerchantsClient({ initialMerchants }: Props) {
                 className="text-caption text-emerald-800 hover:underline inline-flex items-center gap-0.5 font-mono"
               >
                 {merchant.subdomain}.shopnest.com.bd
-                <ArrowUpRight className="h-3 w-3" />
+                <ArrowUpRightIcon className="h-3 w-3" />
               </a>
             </div>
           )
@@ -256,7 +256,7 @@ export function MerchantsClient({ initialMerchants }: Props) {
                   className="p-1.5 hover:bg-canvas-cream border border-hairline-light rounded text-shade-50 hover:text-ink transition cursor-pointer"
                   title="Override Trial Expiry"
                 >
-                  <Calendar className="h-4 w-4" />
+                  <CalendarIcon className="h-4 w-4" />
                 </button>
               )}
               {isSuspended ? (
@@ -284,10 +284,10 @@ export function MerchantsClient({ initialMerchants }: Props) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Search Filter */}
+      {/* SearchIcon Filter */}
       <div className="relative max-w-md w-full">
         <span className="absolute inset-y-0 left-3.5 flex items-center text-shade-40">
-          <Search className="h-4 w-4" />
+          <SearchIcon className="h-4 w-4" />
         </span>
         <input
           type="text"
@@ -352,7 +352,7 @@ export function MerchantsClient({ initialMerchants }: Props) {
           >
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg border ${newStatus === "suspended" ? "bg-red-50 text-red-700 border-red-100" : "bg-emerald-50 text-emerald-700 border-emerald-100"}`}>
-                {newStatus === "suspended" ? <Ban className="h-5 w-5" /> : <CheckCircle className="h-5 w-5" />}
+                {newStatus === "suspended" ? <BanIcon className="h-5 w-5" /> : <CheckCircleIcon className="h-5 w-5" />}
               </div>
               <h2 className="text-heading-md font-display font-semibold text-ink">
                 Confirm Status Override
@@ -384,7 +384,7 @@ export function MerchantsClient({ initialMerchants }: Props) {
                 disabled={loading}
                 className={`px-5 py-2 rounded-full text-caption font-semibold text-white flex items-center gap-2 transition ${newStatus === "suspended" ? "bg-red-600 hover:bg-red-700" : "bg-black hover:bg-zinc-800"}`}
               >
-                {loading && <Loader2 className="h-3 w-3 animate-spin" />}
+                {loading && <Loader2Icon className="h-3 w-3 animate-spin" />}
                 Confirm Status
               </button>
             </div>
@@ -400,7 +400,7 @@ export function MerchantsClient({ initialMerchants }: Props) {
           >
             <div className="flex items-center gap-3">
               <div className="p-2 bg-emerald-50 text-emerald-800 border border-emerald-100 rounded-lg">
-                <Calendar className="h-5 w-5" />
+                <CalendarIcon className="h-5 w-5" />
               </div>
               <h2 className="text-heading-md font-display font-semibold text-ink">
                 Override Trial Expiry
@@ -439,7 +439,7 @@ export function MerchantsClient({ initialMerchants }: Props) {
                 disabled={loading || !newExpiryDate}
                 className="px-5 py-2 bg-black text-white hover:bg-zinc-800 rounded-full text-caption font-semibold flex items-center gap-2 transition"
               >
-                {loading && <Loader2 className="h-3 w-3 animate-spin" />}
+                {loading && <Loader2Icon className="h-3 w-3 animate-spin" />}
                 Update Expiry
               </button>
             </div>

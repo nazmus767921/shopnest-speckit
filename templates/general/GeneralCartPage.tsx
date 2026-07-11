@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useEffect, useState, useCallback } from "react"
-import { ShoppingCart, ArrowLeft, AlertTriangle, Tag, ArrowRight } from "lucide-react"
+import { ShoppingCartIcon, ArrowLeftIcon, AlertTriangleIcon, TagIcon, ArrowRightIcon } from "@/lib/icons";
+
 import { useCart } from "@/hooks/use-cart"
 import { CartItemRow } from "@/components/storefront/CartItemRow"
 import { type CartItem } from "@/lib/cart/cart-store"
@@ -111,7 +112,7 @@ export function GeneralCartPage({ store }: CartPageProps) {
           href="/"
           className="flex items-center gap-1.5 text-storefront-caption text-[var(--color-shade-60)] hover:text-[var(--color-ink)] transition-colors font-semibold font-sans"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeftIcon className="h-4 w-4" />
           <span>Continue Shopping</span>
         </a>
       </div>
@@ -120,7 +121,7 @@ export function GeneralCartPage({ store }: CartPageProps) {
         /* Empty State */
         <Card className="border border-[var(--color-hairline-light)] p-12 flex flex-col items-center justify-center text-center gap-6 min-h-64 bg-[var(--color-canvas-light)] max-w-md mx-auto w-full mt-6 rounded-[var(--radius-md)]">
           <div className="w-16 h-16 rounded-[var(--radius-pill)] bg-[var(--color-surface-secondary)] flex items-center justify-center text-[var(--color-ink)] border border-[var(--color-hairline-light)]">
-            <ShoppingCart className="h-8 w-8 stroke-[1.5]" />
+            <ShoppingCartIcon className="h-8 w-8 stroke-[1.5]" />
           </div>
           <div className="flex flex-col gap-2">
             <h2 className="text-storefront-heading-md font-bold text-[var(--color-ink)] font-sans">
@@ -201,7 +202,7 @@ export function GeneralCartPage({ store }: CartPageProps) {
               <div className="mt-6 flex flex-col gap-2">
                 <div className="flex gap-3">
                   <div className="flex-1 flex items-center bg-[var(--color-surface-secondary)] rounded-[var(--radius-pill)] px-4 h-12 gap-2 border border-transparent focus-within:border-[var(--color-ink)]/20">
-                    <Tag className="h-5 w-5 text-[var(--color-shade-50)] shrink-0" />
+                    <TagIcon className="h-5 w-5 text-[var(--color-shade-50)] shrink-0" />
                     <input
                       type="text"
                       placeholder="Add promo code"
@@ -231,7 +232,7 @@ export function GeneralCartPage({ store }: CartPageProps) {
               {/* Unavailable items warning */}
               {hasUnavailableItems && (
                 <div className="flex items-start gap-2 p-3 rounded-[var(--radius-sm)] bg-red-50 border border-red-200 mt-4 font-sans" role="alert">
-                  <AlertTriangle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                  <AlertTriangleIcon className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
                   <p className="text-xs text-red-700">
                     Some items are no longer available.{" "}
                     <strong>Remove them to proceed to checkout.</strong>
@@ -246,7 +247,7 @@ export function GeneralCartPage({ store }: CartPageProps) {
                   className="w-full btn-storefront-primary font-bold text-base md:text-lg flex items-center justify-center gap-2 h-14 border-none hover:opacity-90 disabled:opacity-50 disabled:pointer-events-none transition-opacity"
                 >
                   <span>Go to Checkout</span>
-                  <ArrowRight className="h-5 w-5 stroke-[2.5]" />
+                  <ArrowRightIcon className="h-5 w-5 stroke-[2.5]" />
                 </button>
               </div>
             </div>

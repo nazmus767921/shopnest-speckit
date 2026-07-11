@@ -4,7 +4,7 @@ import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { getShippingZonesWithDistricts } from "@/db/queries/shippingZones"
 import { StoreSettingsForm } from "./components/StoreSettingsForm"
 import { Badge } from "@/components/ui/badge"
-import { getMerchantPlan } from "@/lib/plans/getPlan"
+import { getCachedMerchantPlan } from "@/lib/cache/plans"
 import { Suspense } from "react"
 import { connection } from "next/server"
 
@@ -35,7 +35,7 @@ async function SettingsPageContent() {
   }
 
   const shippingZones = await getShippingZonesWithDistricts(merchant.id)
-  const plan = await getMerchantPlan(merchant.id)
+  const plan = await getCachedMerchantPlan(merchant.id)
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col gap-8 animate-fade-in py-2">

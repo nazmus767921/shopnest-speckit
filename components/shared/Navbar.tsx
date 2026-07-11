@@ -3,7 +3,8 @@
 import * as React from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui"
-import { Menu, X } from "lucide-react"
+import { MenuIcon, XIcon } from "@/lib/icons";
+
 import {
   Sheet,
   SheetContent,
@@ -52,7 +53,7 @@ export function Navbar() {
           className="md:hidden p-2 text-shade-40 hover:text-on-primary transition-colors duration-200 cursor-pointer focus:outline-none"
           aria-label="Toggle Navigation Menu"
         >
-          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {mobileMenuOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
         </button>
       </div>
 
@@ -60,7 +61,7 @@ export function Navbar() {
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <SheetContent side="right" className="bg-canvas-night text-foreground border-white/5">
           <SheetHeader className="sr-only">
-            <SheetTitle>Navigation Menu</SheetTitle>
+            <SheetTitle>Navigation MenuIcon</SheetTitle>
             <SheetDescription>Mobile Navigation Links</SheetDescription>
           </SheetHeader>
           <div className="flex flex-col gap-4 w-full p-4 mt-6">

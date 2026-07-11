@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Field, FieldLabel, FieldError, FieldDescription, FieldGroup, FieldSet } from "@/components/ui/field"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Trash2, Plus, Loader2, ChevronDown, ChevronUp } from "lucide-react"
+import { Trash2Icon, PlusIcon, Loader2Icon, ChevronDownIcon, ChevronUpIcon } from "@/lib/icons";
+
 import { formatTaka } from "@/lib/utils"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -199,7 +200,7 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
               }}
               className="flex items-center w-full md:w-fit gap-1.5 self-start sm:self-auto rounded-md"
             >
-              <Plus className="h-4 w-4" />
+              <PlusIcon className="h-4 w-4" />
               <span>Add Zone</span>
             </Button>
           )}
@@ -287,7 +288,7 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                             onClick={() => toggleDivision(div.id)}
                             className="flex items-center gap-2 font-semibold text-foreground text-sm grow text-left cursor-pointer"
                           >
-                            {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                            {expanded ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
                             <span>{div.name} Division</span>
                             <span className="text-xs font-normal text-muted-foreground">
                               ({selectedInDiv.length} selected)
@@ -358,7 +359,7 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                 <Button type="submit" disabled={submitting}>
                   {submitting ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                      <Loader2Icon className="h-4 w-4 animate-spin mr-1.5" />
                       Saving Zone...
                     </>
                   ) : (
@@ -409,9 +410,9 @@ export function ShippingDeliveryTab({ initialZones }: Props) {
                         title="Delete Zone"
                       >
                         {deleteId === zone.id ? (
-                          <Loader2 className="h-4.5 w-4.5 animate-spin" />
+                          <Loader2Icon className="h-4.5 w-4.5 animate-spin" />
                         ) : (
-                          <Trash2 className="h-4.5 w-4.5" />
+                          <Trash2Icon className="h-4.5 w-4.5" />
                         )}
                       </button>
                     </div>

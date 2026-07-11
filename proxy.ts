@@ -81,8 +81,9 @@ export async function proxy(request: NextRequest) {
       return NextResponse.next()
     }
 
-    // Query database for merchant by subdomain
-    const merchant = await getMerchantBySubdomain(subdomain)
+    // Get merchant and subscription context from Redis cache (or fallback to DB)
+    const { getProxyContext } = await import("@/lib/redis/proxy-cache")
+    const { merchant, subscription } = await getProxyContext(subdomain)
 
     // Storefront Routing Fallbacks
     if (!merchant) {
@@ -95,8 +96,6 @@ export async function proxy(request: NextRequest) {
       return NextResponse.rewrite(url)
     }
 
-    const { getSubscriptionByMerchantId } = await import("@/db/queries/subscriptions")
-    const subscription = await getSubscriptionByMerchantId(merchant.id)
     const now = new Date()
 
     if (subscription && subscription.currentPeriodEnd && subscription.currentPeriodEnd < now) {

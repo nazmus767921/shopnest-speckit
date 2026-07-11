@@ -4,7 +4,7 @@ import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { getDiscountCodes } from "@/db/queries/discounts"
 import { DiscountsClient } from "./components/DiscountsClient"
 import { PlanUpsellBanner } from "./components/PlanUpsellBanner"
-import { getMerchantPlan } from "@/lib/plans/getPlan"
+import { getCachedMerchantPlan } from "@/lib/cache/plans"
 import { Suspense } from "react"
 
 export const metadata = {
@@ -32,7 +32,7 @@ async function DiscountsPageContent() {
     )
   }
 
-  const plan = await getMerchantPlan(merchant.id)
+  const plan = await getCachedMerchantPlan(merchant.id)
   const hasDiscountCodes = plan?.features.discount_codes ?? false
   const initialCodes = hasDiscountCodes ? await getDiscountCodes(merchant.id) : []
 

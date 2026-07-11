@@ -8,7 +8,7 @@ import {
   deleteShippingZone,
 } from "@/db/queries/shippingZones"
 import { shippingZoneSchema } from "@/lib/validations/shippingZones"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 
 async function getAuthenticatedMerchant() {
   const session = await auth.api.getSession({

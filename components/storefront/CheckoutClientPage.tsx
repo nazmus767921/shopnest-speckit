@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Check, ChevronLeft, Loader2, AlertCircle, X } from "lucide-react"
+import { ArrowLeftIcon, CheckIcon, ChevronLeftIcon, Loader2Icon, AlertCircleIcon, XIcon } from "@/lib/icons";
+
 import { useCart } from "@/hooks/use-cart"
 import { type CartItem } from "@/lib/cart/cart-store"
 import { addressSchema, paymentSchema } from "@/lib/validations/checkout"
@@ -176,7 +177,7 @@ export function CheckoutClientPage({
     return (
       <div className="max-w-xl mx-auto py-12 px-4 text-center select-text">
         <Card variant="default" className="p-8 flex flex-col items-center gap-4 border border-red-200 bg-red-50/10 rounded-[var(--radius)]">
-          <AlertCircle className="h-12 w-12 text-red-500" />
+          <AlertCircleIcon className="h-12 w-12 text-red-500" />
           <h2 className="text-heading-lg font-semibold text-ink">Checkout Unavailable</h2>
           <p className="text-body-md text-shade-50 font-light">
             This store has not configured any shipping zones. Checkout is currently unavailable. Please contact the merchant.
@@ -336,7 +337,7 @@ export function CheckoutClientPage({
                   : "bg-aloe-10 text-ink"
               }`}
             >
-              {step === "address" ? "1" : <Check className="h-3.5 w-3.5" />}
+              {step === "address" ? "1" : <CheckIcon className="h-3.5 w-3.5" />}
             </span>
             <span
               className={`text-eyebrow-cap font-semibold tracking-wider ${
@@ -359,7 +360,7 @@ export function CheckoutClientPage({
                   : "bg-shade-30 text-shade-50"
               }`}
             >
-              {step === "confirm" ? <Check className="h-3.5 w-3.5" /> : "2"}
+              {step === "confirm" ? <CheckIcon className="h-3.5 w-3.5" /> : "2"}
             </span>
             <span
               className={`text-eyebrow-cap font-semibold tracking-wider ${
@@ -397,7 +398,7 @@ export function CheckoutClientPage({
             href="/cart"
             className="flex items-center gap-1 text-caption text-shade-60 hover:text-ink font-medium"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeftIcon className="h-4 w-4" />
             <span>Back to Cart</span>
           </Link>
         )}
@@ -405,7 +406,7 @@ export function CheckoutClientPage({
 
       {submitError && (
         <div className="flex items-start gap-3 text-body-md text-red-800 bg-red-50 p-4 rounded-xl border border-red-200/60" role="alert">
-          <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+          <AlertCircleIcon className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
           <span className="flex-1">{submitError}</span>
           <button
             type="button"
@@ -413,7 +414,7 @@ export function CheckoutClientPage({
             className="p-1 rounded hover:bg-red-100 text-red-400 hover:text-red-700 transition shrink-0"
             aria-label="Dismiss"
           >
-            <X className="h-4 w-4" />
+            <XIcon className="h-4 w-4" />
           </button>
         </div>
       )}
@@ -546,7 +547,7 @@ export function CheckoutClientPage({
             >
               {submitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                  <Loader2Icon className="h-4 w-4 animate-spin mr-1.5" />
                   Processing Order...
                 </>
               ) : (
@@ -821,7 +822,7 @@ export function CheckoutClientPage({
             >
               {submitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                  <Loader2Icon className="h-4 w-4 animate-spin mr-1.5" />
                   Submitting...
                 </>
               ) : (
@@ -839,7 +840,7 @@ export function CheckoutClientPage({
         <div className="max-w-md mx-auto text-center py-8">
           <Card variant="default" className="p-8 flex flex-col items-center justify-center gap-6 bg-canvas-light border border-hairline-light">
             <div className="w-16 h-16 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-800 animate-scale-up">
-              <Check className="h-8 w-8 stroke-3" />
+              <CheckIcon className="h-8 w-8 stroke-3" />
             </div>
 
             <div className="flex flex-col gap-2">

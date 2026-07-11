@@ -7,7 +7,8 @@ import { StatusBadge } from "../components/StatusBadge"
 import { OrderActions } from "../components/OrderActions"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, Calendar, Phone, MapPin, CreditCard, User, ShoppingBag, Copy, Check } from "lucide-react"
+import { ChevronLeftIcon, CalendarIcon, PhoneIcon, MapPinIcon, CreditCardIcon, UserIcon, ShoppingBagIcon, CopyIcon, CheckIcon } from "@/lib/icons";
+
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { supabase } from "@/lib/supabase/client"
@@ -131,7 +132,7 @@ async function OrderDetailPageContent({ params }: Props) {
           href="/dashboard/orders"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors font-medium self-start group cursor-pointer"
         >
-          <ChevronLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
+          <ChevronLeftIcon className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
           <span>Back to Orders</span>
         </Link>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border">
@@ -143,7 +144,7 @@ async function OrderDetailPageContent({ params }: Props) {
               <StatusBadge status={order.status} />
             </div>
             <p className="text-xs text-muted-foreground font-light flex items-center gap-1.5 mt-1 font-sans">
-              <Calendar className="h-3.5 w-3.5 shrink-0" />
+              <CalendarIcon className="h-3.5 w-3.5 shrink-0" />
               Placed on {formatDate(order.createdAt)}
             </p>
           </div>
@@ -170,7 +171,7 @@ async function OrderDetailPageContent({ params }: Props) {
                       ? "bg-card border-primary text-primary ring-2 ring-primary/10"
                       : "bg-muted/30 border-border text-muted-foreground"
                 )}>
-                  {step.isCompleted ? <Check className="h-4 w-4 text-emerald-600 stroke-[2.5px]" /> : idx + 1}
+                  {step.isCompleted ? <CheckIcon className="h-4 w-4 text-emerald-600 stroke-[2.5px]" /> : idx + 1}
                 </div>
 
                 {/* Step labels */}
@@ -237,7 +238,7 @@ async function OrderDetailPageContent({ params }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="flex gap-3">
                 <div className="p-2.5 bg-muted text-foreground rounded-lg self-start">
-                  <User className="h-4.5 w-4.5" />
+                  <UserIcon className="h-4.5 w-4.5" />
                 </div>
                 <div className="flex flex-col gap-0.5">
                   <span className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground">Customer Name</span>
@@ -249,10 +250,10 @@ async function OrderDetailPageContent({ params }: Props) {
               </div>
               <div className="flex gap-3">
                 <div className="p-2.5 bg-muted text-foreground rounded-lg self-start">
-                  <Phone className="h-4.5 w-4.5" />
+                  <PhoneIcon className="h-4.5 w-4.5" />
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground">Phone Number</span>
+                  <span className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground">PhoneIcon Number</span>
                   <div className="flex items-center gap-1.5">
                     <a href={`tel:${order.deliveryPhone}`} className="text-sm font-semibold hover:underline text-primary">
                       {order.deliveryPhone}
@@ -263,7 +264,7 @@ async function OrderDetailPageContent({ params }: Props) {
               </div>
               <div className="flex gap-3 md:col-span-2">
                 <div className="p-2.5 bg-muted text-foreground rounded-lg self-start">
-                  <MapPin className="h-4.5 w-4.5" />
+                  <MapPinIcon className="h-4.5 w-4.5" />
                 </div>
                 <div className="flex flex-col gap-0.5">
                   <span className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground">Shipping Address</span>
@@ -287,7 +288,7 @@ async function OrderDetailPageContent({ params }: Props) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="flex gap-3">
                   <div className="p-2.5 bg-muted text-foreground rounded-lg self-start">
-                    <CreditCard className="h-4.5 w-4.5" />
+                    <CreditCardIcon className="h-4.5 w-4.5" />
                   </div>
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground">Payment Method</span>
@@ -304,7 +305,7 @@ async function OrderDetailPageContent({ params }: Props) {
                 </div>
                 <div className="flex gap-3">
                   <div className="p-2.5 bg-muted text-foreground rounded-lg self-start">
-                    <Copy className="h-4.5 w-4.5" />
+                    <CopyIcon className="h-4.5 w-4.5" />
                   </div>
                   <div className="flex flex-col gap-0.5 grow">
                     <span className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground">Transaction ID</span>
@@ -327,7 +328,7 @@ async function OrderDetailPageContent({ params }: Props) {
               </div>
             ) : (
               <div className="flex items-center gap-2 text-muted-foreground p-4 bg-muted/30 border border-dashed border-border rounded-lg">
-                <CreditCard className="h-5 w-5" />
+                <CreditCardIcon className="h-5 w-5" />
                 <span className="text-sm italic font-light">No payment details submitted by customer yet.</span>
               </div>
             )}
@@ -358,7 +359,7 @@ async function OrderDetailPageContent({ params }: Props) {
                       {imageUrl ? (
                         <img src={imageUrl} alt={item.productName} className="h-full w-full object-cover" />
                       ) : (
-                        <ShoppingBag className="h-6 w-6 text-muted-foreground" />
+                        <ShoppingBagIcon className="h-6 w-6 text-muted-foreground" />
                       )}
                     </div>
                     <div className="flex flex-col gap-0.5 grow">

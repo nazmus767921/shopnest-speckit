@@ -1,7 +1,7 @@
 import React from "react"
 import { headers } from "next/headers"
 import { notFound } from "next/navigation"
-import { getMerchantById } from "@/db/queries/merchants"
+import { getCachedMerchantById } from "@/lib/cache/merchants"
 import { getTemplate } from "@/templates/registry"
 import { Suspense } from "react"
 import { connection } from "next/server"
@@ -29,7 +29,7 @@ async function CartPageContent({ params }: Props) {
     notFound()
   }
 
-  const merchant = await getMerchantById(merchantId)
+  const merchant = await getCachedMerchantById(merchantId)
 
   const store = {
     id: merchant?.id || "",

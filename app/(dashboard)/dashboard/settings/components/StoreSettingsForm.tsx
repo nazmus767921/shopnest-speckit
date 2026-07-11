@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Field, FieldLabel, FieldError, FieldDescription, FieldGroup, FieldSet } from "@/components/ui/field"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
-import { Save, Lock, Smartphone, Landmark, Sliders, Trash2, Plus, UploadCloud, X, Truck, Bell } from "lucide-react"
+import { SaveIcon, LockIcon, SmartphoneIcon, LandmarkIcon, SlidersIcon, Trash2Icon, PlusIcon, UploadCloudIcon, XIcon, TruckIcon, BellIcon } from "@/lib/icons";
+
 import { z } from "zod"
 import { ShippingDeliveryTab } from "./ShippingDeliveryTab"
 import { NotificationsTab } from "./NotificationsTab"
@@ -190,7 +191,7 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
               "w-7 h-7 flex items-center justify-center rounded-lg text-white",
               activeTab === "profile" ? "bg-white/15" : "bg-blue-600"
             )}>
-              <Smartphone className="h-4 w-4 shrink-0" />
+              <SmartphoneIcon className="h-4 w-4 shrink-0" />
             </span>
             <span>Store Profile</span>
           </span>
@@ -212,7 +213,7 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
               "w-7 h-7 flex items-center justify-center rounded-lg text-white",
               activeTab === "inventory" ? "bg-white/15" : "bg-purple-600"
             )}>
-              <Sliders className="h-4 w-4 shrink-0" />
+              <SlidersIcon className="h-4 w-4 shrink-0" />
             </span>
             <span>Inventory</span>
           </span>
@@ -234,7 +235,7 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
               "w-7 h-7 flex items-center justify-center rounded-lg text-white",
               activeTab === "payments" ? "bg-white/15" : "bg-emerald-600"
             )}>
-              <Landmark className="h-4 w-4 shrink-0" />
+              <LandmarkIcon className="h-4 w-4 shrink-0" />
             </span>
             <span>Payment Options</span>
           </span>
@@ -256,7 +257,7 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
               "w-7 h-7 flex items-center justify-center rounded-lg text-white",
               activeTab === "shipping" ? "bg-white/15" : "bg-orange-500"
             )}>
-              <Truck className="h-4 w-4 shrink-0" />
+              <TruckIcon className="h-4 w-4 shrink-0" />
             </span>
             <span>Shipping & Delivery</span>
           </span>
@@ -278,7 +279,7 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
               "w-7 h-7 flex items-center justify-center rounded-lg text-white",
               activeTab === "notifications" ? "bg-white/15" : "bg-red-500"
             )}>
-              <Bell className="h-4 w-4 shrink-0" />
+              <BellIcon className="h-4 w-4 shrink-0" />
             </span>
             <span>Notifications</span>
           </span>
@@ -360,7 +361,7 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                         disabled={isSubmitting}
                         className="flex items-center gap-2 w-full sm:w-auto rounded-md"
                       >
-                        <Save className="h-4 w-4" />
+                        <SaveIcon className="h-4 w-4" />
                         {isSubmitting ? "Saving Profile…" : "Save Profile Settings"}
                       </Button>
                     )}
@@ -368,11 +369,11 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                 </CardFooter>
               </Card>
 
-              {/* Card 2: Permanent Subdomain Lock */}
+              {/* Card 2: Permanent Subdomain LockIcon */}
               <Card className="lg:col-span-4 p-6 sm:p-8 flex flex-col gap-5 rounded-xl bg-muted/30 border border-border justify-between">
                 <div className="flex flex-col gap-4">
                   <div className="w-10 h-10 bg-primary text-primary-foreground rounded-lg flex items-center justify-center shrink-0">
-                    <Lock className="h-5 w-5" />
+                    <LockIcon className="h-5 w-5" />
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <span className="text-base font-semibold text-foreground leading-tight">
@@ -508,7 +509,7 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
 
                     {!plan?.features.cod && (
                       <div className="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-xs text-amber-800 dark:text-amber-200 flex items-center gap-2">
-                        <Lock className="h-3.5 w-3.5 shrink-0" />
+                        <LockIcon className="h-3.5 w-3.5 shrink-0" />
                         <span>Upgrade your subscription plan to Growth or Pro to enable Cash on Delivery checkout options.</span>
                       </div>
                     )}
@@ -601,7 +602,7 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                       disabled={isSubmitting}
                       className="flex items-center gap-2 w-full sm:w-auto rounded-md"
                     >
-                      <Save className="h-4 w-4" />
+                      <SaveIcon className="h-4 w-4" />
                       {isSubmitting ? "Saving Payment Details…" : "Save Payment Details"}
                     </Button>
                   )}
@@ -665,7 +666,7 @@ export function StoreSettingsForm({ merchant, shippingZones, plan }: StoreSettin
                       disabled={isSubmitting}
                       className="flex items-center gap-2 w-full sm:w-auto rounded-md"
                     >
-                      <Save className="h-4 w-4" />
+                      <SaveIcon className="h-4 w-4" />
                       {isSubmitting ? "Saving Inventory…" : "Save Inventory Preferences"}
                     </Button>
                   )}

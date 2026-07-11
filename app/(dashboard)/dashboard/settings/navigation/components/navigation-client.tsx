@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react"
 import { useMutation } from "@tanstack/react-query"
-import { Plus, Trash2, ArrowUp, ArrowDown, ChevronRight, Menu, Save, RotateCcw, X, Edit, Link2 } from "lucide-react"
+import { PlusIcon, Trash2Icon, ArrowUpIcon, ArrowDownIcon, ChevronRightIcon, MenuIcon, SaveIcon, RotateCcwIcon, XIcon, EditIcon, Link2Icon, PanelBottomIcon, GripVerticalIcon } from "@/lib/icons";
+
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label as FormLabel } from "@/components/ui/label"
@@ -18,6 +19,25 @@ import {
 } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+// dnd-kit imports
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core"
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 
 interface NavigationClientProps {
   merchantId: string
@@ -37,6 +57,293 @@ interface LocalMenuItem {
   position: number
 }
 
+// Separate component for sortable Parent item
+interface SortableParentItemProps {
+  parent: LocalMenuItem
+  parentIdx: number
+  parentsCount: number
+  childrenItems: LocalMenuItem[]
+  pages: any[]
+  categories: any[]
+  products: any[]
+  moveParent: (id: string, dir: "up" | "down") => void
+  openAddDrawer: (parentId: string) => void
+  openEditDrawer: (item: LocalMenuItem) => void
+  handleDeleteItem: (id: string) => void
+  moveChild: (childId: string, parentId: string, dir: "up" | "down") => void
+}
+
+function SortableParentItem({
+  parent,
+  parentIdx,
+  parentsCount,
+  childrenItems,
+  pages,
+  categories,
+  products,
+  moveParent,
+  openAddDrawer,
+  openEditDrawer,
+  handleDeleteItem,
+  moveChild,
+}: SortableParentItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: parent.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  return (
+    <Card
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "p-5 border-border bg-card shadow-none flex flex-col gap-4 rounded-xl relative overflow-hidden group transition-all",
+        isDragging && "border-primary/50 shadow-lg ring-1 ring-primary/10 bg-accent/5 opacity-80 z-50"
+      )}
+    >
+      {/* Parent row item */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing p-1.5 hover:bg-muted rounded text-muted-foreground/40 hover:text-foreground transition-colors shrink-0"
+            title="Drag to reorder"
+          >
+            <GripVerticalIcon className="h-4 w-4" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-foreground flex items-center gap-2">
+              {parent.label}
+              {parent.type === "url" && parent.url === "#" && (
+                <span className="text-[9px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold font-mono">
+                  Text Header
+                </span>
+              )}
+            </span>
+            <span className="text-xs text-muted-foreground leading-none mt-1">
+              {parent.type === "url" && parent.url === "#"
+                ? "Category label header (no hyperlink)"
+                : parent.type === "url"
+                ? parent.url
+                : `${parent.type}: ${
+                    parent.type === "page"
+                      ? pages.find((p) => p.id === parent.referenceId)?.title
+                      : parent.type === "category"
+                      ? categories.find((c) => c.id === parent.referenceId)?.name
+                      : products.find((pr) => pr.id === parent.referenceId)?.name
+                  }`}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+          <button
+            type="button"
+            onClick={() => moveParent(parent.id, "up")}
+            disabled={parentIdx === 0}
+            className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-20 rounded-lg hover:bg-muted cursor-pointer border-none bg-transparent"
+            title="Move Parent Up"
+          >
+            <ArrowUpIcon className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => moveParent(parent.id, "down")}
+            disabled={parentIdx === parentsCount - 1}
+            className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-20 rounded-lg hover:bg-muted cursor-pointer border-none bg-transparent"
+            title="Move Parent Down"
+          >
+            <ArrowDownIcon className="h-3.5 w-3.5" />
+          </button>
+          
+          <Button
+            variant="outline"
+            onClick={() => openAddDrawer(parent.id)}
+            className="text-xs px-2.5 py-1 rounded-full flex items-center gap-1"
+          >
+            <PlusIcon className="h-3 w-3" /> Child Link
+          </Button>
+
+          <button
+            type="button"
+            onClick={() => openEditDrawer(parent)}
+            className="p-1.5 text-muted-foreground hover:text-primary rounded-lg hover:bg-primary/5 cursor-pointer border-none bg-transparent"
+            title="Edit Parent"
+          >
+            <EditIcon className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => handleDeleteItem(parent.id)}
+            className="p-1.5 text-muted-foreground hover:text-destructive rounded-lg hover:bg-destructive/10 cursor-pointer border-none bg-transparent"
+            title="Delete Parent"
+          >
+            <Trash2Icon className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Children sub-list */}
+      {childrenItems.length > 0 && (
+        <SortableContext items={childrenItems.map(c => c.id)} strategy={verticalListSortingStrategy}>
+          <div className="ml-6 pl-4 border-l-2 border-border flex flex-col gap-3 pt-2">
+            {childrenItems.map((child, childIdx) => (
+              <SortableChildItem
+                key={child.id}
+                child={child}
+                childIdx={childIdx}
+                childrenCount={childrenItems.length}
+                parentId={parent.id}
+                pages={pages}
+                categories={categories}
+                products={products}
+                moveChild={moveChild}
+                openEditDrawer={openEditDrawer}
+                handleDeleteItem={handleDeleteItem}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      )}
+    </Card>
+  )
+}
+
+// Separate component for sortable Child item
+interface SortableChildItemProps {
+  child: LocalMenuItem
+  childIdx: number
+  childrenCount: number
+  parentId: string
+  pages: any[]
+  categories: any[]
+  products: any[]
+  moveChild: (childId: string, parentId: string, dir: "up" | "down") => void
+  openEditDrawer: (item: LocalMenuItem) => void
+  handleDeleteItem: (id: string) => void
+}
+
+function SortableChildItem({
+  child,
+  childIdx,
+  childrenCount,
+  parentId,
+  pages,
+  categories,
+  products,
+  moveChild,
+  openEditDrawer,
+  handleDeleteItem,
+}: SortableChildItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: child.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "flex items-center justify-between py-2.5 px-3 bg-muted/20 border border-border rounded-lg relative group/child transition-all",
+        isDragging && "border-primary/50 shadow-md bg-accent/5 opacity-80 z-50"
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded text-muted-foreground/30 hover:text-foreground transition-colors shrink-0"
+          title="Drag to reorder"
+        >
+          <GripVerticalIcon className="h-3.5 w-3.5" />
+        </div>
+        <ChevronRightIcon className="h-3.5 w-3.5 text-muted-foreground/45 shrink-0" />
+        <div className="flex flex-col">
+          <span className="text-xs font-medium text-foreground flex items-center gap-2">
+            {child.label}
+            {child.type === "url" && child.url === "#" && (
+              <span className="text-[8px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded font-mono font-semibold">
+                Text Header
+              </span>
+            )}
+          </span>
+          <span className="text-[10px] text-muted-foreground leading-none mt-1">
+            {child.type === "url" && child.url === "#"
+              ? "Label label header (no hyperlink)"
+              : child.type === "url"
+              ? child.url
+              : `${child.type}: ${
+                  child.type === "page"
+                    ? pages.find((p) => p.id === child.referenceId)?.title
+                    : child.type === "category"
+                    ? categories.find((c) => c.id === child.referenceId)?.name
+                    : products.find((pr) => pr.id === child.referenceId)?.name
+                }`}
+          </span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-1 opacity-70 group-hover/child:opacity-100 transition-opacity">
+        <button
+          type="button"
+          onClick={() => moveChild(child.id, parentId, "up")}
+          disabled={childIdx === 0}
+          className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-20 rounded hover:bg-muted cursor-pointer border-none bg-transparent"
+          title="Move Child Up"
+        >
+          <ArrowUpIcon className="h-3.5 w-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => moveChild(child.id, parentId, "down")}
+          disabled={childIdx === childrenCount - 1}
+          className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-20 rounded hover:bg-muted cursor-pointer border-none bg-transparent"
+          title="Move Child Down"
+        >
+          <ArrowDownIcon className="h-3.5 w-3.5" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => openEditDrawer(child)}
+          className="p-1 text-muted-foreground hover:text-primary rounded hover:bg-primary/5 cursor-pointer border-none bg-transparent"
+          title="Edit Child"
+        >
+          <EditIcon className="h-3.5 w-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => handleDeleteItem(child.id)}
+          className="p-1 text-muted-foreground hover:text-destructive rounded hover:bg-destructive/10 cursor-pointer border-none bg-transparent"
+          title="Delete Child"
+        >
+          <Trash2Icon className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export function NavigationClient({
   merchantId,
   initialMenus,
@@ -50,6 +357,9 @@ export function NavigationClient({
   )
 
   const [items, setItems] = useState<LocalMenuItem[]>([])
+  const [initialItems, setInitialItems] = useState<LocalMenuItem[]>([])
+
+  const hasChanges = JSON.stringify(items) !== JSON.stringify(initialItems)
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
@@ -62,6 +372,17 @@ export function NavigationClient({
 
   const [globalError, setGlobalError] = useState<string | null>(null)
   const [globalSuccess, setGlobalSuccess] = useState<string | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   useEffect(() => {
     if (!selectedMenuId) {
@@ -85,8 +406,10 @@ export function NavigationClient({
       }
 
       setItems(sortedList)
+      setInitialItems(sortedList)
     } else {
       setItems([])
+      setInitialItems([])
     }
     closeDrawer()
   }, [selectedMenuId, menus])
@@ -253,6 +576,44 @@ export function NavigationClient({
     rebuildFlatListFromHierarchy(items, parentList, { [parentId]: childList })
   }
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const activeId = active.id as string
+    const overId = over.id as string
+
+    const activeItem = items.find((it) => it.id === activeId)
+    const overItem = items.find((it) => it.id === overId)
+
+    if (!activeItem || !overItem) return
+
+    // If dragging a top-level parent
+    if (!activeItem.parentId) {
+      if (!overItem.parentId) {
+        const parentList = items.filter((it) => !it.parentId)
+        const oldIndex = parentList.findIndex((p) => p.id === activeId)
+        const newIndex = parentList.findIndex((p) => p.id === overId)
+        if (oldIndex !== -1 && newIndex !== -1) {
+          const reordered = arrayMove(parentList, oldIndex, newIndex)
+          rebuildFlatListFromHierarchy(items, reordered)
+        }
+      }
+    } else {
+      // If dragging a child
+      if (overItem.parentId === activeItem.parentId) {
+        const parentId = activeItem.parentId
+        const childList = items.filter((it) => it.parentId === parentId)
+        const oldIndex = childList.findIndex((c) => c.id === activeId)
+        const newIndex = childList.findIndex((c) => c.id === overId)
+        if (oldIndex !== -1 && newIndex !== -1) {
+          const reordered = arrayMove(childList, oldIndex, newIndex)
+          rebuildFlatListFromHierarchy(items, undefined, { [parentId]: reordered })
+        }
+      }
+    }
+  }
+
   const rebuildFlatListFromHierarchy = (
     baseItems: LocalMenuItem[],
     customParentsOrder?: LocalMenuItem[],
@@ -294,7 +655,6 @@ export function NavigationClient({
     { value: "category", label: "Category Collection" },
     { value: "product", label: "Product Page" },
   ]
-  const selectedTypeOpt = typeOptions.find(o => o.value === itemType) || null
 
   const refOptions =
     itemType === "page"
@@ -304,13 +664,11 @@ export function NavigationClient({
       : itemType === "product"
       ? products.map((pr) => ({ value: pr.id, label: `${pr.name} (${pr.slug})` }))
       : []
-  const selectedRefOpt = refOptions.find(o => o.value === itemReferenceId) || null
 
   const parentOptions = [
     { value: "none", label: "None (Top-level Link)" },
     ...potentialParents.map((parent) => ({ value: parent.id, label: parent.label }))
   ]
-  const selectedParentOpt = parentOptions.find(o => o.value === (itemParentId || "none")) || null
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative items-start text-foreground">
@@ -323,18 +681,33 @@ export function NavigationClient({
           </h2>
 
           <div className="flex flex-col gap-2">
-            {menus.map((m) => (
+            {[...menus].sort((a, b) => {
+              if (a.slug === "main-menu") return -1
+              if (b.slug === "main-menu") return 1
+              if (a.slug === "footer-menu") return -1
+              if (b.slug === "footer-menu") return 1
+              return 0
+            }).map((m) => (
               <button
                 key={m.id}
                 onClick={() => setSelectedMenuId(m.id)}
                 className={cn(
-                  "w-full text-left px-4 py-3 rounded-lg text-sm transition-all flex items-center justify-between border",
+                  "w-full text-left px-4 py-3 rounded-lg text-sm transition-all flex items-center justify-between border cursor-pointer",
                   selectedMenuId === m.id
                     ? "bg-primary/5 text-primary border-primary/20 font-medium"
                     : "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                <span>{m.name}</span>
+                <span className="flex items-center gap-2">
+                  {m.slug === "main-menu" ? (
+                    <MenuIcon className="h-4 w-4" />
+                  ) : m.slug === "footer-menu" ? (
+                    <PanelBottomIcon className="h-4 w-4" />
+                  ) : (
+                    <Link2Icon className="h-4 w-4" />
+                  )}
+                  {m.name}
+                </span>
                 <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-mono uppercase tracking-wider">
                   {m.slug}
                 </span>
@@ -365,7 +738,7 @@ export function NavigationClient({
                   {selectedMenu.name} Links
                 </h2>
                 <p className="text-sm text-muted-foreground font-light mt-0.5">
-                  Configure dynamic links, dropdown nesting, or text category headers.
+                  Configure dynamic links, dropdown nesting, or text category headers. Drag handles to reorder.
                 </p>
               </div>
               
@@ -380,194 +753,61 @@ export function NavigationClient({
                   className="rounded-md flex items-center gap-1.5 text-xs font-medium"
                   disabled={resetMenuMutation.isPending}
                 >
-                  <RotateCcw className="h-3.5 w-3.5" />
+                  <RotateCcwIcon className="h-3.5 w-3.5" />
                   Reset Defaults
                 </Button>
 
                 <Button
                   onClick={() => saveItemsMutation.mutate()}
-                  disabled={saveItemsMutation.isPending}
+                  disabled={saveItemsMutation.isPending || !hasChanges}
                   className="rounded-md px-5 py-2 text-sm font-semibold flex items-center gap-2"
                 >
-                  <Save className="h-4 w-4" />
+                  <SaveIcon className="h-4 w-4" />
                   <span>{saveItemsMutation.isPending ? "Saving..." : "Save Changes"}</span>
                 </Button>
               </div>
             </div>
 
             {/* Tree structure representation */}
-            <div className="flex flex-col gap-4">
-              {parents.map((parent, parentIdx) => {
-                const childrenItems = getChildren(parent.id)
-                return (
-                  <Card key={parent.id} className="p-5 border-border bg-card shadow-none flex flex-col gap-4 rounded-xl relative overflow-hidden group">
-                    
-                    {/* Parent row item */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Menu className="h-4 w-4 text-muted-foreground/40 shrink-0" />
-                        <div className="flex flex-col">
-                          <span className="text-sm font-semibold text-foreground flex items-center gap-2">
-                            {parent.label}
-                            {parent.type === "url" && parent.url === "#" && (
-                              <span className="text-[9px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold font-mono">
-                                Text Header
-                              </span>
-                            )}
-                          </span>
-                          <span className="text-xs text-muted-foreground leading-none mt-1">
-                            {parent.type === "url" && parent.url === "#"
-                              ? "Category label header (no hyperlink)"
-                              : parent.type === "url"
-                              ? parent.url
-                              : `${parent.type}: ${
-                                  parent.type === "page"
-                                    ? pages.find((p) => p.id === parent.referenceId)?.title
-                                    : parent.type === "category"
-                                    ? categories.find((c) => c.id === parent.referenceId)?.name
-                                    : products.find((pr) => pr.id === parent.referenceId)?.name
-                                }`}
-                          </span>
-                        </div>
-                      </div>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={parents.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                <div className="flex flex-col gap-4">
+                  {parents.map((parent, parentIdx) => {
+                    const childrenItems = getChildren(parent.id)
+                    return (
+                      <SortableParentItem
+                        key={parent.id}
+                        parent={parent}
+                        parentIdx={parentIdx}
+                        parentsCount={parents.length}
+                        childrenItems={childrenItems}
+                        pages={pages}
+                        categories={categories}
+                        products={products}
+                        moveParent={moveParent}
+                        openAddDrawer={openAddDrawer}
+                        openEditDrawer={openEditDrawer}
+                        handleDeleteItem={handleDeleteItem}
+                        moveChild={moveChild}
+                      />
+                    )
+                  })}
 
-                      <div className="flex items-center gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
-                        <button
-                          type="button"
-                          onClick={() => moveParent(parent.id, "up")}
-                          disabled={parentIdx === 0}
-                          className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-20 rounded-lg hover:bg-muted cursor-pointer border-none bg-transparent"
-                          title="Move Parent Up"
-                        >
-                          <ArrowUp className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveParent(parent.id, "down")}
-                          disabled={parentIdx === parents.length - 1}
-                          className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-20 rounded-lg hover:bg-muted cursor-pointer border-none bg-transparent"
-                          title="Move Parent Down"
-                        >
-                          <ArrowDown className="h-3.5 w-3.5" />
-                        </button>
-                        
-                        <Button
-                          variant="outline"
-                          onClick={() => openAddDrawer(parent.id)}
-                          className="text-xs px-2.5 py-1 rounded-full flex items-center gap-1"
-                        >
-                          <Plus className="h-3 w-3" /> Child Link
-                        </Button>
-
-                        <button
-                          type="button"
-                          onClick={() => openEditDrawer(parent)}
-                          className="p-1.5 text-muted-foreground hover:text-primary rounded-lg hover:bg-primary/5 cursor-pointer border-none bg-transparent"
-                          title="Edit Parent"
-                        >
-                          <Edit className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteItem(parent.id)}
-                          className="p-1.5 text-muted-foreground hover:text-destructive rounded-lg hover:bg-destructive/10 cursor-pointer border-none bg-transparent"
-                          title="Delete Parent"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
+                  {parents.length === 0 && (
+                    <div className="text-center py-16 border border-dashed border-border rounded-xl text-sm text-muted-foreground bg-muted/10">
+                      This menu has no links yet. Click "Add Top Level Link" below to begin.
                     </div>
-
-                    {/* Children sub-list */}
-                    {childrenItems.length > 0 && (
-                      <div className="ml-6 pl-4 border-l-2 border-border flex flex-col gap-3 pt-2">
-                        {childrenItems.map((child, childIdx) => (
-                          <div key={child.id} className="flex items-center justify-between py-2.5 px-3 bg-muted/20 border border-border rounded-lg relative group/child">
-                            <div className="flex items-center gap-3">
-                              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/45 shrink-0" />
-                              <div className="flex flex-col">
-                                <span className="text-xs font-medium text-foreground flex items-center gap-2">
-                                  {child.label}
-                                  {child.type === "url" && child.url === "#" && (
-                                    <span className="text-[8px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded font-mono font-semibold">
-                                      Text Header
-                                    </span>
-                                  )}
-                                </span>
-                                <span className="text-[10px] text-muted-foreground leading-none mt-1">
-                                  {child.type === "url" && child.url === "#"
-                                    ? "Label label header (no hyperlink)"
-                                    : child.type === "url"
-                                    ? child.url
-                                    : `${child.type}: ${
-                                        child.type === "page"
-                                          ? pages.find((p) => p.id === child.referenceId)?.title
-                                          : child.type === "category"
-                                          ? categories.find((c) => c.id === child.referenceId)?.name
-                                          : products.find((pr) => pr.id === child.referenceId)?.name
-                                      }`}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-1 opacity-70 group-hover/child:opacity-100 transition-opacity">
-                              <button
-                                type="button"
-                                onClick={() => moveChild(child.id, parent.id, "up")}
-                                disabled={childIdx === 0}
-                                className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-20 rounded hover:bg-muted cursor-pointer border-none bg-transparent"
-                                title="Move Child Up"
-                              >
-                                <ArrowUp className="h-3.5 w-3.5" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => moveChild(child.id, parent.id, "down")}
-                                disabled={childIdx === childrenItems.length - 1}
-                                className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-20 rounded hover:bg-muted cursor-pointer border-none bg-transparent"
-                                title="Move Child Down"
-                              >
-                                <ArrowDown className="h-3.5 w-3.5" />
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => openEditDrawer(child)}
-                                className="p-1 text-muted-foreground hover:text-primary rounded hover:bg-primary/5 cursor-pointer border-none bg-transparent"
-                                title="Edit Child"
-                              >
-                                <Edit className="h-3.5 w-3.5" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteItem(child.id)}
-                                className="p-1 text-muted-foreground hover:text-destructive rounded hover:bg-destructive/10 cursor-pointer border-none bg-transparent"
-                                title="Delete Child"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </Card>
-                )
-              })}
-
-              {parents.length === 0 && (
-                <div className="text-center py-16 border border-dashed border-border rounded-xl text-sm text-muted-foreground bg-muted/10">
-                  This menu has no links yet. Click "Add Top Level Link" below to begin.
+                  )}
                 </div>
-              )}
-            </div>
+              </SortableContext>
+            </DndContext>
 
             <Button
               variant="outline"
               onClick={() => openAddDrawer()}
               className="w-full py-4 border-dashed border-border text-sm text-primary hover:bg-primary/5 rounded-xl flex items-center justify-center gap-2"
             >
-              <Plus className="h-4 w-4" />
+              <PlusIcon className="h-4 w-4" />
               <span>Add Top Level Link</span>
             </Button>
           </>
@@ -577,7 +817,7 @@ export function NavigationClient({
               Navigation Setup
             </h3>
             <p className="text-sm text-muted-foreground font-light mt-1.5 max-w-sm">
-              Please select either Main Menu or Footer Menu on the left to configure.
+              Please select either Main MenuIcon or Footer MenuIcon on the left to configure.
             </p>
           </Card>
         )}

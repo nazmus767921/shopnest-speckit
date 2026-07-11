@@ -9,14 +9,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import {
-  CheckCircle2,
-  Circle,
-  Share2,
-  ArrowRight,
-  Copy,
-  Check,
-} from "lucide-react"
+import { CheckCircle2Icon, CircleIcon, Share2Icon, ArrowRightIcon, CopyIcon, CheckIcon } from "@/lib/icons";
+
 import Link from "next/link"
 import {
   AlertDialog,
@@ -112,7 +106,7 @@ export function DashboardChecklist({
   const [instagramAlert, setInstagramAlert] = useState(false)
 
   const storefrontUrl = `https://${subdomain}.shopnest.com.bd`
-  const shareText = `Check out my new clothing boutique store on ShopNest! 🛍️✨`
+  const shareText = `CheckIcon out my new clothing boutique store on ShopNest! 🛍️✨`
 
   const onboardingSteps: ChecklistStep[] = [
     { title: "Register merchant account", done: true },
@@ -184,11 +178,11 @@ export function DashboardChecklist({
                 className="flex items-start gap-3 p-3.5 rounded-lg border border-border bg-muted/10 hover:bg-muted/20 transition-all duration-200"
               >
                 {isShareStep ? (
-                  <Share2 className="h-5 w-5 text-foreground shrink-0 mt-0.5" />
+                  <Share2Icon className="h-5 w-5 text-foreground shrink-0 mt-0.5" />
                 ) : step.done ? (
-                  <CheckCircle2 className="h-5 w-5 text-emerald-800 shrink-0 mt-0.5 stroke-[2.5]" />
+                  <CheckCircle2Icon className="h-5 w-5 text-emerald-800 shrink-0 mt-0.5 stroke-[2.5]" />
                 ) : (
-                  <Circle className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5 stroke-[2]" />
+                  <CircleIcon className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5 stroke-[2]" />
                 )}
 
                 <div className="flex flex-col gap-0.5 grow">
@@ -207,7 +201,7 @@ export function DashboardChecklist({
                       className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1.5 self-start mt-1 cursor-pointer select-none"
                     >
                       Share Storefront
-                      <ArrowRight className="h-3 w-3" />
+                      <ArrowRightIcon className="h-3 w-3" />
                     </button>
                   ) : !step.done && step.href ? (
                     <Link
@@ -215,7 +209,7 @@ export function DashboardChecklist({
                       className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1.5 self-start mt-1 select-none"
                     >
                       Get started
-                      <ArrowRight className="h-3 w-3" />
+                      <ArrowRightIcon className="h-3 w-3" />
                     </Link>
                   ) : null}
                 </div>
@@ -235,7 +229,7 @@ export function DashboardChecklist({
             </DialogDescription>
           </DialogHeader>
 
-          {/* Link Copy Bar */}
+          {/* Link CopyIcon Bar */}
           <div className="flex items-center gap-2 p-2 rounded-lg border border-border bg-muted">
             <span className="text-sm text-muted-foreground font-mono truncate grow select-all pl-1.5">
               {storefrontUrl}
@@ -247,9 +241,9 @@ export function DashboardChecklist({
               className="shrink-0 p-2 min-h-9 w-9 rounded-full flex items-center justify-center cursor-pointer border border-border bg-background hover:bg-accent"
             >
               {copied ? (
-                <Check className="h-4 w-4 text-emerald-800" />
+                <CheckIcon className="h-4 w-4 text-emerald-800" />
               ) : (
-                <Copy className="h-4 w-4 text-foreground" />
+                <CopyIcon className="h-4 w-4 text-foreground" />
               )}
             </Button>
           </div>

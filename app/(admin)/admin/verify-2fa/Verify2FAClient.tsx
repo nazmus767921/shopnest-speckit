@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { authClient } from "@/lib/auth/auth-client"
-import { Shield, Loader2, Key } from "lucide-react"
+import { ShieldIcon, Loader2Icon, KeyIcon } from "@/lib/icons";
 
 export function Verify2FAClient() {
   const [code, setCode] = useState("")
@@ -47,7 +47,7 @@ export function Verify2FAClient() {
     <div className="w-full max-w-md bg-canvas-light border border-hairline-light rounded-xl p-8 flex flex-col gap-6">
       <div className="flex flex-col items-center text-center gap-2">
         <div className="h-12 w-12 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-800">
-          <Shield className="h-6 w-6" />
+          <ShieldIcon className="h-6 w-6" />
         </div>
         <h1 className="font-display text-heading-xl font-semibold tracking-tight text-ink">
           2-Step Verification
@@ -103,7 +103,7 @@ export function Verify2FAClient() {
           disabled={loading || (!useBackupCode && code.length !== 6) || (useBackupCode && backupCode.length < 5)}
           className="w-full py-2.5 bg-black text-white hover:bg-zinc-800 rounded-full text-body-strong font-medium flex items-center justify-center gap-2 transition disabled:opacity-50"
         >
-          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+          {loading && <Loader2Icon className="h-4 w-4 animate-spin" />}
           Verify and Log In
         </button>
       </form>
@@ -117,7 +117,7 @@ export function Verify2FAClient() {
           }}
           className="text-caption text-emerald-800 font-semibold hover:underline flex items-center justify-center gap-1.5 w-full"
         >
-          <Key className="h-3.5 w-3.5" />
+          <KeyIcon className="h-3.5 w-3.5" />
           {useBackupCode ? "Use Authenticator App" : "Use Backup Recovery Code"}
         </button>
       </div>

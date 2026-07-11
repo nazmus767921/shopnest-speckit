@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import { Compass } from "lucide-react"
+import { CompassIcon } from "@/lib/icons";
 
 export default function StoreNotFoundPage() {
   const [mainUrl, setMainUrl] = useState("/")
@@ -32,7 +32,7 @@ export default function StoreNotFoundPage() {
     <div className="min-h-screen bg-canvas-cream flex flex-col justify-center items-center px-6 text-ink select-none animate-fade-in">
       <div className="flex flex-col items-center max-w-md text-center gap-6">
         <div className="w-16 h-16 rounded-full bg-pistachio-10 flex items-center justify-center text-ink border border-hairline-light animate-pulse">
-          <Compass className="h-8 w-8 text-ink stroke-[1.5]" />
+          <CompassIcon className="h-8 w-8 text-ink stroke-[1.5]" />
         </div>
         <div className="flex flex-col gap-2">
           <h1 className="font-display text-display-md font-light tracking-tight leading-tight text-ink">

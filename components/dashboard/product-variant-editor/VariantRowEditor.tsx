@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { NumberInput } from "@/components/ui/number-input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Check, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2Icon, CheckIcon, XIcon, ChevronDownIcon, ChevronUpIcon } from "@/lib/icons";
+
 import { cn } from "@/lib/utils";
 
 export type VariantRow = {
@@ -145,7 +146,7 @@ function InlineCell({
           )}
           {saving && (
             <div className="absolute right-2 top-1/2 -translate-y-1/2">
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+              <Loader2Icon className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
             </div>
           )}
         </div>
@@ -253,7 +254,6 @@ export function VariantRowEditor({
     await onUpdate(variant.id, { isActive: !variant.isActive });
   }, [variant.id, variant.isActive, onUpdate]);
 
-
   return (
     <div
       className={cn(
@@ -349,14 +349,19 @@ export function VariantRowEditor({
         <div className="w-[85px] shrink-0 text-right" role="gridcell">
           <span className="text-xs text-muted-foreground block leading-tight pr-2">Status</span>
           <Badge
-            variant={variant.isActive ? "default" : "secondary"}
+            variant="outline"
             onClick={handleToggleStatus}
-            className="cursor-pointer"
+            className={cn(
+              "cursor-pointer transition-colors border",
+              variant.isActive
+                ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 hover:bg-emerald-500/20 dark:text-emerald-350 dark:border-emerald-500/30"
+                : "bg-muted text-muted-foreground border-transparent hover:bg-muted/80"
+            )}
           >
             <span
               className={cn(
                 "h-1.5 w-1.5 rounded-full mr-1.5",
-                variant.isActive ? "bg-primary-foreground" : "bg-muted-foreground"
+                variant.isActive ? "bg-emerald-500" : "bg-muted-foreground"
               )}
               aria-hidden="true"
             />
@@ -380,14 +385,19 @@ export function VariantRowEditor({
             </span>
           </div>
           <Badge
-            variant={variant.isActive ? "default" : "secondary"}
+            variant="outline"
             onClick={handleToggleStatus}
-            className="cursor-pointer font-semibold shrink-0"
+            className={cn(
+              "cursor-pointer font-semibold shrink-0 transition-colors border",
+              variant.isActive
+                ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 hover:bg-emerald-500/20 dark:text-emerald-350 dark:border-emerald-500/30"
+                : "bg-muted text-muted-foreground border-transparent hover:bg-muted/80"
+            )}
           >
             {variant.isActive ? (
-              <Check className="h-3 w-3 mr-1" />
+              <CheckIcon className="h-3 w-3 mr-1 text-emerald-600 dark:text-emerald-400" />
             ) : (
-              <X className="h-3 w-3 mr-1" />
+              <XIcon className="h-3 w-3 mr-1 text-muted-foreground" />
             )}
             <span>{variant.isActive ? "Active" : "Inactive"}</span>
           </Badge>
