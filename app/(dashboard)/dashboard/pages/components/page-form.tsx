@@ -11,7 +11,7 @@ import { Field, FieldLabel, FieldError, FieldDescription, FieldGroup, FieldSet }
 import { Switch } from "@/components/ui/switch"
 import dynamic from "next/dynamic"
 import Link from "next/link"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeftIcon } from "@/lib/icons";
 
 const RichTextEditor = dynamic(
   () => import("@/components/ui/RichTextEditor").then((mod) => mod.RichTextEditor),
@@ -90,7 +90,7 @@ export function PageForm({ initialData }: PageFormProps) {
             href="/dashboard/pages"
             className="flex items-center justify-center w-8 h-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeftIcon className="w-5 h-5" />
           </Link>
           <div className="flex flex-col">
             <span className="text-base font-semibold leading-none">

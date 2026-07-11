@@ -1,7 +1,8 @@
 import React from "react"
 import { createPlanAction } from "@/app/actions/plans"
 import { PlanForm } from "../components/PlanForm"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeftIcon } from "@/lib/icons";
+
 import Link from "next/link"
 
 export const metadata = {
@@ -15,7 +16,7 @@ export default async function NewPlanPage() {
       {/* Premium Header */}
       <div className="flex flex-col gap-2 pb-6 border-b border-hairline-light">
         <div className="flex items-center gap-1.5 text-shade-40 hover:text-ink transition-colors self-start mb-1">
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeftIcon className="h-4 w-4" />
           <Link href="/admin/plans" className="text-micro font-semibold font-mono uppercase tracking-wider">
             Back to Plans List
           </Link>

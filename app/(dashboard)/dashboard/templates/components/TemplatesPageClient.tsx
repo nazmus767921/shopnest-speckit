@@ -6,7 +6,8 @@ import { applyTemplateAction, updateThemeSettingsAction } from "@/app/actions/se
 import { saveStorefrontSectionsAction, seedDefaultSectionsAction } from "@/app/actions/storefront-sections"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { Save, ChevronDown, ChevronRight, LayoutTemplate, Palette, LayoutList, Plus } from "lucide-react"
+import { SaveIcon, ChevronDownIcon, ChevronRightIcon, LayoutTemplateIcon, PaletteIcon, LayoutListIcon, PlusIcon } from "@/lib/icons";
+
 import {
   Select,
   SelectContent,
@@ -272,14 +273,14 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
           >
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
-                <LayoutTemplate className="w-5 h-5" />
+                <LayoutTemplateIcon className="w-5 h-5" />
               </div>
               <div className="flex flex-col items-start">
                 <h2 className="text-base font-bold">Active Theme</h2>
                 <p className="text-sm text-muted-foreground">Select your storefront layout</p>
               </div>
             </div>
-            {activeAccordion === 'template' ? <ChevronDown className="w-5 h-5 text-muted-foreground" /> : <ChevronRight className="w-5 h-5 text-muted-foreground" />}
+            {activeAccordion === 'template' ? <ChevronDownIcon className="w-5 h-5 text-muted-foreground" /> : <ChevronRightIcon className="w-5 h-5 text-muted-foreground" />}
           </button>
 
           {activeAccordion === 'template' && (
@@ -302,7 +303,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
               onClick={() => setActiveAccordion(activeAccordion === 'theme' ? '' : 'theme')}
             >
               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground relative">
-                <Palette className="w-5 h-5" />
+                <PaletteIcon className="w-5 h-5" />
                 {hasUnsavedTheme && <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-background"></span>}
               </div>
               <div className="flex flex-col items-start">
@@ -324,7 +325,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                 </Button>
               )}
               <button onClick={() => setActiveAccordion(activeAccordion === 'theme' ? '' : 'theme')}>
-                {activeAccordion === 'theme' ? <ChevronDown className="w-5 h-5 text-muted-foreground" /> : <ChevronRight className="w-5 h-5 text-muted-foreground" />}
+                {activeAccordion === 'theme' ? <ChevronDownIcon className="w-5 h-5 text-muted-foreground" /> : <ChevronRightIcon className="w-5 h-5 text-muted-foreground" />}
               </button>
             </div>
           </div>
@@ -404,7 +405,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
               onClick={() => setActiveAccordion(activeAccordion === 'sections' ? '' : 'sections')}
             >
               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground relative">
-                <LayoutList className="w-5 h-5" />
+                <LayoutListIcon className="w-5 h-5" />
                 {hasUnsavedSections && <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-background"></span>}
               </div>
               <div className="flex flex-col items-start">
@@ -426,7 +427,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                 </Button>
               )}
               <button onClick={() => setActiveAccordion(activeAccordion === 'sections' ? '' : 'sections')}>
-                {activeAccordion === 'sections' ? <ChevronDown className="w-5 h-5 text-muted-foreground" /> : <ChevronRight className="w-5 h-5 text-muted-foreground" />}
+                {activeAccordion === 'sections' ? <ChevronDownIcon className="w-5 h-5 text-muted-foreground" /> : <ChevronRightIcon className="w-5 h-5 text-muted-foreground" />}
               </button>
             </div>
           </div>
@@ -442,7 +443,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" className="w-full justify-start gap-2">
-                        <Plus className="h-4 w-4" /> Add Section
+                        <PlusIcon className="h-4 w-4" /> Add Section
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-48">

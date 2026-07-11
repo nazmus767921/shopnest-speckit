@@ -2,7 +2,8 @@
 
 import React, { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Loader2, Plus, FileText, Pencil, Trash2, Search } from "lucide-react"
+import { Loader2Icon, PlusIcon, FileTextIcon, PencilIcon, Trash2Icon, SearchIcon } from "@/lib/icons";
+
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
@@ -53,10 +54,10 @@ export function PagesClient({ initialPages, merchantId }: PagesClientProps) {
     <div className="flex flex-col gap-6 text-foreground">
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        {/* Search */}
+        {/* SearchIcon */}
         <div className="relative max-w-sm w-full">
           <span className="absolute inset-y-0 left-3.5 flex items-center text-muted-foreground">
-            <Search className="h-4 w-4" />
+            <SearchIcon className="h-4 w-4" />
           </span>
           <input
             type="text"
@@ -73,7 +74,7 @@ export function PagesClient({ initialPages, merchantId }: PagesClientProps) {
           asChild
         >
           <Link href="/dashboard/pages/new" className="flex items-center gap-2 justify-center">
-            <Plus className="h-4 w-4" />
+            <PlusIcon className="h-4 w-4" />
             <span>Create Page</span>
           </Link>
         </Button>
@@ -85,7 +86,7 @@ export function PagesClient({ initialPages, merchantId }: PagesClientProps) {
           className="flex flex-col items-center justify-center text-center p-12 border border-border bg-card rounded-xl"
         >
           <div className="p-3 bg-muted rounded-full mb-4">
-            <FileText className="h-8 w-8 text-foreground stroke-1.5" />
+            <FileTextIcon className="h-8 w-8 text-foreground stroke-1.5" />
           </div>
           <h3 className="text-lg font-semibold text-foreground">
             No pages yet
@@ -143,7 +144,7 @@ export function PagesClient({ initialPages, merchantId }: PagesClientProps) {
                     asChild
                   >
                     <Link href={`/dashboard/pages/${page.id}`}>
-                      <Pencil className="h-3.5 w-3.5" />
+                      <PencilIcon className="h-3.5 w-3.5" />
                       <span className="md:hidden">Edit</span>
                     </Link>
                   </Button>
@@ -155,7 +156,7 @@ export function PagesClient({ initialPages, merchantId }: PagesClientProps) {
                     disabled={isPending}
                     className="flex-1 md:flex-none justify-center items-center gap-1.5 rounded-md py-1.5 h-8 bg-muted hover:bg-destructive/15 hover:text-destructive hover:border-destructive/20 cursor-pointer disabled:opacity-50 transition-colors"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2Icon className="h-3.5 w-3.5" />
                     <span className="md:hidden">Delete</span>
                   </Button>
                 </div>
@@ -186,7 +187,7 @@ export function PagesClient({ initialPages, merchantId }: PagesClientProps) {
                 handleDeleteConfirm()
               }}
             >
-              {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}
+              {isPending && <Loader2Icon className="h-3.5 w-3.5 animate-spin mr-1" />}
               Delete Page
             </AlertDialogAction>
           </AlertDialogFooter>

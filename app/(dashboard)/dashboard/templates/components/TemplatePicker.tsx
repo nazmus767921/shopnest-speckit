@@ -1,7 +1,8 @@
 "use client"
 
 import React from "react"
-import { Lock } from "lucide-react"
+import { LockIcon } from "@/lib/icons";
+
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -55,7 +56,7 @@ export function TemplatePicker({ templates, loading, selectedTemplate, onSelect 
               />
               {tpl.isLocked && (
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex flex-col items-center justify-center text-white gap-2 p-4 text-center">
-                  <Lock className="h-8 w-8 text-amber-400" />
+                  <LockIcon className="h-8 w-8 text-amber-400" />
                   <span className="font-semibold text-sm uppercase tracking-wider text-amber-400">Locked</span>
                   <span className="text-xs opacity-90 max-w-[200px]">
                     Requires Growth or Pro subscription plan.

@@ -1,7 +1,8 @@
 import React from "react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui"
 import { SystemOverviewCard } from "../components/SystemOverviewCard"
-import { Shield, Users, Server, Zap, Play, TrendingUp, AlertCircle, CreditCard } from "lucide-react"
+import { ShieldIcon, UsersIcon, ServerIcon, ZapIcon, PlayIcon, TrendingUpIcon, AlertCircleIcon, CreditCardIcon } from "@/lib/icons";
+
 import { db } from "@/db"
 import { merchants, user, subscriptionPayments } from "@/db/schema"
 import { eq, count, gte, and, desc } from "drizzle-orm"
@@ -144,7 +145,7 @@ async function AdminOverviewContent() {
           title="Boutique Registry"
           value={totalMerchants}
           description="Total registered boutique stores"
-          icon={Users}
+          icon={UsersIcon}
           footer={
             <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-micro font-medium bg-canvas-cream border border-hairline-light text-shade-70">
@@ -166,12 +167,12 @@ async function AdminOverviewContent() {
           title="Active Trials"
           value={activeTrials}
           description="Boutiques in 7-day onboarding trial"
-          icon={Play}
+          icon={PlayIcon}
           iconBgClass="bg-amber-50 text-amber-800 border border-amber-100"
           iconTextClass="text-amber-805"
           footer={
             <div className="flex items-center gap-1.5 text-micro text-shade-50">
-              <AlertCircle className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+              <AlertCircleIcon className="h-3.5 w-3.5 text-amber-600 shrink-0" />
               <span>Trial limit checks enforced server-side</span>
             </div>
           }
@@ -181,13 +182,13 @@ async function AdminOverviewContent() {
           title="Active Subs"
           value={activeSubscriptions}
           description="Paid plans active on platform"
-          icon={Zap}
+          icon={ZapIcon}
           iconBgClass="bg-emerald-50 text-emerald-800 border border-emerald-100"
           iconTextClass="text-emerald-805"
           footer={
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-1">
-                <TrendingUp className="h-3.5 w-3.5 text-emerald-800" />
+                <TrendingUpIcon className="h-3.5 w-3.5 text-emerald-800" />
                 <span className="text-micro font-bold text-emerald-900 bg-emerald-50 border border-emerald-100/50 px-2 py-0.5 rounded-full">
                   Est. MRR: ৳{estimatedMRR.toLocaleString("en-BD")}
                 </span>

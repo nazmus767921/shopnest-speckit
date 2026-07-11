@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Label as FormLabel } from "@/components/ui/label"
 import {
@@ -21,7 +22,7 @@ import {
   FooterContent
 } from "@/lib/storefront-sections/types"
 import { Button } from "@/components/ui/button"
-import { Trash2, Plus } from "lucide-react"
+import { Trash2Icon, PlusIcon, InfoIcon } from "@/lib/icons";
 
 export function HeroEditor({ content, onChange }: { content: HeroContent, onChange: (c: HeroContent) => void }) {
   return (
@@ -277,7 +278,7 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
             disabled={items.length >= 8}
             className="h-8 rounded-full"
           >
-            <Plus className="w-4 h-4 mr-1" /> Add FAQ
+            <PlusIcon className="w-4 h-4 mr-1" /> Add FAQ
           </Button>
         </div>
         
@@ -315,7 +316,7 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
               }}
               className="text-muted-foreground/60 hover:text-destructive p-2 cursor-pointer transition-colors"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2Icon className="w-4 h-4" />
             </button>
           </div>
         ))}
@@ -331,6 +332,16 @@ export function FooterEditor({ content, onChange }: { content: FooterContent, on
   const links = content.socialLinks || {}
   return (
     <div className="flex flex-col gap-4 text-foreground">
+      <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded-lg text-sm">
+        <InfoIcon className="h-4 w-4 text-blue-500 dark:text-blue-400 shrink-0 mt-0.5" />
+        <span className="text-blue-600 dark:text-blue-400">
+          Footer navigation links are managed in the{' '}
+          <Link href="/dashboard/navigation" className="font-medium underline hover:text-blue-700 dark:hover:text-blue-300">
+            Navigation page
+          </Link>
+          .
+        </span>
+      </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Store Description</FormLabel>
         <Textarea 

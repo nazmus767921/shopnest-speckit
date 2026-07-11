@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import { AlertOctagon } from "lucide-react"
+import { AlertOctagonIcon } from "@/lib/icons";
 
 export default function StoreSuspendedPage() {
   const [mainUrl, setMainUrl] = useState("/")
@@ -31,7 +31,7 @@ export default function StoreSuspendedPage() {
     <div className="min-h-screen bg-canvas-cream flex flex-col justify-center items-center px-6 text-ink select-none animate-fade-in">
       <div className="flex flex-col items-center max-w-md text-center gap-6">
         <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-red-600 border border-red-100 animate-pulse">
-          <AlertOctagon className="h-8 w-8 stroke-[1.5]" />
+          <AlertOctagonIcon className="h-8 w-8 stroke-[1.5]" />
         </div>
         <div className="flex flex-col gap-2">
           <h1 className="font-display text-display-md font-light tracking-tight leading-tight text-ink">

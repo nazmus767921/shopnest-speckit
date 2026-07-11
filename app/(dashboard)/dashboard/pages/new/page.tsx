@@ -1,7 +1,7 @@
 import React from "react"
 import { PageForm } from "../components/page-form"
 import Link from "next/link"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeftIcon } from "@/lib/icons";
 
 export const metadata = {
   title: "Create Page — ShopNest Dashboard",

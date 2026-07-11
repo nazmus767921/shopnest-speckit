@@ -24,18 +24,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
-import {
-  Send,
-  CheckCircle2,
-  AlertCircle,
-  Unlink,
-  MessageCircle,
-  Info,
-  ExternalLink,
-  Lock,
-  ArrowRight,
-  Loader2,
-} from "lucide-react"
+import { SendIcon, CheckCircle2Icon, AlertCircleIcon, UnlinkIcon, MessageCircleIcon, InfoIcon, ExternalLinkIcon, LockIcon, ArrowRightIcon, Loader2Icon } from "@/lib/icons";
+
 import { telegramBotUsername } from "@/lib/config"
 import type { ResolvedPlan } from "@/lib/plans/types"
 import Link from "next/link"
@@ -117,7 +107,7 @@ export function NotificationsTab({ merchant, plan }: NotificationsTabProps) {
     return (
       <div className="flex flex-col items-center justify-center text-center py-16 px-8 border border-border rounded-xl bg-card">
         <div className="p-4 bg-muted rounded-full mb-5">
-          <Lock className="h-8 w-8 text-foreground stroke-1.5" />
+          <LockIcon className="h-8 w-8 text-foreground stroke-1.5" />
         </div>
 
         <h2 className="text-xl font-bold text-foreground mb-2">
@@ -132,7 +122,7 @@ export function NotificationsTab({ merchant, plan }: NotificationsTabProps) {
         <Link href="/dashboard/billing">
           <Button className="flex items-center gap-2 rounded-md">
             <span>View Billing &amp; Plans</span>
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRightIcon className="h-4 w-4" />
           </Button>
         </Link>
       </div>
@@ -147,7 +137,7 @@ export function NotificationsTab({ merchant, plan }: NotificationsTabProps) {
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-sky-50 dark:bg-sky-950/20 rounded-lg border border-sky-100 dark:border-sky-950">
-                <MessageCircle className="h-5 w-5 text-sky-500" />
+                <MessageCircleIcon className="h-5 w-5 text-sky-500" />
               </div>
               <div>
                 <CardTitle className="text-lg font-bold text-foreground">
@@ -171,7 +161,7 @@ export function NotificationsTab({ merchant, plan }: NotificationsTabProps) {
           {/* Connection status banner */}
           {connected && (
             <div className="flex items-center gap-3 p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-950 rounded-lg">
-              <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <CheckCircle2Icon className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <p className="text-sm text-emerald-800 dark:text-emerald-300 font-medium">
                 Connected
                 {connectedAt
@@ -187,7 +177,7 @@ export function NotificationsTab({ merchant, plan }: NotificationsTabProps) {
           {/* Setup instructions */}
           <div className="p-4 bg-muted/10 border border-border rounded-lg flex flex-col gap-3">
             <div className="flex items-center gap-2">
-              <Info className="h-4 w-4 text-muted-foreground shrink-0" />
+              <InfoIcon className="h-4 w-4 text-muted-foreground shrink-0" />
               <span className="text-sm font-semibold text-foreground">
                 How to find your Chat ID
               </span>
@@ -240,19 +230,19 @@ export function NotificationsTab({ merchant, plan }: NotificationsTabProps) {
                   className="inline-flex items-center gap-0.5 text-primary hover:underline font-semibold bg-muted px-1 py-0.5 rounded text-xs"
                 >
                   @{telegramBotUsername}
-                  <ExternalLink className="h-3 w-3 shrink-0" />
+                  <ExternalLinkIcon className="h-3 w-3 shrink-0" />
                 </a>{" "}
                 and tap <strong className="text-foreground">Start</strong>.
               </li>
               <li>
-                Click <strong className="text-foreground">Save & Send Test Message</strong> to connect and verify the channel.
+                Click <strong className="text-foreground">Save & SendIcon Test Message</strong> to connect and verify the channel.
               </li>
             </ol>
           </div>
 
           {/* Disclaimer callout */}
           <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg flex gap-3 text-sm text-amber-800 dark:text-amber-200 leading-relaxed">
-            <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <AlertCircleIcon className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <div className="flex flex-col gap-1">
               <span className="font-semibold text-amber-900 dark:text-amber-300">Telegram Bot Requirement</span>
               <p>
@@ -296,7 +286,7 @@ export function NotificationsTab({ merchant, plan }: NotificationsTabProps) {
                   {field.state.meta.errors.length > 0 && (
                     <FieldError>
                       <div className="flex items-center gap-1.5 mt-1">
-                        <AlertCircle className="h-3.5 w-3.5 text-red-500 shrink-0" />
+                        <AlertCircleIcon className="h-3.5 w-3.5 text-red-500 shrink-0" />
                         <p className="text-xs text-red-500">
                           {String(field.state.meta.errors[0])}
                         </p>
@@ -319,7 +309,7 @@ export function NotificationsTab({ merchant, plan }: NotificationsTabProps) {
                 className="flex items-center gap-2 rounded-md"
                 id="save-telegram-btn"
               >
-                <Send className="h-4 w-4" />
+                <SendIcon className="h-4 w-4" />
                 {isSaving ? "Saving…" : "Save & Send Test Message"}
               </Button>
             )}
@@ -334,7 +324,7 @@ export function NotificationsTab({ merchant, plan }: NotificationsTabProps) {
               className="flex items-center gap-2 text-muted-foreground hover:text-destructive rounded-md"
               id="disconnect-telegram-btn"
             >
-              <Unlink className="h-4 w-4" />
+              <UnlinkIcon className="h-4 w-4" />
               {disconnecting ? "Disconnecting…" : "Disconnect"}
             </Button>
           )}
@@ -360,7 +350,7 @@ export function NotificationsTab({ merchant, plan }: NotificationsTabProps) {
           </DialogHeader>
           <div className="flex flex-col gap-5">
             <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-start gap-3 text-amber-900 dark:text-amber-200">
-              <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <AlertCircleIcon className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div className="flex flex-col gap-1.5 text-sm">
                 <p>
                   Before we can send your test message, you <strong>must</strong> start a chat with our bot. If you haven't done this, the connection will fail.
@@ -372,7 +362,7 @@ export function NotificationsTab({ merchant, plan }: NotificationsTabProps) {
                   className="inline-flex items-center gap-1 font-semibold text-primary hover:underline bg-background px-3 py-1.5 rounded-lg border border-border self-start mt-1 shadow-sm"
                 >
                   Open @{telegramBotUsername} in Telegram
-                  <ExternalLink className="h-4 w-4" />
+                  <ExternalLinkIcon className="h-4 w-4" />
                 </a>
               </div>
             </div>
@@ -394,7 +384,7 @@ export function NotificationsTab({ merchant, plan }: NotificationsTabProps) {
               disabled={isSaving}
               className="rounded-md flex items-center gap-2"
             >
-              {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isSaving && <Loader2Icon className="h-4 w-4 animate-spin" />}
               Yes, I've started the chat
             </Button>
           </DialogFooter>

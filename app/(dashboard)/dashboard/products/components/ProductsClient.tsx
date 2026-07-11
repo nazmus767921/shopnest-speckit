@@ -51,25 +51,8 @@ import {
   DrawerFooter,
   DrawerClose,
 } from "@/components/ui/drawer"
-import {
-  Plus,
-  ShoppingBag,
-  Search,
-  Edit2,
-  Trash2,
-  Loader2,
-  Eye,
-  EyeOff,
-  ImageIcon,
-  ExternalLink,
-  Grid,
-  List,
-  MoreVertical,
-  Filter,
-  X,
-  Tag,
-  FolderOpen
-} from "lucide-react"
+import { PlusIcon, ShoppingBagIcon, SearchIcon, Edit2Icon, Trash2Icon, Loader2Icon, EyeIcon, EyeOffIcon, ImageIcon, ExternalLinkIcon, GridIcon, ListIcon, MoreVerticalIcon, FilterIcon, XIcon, TagIcon, FolderOpenIcon } from "@/lib/icons";
+
 import Link from "next/link"
 import { supabase } from "@/lib/supabase/client"
 import {
@@ -208,7 +191,7 @@ export function InlineStockWidget({
           />
           {isSaving && (
             <div className="absolute inset-0 bg-background/70 flex items-center justify-center">
-              <Loader2 className="h-3 w-3 animate-spin text-primary" />
+              <Loader2Icon className="h-3 w-3 animate-spin text-primary" />
             </div>
           )}
         </div>
@@ -259,7 +242,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
   // Selected Products for Bulk Actions (Single Source of Truth)
   const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({})
 
-  // Filter and Sort states
+  // FilterIcon and Sort states
   const [searchQuery, setSearchQuery] = React.useState("")
   const [statusFilter, setStatusFilter] = React.useState<"all" | "published" | "draft">("all")
   const [stockFilter, setStockFilter] = React.useState<"all" | "in_stock" | "low_stock" | "out_of_stock">("all")
@@ -467,7 +450,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
   const publishedCount = products.filter((p) => p.isPublished).length
   const draftCount = products.filter((p) => !p.isPublished).length
 
-  // Filter logic
+  // FilterIcon logic
   const filteredProducts = React.useMemo(() => {
     return products
       .filter((product) => {
@@ -579,7 +562,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               variant="secondary"
               className="bg-primary/10 hover:bg-primary/15 border-primary/20 text-primary font-semibold flex items-center gap-1.5 py-1 px-3 h-7 rounded-full w-fit whitespace-nowrap"
             >
-              <FolderOpen className="h-3.5 w-3.5" />
+              <FolderOpenIcon className="h-3.5 w-3.5" />
               <span>{category.name}</span>
             </Badge>
           ) : (
@@ -681,18 +664,18 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               {product.isPublished ? (
                 <span className="inline-flex items-center gap-1.5 text-xs bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 rounded-full px-2.5 py-1 font-semibold border border-emerald-500/20">
                   {togglePublishMutation.isPending && togglePublishMutation.variables?.productId === product.id ? (
-                    <Loader2 className="h-3 w-3 animate-spin text-foreground" />
+                    <Loader2Icon className="h-3 w-3 animate-spin text-foreground" />
                   ) : (
-                    <Eye className="h-3 w-3 stroke-2" />
+                    <EyeIcon className="h-3 w-3 stroke-2" />
                   )}
                   <span>Published</span>
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 text-xs bg-muted text-muted-foreground rounded-full px-2.5 py-1 font-semibold border border-border">
                   {togglePublishMutation.isPending && togglePublishMutation.variables?.productId === product.id ? (
-                    <Loader2 className="h-3 w-3 animate-spin text-foreground" />
+                    <Loader2Icon className="h-3 w-3 animate-spin text-foreground" />
                   ) : (
-                    <EyeOff className="h-3 w-3 stroke-2" />
+                    <EyeOffIcon className="h-3 w-3 stroke-2" />
                   )}
                   <span>Draft</span>
                 </span>
@@ -715,7 +698,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                 title="View on storefront"
                 className="text-muted-foreground hover:text-foreground cursor-pointer p-1.5 hover:bg-muted rounded-full transition-colors"
               >
-                <ExternalLink className="h-4.5 w-4.5" />
+                <ExternalLinkIcon className="h-4.5 w-4.5" />
               </a>
 
               <Link href={`/dashboard/products/${product.id}/edit`}>
@@ -723,7 +706,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                   title="Edit Product"
                   className="text-muted-foreground hover:text-foreground cursor-pointer p-1.5 hover:bg-muted rounded-full transition-colors"
                 >
-                  <Edit2 className="h-4.5 w-4.5" />
+                  <Edit2Icon className="h-4.5 w-4.5" />
                 </button>
               </Link>
 
@@ -734,9 +717,9 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                 className="text-red-500 hover:text-red-700 cursor-pointer p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-full transition-colors disabled:opacity-50"
               >
                 {deleteMutation.isPending && deleteMutation.variables === product.id ? (
-                  <Loader2 className="h-4.5 w-4.5 animate-spin text-red-500" />
+                  <Loader2Icon className="h-4.5 w-4.5 animate-spin text-red-500" />
                 ) : (
-                  <Trash2 className="h-4.5 w-4.5" />
+                  <Trash2Icon className="h-4.5 w-4.5" />
                 )}
               </button>
             </div>
@@ -747,8 +730,6 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
     [isPending, deleteMutation.isPending, togglePublishMutation.isPending, togglePromotionMutation.isPending]
   )
 
-
-
   const statusTabs = [
     { label: "All", value: "all", count: totalCount },
     { label: "Published", value: "published", count: publishedCount },
@@ -757,7 +738,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
 
   const activeCategoryObject = categories.find((c) => c.id === categoryFilter)
 
-  // Toggle selection for a single card in Grid View
+  // Toggle selection for a single card in GridIcon View
   const handleToggleSelectGrid = (id: string) => {
     setRowSelection((prev) => ({
       ...prev,
@@ -788,7 +769,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               )}
               title="Table View"
             >
-              <List className="h-4 w-4" />
+              <ListIcon className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode("grid")}
@@ -798,7 +779,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               )}
               title="Grid View"
             >
-              <Grid className="h-4 w-4" />
+              <GridIcon className="h-4 w-4" />
             </button>
           </div>
 
@@ -808,13 +789,13 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               className="w-full sm:w-fit flex items-center gap-2 cursor-not-allowed"
               title="Product limit reached for your subscription plan"
             >
-              <Plus className="h-4.5 w-4.5" />
+              <PlusIcon className="h-4.5 w-4.5" />
               <span>Add Product (Limit Reached)</span>
             </Button>
           ) : (
             <Link href="/dashboard/products/new">
               <Button className="w-full sm:w-fit flex items-center gap-2">
-                <Plus className="h-4.5 w-4.5" />
+                <PlusIcon className="h-4.5 w-4.5" />
                 <span>Add Product</span>
               </Button>
             </Link>
@@ -826,7 +807,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
         /* Empty State */
         <Card className="flex flex-col items-center justify-center text-center p-12 border border-border bg-card max-w-xl mx-auto mt-6 w-full rounded-xl">
           <div className="p-4 bg-muted text-muted-foreground rounded-full mb-4">
-            <ShoppingBag className="h-10 w-10 stroke-[1.5]" />
+            <ShoppingBagIcon className="h-10 w-10 stroke-[1.5]" />
           </div>
           <h3 className="text-lg font-semibold text-foreground">
             No products listed
@@ -848,7 +829,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
         </Card>
       ) : (
         <div className="flex flex-col gap-6">
-          {/* Controls: Search, Tabs, Dropdowns */}
+          {/* Controls: SearchIcon, Tabs, Dropdowns */}
           <div className="flex flex-col gap-4">
             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
               {/* Left Side: Status filter segmented control */}
@@ -880,7 +861,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
 
               {/* Right Side: Select Dropdowns */}
               <div className="flex flex-wrap gap-3 items-center w-full xl:w-auto">
-                {/* Category Filter */}
+                {/* Category FilterIcon */}
                 <div className="flex items-center gap-2 grow sm:grow-0">
                   <span className="text-sm text-muted-foreground font-medium">Category:</span>
                   <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -898,7 +879,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                   </Select>
                 </div>
 
-                {/* Stock Level Filter */}
+                {/* Stock Level FilterIcon */}
                 <div className="flex items-center gap-2 grow sm:grow-0">
                   <span className="text-sm text-muted-foreground font-medium">Stock:</span>
                   <Select value={stockFilter} onValueChange={(val) => setStockFilter(val as any)}>
@@ -933,9 +914,9 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               </div>
             </div>
 
-            {/* Search Input Bar */}
+            {/* SearchIcon Input Bar */}
             <div className="relative w-full md:max-w-md">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search by product name or description..."
@@ -945,18 +926,18 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               />
             </div>
 
-            {/* Active Filter Chips */}
+            {/* Active FilterIcon Chips */}
             {(categoryFilter !== "all" || stockFilter !== "all" || searchQuery.trim() !== "") && (
               <div className="flex flex-wrap items-center gap-2 mt-2">
                 <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
-                  <Filter className="h-3 w-3" /> Filters:
+                  <FilterIcon className="h-3 w-3" /> Filters:
                 </span>
 
                 {searchQuery.trim() !== "" && (
                   <span className="inline-flex items-center gap-1 text-xs bg-muted border border-border rounded-full pl-2.5 pr-1 py-1 font-medium text-foreground">
-                    Search: &ldquo;{searchQuery}&rdquo;
+                    SearchIcon: &ldquo;{searchQuery}&rdquo;
                     <button onClick={() => setSearchQuery("")} className="hover:bg-muted/80 rounded-full p-0.5 ml-1">
-                      <X className="h-3 w-3" />
+                      <XIcon className="h-3 w-3" />
                     </button>
                   </span>
                 )}
@@ -965,7 +946,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                   <span className="inline-flex items-center gap-1 text-xs bg-muted border border-border rounded-full pl-2.5 pr-1 py-1 font-medium text-foreground">
                     Category: {activeCategoryObject?.name || "Selected"}
                     <button onClick={() => setCategoryFilter("all")} className="hover:bg-muted/80 rounded-full p-0.5 ml-1">
-                      <X className="h-3 w-3" />
+                      <XIcon className="h-3 w-3" />
                     </button>
                   </span>
                 )}
@@ -974,7 +955,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                   <span className="inline-flex items-center gap-1 text-xs bg-muted border border-border rounded-full pl-2.5 pr-1 py-1 font-medium text-foreground">
                     Stock: {stockFilter.replace("_", " ")}
                     <button onClick={() => setStockFilter("all")} className="hover:bg-muted/80 rounded-full p-0.5 ml-1">
-                      <X className="h-3 w-3" />
+                      <XIcon className="h-3 w-3" />
                     </button>
                   </span>
                 )}
@@ -993,11 +974,11 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
             )}
           </div>
 
-          {/* List Area */}
+          {/* ListIcon Area */}
           {filteredProducts.length === 0 ? (
             <Card className="flex flex-col items-center justify-center text-center p-12 border border-border bg-card max-w-xl mx-auto w-full mt-4 rounded-xl">
               <div className="p-4 bg-muted text-muted-foreground rounded-full mb-4">
-                <Search className="h-8 w-8 stroke-[1.5]" />
+                <SearchIcon className="h-8 w-8 stroke-[1.5]" />
               </div>
               <h3 className="text-lg font-semibold text-foreground">
                 No matching products
@@ -1021,7 +1002,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                 </div>
               )}
 
-              {/* Desktop Grid View (>= md viewports and viewMode === "grid") */}
+              {/* Desktop GridIcon View (>= md viewports and viewMode === "grid") */}
               {viewMode === "grid" && (
                 <div className="hidden md:grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                   {filteredProducts.map((product) => {
@@ -1085,7 +1066,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                                   variant="secondary"
                                   className="bg-primary/10 hover:bg-primary/15 border-primary/20 text-primary font-semibold flex items-center gap-1 py-0.5 px-2.5 h-6 rounded-full w-fit whitespace-nowrap text-[10px]"
                                 >
-                                  <FolderOpen className="h-3 w-3" />
+                                  <FolderOpenIcon className="h-3 w-3" />
                                   <span className="truncate max-w-[70px]">{product.category.name}</span>
                                 </Badge>
                               ) : (
@@ -1132,7 +1113,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                             rel="noopener noreferrer"
                             className="text-[10px] text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
                           >
-                            <ExternalLink className="h-3 w-3" />
+                            <ExternalLinkIcon className="h-3 w-3" />
                             <span>Live</span>
                           </a>
 
@@ -1142,7 +1123,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                                 title="Edit Product"
                                 className="text-muted-foreground hover:text-foreground cursor-pointer p-1 hover:bg-muted rounded-md transition-colors border border-border"
                               >
-                                <Edit2 className="h-3.5 w-3.5" />
+                                <Edit2Icon className="h-3.5 w-3.5" />
                               </button>
                             </Link>
 
@@ -1151,7 +1132,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                               title="Delete Product"
                               className="text-red-500 hover:text-red-700 cursor-pointer p-1 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-md transition-colors border border-red-200 dark:border-red-950/30"
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <Trash2Icon className="h-3.5 w-3.5" />
                             </button>
                           </div>
                         </div>
@@ -1207,7 +1188,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                                   variant="secondary"
                                   className="bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-semibold flex items-center gap-1.5 py-0.5 px-2.5 h-6 rounded-full w-fit whitespace-nowrap text-[10px] self-start"
                                 >
-                                  <FolderOpen className="h-3 w-3" />
+                                  <FolderOpenIcon className="h-3 w-3" />
                                   <span>{product.category.name}</span>
                                 </Badge>
                               )}
@@ -1220,7 +1201,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                               className="p-1 h-8 w-8 hover:bg-muted"
                               onClick={() => setMobileActiveProduct(product)}
                             >
-                              <MoreVertical className="h-4 w-4" />
+                              <MoreVerticalIcon className="h-4 w-4" />
                             </Button>
                           </div>
 
@@ -1231,12 +1212,12 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
 
                             {product.isPublished ? (
                               <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 rounded-full px-2 py-0.5 font-semibold border border-emerald-500/20">
-                                <Eye className="h-2.5 w-2.5 stroke-[2.5]" />
+                                <EyeIcon className="h-2.5 w-2.5 stroke-[2.5]" />
                                 <span>Published</span>
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 text-[10px] bg-muted text-muted-foreground rounded-full px-2 py-0.5 font-semibold border border-border">
-                                <EyeOff className="h-2.5 w-2.5 stroke-[2.5]" />
+                                <EyeOffIcon className="h-2.5 w-2.5 stroke-[2.5]" />
                                 <span>Draft</span>
                               </span>
                             )}
@@ -1295,7 +1276,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               onClick={() => bulkPublishMutation.mutate({ ids: selectedIds, isPublished: true })}
               disabled={bulkPublishMutation.isPending}
             >
-              <Eye className="h-3.5 w-3.5" />
+              <EyeIcon className="h-3.5 w-3.5" />
               <span className="hidden md:inline">Publish</span>
             </Button>
 
@@ -1307,7 +1288,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               onClick={() => bulkPublishMutation.mutate({ ids: selectedIds, isPublished: false })}
               disabled={bulkPublishMutation.isPending}
             >
-              <EyeOff className="h-3.5 w-3.5" />
+              <EyeOffIcon className="h-3.5 w-3.5" />
               <span className="hidden md:inline">Draft</span>
             </Button>
 
@@ -1315,7 +1296,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="h-9 text-xs flex items-center gap-1 rounded-xl">
-                  <Tag className="h-3.5 w-3.5" />
+                  <TagIcon className="h-3.5 w-3.5" />
                   <span>Category</span>
                 </Button>
               </DropdownMenuTrigger>
@@ -1323,12 +1304,12 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                 <DropdownMenuLabel>Move to Category</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => bulkCategoryMutation.mutate({ ids: selectedIds, categoryId: null })}>
-                  <FolderOpen className="mr-2 h-4 w-4" />
+                  <FolderOpenIcon className="mr-2 h-4 w-4" />
                   <span>Uncategorized</span>
                 </DropdownMenuItem>
                 {categories.map((c) => (
                   <DropdownMenuItem key={c.id} onClick={() => bulkCategoryMutation.mutate({ ids: selectedIds, categoryId: c.id })}>
-                    <Tag className="mr-2 h-4 w-4" />
+                    <TagIcon className="mr-2 h-4 w-4" />
                     <span>{c.name}</span>
                   </DropdownMenuItem>
                 ))}
@@ -1343,7 +1324,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               onClick={() => setBulkDeleteConfirmOpen(true)}
               disabled={bulkDeleteMutation.isPending}
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <Trash2Icon className="h-3.5 w-3.5" />
               <span>Delete</span>
             </Button>
           </div>
@@ -1353,7 +1334,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
             className="text-muted-foreground hover:text-foreground p-1 hover:bg-muted rounded-full"
             title="Clear selection"
           >
-            <X className="h-4 w-4" />
+            <XIcon className="h-4 w-4" />
           </button>
         </div>
       )}
@@ -1373,7 +1354,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               {/* Edit Option */}
               <Link href={`/dashboard/products/${mobileActiveProduct?.id}/edit`} onClick={() => setMobileActiveProduct(null)}>
                 <Button variant="outline" className="w-full justify-start gap-3 h-11 text-sm rounded-xl">
-                  <Edit2 className="h-4 w-4 text-muted-foreground" />
+                  <Edit2Icon className="h-4 w-4 text-muted-foreground" />
                   <span>Edit Product Details</span>
                 </Button>
               </Link>
@@ -1391,12 +1372,12 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               >
                 {mobileActiveProduct?.isPublished ? (
                   <>
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    <EyeOffIcon className="h-4 w-4 text-muted-foreground" />
                     <span>Set as Draft</span>
                   </>
                 ) : (
                   <>
-                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <EyeIcon className="h-4 w-4 text-muted-foreground" />
                     <span>Publish to Storefront</span>
                   </>
                 )}
@@ -1411,7 +1392,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                   onClick={() => setMobileActiveProduct(null)}
                 >
                   <Button variant="outline" className="w-full justify-start gap-3 h-11 text-sm rounded-xl">
-                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                    <ExternalLinkIcon className="h-4 w-4 text-muted-foreground" />
                     <span>View on Storefront</span>
                   </Button>
                 </a>
@@ -1428,7 +1409,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                   }
                 }}
               >
-                <Trash2 className="h-4 w-4 text-red-500" />
+                <Trash2Icon className="h-4 w-4 text-red-500" />
                 <span>Delete Product</span>
               </Button>
             </div>
@@ -1463,7 +1444,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}
+              {deleteMutation.isPending && <Loader2Icon className="h-3.5 w-3.5 animate-spin mr-1" />}
               Delete Product
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -1491,7 +1472,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {bulkDeleteMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}
+              {bulkDeleteMutation.isPending && <Loader2Icon className="h-3.5 w-3.5 animate-spin mr-1" />}
               Delete Products
             </AlertDialogAction>
           </AlertDialogFooter>

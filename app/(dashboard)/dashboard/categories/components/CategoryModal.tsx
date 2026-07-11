@@ -2,7 +2,8 @@
 
 import React, { useState } from "react"
 import { useForm } from "@tanstack/react-form"
-import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
+import { CheckCircle2Icon, AlertCircleIcon, Loader2Icon } from "@/lib/icons";
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Field, FieldLabel, FieldError, FieldDescription } from "@/components/ui/field"
@@ -145,13 +146,13 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
           {/* Feedback */}
           {successMessage && (
             <div className="flex items-center gap-2 text-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900 rounded-lg px-4 py-3">
-              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <CheckCircle2Icon className="h-4 w-4 shrink-0" />
               <span className="text-sm font-medium">{successMessage}</span>
             </div>
           )}
           {errorMessage && (
             <div className="flex items-center gap-2 text-red-700 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900 rounded-lg px-4 py-3">
-              <AlertCircle className="h-4 w-4 shrink-0" />
+              <AlertCircleIcon className="h-4 w-4 shrink-0" />
               <span className="text-sm font-medium">{errorMessage}</span>
             </div>
           )}
@@ -168,7 +169,7 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
                   disabled={isSubmitting}
                   className="cursor-pointer"
                 >
-                  {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
+                  {isSubmitting && <Loader2Icon className="h-4 w-4 animate-spin mr-1" />}
                   {isSubmitting
                     ? isEditing
                       ? "Saving…"

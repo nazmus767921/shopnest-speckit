@@ -4,19 +4,8 @@ import React, { useState } from "react"
 import Link from "next/link"
 import { archivePlanAction, unarchivePlanAction } from "@/app/actions/plans"
 import { Button, Card, Badge, Alert } from "@/components/ui"
-import {
-  Plus,
-  Edit2,
-  Archive,
-  RotateCcw,
-  Loader2,
-  Package,
-  Receipt,
-  FolderOpen,
-  Layers,
-  Image as ImageIcon,
-  HardDrive,
-} from "lucide-react"
+import { PlusIcon, Edit2Icon, ArchiveIcon, RotateCcwIcon, Loader2Icon, PackageIcon, ReceiptIcon, FolderOpenIcon, LayersIcon, ImageIcon, HardDriveIcon } from "@/lib/icons";
+
 
 type PlanForList = {
   id: string
@@ -109,7 +98,7 @@ export function PlansList({ initialPlans }: PlansListProps) {
           href="/admin/plans/new"
           className="flex items-center gap-2 cursor-pointer shadow-none font-semibold"
         >
-          <Plus className="h-4 w-4" />
+          <PlusIcon className="h-4 w-4" />
           <span>New Plan</span>
         </Button>
       </div>
@@ -163,7 +152,7 @@ export function PlansList({ initialPlans }: PlansListProps) {
                     {/* Products limit */}
                     <div className="flex items-center gap-2.5">
                       <div className="p-1.5 bg-canvas-cream text-shade-60 rounded border border-hairline-light shrink-0">
-                        <Package className="h-4 w-4" />
+                        <PackageIcon className="h-4 w-4" />
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[9px] uppercase font-bold text-shade-40 leading-none">Products</span>
@@ -176,7 +165,7 @@ export function PlansList({ initialPlans }: PlansListProps) {
                     {/* Orders limit */}
                     <div className="flex items-center gap-2.5">
                       <div className="p-1.5 bg-canvas-cream text-shade-60 rounded border border-hairline-light shrink-0">
-                        <Receipt className="h-4 w-4" />
+                        <ReceiptIcon className="h-4 w-4" />
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[9px] uppercase font-bold text-shade-40 leading-none">Orders/Mo</span>
@@ -189,7 +178,7 @@ export function PlansList({ initialPlans }: PlansListProps) {
                     {/* Categories limit */}
                     <div className="flex items-center gap-2.5">
                       <div className="p-1.5 bg-canvas-cream text-shade-60 rounded border border-hairline-light shrink-0">
-                        <FolderOpen className="h-4 w-4" />
+                        <FolderOpenIcon className="h-4 w-4" />
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[9px] uppercase font-bold text-shade-40 leading-none">Categories</span>
@@ -202,7 +191,7 @@ export function PlansList({ initialPlans }: PlansListProps) {
                     {/* Variants limit */}
                     <div className="flex items-center gap-2.5">
                       <div className="p-1.5 bg-canvas-cream text-shade-60 rounded border border-hairline-light shrink-0">
-                        <Layers className="h-4 w-4" />
+                        <LayersIcon className="h-4 w-4" />
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[9px] uppercase font-bold text-shade-40 leading-none">Variants</span>
@@ -228,7 +217,7 @@ export function PlansList({ initialPlans }: PlansListProps) {
                     {/* Image size limit */}
                     <div className="flex items-center gap-2.5">
                       <div className="p-1.5 bg-canvas-cream text-shade-60 rounded border border-hairline-light shrink-0">
-                        <HardDrive className="h-4 w-4" />
+                        <HardDriveIcon className="h-4 w-4" />
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[9px] uppercase font-bold text-shade-40 leading-none">Max Size</span>
@@ -284,7 +273,7 @@ export function PlansList({ initialPlans }: PlansListProps) {
                   disabled={loadingId === p.id}
                   className="flex items-center gap-1.5 min-h-9 px-3.5 text-caption font-semibold cursor-pointer border-hairline hover:bg-canvas-cream"
                 >
-                  <Edit2 className="h-3.5 w-3.5" />
+                  <Edit2Icon className="h-3.5 w-3.5" />
                   <span>Edit</span>
                 </Button>
                 {isArchived ? (
@@ -296,9 +285,9 @@ export function PlansList({ initialPlans }: PlansListProps) {
                     className="flex items-center gap-1.5 min-h-9 px-3.5 text-caption font-semibold cursor-pointer border-emerald-200 text-emerald-850 hover:bg-emerald-50/50"
                   >
                     {loadingId === p.id ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      <Loader2Icon className="h-3.5 w-3.5 animate-spin" />
                     ) : (
-                      <RotateCcw className="h-3.5 w-3.5" />
+                      <RotateCcwIcon className="h-3.5 w-3.5" />
                     )}
                     <span>Restore</span>
                   </Button>
@@ -311,11 +300,11 @@ export function PlansList({ initialPlans }: PlansListProps) {
                     className="flex items-center gap-1.5 min-h-9 px-3.5 text-caption font-semibold cursor-pointer border-red-100 text-red-700 hover:bg-red-50/50"
                   >
                     {loadingId === p.id ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      <Loader2Icon className="h-3.5 w-3.5 animate-spin" />
                     ) : (
-                      <Archive className="h-3.5 w-3.5" />
+                      <ArchiveIcon className="h-3.5 w-3.5" />
                     )}
-                    <span>Archive</span>
+                    <span>ArchiveIcon</span>
                   </Button>
                 )}
               </div>

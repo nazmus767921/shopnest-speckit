@@ -1,5 +1,6 @@
 import React from "react"
-import { Lock, ArrowRight } from "lucide-react"
+import { LockIcon, ArrowRightIcon } from "@/lib/icons";
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
@@ -7,7 +8,7 @@ export function PlanUpsellBanner() {
   return (
     <div className="flex flex-col items-center justify-center text-center py-16 px-8 border border-border rounded-lg bg-card text-foreground">
       <div className="p-4 bg-muted rounded-full mb-5">
-        <Lock className="h-8 w-8 text-foreground stroke-1.5" />
+        <LockIcon className="h-8 w-8 text-foreground stroke-1.5" />
       </div>
 
       <h2 className="text-xl font-bold text-foreground mb-2">
@@ -39,7 +40,7 @@ export function PlanUpsellBanner() {
       <Link href="/dashboard/billing">
         <Button size="md" className="flex items-center gap-2 rounded-md">
           <span>View Billing &amp; Plans</span>
-          <ArrowRight className="h-4 w-4" />
+          <ArrowRightIcon className="h-4 w-4" />
         </Button>
       </Link>
     </div>

@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import { authClient } from "@/lib/auth/auth-client"
 import { QRCodeSVG } from "qrcode.react"
-import { Shield, Key, Eye, EyeOff, Check, Clipboard, Loader2 } from "lucide-react"
+import { ShieldIcon, KeyIcon, EyeIcon, EyeOffIcon, CheckIcon, ClipboardIcon, Loader2Icon } from "@/lib/icons";
 
 export function Setup2FAClient() {
   const [password, setPassword] = useState("")
@@ -75,7 +75,7 @@ export function Setup2FAClient() {
       {/* Header */}
       <div className="flex flex-col items-center text-center gap-2">
         <div className="h-12 w-12 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-800">
-          <Shield className="h-6 w-6" />
+          <ShieldIcon className="h-6 w-6" />
         </div>
         <h1 className="font-display text-heading-xl font-semibold tracking-tight text-ink">
           Configure Admin 2FA
@@ -112,7 +112,7 @@ export function Setup2FAClient() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-3 text-shade-40 hover:text-ink"
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
               </button>
             </div>
           </div>
@@ -122,7 +122,7 @@ export function Setup2FAClient() {
             disabled={loading}
             className="w-full py-2.5 bg-black text-white hover:bg-zinc-800 rounded-full text-body-strong font-medium flex items-center justify-center gap-2 transition disabled:opacity-50"
           >
-            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {loading && <Loader2Icon className="h-4 w-4 animate-spin" />}
             Enable Authenticator
           </button>
         </form>
@@ -170,7 +170,7 @@ export function Setup2FAClient() {
                 disabled={loading || code.length !== 6}
                 className="flex-1 py-2.5 bg-black text-white hover:bg-zinc-800 rounded-full text-body-strong font-medium flex items-center justify-center gap-2 transition disabled:opacity-50"
               >
-                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                {loading && <Loader2Icon className="h-4 w-4 animate-spin" />}
                 Verify Code
               </button>
             </div>
@@ -182,7 +182,7 @@ export function Setup2FAClient() {
       {step === 3 && (
         <div className="flex flex-col gap-6">
           <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-start gap-3">
-            <Check className="h-5 w-5 text-emerald-800 shrink-0 mt-0.5" />
+            <CheckIcon className="h-5 w-5 text-emerald-800 shrink-0 mt-0.5" />
             <div className="flex flex-col gap-0.5">
               <span className="text-body-strong text-emerald-800 font-semibold">
                 2FA Enabled Successfully!
@@ -205,7 +205,7 @@ export function Setup2FAClient() {
               >
                 {copied ? "Copied!" : (
                   <>
-                    <Clipboard className="h-3 w-3" /> Copy all
+                    <ClipboardIcon className="h-3 w-3" /> Copy all
                   </>
                 )}
               </button>

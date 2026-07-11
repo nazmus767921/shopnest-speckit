@@ -1,5 +1,6 @@
 import React from "react"
-import { Receipt, FileText } from "lucide-react"
+import { ReceiptIcon, FileTextIcon } from "@/lib/icons";
+
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { type ColumnDef } from "@tanstack/react-table"
@@ -112,7 +113,7 @@ export function PaymentHistoryTable({ payments }: PaymentHistoryTableProps) {
                   className="inline-flex items-center justify-center p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-all"
                   title="View Invoice"
                 >
-                  <FileText className="h-4.5 w-4.5" />
+                  <FileTextIcon className="h-4.5 w-4.5" />
                 </Link>
               ) : (
                 <span className="text-muted-foreground/30 select-none">—</span>
@@ -128,7 +129,7 @@ export function PaymentHistoryTable({ payments }: PaymentHistoryTableProps) {
     return (
       <div className="flex flex-col items-center justify-center text-center p-12 border border-border rounded-xl bg-card text-foreground">
         <div className="p-3.5 bg-muted rounded-full mb-3.5">
-          <Receipt className="h-7 w-7 text-foreground stroke-1.5" />
+          <ReceiptIcon className="h-7 w-7 text-foreground stroke-1.5" />
         </div>
         <p className="text-base font-bold text-foreground">No payments recorded yet</p>
         <p className="text-sm text-muted-foreground max-w-sm mt-1 leading-normal font-light">

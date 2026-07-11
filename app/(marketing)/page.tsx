@@ -3,7 +3,8 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Badge } from "@/components/ui"
 import { FaqAccordion } from "@/components/shared/FaqAccordion"
-import { Check, ArrowRight, ShoppingBag, CreditCard, Smartphone, Layers } from "lucide-react"
+import { CheckIcon, ArrowRightIcon, ShoppingBagIcon, CreditCardIcon, SmartphoneIcon, LayersIcon } from "@/lib/icons";
+
 import { getAllPlans } from "@/db/queries/plans"
 
 export default async function MarketingPage() {
@@ -69,7 +70,7 @@ export default async function MarketingPage() {
               <div className="absolute top-[10%] left-[-5%] sm:left-[-10%] bg-canvas-night-elevated/90 backdrop-blur-md border border-white/10 rounded-xl p-4 z-20 max-w-60 transform hover:-translate-y-1 transition-transform duration-300">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-aloe-10/10 rounded-full text-aloe-10 shrink-0">
-                    <ShoppingBag className="h-5 w-5" />
+                    <ShoppingBagIcon className="h-5 w-5" />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[10px] text-shade-40 tracking-wide uppercase">New Order Received</span>
@@ -135,7 +136,7 @@ export default async function MarketingPage() {
               <div className="flex flex-col gap-2">
                 <div className="flex flex-col gap-1">
                   <div className="p-3 bg-aloe-10/20 rounded-full w-fit text-emerald-800">
-                    <ShoppingBag className="h-6 w-6" />
+                    <ShoppingBagIcon className="h-6 w-6" />
                   </div>
                   <h3 className="text-heading-md font-medium text-ink">Branded Storefront</h3>
                 </div>
@@ -150,7 +151,7 @@ export default async function MarketingPage() {
               <div className="flex flex-col gap-2">
                 <div className="flex flex-col gap-1">
                   <div className="p-3 bg-aloe-10/20 rounded-full w-fit text-emerald-800">
-                    <CreditCard className="h-6 w-6" />
+                    <CreditCardIcon className="h-6 w-6" />
                   </div>
                   <h3 className="text-heading-md font-medium text-ink">Structured Payments</h3>
                 </div>
@@ -165,7 +166,7 @@ export default async function MarketingPage() {
               <div className="flex flex-col gap-2">
                 <div className="flex flex-col gap-1">
                   <div className="p-3 bg-aloe-10/20 rounded-full w-fit text-emerald-800">
-                    <Layers className="h-6 w-6" />
+                    <LayersIcon className="h-6 w-6" />
                   </div>
                   <h3 className="text-heading-md font-medium text-ink">Stock Sync & Alerts</h3>
                 </div>
@@ -180,7 +181,7 @@ export default async function MarketingPage() {
               <div className="flex flex-col gap-2">
                 <div className="flex flex-col gap-1">
                   <div className="p-3 bg-aloe-10/20 rounded-full w-fit text-emerald-800">
-                    <Smartphone className="h-6 w-6" />
+                    <SmartphoneIcon className="h-6 w-6" />
                   </div>
                   <h3 className="text-heading-md font-medium text-ink">Mobile Dashboard</h3>
                 </div>

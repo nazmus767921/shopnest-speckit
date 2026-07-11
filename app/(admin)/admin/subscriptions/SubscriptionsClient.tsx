@@ -4,25 +4,8 @@ import React, { useState, useEffect } from "react"
 import { recordSubscriptionPaymentAction, verifySubscriptionPaymentAction, rejectSubscriptionPaymentAction, changeMerchantPlanAction } from "@/app/actions/admin"
 import type { DowngradeViolation } from "@/lib/plans/validateDowngrade"
 import type { PlanFeatures } from "@/lib/plans/types"
-import {
-  Loader2,
-  ArrowDownCircle,
-  Check,
-  ShieldAlert,
-  CheckCircle,
-  XCircle,
-  Search,
-  X,
-  Coins,
-  CreditCard,
-  Landmark,
-  Calendar,
-  AlertTriangle,
-  User,
-  ArrowUpRight,
-  Plus,
-  Layers
-} from "lucide-react"
+import { Loader2Icon, ArrowDownCircleIcon, CheckIcon, ShieldAlertIcon, CheckCircleIcon, XCircleIcon, SearchIcon, XIcon, CoinsIcon, CreditCardIcon, LandmarkIcon, CalendarIcon, AlertTriangleIcon, UserIcon, ArrowUpRightIcon, PlusIcon, LayersIcon } from "@/lib/icons";
+
 import { Combobox, AlertDialog, Dialog, Button, Badge, Alert, Select } from "@/components/ui"
 
 interface MerchantDropdownItem {
@@ -109,7 +92,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
   const [transactionId, setTransactionId] = useState("")
   const [paidAt, setPaidAt] = useState(new Date().toISOString().split("T")[0])
 
-  // Filter and Search states
+  // Filter and SearchIcon states
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [methodFilter, setMethodFilter] = useState("all")
@@ -422,7 +405,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
       {/* Global Status Notifications */}
       {error && (
         <div className="p-4 bg-red-50 border border-red-100 text-red-800 rounded-lg text-caption flex items-start gap-2.5 font-medium animate-fade-in">
-          <AlertTriangle className="h-4.5 w-4.5 shrink-0 text-red-600 mt-0.5" />
+          <AlertTriangleIcon className="h-4.5 w-4.5 shrink-0 text-red-600 mt-0.5" />
           <div className="flex flex-col gap-0.5">
             <span>Action Failed</span>
             <span className="text-micro font-light text-red-700">{error}</span>
@@ -433,7 +416,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
       {success && (
         <div className="p-4 bg-emerald-50 border border-emerald-100 text-emerald-800 rounded-lg text-caption flex items-center justify-between gap-2.5 font-medium animate-fade-in">
           <div className="flex items-start gap-2.5">
-            <CheckCircle className="h-4.5 w-4.5 shrink-0 text-emerald-700 mt-0.5" />
+            <CheckCircleIcon className="h-4.5 w-4.5 shrink-0 text-emerald-700 mt-0.5" />
             <div className="flex flex-col gap-0.5">
               <span>Success</span>
               <span className="text-micro font-light text-emerald-700">{success}</span>
@@ -444,7 +427,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
             className="p-1 rounded-full text-emerald-700 hover:bg-emerald-100/50 transition cursor-pointer shrink-0"
             aria-label="Dismiss success message"
           >
-            <X className="h-4 w-4" />
+            <XIcon className="h-4 w-4" />
           </button>
         </div>
       )}
@@ -486,7 +469,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
           onClick={() => setIsDrawerOpen(true)}
           className="flex items-center gap-2 cursor-pointer self-start sm:self-auto"
         >
-          <Plus className="h-4 w-4" />
+          <PlusIcon className="h-4 w-4" />
           <span>Record Manual Payment</span>
         </Button>
       </div>
@@ -495,7 +478,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
       {activeTab === "actions" ? (
         <div className="flex flex-col gap-5 animate-fade-in">
           <div className="flex items-center gap-2 text-shade-60">
-            <ShieldAlert className="h-4.5 w-4.5 text-amber-600" />
+            <ShieldAlertIcon className="h-4.5 w-4.5 text-amber-600" />
             <span className="text-caption font-medium">
               Verify payments submitted manually by boutique merchants during checkout or upgrade.
             </span>
@@ -503,7 +486,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
 
           {pendingPayments.length === 0 ? (
             <div className="bg-canvas-light border border-hairline-light rounded-xl p-12 text-center flex flex-col items-center justify-center gap-3">
-              <ShieldAlert className="h-8 w-8 text-shade-40" />
+              <ShieldAlertIcon className="h-8 w-8 text-shade-40" />
               <span className="text-heading-md font-semibold text-ink">No Pending Confirmations</span>
               <span className="text-caption text-shade-50 max-w-sm">
                 All merchant payments have been processed. Any new transactions submitted by boutique stores will appear here.
@@ -566,7 +549,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                       </div>
                       {merchant?.owner && (
                         <div className="flex items-center gap-1.5 text-caption text-shade-50">
-                          <User className="h-3.5 w-3.5 text-shade-40 shrink-0" />
+                          <UserIcon className="h-3.5 w-3.5 text-shade-40 shrink-0" />
                           <span>{merchant.owner.name} ({merchant.owner.email})</span>
                         </div>
                       )}
@@ -575,7 +558,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                       {planDriftWarning && (
                         <div className="flex flex-col gap-1 mt-1 p-2.5 bg-amber-50 border border-amber-200 rounded text-amber-900 text-caption font-medium max-w-sm">
                           <div className="flex items-start gap-1.5">
-                            <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                            <AlertTriangleIcon className="h-4 w-4 shrink-0 mt-0.5" />
                             <span>{planDriftWarning}</span>
                           </div>
                         </div>
@@ -602,9 +585,9 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                           className="px-4 py-2 min-h-10 text-caption bg-emerald-800 hover:bg-emerald-700 text-white cursor-pointer flex items-center gap-1.5 disabled:opacity-40"
                         >
                           {actionLoadingId === pmt.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <Loader2Icon className="h-4 w-4 animate-spin" />
                           ) : (
-                            <CheckCircle className="h-4 w-4" />
+                            <CheckCircleIcon className="h-4 w-4" />
                           )}
                           <span>Verify</span>
                         </Button>
@@ -616,7 +599,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                           className="p-2 border border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300 rounded-full transition-colors cursor-pointer min-h-10 min-w-10 flex items-center justify-center"
                           title="Reject Payment"
                         >
-                          <XCircle className="h-5 w-5" />
+                          <XCircleIcon className="h-5 w-5" />
                         </Button>
                       </div>
                     </div>
@@ -669,7 +652,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
           {/* Filters Workspace */}
           <div className="bg-canvas-light border border-hairline-light rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center">
             <div className="relative w-full md:max-w-xl lg:max-w-2xl shrink-0">
-              <Search className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-shade-40" />
+              <SearchIcon className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-shade-40" />
               <input
                 type="text"
                 placeholder="Search by store name, subdomain, transaction ID..."
@@ -860,7 +843,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
 
                 {/* Dialog Title */}
                 <div className="grow text-left md:text-center flex items-center justify-start md:justify-center gap-2">
-                  <ArrowDownCircle className="h-5 w-5 text-emerald-800 shrink-0" />
+                  <ArrowDownCircleIcon className="h-5 w-5 text-emerald-800 shrink-0" />
                   <h2 className="text-heading-md font-display font-semibold text-ink">
                     Record Collection
                   </h2>
@@ -891,7 +874,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                     <div className="md:col-span-8 p-5 border border-hairline-light bg-canvas-light rounded-xl flex flex-col gap-4">
                       <div className="flex flex-col gap-1.5">
                         <label className="text-eyebrow-cap font-bold text-shade-40 uppercase tracking-wider flex items-center gap-1.5">
-                          <User className="h-4 w-4" /> Boutique Store
+                          <UserIcon className="h-4 w-4" /> Boutique Store
                         </label>
                         <Combobox
                           options={merchants}
@@ -961,7 +944,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                     {/* Bento Card 2: Upgrade / Extension Tier (md:col-span-4) */}
                     <div className="md:col-span-4 p-5 border border-hairline-light bg-canvas-light rounded-xl flex flex-col gap-3.5">
                       <label className="text-eyebrow-cap font-bold text-shade-40 uppercase tracking-wider flex items-center gap-1.5">
-                        <Coins className="h-4 w-4" /> Upgrade / Extend Plan
+                        <CoinsIcon className="h-4 w-4" /> Upgrade / Extend Plan
                       </label>
                       <div className="flex flex-col gap-2 grow justify-center">
                         {plans.filter(p => !p.isArchived).map((p) => {
@@ -990,7 +973,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                     {/* Bento Card 3: Collection Metadata (md:col-span-8) */}
                     <div className="md:col-span-8 p-5 border border-hairline-light bg-canvas-light rounded-xl flex flex-col gap-4">
                       <label className="text-eyebrow-cap font-bold text-shade-40 uppercase tracking-wider flex items-center gap-1.5">
-                        <CreditCard className="h-4 w-4" /> Payment Collection Details
+                        <CreditCardIcon className="h-4 w-4" /> Payment Collection Details
                       </label>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1056,13 +1039,13 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                       {/* Blocker alert warning if active counts exceed target */}
                       {exceedsProductLimit && selectedMerchant && (
                         <div className="p-3 bg-red-50 border border-red-150 text-red-800 rounded-lg text-caption font-semibold flex items-start gap-2 animate-new-order-highlight">
-                          <AlertTriangle className="h-4.5 w-4.5 shrink-0 text-red-700 mt-0.5" />
+                          <AlertTriangleIcon className="h-4.5 w-4.5 shrink-0 text-red-700 mt-0.5" />
                           <span>Cannot Downgrade: Store has {selectedMerchant.productsCount} products (limit is 50).</span>
                         </div>
                       )}
                       {exceedsOrderLimit && selectedMerchant && (
                         <div className="p-3 bg-red-50 border border-red-150 text-red-800 rounded-lg text-caption font-semibold flex items-start gap-2 animate-new-order-highlight">
-                          <AlertTriangle className="h-4.5 w-4.5 shrink-0 text-red-700 mt-0.5" />
+                          <AlertTriangleIcon className="h-4.5 w-4.5 shrink-0 text-red-700 mt-0.5" />
                           <span>Cannot Downgrade: Store has {selectedMerchant.monthlyOrdersCount} orders (limit is 200).</span>
                         </div>
                       )}
@@ -1072,7 +1055,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                         disabled={loading || !merchantId || !amountTaka || !transactionId || isAdminDowngradeBlocked}
                         className="w-full py-2.5 mt-2 bg-black text-white hover:bg-shade-70 rounded-full text-body-strong font-medium flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer"
                       >
-                        {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                        {loading && <Loader2Icon className="h-4 w-4 animate-spin" />}
                         Submit Payment Record
                       </button>
                     </div>
@@ -1081,7 +1064,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                     <div className="md:col-span-4 p-5 border border-hairline-light bg-canvas-light rounded-xl flex flex-col justify-between gap-4">
                       <div className="flex flex-col gap-3.5">
                         <label className="text-eyebrow-cap font-bold text-shade-40 uppercase tracking-wider flex items-center gap-1.5">
-                          <Layers className="h-4 w-4" /> Change Plan Override
+                          <LayersIcon className="h-4 w-4" /> Change Plan Override
                         </label>
                         
                         {selectedMerchant ? (() => {
@@ -1142,7 +1125,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                           disabled={changePlanLoading || !changePlanTargetId}
                           className="w-full py-2.5 bg-black text-white hover:bg-shade-70 rounded-full text-body-strong font-medium flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer mt-auto"
                         >
-                          {changePlanLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                          {changePlanLoading && <Loader2Icon className="h-4 w-4 animate-spin" />}
                           Change Plan
                         </button>
                       )}
@@ -1174,7 +1157,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
           const submittedFeatures = verifyingPmt.featuresAtPaymentTime as PlanFeatures | null | undefined
           const liveFeatures = livePlanObj?.features as PlanFeatures | undefined
 
-          // Check if any numeric/boolean limit key differs between submission and now
+          // CheckIcon if any numeric/boolean limit key differs between submission and now
           const driftedKeys: string[] = []
           if (submittedFeatures && liveFeatures) {
             const checkKeys = ["max_products", "max_categories", "max_orders_per_month", "max_images_per_product", "discount_codes", "telegram_notifications"] as const
@@ -1190,7 +1173,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
             <div className="flex flex-col gap-4 text-body-md text-ink select-text">
               {hasPlanDrift && (
                 <div className="p-3 bg-amber-50 border border-amber-200 text-amber-900 rounded-lg text-caption font-medium flex items-start gap-2">
-                  <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
+                  <AlertTriangleIcon className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
                   <div className="flex flex-col gap-0.5">
                     <span className="font-semibold">Plan was edited since submission</span>
                     <span className="font-light text-amber-800">
@@ -1255,7 +1238,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                   disabled={actionLoadingId === verifyingPmt.id}
                   className="px-4 py-2 text-caption bg-emerald-800 hover:bg-emerald-700 text-white cursor-pointer flex items-center gap-1.5"
                 >
-                  {actionLoadingId === verifyingPmt.id && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  {actionLoadingId === verifyingPmt.id && <Loader2Icon className="h-3.5 w-3.5 animate-spin" />}
                   Confirm & Credit
                 </Button>
               </div>
@@ -1328,7 +1311,7 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                 disabled={loading}
                 className="px-4 py-2 text-caption bg-emerald-800 hover:bg-emerald-700 text-white cursor-pointer flex items-center gap-1.5"
               >
-                {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {loading && <Loader2Icon className="h-3.5 w-3.5 animate-spin" />}
                 Confirm & Record
               </Button>
             </div>

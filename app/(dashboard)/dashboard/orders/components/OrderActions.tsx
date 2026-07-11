@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { confirmPaymentAction, updateOrderStatusAction } from "../actions"
-import { CheckCircle2, Truck, Check, XCircle } from "lucide-react"
+import { CheckCircle2Icon, TruckIcon, CheckIcon, XCircleIcon } from "@/lib/icons";
+
 
 interface OrderActionsProps {
   orderId: string
@@ -141,7 +142,7 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
               disabled={isPending}
               className="gap-2 shrink-0 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white! text-caption min-h-10 cursor-pointer border-none"
             >
-              <CheckCircle2 className="h-4 w-4" />
+              <CheckCircle2Icon className="h-4 w-4" />
               Confirm Payment
             </Button>
             <Button
@@ -150,7 +151,7 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
               disabled={isPending}
               className="gap-2 text-caption min-h-10 hover:text-rose-700 hover:border-rose-200 cursor-pointer"
             >
-              <XCircle className="h-4 w-4" />
+              <XCircleIcon className="h-4 w-4" />
               Cancel Order
             </Button>
           </>
@@ -164,7 +165,7 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
               disabled={isPending}
               className="gap-2 w-full md:w-fit shrink-0 text-caption min-h-10 cursor-pointer"
             >
-              <Truck className="h-4 w-4" />
+              <TruckIcon className="h-4 w-4" />
               Mark as Shipped
             </Button>
             <Button
@@ -173,7 +174,7 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
               disabled={isPending}
               className="gap-2 w-full md:w-fit text-caption min-h-10 hover:text-purple-700 hover:border-purple-200 cursor-pointer"
             >
-              <XCircle className="h-4 w-4" />
+              <XCircleIcon className="h-4 w-4" />
               Mark as Returned
             </Button>
             <Button
@@ -182,7 +183,7 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
               disabled={isPending}
               className="gap-2 w-full md:w-fit text-caption min-h-10 hover:text-rose-700 hover:border-rose-200 cursor-pointer"
             >
-              <XCircle className="h-4 w-4" />
+              <XCircleIcon className="h-4 w-4" />
               Cancel Order
             </Button>
           </>
@@ -196,7 +197,7 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
               disabled={isPending}
               className="gap-2 shrink-0 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white text-caption min-h-10 cursor-pointer border-none"
             >
-              <Check className="h-4 w-4" />
+              <CheckIcon className="h-4 w-4" />
               Mark as Delivered
             </Button>
             <Button
@@ -205,7 +206,7 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
               disabled={isPending}
               className="gap-2 text-caption min-h-10 hover:text-purple-700 hover:border-purple-200 cursor-pointer"
             >
-              <XCircle className="h-4 w-4" />
+              <XCircleIcon className="h-4 w-4" />
               Mark as Returned
             </Button>
           </>

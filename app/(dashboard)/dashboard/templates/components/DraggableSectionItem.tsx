@@ -3,7 +3,8 @@
 import React from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { GripVertical, Trash2, ChevronUp, ChevronDown } from "lucide-react"
+import { GripVerticalIcon, Trash2Icon, ChevronUpIcon, ChevronDownIcon } from "@/lib/icons";
+
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 
@@ -67,7 +68,7 @@ export function DraggableSectionItem({
               className="p-1.5 text-muted-foreground/60 hover:text-foreground hover:bg-muted rounded-md cursor-grab active:cursor-grabbing"
               title="Drag to reorder"
             >
-              <GripVertical className="w-4 h-4" />
+              <GripVerticalIcon className="w-4 h-4" />
             </div>
           ) : (
             <div className="p-1.5 text-muted-foreground/20 w-7 h-7 flex items-center justify-center">
@@ -99,7 +100,7 @@ export function DraggableSectionItem({
                 className="p-1.5 text-muted-foreground/65 hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors cursor-pointer"
                 title="Remove section"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2Icon className="w-4 h-4" />
               </button>
             ) : (
               <div className="w-7 h-7" />
@@ -112,7 +113,7 @@ export function DraggableSectionItem({
               }}
               className="p-1.5 text-muted-foreground/65 hover:bg-muted rounded-full transition-colors cursor-pointer"
             >
-              {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              {isExpanded ? <ChevronUpIcon className="w-5 h-5" /> : <ChevronDownIcon className="w-5 h-5" />}
             </button>
           </div>
         </div>

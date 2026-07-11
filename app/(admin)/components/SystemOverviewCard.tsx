@@ -1,6 +1,6 @@
 import React from "react"
 import { Card } from "@/components/ui"
-import { LucideIcon } from "lucide-react"
+import type { LucideIcon } from "@/lib/icons";
 
 interface SystemOverviewCardProps {
   title: string

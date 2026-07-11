@@ -7,7 +7,8 @@ import { getCachedMerchantById } from "@/lib/cache/merchants"
 import { fetchCustomerOrderDetails } from "../actions"
 import { CustomerOrderDetailClient } from "@/components/storefront/CustomerOrderDetailClient"
 import { Card, Button } from "@/components/ui"
-import { AlertCircle, ArrowLeft } from "lucide-react"
+import { AlertCircleIcon, ArrowLeftIcon } from "@/lib/icons";
+
 import type { Metadata } from "next"
 
 type Props = {
@@ -75,7 +76,7 @@ async function OrderDetailPageContent({ params }: Props) {
       <div className="max-w-md mx-auto py-12 animate-fade-in">
         <Card variant="default" className="p-8 flex flex-col items-center justify-center text-center gap-6 bg-canvas-light border border-hairline-light">
           <div className="w-16 h-16 rounded-full bg-red-50 border border-red-200 flex items-center justify-center text-red-700">
-            <AlertCircle className="h-8 w-8 stroke-[1.5]" />
+            <AlertCircleIcon className="h-8 w-8 stroke-[1.5]" />
           </div>
           <div className="flex flex-col gap-2 max-w-sm">
             <h2 className="text-heading-xl font-medium text-ink">
@@ -87,7 +88,7 @@ async function OrderDetailPageContent({ params }: Props) {
           </div>
           <div className="flex flex-col gap-3 w-full">
             <Button as={Link} href={`/orders`} variant="primary" className="w-full font-semibold flex items-center justify-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeftIcon className="h-4 w-4" />
               <span>Go to Orders Tracking</span>
             </Button>
             <Button as={Link} href="/" variant="outline-light" className="w-full font-medium">

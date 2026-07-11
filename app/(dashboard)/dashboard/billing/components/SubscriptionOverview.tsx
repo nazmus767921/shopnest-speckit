@@ -1,28 +1,8 @@
 "use client"
 
 import React, { useState } from "react"
-import {
-  CreditCard,
-  Zap,
-  Star,
-  AlertTriangle,
-  Box,
-  RefreshCw,
-  Lock,
-  LockOpen,
-  Calendar,
-  HelpCircle,
-  Package,
-  Receipt,
-  FolderOpen,
-  Layers,
-  Image as ImageIcon,
-  HardDrive,
-  Percent,
-  Send,
-  Coins,
-  Check
-} from "lucide-react"
+import { CreditCardIcon, ZapIcon, StarIcon, AlertTriangleIcon, BoxIcon, RefreshCwIcon, LockIcon, LockOpenIcon, CalendarIcon, HelpCircleIcon, PackageIcon, ReceiptIcon, FolderOpenIcon, LayersIcon, ImageIcon, HardDriveIcon, PercentIcon, SendIcon, CoinsIcon, CheckIcon } from "@/lib/icons";
+
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { SubmitPaymentForm } from "./SubmitPaymentForm"
@@ -353,9 +333,9 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 bg-muted rounded-xl border border-border text-muted-foreground">
                       {plan === "growth" ? (
-                        <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+                        <StarIcon className="h-5 w-5 text-amber-500 fill-amber-500" />
                       ) : (
-                        <CreditCard className="h-5 w-5" />
+                        <CreditCardIcon className="h-5 w-5" />
                       )}
                     </div>
                     <div className="flex flex-col">
@@ -390,7 +370,7 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
                   <>
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 shrink-0" /> Started
+                        <CalendarIcon className="w-3.5 h-3.5 shrink-0" /> Started
                       </span>
                       <span className="font-semibold text-foreground mt-0.5">
                         {formatDate(subscription.currentPeriodStart)}
@@ -398,7 +378,7 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
                     </div>
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 shrink-0" /> Renewal Date
+                        <CalendarIcon className="w-3.5 h-3.5 shrink-0" /> Renewal Date
                       </span>
                       <span className="font-semibold text-foreground mt-0.5">
                         {formatDate(subscription.currentPeriodEnd)}
@@ -406,7 +386,7 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
                     </div>
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                        <Zap className="w-3.5 h-3.5 shrink-0" /> Next Bill
+                        <ZapIcon className="w-3.5 h-3.5 shrink-0" /> Next Bill
                       </span>
                       <span className="font-semibold text-foreground mt-0.5">
                         {subscription.currentPeriodEnd ? (
@@ -421,7 +401,7 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
                   <>
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 shrink-0" /> Started
+                        <CalendarIcon className="w-3.5 h-3.5 shrink-0" /> Started
                       </span>
                       <span className="font-semibold text-foreground mt-0.5">
                         {formatDate(new Date(new Date(merchant.trialExpiry || Date.now()).getTime() - 7 * 24 * 60 * 60 * 1000))}
@@ -429,7 +409,7 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
                     </div>
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 shrink-0" /> Expiry Date
+                        <CalendarIcon className="w-3.5 h-3.5 shrink-0" /> Expiry Date
                       </span>
                       <span className="font-semibold text-foreground mt-0.5">
                         {formatDate(merchant.trialExpiry)}
@@ -437,7 +417,7 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
                     </div>
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                        <Zap className="w-3.5 h-3.5 shrink-0" /> Trial Left
+                        <ZapIcon className="w-3.5 h-3.5 shrink-0" /> Trial Left
                       </span>
                       <span className="font-semibold text-foreground mt-0.5">
                         {merchant.trialExpiry ? (
@@ -476,12 +456,12 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
               
               {status === "trial" && merchant.trialExpiry ? (
                 <div className="text-[10px] font-semibold px-3 py-1 bg-amber-500/10 text-amber-700 dark:text-amber-350 border border-amber-500/20 rounded-lg flex items-center gap-2">
-                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  <AlertTriangleIcon className="h-3.5 w-3.5 shrink-0" />
                   <span>Trial ends in {getDaysRemaining(merchant.trialExpiry)} days</span>
                 </div>
               ) : (
                 <div className="text-[10px] font-semibold px-3 py-1 bg-emerald-500/10 text-emerald-750 dark:text-emerald-300 border border-emerald-500/25 rounded-lg flex items-center gap-2">
-                  <Check className="h-3.5 w-3.5 shrink-0 stroke-[2.5]" />
+                  <CheckIcon className="h-3.5 w-3.5 shrink-0 stroke-[2.5]" />
                   <span>Manually Verified Ledger</span>
                 </div>
               )}
@@ -492,7 +472,7 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
               <div className="flex flex-col gap-4">
                 <div className="flex justify-between items-center border-b border-border pb-3">
                   <div className="flex items-center gap-2 text-foreground">
-                    <Package className="h-4.5 w-4.5 text-muted-foreground" />
+                    <PackageIcon className="h-4.5 w-4.5 text-muted-foreground" />
                     <span className="text-sm font-bold">Products Inventory</span>
                   </div>
                   <span className="text-[10px] font-mono bg-muted border border-border px-2 py-0.5 rounded text-muted-foreground">
@@ -535,7 +515,7 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
               <div className="flex flex-col gap-4">
                 <div className="flex justify-between items-center border-b border-border pb-3">
                   <div className="flex items-center gap-2 text-foreground">
-                    <Receipt className="h-4.5 w-4.5 text-muted-foreground" />
+                    <ReceiptIcon className="h-4.5 w-4.5 text-muted-foreground" />
                     <span className="text-sm font-bold">Monthly Orders Limit</span>
                   </div>
                   <span className="text-[10px] font-mono bg-muted border border-border px-2 py-0.5 rounded text-muted-foreground">
@@ -576,28 +556,28 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
             {/* Bento Card 5: Unlocked Capabilities Matrix */}
             <Card className="md:col-span-12 p-6 border border-border bg-card rounded-xl flex flex-col gap-4">
               <div className="flex items-center gap-2 border-b border-border pb-3">
-                <Layers className="h-4.5 w-4.5 text-muted-foreground" />
+                <LayersIcon className="h-4.5 w-4.5 text-muted-foreground" />
                 <span className="text-sm font-bold text-foreground">Unlocked Capabilities Matrix</span>
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-1">
                 <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border border-border text-sm font-medium text-foreground">
-                  <LockOpen className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <LockOpenIcon className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Subdomain Storefront</span>
                 </div>
                 <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border border-border text-sm font-medium text-foreground">
-                  <LockOpen className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <LockOpenIcon className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Payments Engine</span>
                 </div>
                 <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border border-border text-sm font-medium text-foreground">
                   {activeDiscountCodes ? (
                     <>
-                      <LockOpen className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <LockOpenIcon className="w-4 h-4 text-emerald-600 shrink-0" />
                       <span>Discounts &amp; Promos</span>
                     </>
                   ) : (
                     <>
-                      <Lock className="w-4 h-4 text-muted-foreground/40 shrink-0" />
+                      <LockIcon className="w-4 h-4 text-muted-foreground/40 shrink-0" />
                       <span className="text-muted-foreground/70">Discounts &amp; Promos</span>
                     </>
                   )}
@@ -605,12 +585,12 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
                 <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border border-border text-sm font-medium text-foreground">
                   {currentPlanObj?.features.telegram_notifications ? (
                     <>
-                      <LockOpen className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <LockOpenIcon className="w-4 h-4 text-emerald-600 shrink-0" />
                       <span>Telegram Order Alerts</span>
                     </>
                   ) : (
                     <>
-                      <Lock className="w-4 h-4 text-muted-foreground/40 shrink-0" />
+                      <LockIcon className="w-4 h-4 text-muted-foreground/40 shrink-0" />
                       <span className="text-muted-foreground/70">Telegram Order Alerts</span>
                     </>
                   )}
@@ -674,7 +654,7 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
                         )}
                         {isSelected && (
                           <span className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-primary-foreground shrink-0">
-                            <Check className="h-3.5 w-3.5 stroke-[3]" />
+                            <CheckIcon className="h-3.5 w-3.5 stroke-[3]" />
                           </span>
                         )}
                       </div>
@@ -689,15 +669,15 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
 
                     <div className="border-t border-border/50 pt-4 flex flex-col gap-3 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
-                        <Package className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+                        <PackageIcon className="h-4 w-4 text-muted-foreground/60 shrink-0" />
                         <span>Products: <strong className="text-foreground font-semibold">{p.features.max_products !== null ? `${p.features.max_products} active` : "Unlimited"}</strong></span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Receipt className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+                        <ReceiptIcon className="h-4 w-4 text-muted-foreground/60 shrink-0" />
                         <span>Orders/Mo: <strong className="text-foreground font-semibold">{p.features.max_orders_per_month !== null ? `${p.features.max_orders_per_month}` : "Unlimited"}</strong></span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <FolderOpen className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+                        <FolderOpenIcon className="h-4 w-4 text-muted-foreground/60 shrink-0" />
                         <span>Categories: <strong className="text-foreground font-semibold">{p.features.max_categories !== null ? `${p.features.max_categories}` : "Unlimited"}</strong></span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -791,7 +771,7 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
                         {/* Benefits Unlocked */}
                         <div className="flex flex-col gap-3">
                           <span className="text-[10px] uppercase font-bold text-emerald-700 tracking-wider flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20 font-sans">
-                            <LockOpen className="h-3.5 w-3.5" /> Benefits Gained
+                            <LockOpenIcon className="h-3.5 w-3.5" /> Benefits Gained
                           </span>
                           {diffs.filter(d => d.type === "gain").length > 0 ? (
                             <ul className="space-y-2.5 text-sm">
@@ -812,7 +792,7 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
                         {/* Losses & Locks */}
                         <div className="flex flex-col gap-3">
                           <span className="text-[10px] uppercase font-bold text-amber-705 tracking-wider flex items-center gap-1.5 bg-amber-500/10 px-2.5 py-1 rounded border border-amber-500/20 font-sans">
-                            <Lock className="h-3.5 w-3.5" /> Limits &amp; Feature Locks
+                            <LockIcon className="h-3.5 w-3.5" /> Limits &amp; Feature Locks
                           </span>
                           {diffs.filter(d => d.type === "loss").length > 0 ? (
                             <ul className="space-y-2.5 text-sm">
@@ -836,7 +816,7 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
                   {/* Blocker alert warning if active counts exceed target */}
                   {isDowngradeBlocked && (
                     <div className="mt-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-start gap-3 text-sm text-destructive leading-relaxed w-full">
-                      <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                      <AlertTriangleIcon className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                       <div className="flex flex-col gap-1">
                         <span className="font-bold text-foreground">Active Downgrade Block Triggered</span>
                         <span>
@@ -865,7 +845,7 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
                 <Card className="border border-border bg-card p-6 rounded-xl flex flex-col justify-between h-full gap-4">
                   <div className="flex flex-col gap-3">
                     <h4 className="text-base font-bold text-foreground flex items-center gap-2">
-                      <HelpCircle className="h-5 w-5 text-muted-foreground" /> Upgrade Process Guide
+                      <HelpCircleIcon className="h-5 w-5 text-muted-foreground" /> Upgrade Process Guide
                     </h4>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       Plan adjustments are verified manually. To request this switch:
@@ -889,7 +869,7 @@ export function SubscriptionOverview({ merchant, subscription, usageCounts, plan
                   
                   {isDowngradeBlocked ? (
                     <div className="p-6 border border-destructive/15 rounded-xl bg-destructive/5 text-center flex flex-col items-center justify-center min-h-[220px] gap-2">
-                      <Lock className="h-8 w-8 text-destructive mb-1" />
+                      <LockIcon className="h-8 w-8 text-destructive mb-1" />
                       <span className="font-semibold text-foreground">Checkout Portal Locked</span>
                       <span className="text-sm text-muted-foreground max-w-sm leading-normal">
                         Please resolve the limit blocker errors detailed in the Transition Analysis panel to activate manual billing submission for {selectedPlanObj.name}.

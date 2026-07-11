@@ -3,15 +3,8 @@
 import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import {
-  Shield,
-  Users,
-  CreditCard,
-  Layers,
-  LayoutTemplate,
-  ChevronsUpDown,
-  LayoutDashboard,
-} from "lucide-react"
+import { ShieldIcon, UsersIcon, CreditCardIcon, LayersIcon, LayoutTemplateIcon, ChevronsUpDownIcon, LayoutDashboardIcon } from "@/lib/icons";
+
 import {
   Sidebar,
   SidebarContent,
@@ -65,28 +58,28 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
     {
       label: "Overview",
       href: "/admin",
-      icon: Shield,
+      icon: ShieldIcon,
       exact: true,
     },
     {
       label: "Merchants",
       href: "/admin/merchants",
-      icon: Users,
+      icon: UsersIcon,
     },
     {
       label: "Subscriptions",
       href: "/admin/subscriptions",
-      icon: CreditCard,
+      icon: CreditCardIcon,
     },
     {
       label: "Subscription Plans",
       href: "/admin/plans",
-      icon: Layers,
+      icon: LayersIcon,
     },
     {
       label: "Templates",
       href: "/admin/templates",
-      icon: LayoutTemplate,
+      icon: LayoutTemplateIcon,
     },
   ]
 
@@ -102,7 +95,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
             >
               <div className="flex items-center gap-3 text-left min-w-0 grow">
                 <div className="w-8 h-8 rounded-none bg-zinc-950 text-white flex items-center justify-center shrink-0 shadow-sm border border-zinc-900">
-                  <Shield className="h-4.5 w-4.5 text-red-500 fill-red-500/10 stroke-[2]" />
+                  <ShieldIcon className="h-4.5 w-4.5 text-red-500 fill-red-500/10 stroke-[2]" />
                 </div>
                 <div className="flex flex-col min-w-0 grow">
                   <span className="text-xs font-bold text-sidebar-foreground truncate leading-none">
@@ -113,7 +106,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
                   </span>
                 </div>
               </div>
-              <ChevronsUpDown className="h-4 w-4 text-muted-foreground shrink-0" />
+              <ChevronsUpDownIcon className="h-4 w-4 text-muted-foreground shrink-0" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -130,7 +123,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
                 href="/dashboard"
                 className="flex items-center gap-2 cursor-pointer rounded-none text-sm px-2 py-1.5 hover:bg-accent hover:text-accent-foreground transition-colors duration-150"
               >
-                <LayoutDashboard className="h-4 w-4 text-primary shrink-0" />
+                <LayoutDashboardIcon className="h-4 w-4 text-primary shrink-0" />
                 <span className="grow truncate font-semibold">Merchant Dashboard</span>
               </Link>
             </DropdownMenuItem>
@@ -202,7 +195,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
                   </span>
                 </div>
               </div>
-              <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <ChevronsUpDownIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent

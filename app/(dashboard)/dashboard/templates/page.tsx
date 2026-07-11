@@ -7,6 +7,7 @@ import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { getActiveTemplates } from "@/db/queries/templates"
 import { getCachedStorefrontSections } from "@/lib/cache/storefront"
 import { TemplatesPageClient } from "./components/TemplatesPageClient"
+import { TemplatesSkeleton } from "./components/TemplatesSkeleton"
 
 import { connection } from "next/server"
 import { Suspense } from "react"
@@ -25,7 +26,7 @@ export default function TemplatesPage() {
         </p>
       </div>
 
-      <Suspense fallback={<div className="h-96 flex items-center justify-center text-muted-foreground">Loading templates...</div>}>
+      <Suspense fallback={<TemplatesSkeleton />}>
         <TemplatesPageContent />
       </Suspense>
     </div>

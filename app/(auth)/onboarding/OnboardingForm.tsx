@@ -7,7 +7,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Inpu
 import { Field, FieldLabel, FieldError, FieldDescription } from "@/components/ui/field"
 import { createMerchantAction } from "./actions"
 import { onboardingSchema } from "./schema"
-import { Globe, Store, Check, ArrowRight } from "lucide-react"
+import { GlobeIcon, StoreIcon, CheckIcon, ArrowRightIcon } from "@/lib/icons";
+
 
 type ResolvedPlanForForm = {
   id: string
@@ -88,7 +89,7 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-aloe-10 animate-pulse" />
             <span className="text-eyebrow-cap font-semibold tracking-wider text-shade-60 uppercase">
-              Step 2: Store Setup
+              Step 2: StoreIcon Setup
             </span>
           </div>
           <span className="text-caption text-shade-40 font-mono">50% Complete</span>
@@ -98,7 +99,7 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
           {success ? (
               <div className="flex flex-col items-center justify-center text-center py-10 px-4 animate-fade-in">
                 <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-6 text-emerald-800 scale-100 transition-transform duration-500 animate-bounce">
-                  <Check className="h-8 w-8 stroke-3" />
+                  <CheckIcon className="h-8 w-8 stroke-3" />
                 </div>
                 <h2 className="text-heading-xl font-medium mb-2 text-ink">
                   Your boutique is ready!
@@ -133,7 +134,7 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
                         </div>
                     )}
 
-                    {/* Store Name Input */}
+                    {/* StoreIcon Name Input */}
                     <form.Field
                         name="name"
                         validators={{
@@ -146,8 +147,8 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
                       {(field) => (
                           <Field>
                             <FieldLabel htmlFor={field.name} className="flex items-center gap-1.5 text-shade-60">
-                              <Store className="h-4 w-4 text-shade-40" />
-                              Boutique / Store Name
+                              <StoreIcon className="h-4 w-4 text-shade-40" />
+                              Boutique / StoreIcon Name
                             </FieldLabel>
                             <Input
                                 id={field.name}
@@ -190,8 +191,8 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
                       {(field) => (
                           <Field>
                             <FieldLabel htmlFor={field.name} className="flex items-center gap-1.5 text-shade-60">
-                              <Globe className="h-4 w-4 text-shade-40" />
-                              Store Subdomain URL
+                              <GlobeIcon className="h-4 w-4 text-shade-40" />
+                              StoreIcon Subdomain URL
                             </FieldLabel>
                             <div className="flex rounded-md border border-hairline-light bg-canvas-light focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 overflow-hidden transition-all duration-200">
                               <input
@@ -225,7 +226,7 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
                       {(field) => (
                           <Field className="mt-2">
                             <FieldLabel className="flex items-center gap-1.5 text-shade-60">
-                              <Check className="h-4 w-4 text-shade-40" />
+                              <CheckIcon className="h-4 w-4 text-shade-40" />
                               Select a Plan
                             </FieldLabel>
                             <div className="grid grid-cols-2 gap-3 mt-1">
@@ -273,7 +274,7 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
                       {(field) => (
                         <Field className="mt-2">
                           <FieldLabel className="flex items-center gap-1.5 text-shade-60">
-                            <Store className="h-4 w-4 text-shade-40" />
+                            <StoreIcon className="h-4 w-4 text-shade-40" />
                             Business Type / Niche
                           </FieldLabel>
                           <div className="grid grid-cols-2 gap-3 mt-1">
@@ -336,12 +337,12 @@ export default function OnboardingForm({ plans }: OnboardingFormProps) {
                             {loading ? (
                                 <span className="flex items-center gap-2">
                                   <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                                  Provisioning Store...
+                                  Provisioning StoreIcon...
                                 </span>
                             ) : (
                                 <span className="flex items-center gap-2">
                                   Create & Build Storefront
-                                  <ArrowRight className="h-4 w-4" />
+                                  <ArrowRightIcon className="h-4 w-4" />
                                 </span>
                             )}
                           </Button>

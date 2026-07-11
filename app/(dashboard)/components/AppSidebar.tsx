@@ -3,23 +3,8 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import {
-  LayoutDashboard,
-  LayoutTemplate,
-  ShoppingBag,
-  Tag,
-  Settings,
-  CreditCard,
-  Percent,
-  FolderTree,
-  FileText,
-  Menu as MenuIcon,
-  Globe,
-  ExternalLink,
-  ChevronsUpDown,
-  ChevronRight,
-  Shield,
-} from "lucide-react"
+import { LayoutDashboardIcon, LayoutTemplateIcon, ShoppingBagIcon, TagIcon, SettingsIcon, CreditCardIcon, PercentIcon, FolderTreeIcon, FileTextIcon, MenuIcon, GlobeIcon, ExternalLinkIcon, ChevronsUpDownIcon, ChevronRightIcon, ShieldIcon } from "@/lib/icons";
+
 import {
   Sidebar,
   SidebarContent,
@@ -138,7 +123,7 @@ export function AppSidebar({
                   </span>
                 </div>
               </div>
-              <ChevronsUpDown className="h-4 w-4 text-muted-foreground shrink-0" />
+              <ChevronsUpDownIcon className="h-4 w-4 text-muted-foreground shrink-0" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -157,9 +142,9 @@ export function AppSidebar({
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 cursor-pointer rounded-none text-sm px-2 py-1.5 hover:bg-accent hover:text-accent-foreground transition-colors duration-150"
               >
-                <Globe className="h-4 w-4 text-primary shrink-0" />
+                <GlobeIcon className="h-4 w-4 text-primary shrink-0" />
                 <span className="grow truncate font-mono text-xs">{storefrontDisplay}</span>
-                <ExternalLink className="h-3.5 w-3.5 text-muted-foreground/80 shrink-0" />
+                <ExternalLinkIcon className="h-3.5 w-3.5 text-muted-foreground/80 shrink-0" />
               </a>
             </DropdownMenuItem>
 
@@ -174,7 +159,7 @@ export function AppSidebar({
                     href="/admin"
                     className="flex items-center gap-2 cursor-pointer rounded-none text-sm px-2 py-1.5 hover:bg-red-50 hover:text-red-750 dark:hover:bg-red-950/30 text-red-650 transition-colors duration-150"
                   >
-                    <Shield className="h-4 w-4 shrink-0" />
+                    <ShieldIcon className="h-4 w-4 shrink-0" />
                     <span className="font-semibold">Super Admin Panel</span>
                   </Link>
                 </DropdownMenuItem>
@@ -205,7 +190,7 @@ export function AppSidebar({
                   )}
                 >
                   <Link href="/dashboard" onClick={handleLinkClick}>
-                    <LayoutDashboard className="h-4 w-4 shrink-0" />
+                    <LayoutDashboardIcon className="h-4 w-4 shrink-0" />
                     <span>Dashboard</span>
                   </Link>
                 </SidebarMenuButton>
@@ -225,7 +210,7 @@ export function AppSidebar({
               <CollapsibleTrigger asChild>
                 <button className="flex items-center justify-between w-full text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest py-1.5 hover:text-sidebar-foreground cursor-pointer transition-colors duration-150 focus:outline-none">
                   <span>Storefront</span>
-                  <ChevronRight
+                  <ChevronRightIcon
                     className={cn(
                       "h-3.5 w-3.5 transition-transform duration-200 shrink-0",
                       isStorefrontOpen && "rotate-90"
@@ -240,12 +225,12 @@ export function AppSidebar({
                   {
                     label: "Templates",
                     href: "/dashboard/templates",
-                    icon: LayoutTemplate,
+                    icon: LayoutTemplateIcon,
                   },
                   {
                     label: "Pages",
                     href: "/dashboard/pages",
-                    icon: FileText,
+                    icon: FileTextIcon,
                   },
                   {
                     label: "Navigation",
@@ -255,22 +240,22 @@ export function AppSidebar({
                   {
                     label: "Products",
                     href: "/dashboard/products",
-                    icon: ShoppingBag,
+                    icon: ShoppingBagIcon,
                   },
                   {
                     label: "Categories",
                     href: "/dashboard/categories",
-                    icon: FolderTree,
+                    icon: FolderTreeIcon,
                   },
                   {
                     label: "Orders",
                     href: "/dashboard/orders",
-                    icon: Tag,
+                    icon: TagIcon,
                   },
                   {
                     label: "Discounts",
                     href: "/dashboard/discounts",
-                    icon: Percent,
+                    icon: PercentIcon,
                   },
                 ].map((item) => {
                   const isActive = pathname.startsWith(item.href)
@@ -324,7 +309,7 @@ export function AppSidebar({
                   )}
                 >
                   <Link href="/dashboard/billing" onClick={handleLinkClick}>
-                    <CreditCard className="h-4 w-4 shrink-0" />
+                    <CreditCardIcon className="h-4 w-4 shrink-0" />
                     <span>Billing & Plan</span>
                   </Link>
                 </SidebarMenuButton>
@@ -377,7 +362,7 @@ export function AppSidebar({
                   </span>
                 </div>
               </div>
-              <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <ChevronsUpDownIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -400,8 +385,8 @@ export function AppSidebar({
                 href="/dashboard/settings"
                 className="flex items-center gap-2 cursor-pointer rounded-none text-sm px-2 py-1.5 hover:bg-accent hover:text-accent-foreground transition-colors duration-150"
               >
-                <Settings className="h-4 w-4 shrink-0" />
-                <span>Store Settings</span>
+                <SettingsIcon className="h-4 w-4 shrink-0" />
+                <span>Store SettingsIcon</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="my-1 border-sidebar-border" />
