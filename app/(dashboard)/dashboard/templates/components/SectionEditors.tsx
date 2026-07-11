@@ -12,24 +12,25 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { 
-  HeroContent, 
-  AnnouncementBarContent, 
-  CategoryShowcaseContent, 
+import {
+  HeroContent,
+  AnnouncementBarContent,
+  CategoryShowcaseContent,
   AboutContent,
   ProductGridContent,
   FaqContent,
   FooterContent
 } from "@/lib/storefront-sections/types"
 import { Button } from "@/components/ui/button"
-import { Trash2Icon, PlusIcon, InfoIcon } from "@/lib/icons";
+import { Trash2Icon, PlusIcon, InfoIcon, FacebookIcon, InstagramIcon, WhatsAppIcon, TikTokIcon } from "@/lib/icons";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 
 export function HeroEditor({ content, onChange }: { content: HeroContent, onChange: (c: HeroContent) => void }) {
   return (
     <div className="flex flex-col gap-4 text-foreground">
       <div className="flex flex-col gap-1.5">
         <FormLabel>Title</FormLabel>
-        <Input 
+        <Input
           value={content.title || ""}
           onChange={(e) => onChange({ ...content, title: e.target.value })}
           placeholder="Hero Title"
@@ -38,7 +39,7 @@ export function HeroEditor({ content, onChange }: { content: HeroContent, onChan
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Subtitle</FormLabel>
-        <Input 
+        <Input
           value={content.subtitle || ""}
           onChange={(e) => onChange({ ...content, subtitle: e.target.value })}
           placeholder="Hero Subtitle"
@@ -47,7 +48,7 @@ export function HeroEditor({ content, onChange }: { content: HeroContent, onChan
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Button Text</FormLabel>
-        <Input 
+        <Input
           value={content.buttonText || ""}
           onChange={(e) => onChange({ ...content, buttonText: e.target.value })}
           placeholder="e.g. Shop Now"
@@ -56,7 +57,7 @@ export function HeroEditor({ content, onChange }: { content: HeroContent, onChan
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Button Link</FormLabel>
-        <Input 
+        <Input
           value={content.buttonLink || ""}
           onChange={(e) => onChange({ ...content, buttonLink: e.target.value })}
           placeholder="/products"
@@ -65,7 +66,7 @@ export function HeroEditor({ content, onChange }: { content: HeroContent, onChan
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Image URL</FormLabel>
-        <Input 
+        <Input
           value={content.imageUrl || ""}
           onChange={(e) => onChange({ ...content, imageUrl: e.target.value })}
           placeholder="https://..."
@@ -81,7 +82,7 @@ export function AnnouncementBarEditor({ content, onChange }: { content: Announce
     <div className="flex flex-col gap-4 text-foreground">
       <div className="flex flex-col gap-1.5">
         <FormLabel>Announcement Text</FormLabel>
-        <Input 
+        <Input
           value={content.text || ""}
           onChange={(e) => onChange({ ...content, text: e.target.value })}
           placeholder="Free shipping!"
@@ -92,13 +93,13 @@ export function AnnouncementBarEditor({ content, onChange }: { content: Announce
         <div className="flex flex-col gap-1.5">
           <FormLabel>Background Color</FormLabel>
           <div className="flex gap-2 items-center">
-            <input 
-              type="color" 
-              value={content.backgroundColor || "#000000"} 
+            <input
+              type="color"
+              value={content.backgroundColor || "#000000"}
               onChange={(e) => onChange({ ...content, backgroundColor: e.target.value })}
               className="w-10 h-10 p-1 rounded-lg border border-border cursor-pointer bg-background"
             />
-            <Input 
+            <Input
               value={content.backgroundColor || "#000000"}
               onChange={(e) => onChange({ ...content, backgroundColor: e.target.value })}
               className="rounded-lg bg-background border-border"
@@ -108,13 +109,13 @@ export function AnnouncementBarEditor({ content, onChange }: { content: Announce
         <div className="flex flex-col gap-1.5">
           <FormLabel>Text Color</FormLabel>
           <div className="flex gap-2 items-center">
-            <input 
-              type="color" 
-              value={content.textColor || "#ffffff"} 
+            <input
+              type="color"
+              value={content.textColor || "#ffffff"}
               onChange={(e) => onChange({ ...content, textColor: e.target.value })}
               className="w-10 h-10 p-1 rounded-lg border border-border cursor-pointer bg-background"
             />
-            <Input 
+            <Input
               value={content.textColor || "#ffffff"}
               onChange={(e) => onChange({ ...content, textColor: e.target.value })}
               className="rounded-lg bg-background border-border"
@@ -131,7 +132,7 @@ export function CategoryShowcaseEditor({ content, onChange }: { content: Categor
     <div className="flex flex-col gap-4 text-foreground">
       <div className="flex flex-col gap-1.5">
         <FormLabel>Title</FormLabel>
-        <Input 
+        <Input
           value={content.title || ""}
           onChange={(e) => onChange({ ...content, title: e.target.value })}
           placeholder="Shop by Category"
@@ -165,7 +166,7 @@ export function AboutEditor({ content, onChange }: { content: AboutContent, onCh
     <div className="flex flex-col gap-4 text-foreground">
       <div className="flex flex-col gap-1.5">
         <FormLabel>Title</FormLabel>
-        <Input 
+        <Input
           value={content.title || ""}
           onChange={(e) => onChange({ ...content, title: e.target.value })}
           placeholder="About Us"
@@ -183,7 +184,7 @@ export function AboutEditor({ content, onChange }: { content: AboutContent, onCh
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Image URL</FormLabel>
-        <Input 
+        <Input
           value={content.imageUrl || ""}
           onChange={(e) => onChange({ ...content, imageUrl: e.target.value })}
           placeholder="https://..."
@@ -192,7 +193,7 @@ export function AboutEditor({ content, onChange }: { content: AboutContent, onCh
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Button Text</FormLabel>
-        <Input 
+        <Input
           value={content.buttonText || ""}
           onChange={(e) => onChange({ ...content, buttonText: e.target.value })}
           placeholder="Read More"
@@ -201,7 +202,7 @@ export function AboutEditor({ content, onChange }: { content: AboutContent, onCh
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Button Link</FormLabel>
-        <Input 
+        <Input
           value={content.buttonLink || ""}
           onChange={(e) => onChange({ ...content, buttonLink: e.target.value })}
           placeholder="/about"
@@ -217,7 +218,7 @@ export function ProductGridEditor({ content, onChange }: { content: ProductGridC
     <div className="flex flex-col gap-4 text-foreground">
       <div className="flex flex-col gap-1.5">
         <FormLabel>Title</FormLabel>
-        <Input 
+        <Input
           value={content.title || ""}
           onChange={(e) => onChange({ ...content, title: e.target.value })}
           placeholder="Featured Products"
@@ -255,20 +256,20 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
     <div className="flex flex-col gap-4 text-foreground">
       <div className="flex flex-col gap-1.5">
         <FormLabel>Title</FormLabel>
-        <Input 
+        <Input
           value={content.title || ""}
           onChange={(e) => onChange({ ...content, title: e.target.value })}
           placeholder="Frequently Asked Questions"
           className="rounded-lg bg-background border-border"
         />
       </div>
-      
+
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <FormLabel>Questions & Answers</FormLabel>
-          <Button 
-            type="button" 
-            variant="outline" 
+          <Button
+            type="button"
+            variant="outline"
             size="sm"
             onClick={() => {
               if (items.length < 8) {
@@ -281,11 +282,11 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
             <PlusIcon className="w-4 h-4 mr-1" /> Add FAQ
           </Button>
         </div>
-        
+
         {items.map((item, idx) => (
           <div key={idx} className="flex gap-3 items-start border border-border p-4 rounded-xl bg-card">
             <div className="flex flex-col gap-3 flex-1">
-              <Input 
+              <Input
                 value={item.question}
                 onChange={(e) => {
                   const newItems = [...items]
@@ -295,7 +296,7 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
                 placeholder="Question"
                 className="rounded-lg bg-background border-border"
               />
-              <Textarea 
+              <Textarea
                 value={item.answer}
                 onChange={(e) => {
                   const newItems = [...items]
@@ -333,7 +334,7 @@ export function FooterEditor({ content, onChange }: { content: FooterContent, on
   return (
     <div className="flex flex-col gap-4 text-foreground">
       <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded-lg text-sm">
-        <InfoIcon className="h-4 w-4 text-blue-500 dark:text-blue-400 shrink-0 mt-0.5" />
+        <InfoIcon className="h-4 w-4 text-blue-500 dark:text-blue-400 shrink-0 mt-1" />
         <span className="text-blue-600 dark:text-blue-400">
           Footer navigation links are managed in the{' '}
           <Link href="/dashboard/navigation" className="font-medium underline hover:text-blue-700 dark:hover:text-blue-300">
@@ -344,7 +345,7 @@ export function FooterEditor({ content, onChange }: { content: FooterContent, on
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Store Description</FormLabel>
-        <Textarea 
+        <Textarea
           value={content.storeDescription || ""}
           onChange={(e) => onChange({ ...content, storeDescription: e.target.value })}
           placeholder="Brief description for the footer..."
@@ -354,7 +355,7 @@ export function FooterEditor({ content, onChange }: { content: FooterContent, on
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Store Address</FormLabel>
-        <Textarea 
+        <Textarea
           value={content.storeAddress || ""}
           onChange={(e) => onChange({ ...content, storeAddress: e.target.value })}
           placeholder="123 Main St..."
@@ -364,41 +365,57 @@ export function FooterEditor({ content, onChange }: { content: FooterContent, on
       </div>
       <div className="flex flex-col gap-1.5">
         <FormLabel>Copyright Text</FormLabel>
-        <Input 
+        <Input
           value={content.copyrightText || ""}
           onChange={(e) => onChange({ ...content, copyrightText: e.target.value })}
           placeholder="© 2026 StoreName"
           className="rounded-lg bg-background border-border"
         />
       </div>
-      
+
       <div className="pt-2">
         <FormLabel className="mb-2 block">Social Links</FormLabel>
         <div className="grid grid-cols-1 gap-3">
-          <Input 
-            value={links.facebook || ""}
-            onChange={(e) => onChange({ ...content, socialLinks: { ...links, facebook: e.target.value } })}
-            placeholder="Facebook URL"
-            className="rounded-lg bg-background border-border"
-          />
-          <Input 
-            value={links.instagram || ""}
-            onChange={(e) => onChange({ ...content, socialLinks: { ...links, instagram: e.target.value } })}
-            placeholder="Instagram URL"
-            className="rounded-lg bg-background border-border"
-          />
-          <Input 
-            value={links.whatsapp || ""}
-            onChange={(e) => onChange({ ...content, socialLinks: { ...links, whatsapp: e.target.value } })}
-            placeholder="WhatsApp Number"
-            className="rounded-lg bg-background border-border"
-          />
-          <Input 
-            value={links.tiktok || ""}
-            onChange={(e) => onChange({ ...content, socialLinks: { ...links, tiktok: e.target.value } })}
-            placeholder="TikTok URL"
-            className="rounded-lg bg-background border-border"
-          />
+          <InputGroup>
+            <InputGroupAddon>
+              <FacebookIcon className="h-4 w-4" />
+            </InputGroupAddon>
+            <InputGroupInput
+              value={links.facebook || ""}
+              onChange={(e) => onChange({ ...content, socialLinks: { ...links, facebook: e.target.value } })}
+              placeholder="Facebook URL"
+            />
+          </InputGroup>
+          <InputGroup>
+            <InputGroupAddon>
+              <InstagramIcon className="h-4 w-4" />
+            </InputGroupAddon>
+            <InputGroupInput
+              value={links.instagram || ""}
+              onChange={(e) => onChange({ ...content, socialLinks: { ...links, instagram: e.target.value } })}
+              placeholder="Instagram URL"
+            />
+          </InputGroup>
+          <InputGroup>
+            <InputGroupAddon>
+              <WhatsAppIcon className="h-4 w-4" />
+            </InputGroupAddon>
+            <InputGroupInput
+              value={links.whatsapp || ""}
+              onChange={(e) => onChange({ ...content, socialLinks: { ...links, whatsapp: e.target.value } })}
+              placeholder="WhatsApp Number"
+            />
+          </InputGroup>
+          <InputGroup>
+            <InputGroupAddon>
+              <TikTokIcon className="h-4 w-4" />
+            </InputGroupAddon>
+            <InputGroupInput
+              value={links.tiktok || ""}
+              onChange={(e) => onChange({ ...content, socialLinks: { ...links, tiktok: e.target.value } })}
+              placeholder="TikTok URL"
+            />
+          </InputGroup>
         </div>
       </div>
     </div>
