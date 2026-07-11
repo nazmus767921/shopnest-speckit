@@ -169,5 +169,15 @@ export { Edit2 as Edit2Icon } from "lucide-react"
 export { Pencil as PencilIcon } from "lucide-react"
 export { Smartphone as SmartphoneIcon } from "lucide-react"
 
+// ─── Social & Brand Icons (Custom) ──────────────────────────────────────────
+export { FacebookIcon } from "@/components/icons"
+export { WhatsAppIcon } from "@/components/icons"
+export { TelegramIcon } from "@/components/icons"
+export { LinkedInIcon } from "@/components/icons"
+export { TwitterXIcon } from "@/components/icons"
+export { TikTokIcon } from "@/components/icons"
+export { InstagramIcon } from "@/components/icons"
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 export type { LucideIcon } from "lucide-react"
+export type { SVGProps } from "react"
