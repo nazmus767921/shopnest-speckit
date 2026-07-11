@@ -2,10 +2,17 @@
 
 import React, { useState } from "react"
 import { useForm } from "@tanstack/react-form"
-import { X, CheckCircle2, AlertCircle } from "lucide-react"
+import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Field, FieldLabel, FieldError, FieldDescription, FieldGroup, FieldSet } from "@/components/ui/field"
+import { Field, FieldLabel, FieldError, FieldDescription } from "@/components/ui/field"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { createCategoryAction, updateCategoryAction } from "@/app/actions/categories"
 import { z } from "zod"
 
@@ -69,35 +76,20 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
   })
 
   return (
-    /* Backdrop */
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
-    >
-      {/* Modal Panel */}
-      <div className="bg-card border border-border rounded-xl w-full max-w-md flex flex-col overflow-hidden animate-fade-in text-foreground">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 className="text-lg font-bold text-foreground">
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
             {isEditing ? "Edit Category" : "Create Category"}
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-1.5 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+          </DialogTitle>
+        </DialogHeader>
 
-        {/* Form */}
         <form
           onSubmit={(e) => {
             e.preventDefault()
             form.handleSubmit()
           }}
-          className="flex flex-col gap-5 p-6"
+          className="flex flex-col gap-5"
         >
           {/* Category Name */}
           <form.Field name="name">
@@ -165,7 +157,7 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
           )}
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
+          <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose} className="cursor-pointer">
               Cancel
             </Button>
@@ -176,6 +168,7 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
                   disabled={isSubmitting}
                   className="cursor-pointer"
                 >
+                  {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
                   {isSubmitting
                     ? isEditing
                       ? "Saving…"
@@ -186,9 +179,9 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
                 </Button>
               )}
             </form.Subscribe>
-          </div>
+          </DialogFooter>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }

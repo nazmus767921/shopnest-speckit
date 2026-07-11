@@ -335,12 +335,12 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
+              variant="destructive"
               disabled={deleteMutation.isPending}
               onClick={(e) => {
                 e.preventDefault()
                 handleDeleteConfirm()
               }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deleteMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}
               Delete Category
