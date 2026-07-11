@@ -17,7 +17,7 @@ Before any Next.js work, find and read the relevant doc in `node_modules/next/di
     - React Compiler: Automated optimization; manual `useMemo`/`useCallback` strictly forbidden.
     - Prerendering Safety: Wrap dynamic/non-deterministic operations (`cookies()`, `headers()`, etc.) in `<Suspense>` and call `await connection()` from `"next/server"` to prevent static build abort errors.
     
-# Ten Non-Negotiable Invariants:
+# Eleven Non-Negotiable Invariants:
     1. Merchant-ID Filter: Every query must include merchant_id from `auth.api.getSession()`, never from client.
     2. Stock Non-negative: `products.stock_count` >= 0 via Postgres transactions with `WHERE stock_count >= quantity` guard.
     3. Price Snapshotted: `order_items.unit_price` is written once at checkout.
@@ -28,6 +28,7 @@ Before any Next.js work, find and read the relevant doc in `node_modules/next/di
     8. UI Primitives Only: Composed from Shadcn UI components under `components/ui/`.
     9. Shadcn UI First: Adopt Shadcn UI default design system and components. Avoid building custom components unless necessary.
     10. Payment Snapshot Priority: Use `payment.featuresAtPaymentTime` to resolve grand-fathered features/limits; use warnings, not hard-blocks during verification.
+    11. Icons from Registry Only: ALL icons MUST be imported from `lib/icons.ts`, never directly from `lucide-react` or any other icon library. If an icon is needed but not yet exported from `lib/icons.ts`, add it there first, then import from the registry. This ensures a single source of truth for icon switching.
 
 # Security & Secrets:
     - Multi-tenant isolation at application query layer (explicit merchantId) and Postgres RLS.
@@ -46,3 +47,4 @@ Before any Next.js work, find and read the relevant doc in `node_modules/next/di
 - Do not run build command or `bun run build` , `bun build` or dev server (`bun dev`) command without permission. Ask for permission before running.
 -  use `bun` command to run scripts not `npm` or `pnpm`. `npx` is equal to `bunx`.
 - All primitives like input, select, textarea, button, sheet, dialog, confirmation dialog, dropdown, table, menu, toast, tooltip, popover, badge, avatar, card etc must use custom components from `components/ui/`. If not available then ask if you should create one.
+- ALL icons MUST be imported from `@/lib/icons`. NEVER import directly from `lucide-react` or any other icon library. If an icon is missing from `lib/icons.ts`, export it there first, then use it. This is non-negotiable.
