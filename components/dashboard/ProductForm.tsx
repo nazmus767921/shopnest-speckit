@@ -24,7 +24,8 @@ import {
   ComboboxItem,
   ComboboxEmpty,
 } from "@/components/ui/combobox"
-import { UploadCloud, X, Loader2, ArrowLeft, ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { UploadCloudIcon, XIcon, Loader2Icon, ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "@/lib/icons";
+
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
   AlertDialog,
@@ -355,7 +356,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                     disabled={isPending || !canSave}
                     className="flex items-center gap-2"
                   >
-                    {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {isPending && <Loader2Icon className="h-4 w-4 animate-spin" />}
                     <span>{isEditMode ? "Save Changes" : "Create Product"}</span>
                   </Button>
                 </span>
@@ -381,7 +382,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
           <div className="flex items-center gap-4">
             <Button variant="outline" size="icon-lg" className="rounded-sm" type="button" asChild>
               <Link href="/dashboard/products">
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeftIcon className="h-4 w-4" />
               </Link>
             </Button>
             <div>
@@ -409,7 +410,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
               onClick={() => setErrorMsg(null)}
               className="h-auto w-auto p-1 hover:bg-transparent"
             >
-              <X className="h-4 w-4" />
+              <XIcon className="h-4 w-4" />
             </Button>
           </div>
         </Alert>
@@ -581,7 +582,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                       <FieldLabel>Category</FieldLabel>
                       {categoriesLoading ? (
                         <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-input bg-muted/50">
-                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          <Loader2Icon className="h-4 w-4 animate-spin text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">Loading categories...</span>
                         </div>
                       ) : (
@@ -771,7 +772,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                                 className="p-1 bg-red-650 hover:bg-red-600 text-white rounded-full transition-colors duration-150 cursor-pointer border-none"
                                 title="Delete Image"
                               >
-                                <X className="h-3 w-3" />
+                                <XIcon className="h-3 w-3" />
                               </button>
                             </div>
 
@@ -783,7 +784,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                                   className="p-1.5 bg-black/60 hover:bg-black/90 text-white rounded-full transition-colors duration-150 cursor-pointer border-none"
                                   title="Move Left"
                                 >
-                                  <ChevronLeft className="h-3.5 w-3.5 stroke-[2.5]" />
+                                  <ChevronLeftIcon className="h-3.5 w-3.5 stroke-[2.5]" />
                                 </button>
                               ) : (
                                 <div className="w-6.5" />
@@ -796,7 +797,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                                   className="p-1.5 bg-black/60 hover:bg-black/90 text-white rounded-full transition-colors duration-150 cursor-pointer border-none"
                                   title="Move Right"
                                 >
-                                  <ChevronRight className="h-3.5 w-3.5 stroke-[2.5]" />
+                                  <ChevronRightIcon className="h-3.5 w-3.5 stroke-[2.5]" />
                                 </button>
                               ) : (
                                 <div className="w-6.5" />
@@ -814,7 +815,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                         onClick={() => fileInputRef.current?.click()}
                         className="border-2 border-dashed border-border rounded-xl bg-muted/10 hover:bg-muted/30 hover:border-muted-foreground/30 transition-all flex flex-col items-center justify-center aspect-square gap-1.5 text-muted-foreground hover:text-foreground cursor-pointer group"
                       >
-                        <Plus className="h-5 w-5 stroke-2 transition-transform duration-200 group-hover:scale-110" />
+                        <PlusIcon className="h-5 w-5 stroke-2 transition-transform duration-200 group-hover:scale-110" />
                         <span className="text-[10px] font-semibold tracking-wide uppercase select-none">
                           {index === 0 ? "Add Cover" : `Add Image`}
                         </span>
@@ -833,7 +834,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                 />
 
                 <div className="text-xs text-muted-foreground font-light mt-1 flex items-center gap-1.5">
-                  <UploadCloud className="h-4.5 w-4.5 stroke-[1.5]" />
+                  <UploadCloudIcon className="h-4.5 w-4.5 stroke-[1.5]" />
                   <span>Drag and drop anywhere on this card, or click any slot to upload (PNG, JPG, WebP up to {imageSizeLimitMb}MB each).</span>
                 </div>
               </CardContent>
@@ -842,7 +843,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
             {isDragging && (
               <div className="absolute inset-0 bg-emerald-950/10 backdrop-blur-[2px] border-2 border-dashed border-emerald-700/60 rounded-xl z-20 flex flex-col items-center justify-center pointer-events-none animate-fade-in">
                 <div className="p-4 bg-card text-emerald-800 rounded-full border border-emerald-250 shadow-sm flex items-center justify-center">
-                  <UploadCloud className="h-8 w-8 animate-bounce" />
+                  <UploadCloudIcon className="h-8 w-8 animate-bounce" />
                 </div>
                 <span className="text-base font-semibold text-emerald-950 mt-3">
                   Drop images to upload

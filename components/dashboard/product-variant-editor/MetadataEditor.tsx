@@ -2,7 +2,8 @@
 
 import { useCallback, useId, useState, useEffect } from "react";
 import type { MetadataEntryInput } from "@/lib/validations/variants";
-import { Plus, X, BookText, AlertCircle, GripVertical } from "lucide-react";
+import { PlusIcon, XIcon, BookTextIcon, AlertCircleIcon, GripVerticalIcon } from "@/lib/icons";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -142,7 +143,7 @@ export function MetadataEditor({
 
         <div className="rounded-xl border-2 border-dashed border-border bg-muted/20 p-8 text-center">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-            <BookText className="h-5 w-5 text-muted-foreground" />
+            <BookTextIcon className="h-5 w-5 text-muted-foreground" />
           </div>
           <h4 className="text-base font-semibold text-foreground mb-1">
             No metadata yet
@@ -160,7 +161,7 @@ export function MetadataEditor({
               aria-label="Add first metadata field"
               className="flex items-center gap-2"
             >
-              <Plus className="h-4 w-4" />
+              <PlusIcon className="h-4 w-4" />
               <span>Add Field</span>
             </Button>
 
@@ -209,7 +210,7 @@ export function MetadataEditor({
           aria-label="Add metadata field"
           className="flex items-center gap-1.5 self-start sm:self-auto h-9"
         >
-          <Plus className="h-3.5 w-3.5" />
+          <PlusIcon className="h-3.5 w-3.5" />
           <span>Add Field</span>
         </Button>
       </div>
@@ -237,7 +238,7 @@ export function MetadataEditor({
                     : "bg-background border-border text-foreground hover:border-muted-foreground/30 hover:bg-muted/30"
                 )}
               >
-                <Plus className="h-3 w-3" />
+                <PlusIcon className="h-3 w-3" />
                 <span>{preset.label}</span>
               </button>
             );
@@ -287,7 +288,7 @@ export function MetadataEditor({
           className="rounded-xl bg-amber-500/10 px-4 py-2.5 text-xs text-amber-600 dark:text-amber-500 flex items-center gap-2"
           role="alert"
         >
-          <AlertCircle className="h-4 w-4 shrink-0" />
+          <AlertCircleIcon className="h-4 w-4 shrink-0" />
           <span>Maximum of {MAX_METADATA} metadata entries reached.</span>
         </div>
       )}
@@ -344,7 +345,7 @@ function SortableRow({
           className="cursor-grab active:cursor-grabbing p-1.5 text-muted-foreground hover:text-foreground transition-colors hover:bg-muted rounded-md border-none bg-transparent"
           aria-label="Drag to reorder"
         >
-          <GripVertical className="h-4 w-4" />
+          <GripVerticalIcon className="h-4 w-4" />
         </button>
       </div>
 
@@ -381,7 +382,7 @@ function SortableRow({
           className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors border-none bg-transparent cursor-pointer"
           aria-label="Remove row"
         >
-          <X className="h-4 w-4" />
+          <XIcon className="h-4 w-4" />
         </button>
       </div>
     </div>

@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { NumberInput } from "@/components/ui/number-input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Check, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2Icon, CheckIcon, XIcon, ChevronDownIcon, ChevronUpIcon } from "@/lib/icons";
+
 import { cn } from "@/lib/utils";
 
 export type VariantRow = {
@@ -145,7 +146,7 @@ function InlineCell({
           )}
           {saving && (
             <div className="absolute right-2 top-1/2 -translate-y-1/2">
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+              <Loader2Icon className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
             </div>
           )}
         </div>
@@ -252,7 +253,6 @@ export function VariantRowEditor({
   const handleToggleStatus = useCallback(async () => {
     await onUpdate(variant.id, { isActive: !variant.isActive });
   }, [variant.id, variant.isActive, onUpdate]);
-
 
   return (
     <div
@@ -395,9 +395,9 @@ export function VariantRowEditor({
             )}
           >
             {variant.isActive ? (
-              <Check className="h-3 w-3 mr-1 text-emerald-600 dark:text-emerald-400" />
+              <CheckIcon className="h-3 w-3 mr-1 text-emerald-600 dark:text-emerald-400" />
             ) : (
-              <X className="h-3 w-3 mr-1 text-muted-foreground" />
+              <XIcon className="h-3 w-3 mr-1 text-muted-foreground" />
             )}
             <span>{variant.isActive ? "Active" : "Inactive"}</span>
           </Badge>

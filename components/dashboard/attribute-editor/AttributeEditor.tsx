@@ -2,7 +2,8 @@
 
 import { useCallback, useMemo, useId, useState, useRef, useEffect } from "react";
 import type { AttributeInput } from "@/lib/validations/variants";
-import { Plus, X, Trash2, Palette, List, Circle, GripVertical } from "lucide-react";
+import { PlusIcon, XIcon, Trash2Icon, PaletteIcon, ListIcon, CircleIcon, GripVerticalIcon } from "@/lib/icons";
+
 import { DeleteAttributeDialog } from "@/components/dashboard/product-variant-editor/DeleteAttributeDialog";
 import { RemoveOptionDialog } from "@/components/dashboard/attribute-editor/RemoveOptionDialog";
 import { Button } from "@/components/ui/button";
@@ -23,9 +24,9 @@ const MAX_ATTRIBUTES = 3;
 const MAX_OPTIONS = 10;
 
 const DISPLAY_TYPES = [
-  { value: "dropdown" as const, label: "Dropdown", icon: List },
-  { value: "swatch" as const, label: "Color Swatch", icon: Palette },
-  { value: "radio" as const, label: "Radio Buttons", icon: Circle },
+  { value: "dropdown" as const, label: "Dropdown", icon: ListIcon },
+  { value: "swatch" as const, label: "Color Swatch", icon: PaletteIcon },
+  { value: "radio" as const, label: "Radio Buttons", icon: CircleIcon },
 ] as const;
 
 const PREMIUM_COLORS = [
@@ -312,7 +313,7 @@ function TagInput({
                 className="ml-0.5 rounded p-0.5 text-muted-foreground opacity-60 hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all border-none bg-transparent cursor-pointer"
                 aria-label={`Remove ${opt.label}`}
               >
-                <X className="h-3 w-3" />
+                <XIcon className="h-3 w-3" />
               </button>
             )}
 
@@ -532,7 +533,7 @@ function AttributeRow({
           className="shrink-0 border-none bg-transparent! hover:bg-destructive/20!"
           title="Remove Attribute"
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2Icon className="h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -687,7 +688,7 @@ export function AttributeEditor({
       {attributes.length === 0 ? (
         <div className="rounded-xl border-2 border-dashed border-border bg-muted/20 p-8 text-center">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-            <Plus className="h-5 w-5 text-muted-foreground" />
+            <PlusIcon className="h-5 w-5 text-muted-foreground" />
           </div>
           <h4 className="text-base font-semibold text-foreground mb-1">No attributes yet</h4>
           <p className="text-xs text-muted-foreground mb-4 max-w-xs mx-auto">
@@ -699,7 +700,7 @@ export function AttributeEditor({
             disabled={!canAddAttribute}
             className="flex items-center gap-2"
           >
-            <Plus className="h-4 w-4" />
+            <PlusIcon className="h-4 w-4" />
             <span>Add Attribute</span>
           </Button>
         </div>
@@ -751,7 +752,7 @@ export function AttributeEditor({
               onClick={addAttribute}
               className="w-full justify-center border-dashed flex items-center gap-1.5 rounded-sm"
             >
-              <Plus className="h-3.5 w-3.5" />
+              <PlusIcon className="h-3.5 w-3.5" />
               <span>Add {attributes.length >= MAX_ATTRIBUTES ? "" : "Another Attribute"}</span>
               <span className="text-xs text-muted-foreground ml-1">
                 ({MAX_ATTRIBUTES - attributes.length} left)
