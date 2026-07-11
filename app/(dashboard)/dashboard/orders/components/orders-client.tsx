@@ -31,16 +31,7 @@ import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
 import { getOrdersAction, confirmPaymentAction, updateOrderStatusAction } from "../actions"
 import { useRealtimeOrders } from "@/hooks/use-realtime-orders"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { cn } from "@/lib/utils"
 
 interface OrderListItem {
@@ -865,32 +856,16 @@ export function OrdersClient({ initialData, merchantId }: OrdersClientProps) {
 
       {/* Confirmation Dialog */}
       {dialogConfig && (
-        <AlertDialog open={dialogOpen} onOpenChange={(open) => !open && !isPending && setDialogOpen(false)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{dialogConfig.title}</AlertDialogTitle>
-              <AlertDialogDescription>
-                {dialogConfig.description}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={isPending} onClick={() => setDialogOpen(false)}>
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                disabled={isPending}
-                onClick={(e) => {
-                  e.preventDefault()
-                  dialogConfig.onConfirm()
-                }}
-                className={dialogConfig.variant === "danger" ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : undefined}
-              >
-                {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}
-                {dialogConfig.confirmText}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <ConfirmDialog
+          isOpen={dialogOpen}
+          onClose={() => !isPending && setDialogOpen(false)}
+          onConfirm={dialogConfig.onConfirm}
+          title={dialogConfig.title}
+          description={dialogConfig.description}
+          confirmText={dialogConfig.confirmText}
+          variant={dialogConfig.variant}
+          isPending={isPending}
+        />
       )}
     </div>
   )

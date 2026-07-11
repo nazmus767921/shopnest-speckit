@@ -2,7 +2,8 @@
 
 import React, { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Button, AlertDialog } from "@/components/ui"
+import { Button } from "@/components/ui"
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { confirmPaymentAction, updateOrderStatusAction } from "../actions"
 import { CheckCircle2, Truck, Check, XCircle } from "lucide-react"
 
@@ -24,6 +25,8 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
     confirmText: string
     variant: "primary" | "danger" | "emerald"
   } | null>(null)
+
+  const closeDialog = () => setDialogOpen(false)
 
   const handleAction = (actionFn: () => Promise<{ success: boolean; error?: string }>) => {
     setError(null)
@@ -133,16 +136,16 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
         {status === "pending_payment" && (
           <>
             <Button
-              variant="primary"
+              variant="default"
               onClick={onConfirmPayment}
               disabled={isPending}
-              className="gap-2 shrink-0 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 border-none text-white text-caption min-h-10 cursor-pointer"
+              className="gap-2 shrink-0 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white! text-caption min-h-10 cursor-pointer border-none"
             >
               <CheckCircle2 className="h-4 w-4" />
               Confirm Payment
             </Button>
             <Button
-              variant="outline-light"
+              variant="outline"
               onClick={onCancelOrder}
               disabled={isPending}
               className="gap-2 text-caption min-h-10 hover:text-rose-700 hover:border-rose-200 cursor-pointer"
@@ -156,7 +159,7 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
         {status === "processing" && (
           <>
             <Button
-              variant="primary"
+              variant="default"
               onClick={onMarkAsShipped}
               disabled={isPending}
               className="gap-2 w-full md:w-fit shrink-0 text-caption min-h-10 cursor-pointer"
@@ -165,7 +168,7 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
               Mark as Shipped
             </Button>
             <Button
-              variant="outline-light"
+              variant="outline"
               onClick={onMarkAsReturned}
               disabled={isPending}
               className="gap-2 w-full md:w-fit text-caption min-h-10 hover:text-purple-700 hover:border-purple-200 cursor-pointer"
@@ -174,7 +177,7 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
               Mark as Returned
             </Button>
             <Button
-              variant="outline-light"
+              variant="outline"
               onClick={onCancelOrder}
               disabled={isPending}
               className="gap-2 w-full md:w-fit text-caption min-h-10 hover:text-rose-700 hover:border-rose-200 cursor-pointer"
@@ -188,16 +191,16 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
         {status === "shipped" && (
           <>
             <Button
-              variant="primary"
+              variant="default"
               onClick={onMarkAsDelivered}
               disabled={isPending}
-              className="gap-2 shrink-0 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 border-none text-white text-caption min-h-10 cursor-pointer"
+              className="gap-2 shrink-0 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white text-caption min-h-10 cursor-pointer border-none"
             >
               <Check className="h-4 w-4" />
               Mark as Delivered
             </Button>
             <Button
-              variant="outline-light"
+              variant="outline"
               onClick={onMarkAsReturned}
               disabled={isPending}
               className="gap-2 text-caption min-h-10 hover:text-purple-700 hover:border-purple-200 cursor-pointer"
@@ -210,9 +213,9 @@ export function OrderActions({ orderId, status }: OrderActionsProps) {
       </div>
 
       {dialogConfig && (
-        <AlertDialog
+        <ConfirmDialog
           isOpen={dialogOpen}
-          onClose={() => setDialogOpen(false)}
+          onClose={closeDialog}
           onConfirm={dialogConfig.onConfirm}
           title={dialogConfig.title}
           description={dialogConfig.description}
