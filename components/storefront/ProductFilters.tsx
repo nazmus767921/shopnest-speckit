@@ -2,7 +2,8 @@
 
 import React, { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Filter, X } from "lucide-react"
+import { FilterIcon, XIcon } from "@/lib/icons";
+
 import { FilterSidebar } from "./shared/FilterSidebar"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 
@@ -51,14 +52,14 @@ export function ProductFilters({
 
   return (
     <>
-      {/* Mobile Filter Toggle Button */}
+      {/* Mobile FilterIcon Toggle Button */}
       <div className="block md:hidden w-full">
         <button
           onClick={() => setMobileOpen(true)}
           className="w-full flex items-center justify-center gap-2 btn-storefront-outline py-3 text-sm"
         >
-          <Filter className="h-4 w-4" />
-          <span>Filter Products</span>
+          <FilterIcon className="h-4 w-4" />
+          <span>FilterIcon Products</span>
         </button>
       </div>
 
@@ -78,7 +79,7 @@ export function ProductFilters({
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="right">
           <SheetHeader>
-            <SheetTitle>Filter Products</SheetTitle>
+            <SheetTitle>FilterIcon Products</SheetTitle>
           </SheetHeader>
           <div className="px-2 py-4">
             <FilterSidebar

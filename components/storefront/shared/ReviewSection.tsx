@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { Check, SlidersHorizontal, ChevronDown } from "lucide-react"
+import { CheckIcon, SlidersHorizontalIcon, ChevronDownIcon } from "@/lib/icons";
 
 export interface Review {
   id: string
@@ -97,7 +97,7 @@ export function ReviewSection({
             className="h-10 w-10 md:h-12 md:w-12 rounded-[var(--radius-pill)] bg-[var(--color-surface-secondary)] flex items-center justify-center text-[var(--color-ink)] hover:opacity-85 transition-opacity cursor-pointer border-none"
             aria-label="Filter reviews"
           >
-            <SlidersHorizontal className="h-4.5 w-4.5 md:h-5 w-5" />
+            <SlidersHorizontalIcon className="h-4.5 w-4.5 md:h-5 w-5" />
           </button>
 
           {/* Sorting Dropdown */}
@@ -107,7 +107,7 @@ export function ReviewSection({
               className="h-10 md:h-12 bg-[var(--color-surface-secondary)] rounded-[var(--radius-pill)] px-5 flex items-center gap-2 text-sm font-bold text-[var(--color-ink)] hover:opacity-85 transition-opacity cursor-pointer border-none"
             >
               <span>Latest</span>
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDownIcon className="h-4 w-4" />
             </button>
           </div>
 
@@ -150,7 +150,7 @@ export function ReviewSection({
               <span className="text-base font-bold text-[var(--color-ink)] font-sans">{review.author}</span>
               {review.verified && (
                 <span className="flex items-center justify-center h-4.5 w-4.5 rounded-[var(--radius-pill)] bg-[var(--color-success-green)] text-white p-0.5 select-none">
-                  <Check className="h-3 w-3 stroke-[3]" />
+                  <CheckIcon className="h-3 w-3 stroke-[3]" />
                 </span>
               )}
             </div>

@@ -7,18 +7,8 @@ import { PromoteAccountCard } from "./PromoteAccountCard"
 import { Card, Button } from "@/components/ui"
 import { formatTaka } from "@/lib/utils"
 import { supabase } from "@/lib/supabase/client"
-import {
-  ArrowLeft,
-  Check,
-  MapPin,
-  Phone,
-  User,
-  Calendar,
-  Receipt,
-  AlertTriangle,
-  ImageIcon,
-  ShoppingBag
-} from "lucide-react"
+import { ArrowLeftIcon, CheckIcon, MapPinIcon, PhoneIcon, UserIcon, CalendarIcon, ReceiptIcon, AlertTriangleIcon, ImageIcon, ShoppingBagIcon } from "@/lib/icons";
+
 
 interface Props {
   order: any
@@ -65,7 +55,7 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
           href={`/orders`}
           className="inline-flex items-center gap-1.5 text-caption text-shade-60 hover:text-ink font-semibold transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeftIcon className="h-4 w-4" />
           <span>Back to Orders</span>
         </Link>
 
@@ -76,7 +66,7 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
               <StatusBadge status={order.status} />
             </h1>
             <div className="flex items-center gap-2 text-xs text-shade-50 font-medium">
-              <Calendar className="h-3.5 w-3.5" />
+              <CalendarIcon className="h-3.5 w-3.5" />
               <span>Placed on {dateStr}</span>
             </div>
           </div>
@@ -123,7 +113,7 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
                       }`}
                   >
                     {isCompleted ? (
-                      <Check className="h-5 w-5 stroke-[2.5]" />
+                      <CheckIcon className="h-5 w-5 stroke-[2.5]" />
                     ) : (
                       <span>{idx + 1}</span>
                     )}
@@ -155,7 +145,7 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
       ) : isCancelled ? (
         /* Cancelled Banner */
         <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl">
-          <AlertTriangle className="h-5 w-5 shrink-0" />
+          <AlertTriangleIcon className="h-5 w-5 shrink-0" />
           <div className="text-caption">
             <p className="font-semibold">This order has been cancelled</p>
             <p className="text-red-600/80 text-xs mt-0.5">
@@ -166,7 +156,7 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
       ) : (
         /* Returned Banner */
         <div className="flex items-center gap-3 p-4 bg-orange-50 border border-orange-200 text-orange-700 rounded-xl animate-fade-in">
-          <AlertTriangle className="h-5 w-5 shrink-0 text-orange-600" />
+          <AlertTriangleIcon className="h-5 w-5 shrink-0 text-orange-600" />
           <div className="text-caption">
             <p className="font-semibold text-orange-850">This order has been returned</p>
             <p className="text-orange-600/80 text-xs mt-0.5">
@@ -185,7 +175,7 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
           {/* Order Items Card */}
           <Card variant="default" className="p-6 bg-canvas-light border border-hairline-light flex flex-col gap-4">
             <h3 className="text-body-strong font-bold text-ink uppercase tracking-wider pb-3 border-b border-hairline-light flex items-center gap-2">
-              <ShoppingBag className="h-4.5 w-4.5 text-shade-50" />
+              <ShoppingBagIcon className="h-4.5 w-4.5 text-shade-50" />
               <span>Order Items</span>
             </h3>
 
@@ -258,13 +248,13 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
           {/* Delivery Details Card */}
           <Card variant="default" className="p-6 bg-canvas-light border border-hairline-light flex flex-col gap-4">
             <h3 className="text-body-strong font-bold text-ink uppercase tracking-wider pb-3 border-b border-hairline-light flex items-center gap-2">
-              <MapPin className="h-4.5 w-4.5 text-shade-50" />
+              <MapPinIcon className="h-4.5 w-4.5 text-shade-50" />
               <span>Fulfillment Details</span>
             </h3>
 
             <div className="flex flex-col gap-4 text-caption text-ink">
               <div className="flex gap-2.5 items-start">
-                <User className="h-4.5 w-4.5 text-shade-40 shrink-0 mt-0.5" />
+                <UserIcon className="h-4.5 w-4.5 text-shade-40 shrink-0 mt-0.5" />
                 <div>
                   <div className="text-[10px] uppercase font-semibold text-shade-40 tracking-wider">Recipient</div>
                   <div className="font-semibold mt-0.5">{order.deliveryName}</div>
@@ -272,15 +262,15 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
               </div>
 
               <div className="flex gap-2.5 items-start">
-                <Phone className="h-4.5 w-4.5 text-shade-40 shrink-0 mt-0.5" />
+                <PhoneIcon className="h-4.5 w-4.5 text-shade-40 shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-[10px] uppercase font-semibold text-shade-40 tracking-wider">Phone</div>
+                  <div className="text-[10px] uppercase font-semibold text-shade-40 tracking-wider">PhoneIcon</div>
                   <div className="font-mono mt-0.5">{order.deliveryPhone}</div>
                 </div>
               </div>
 
               <div className="flex gap-2.5 items-start">
-                <MapPin className="h-4.5 w-4.5 text-shade-40 shrink-0 mt-0.5" />
+                <MapPinIcon className="h-4.5 w-4.5 text-shade-40 shrink-0 mt-0.5" />
                 <div>
                   <div className="text-[10px] uppercase font-semibold text-shade-40 tracking-wider">Address</div>
                   <div className="mt-0.5 leading-relaxed">{order.deliveryAddress}, {order.deliveryCity}</div>
@@ -292,7 +282,7 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
           {/* Payment details Card */}
           <Card variant="default" className="p-6 bg-canvas-light border border-hairline-light flex flex-col gap-4">
             <h3 className="text-body-strong font-bold text-ink uppercase tracking-wider pb-3 border-b border-hairline-light flex items-center gap-2">
-              <Receipt className="h-4.5 w-4.5 text-shade-50" />
+              <ReceiptIcon className="h-4.5 w-4.5 text-shade-50" />
               <span>Payment Details</span>
             </h3>
 

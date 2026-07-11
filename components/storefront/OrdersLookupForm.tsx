@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { authClient } from "@/lib/auth/auth-client"
 import { Button, Input, FormLabel, Card } from "@/components/ui"
-import { ShieldCheck, Loader2, KeyRound, Phone, LogIn } from "lucide-react"
+import { ShieldCheckIcon, Loader2Icon, KeyRoundIcon, PhoneIcon, LogInIcon } from "@/lib/icons";
 
 interface Props {
   merchantId: string
@@ -151,7 +151,7 @@ export function OrdersLookupForm({ merchantId, merchantName }: Props) {
             <div>
               <FormLabel htmlFor="tracking-phone">Mobile Number</FormLabel>
               <div className="relative mt-1">
-                <Phone className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-shade-40 pointer-events-none" />
+                <PhoneIcon className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-shade-40 pointer-events-none" />
                 <Input
                   id="tracking-phone"
                   type="tel"
@@ -173,7 +173,7 @@ export function OrdersLookupForm({ merchantId, merchantName }: Props) {
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                  <Loader2Icon className="h-4 w-4 animate-spin mr-1.5" />
                   Sending Code...
                 </>
               ) : (
@@ -184,7 +184,7 @@ export function OrdersLookupForm({ merchantId, merchantName }: Props) {
         ) : (
           <div className="flex flex-col gap-5 animate-fade-in">
             <div className="flex items-center gap-2 text-caption text-shade-60">
-              <ShieldCheck className="h-4.5 w-4.5 text-emerald-600 shrink-0" />
+              <ShieldCheckIcon className="h-4.5 w-4.5 text-emerald-600 shrink-0" />
               <span>
                 Code sent to <span className="font-mono font-medium text-ink">{phone}</span>
               </span>
@@ -230,7 +230,7 @@ export function OrdersLookupForm({ merchantId, merchantName }: Props) {
               >
                 {loading ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                    <Loader2Icon className="h-4 w-4 animate-spin mr-1.5" />
                     Verifying...
                   </>
                 ) : (
@@ -253,7 +253,7 @@ export function OrdersLookupForm({ merchantId, merchantName }: Props) {
           onClick={handleRegisteredLogin}
           className="w-full flex items-center justify-center gap-2 font-medium h-11"
         >
-          <LogIn className="h-4 w-4" />
+          <LogInIcon className="h-4 w-4" />
           <span>Login with Email & Password</span>
         </Button>
       </Card>

@@ -3,7 +3,8 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X, ShoppingBag } from "lucide-react"
+import { MenuIcon, XIcon, ShoppingBagIcon } from "@/lib/icons";
+
 import { CartIconButton } from "@/components/storefront/shared/CartIconButton"
 
 interface StorefrontNavbarProps {
@@ -34,7 +35,7 @@ export function StorefrontNavbar({ merchantId, subdomain, merchantName }: Storef
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo / Name */}
         <Link href="/" className="flex items-center gap-3 select-none">
-          <ShoppingBag className="h-5 w-5 text-ink stroke-[1.8]" />
+          <ShoppingBagIcon className="h-5 w-5 text-ink stroke-[1.8]" />
           <span className="text-storefront-heading-lg tracking-tight font-bold text-ink uppercase">
             {merchantName}
           </span>
@@ -69,12 +70,12 @@ export function StorefrontNavbar({ merchantId, subdomain, merchantName }: Storef
             className="p-1.5 rounded-lg text-ink hover:bg-canvas-cream transition-colors cursor-pointer"
             aria-label="Toggle Menu"
           >
-            {isOpen ? <X className="h-5.5 w-5.5" /> : <Menu className="h-5.5 w-5.5" />}
+            {isOpen ? <XIcon className="h-5.5 w-5.5" /> : <MenuIcon className="h-5.5 w-5.5" />}
           </button>
         </div>
       </div>
  
-      {/* Mobile Menu Panel */}
+      {/* Mobile MenuIcon Panel */}
       {isOpen && (
         <div className="md:hidden border-t border-hairline-light bg-canvas-light animate-fade-in absolute left-0 right-0 p-6 flex flex-col gap-5 shadow-sm">
           <div className="flex flex-col gap-4">

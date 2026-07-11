@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { Plus, Minus } from "lucide-react"
+import { PlusIcon, MinusIcon } from "@/lib/icons";
 
 interface QuantityAdjusterProps {
   quantity: number
@@ -36,7 +36,7 @@ export function QuantityAdjuster({
         className="p-0.5 text-ink disabled:opacity-30 disabled:pointer-events-none hover:opacity-75 transition-opacity"
         aria-label="Decrease quantity"
       >
-        <Minus className="h-4 w-4 stroke-[2.5]" />
+        <MinusIcon className="h-4 w-4 stroke-[2.5]" />
       </button>
       
       <span className={`w-6 text-center font-bold text-ink ${isSm ? "text-xs" : "text-sm md:text-base"}`}>
@@ -50,7 +50,7 @@ export function QuantityAdjuster({
         className="p-0.5 text-ink disabled:opacity-30 disabled:pointer-events-none hover:opacity-75 transition-opacity"
         aria-label="Increase quantity"
       >
-        <Plus className="h-4 w-4 stroke-[2.5]" />
+        <PlusIcon className="h-4 w-4 stroke-[2.5]" />
       </button>
     </div>
   )

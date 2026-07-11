@@ -1,7 +1,8 @@
 "use client"
 
 import React from "react"
-import { Trash2, ImageIcon } from "lucide-react"
+import { Trash2Icon, ImageIcon } from "@/lib/icons";
+
 import { type CartItem } from "@/lib/cart/cart-store"
 import { formatTaka } from "@/lib/utils"
 import { QuantityAdjuster } from "@/components/storefront/shared/QuantityAdjuster"
@@ -91,7 +92,7 @@ export function CartItemRow({ item, onUpdateQuantity, onRemove }: Props) {
           className="p-1 text-[#FF3333] hover:text-red-700 transition-colors rounded-full hover:bg-red-50"
           aria-label={`Remove ${item.name} from cart`}
         >
-          <Trash2 className="h-5 w-5" />
+          <Trash2Icon className="h-5 w-5" />
         </button>
 
         {/* Quantity Stepper */}

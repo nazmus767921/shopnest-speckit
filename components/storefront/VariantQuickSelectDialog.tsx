@@ -8,7 +8,8 @@ import React, {
   type ReactNode,
 } from "react";
 import ReactDOM from "react-dom";
-import { X, Minus, Plus, ShoppingCart, Check } from "lucide-react";
+import { XIcon, MinusIcon, PlusIcon, ShoppingCartIcon, CheckIcon } from "@/lib/icons";
+
 import {
   VariantSelector,
   type VariantOption,
@@ -245,7 +246,7 @@ export function VariantQuickSelectDialog({
               className="vqsd-close"
               aria-label="Close dialog"
             >
-              <X className="h-4 w-4 stroke-[2]" />
+              <XIcon className="h-4 w-4 stroke-[2]" />
             </button>
           </div>
 
@@ -282,7 +283,7 @@ export function VariantQuickSelectDialog({
                 aria-label="Decrease quantity"
                 className="vqsd-stepper-btn"
               >
-                <Minus className="h-4 w-4 stroke-[2.5]" />
+                <MinusIcon className="h-4 w-4 stroke-[2.5]" />
               </button>
               <span className="vqsd-stepper-count" aria-live="polite" aria-atomic="true">
                 {quantity}
@@ -293,7 +294,7 @@ export function VariantQuickSelectDialog({
                 aria-label="Increase quantity"
                 className="vqsd-stepper-btn"
               >
-                <Plus className="h-4 w-4 stroke-[2.5]" />
+                <PlusIcon className="h-4 w-4 stroke-[2.5]" />
               </button>
             </div>
 
@@ -313,12 +314,12 @@ export function VariantQuickSelectDialog({
                 <span className="vqsd-spinner" aria-label="Adding to cart…" />
               ) : didSucceed ? (
                 <>
-                  <Check className="h-4 w-4 stroke-[2.5] mr-2" aria-hidden="true" />
+                  <CheckIcon className="h-4 w-4 stroke-[2.5] mr-2" aria-hidden="true" />
                   <span>Added!</span>
                 </>
               ) : (
                 <>
-                  <ShoppingCart className="h-4 w-4 stroke-[1.5] mr-2" aria-hidden="true" />
+                  <ShoppingCartIcon className="h-4 w-4 stroke-[1.5] mr-2" aria-hidden="true" />
                   <span>
                     {isOutOfStock
                       ? "Out of Stock"

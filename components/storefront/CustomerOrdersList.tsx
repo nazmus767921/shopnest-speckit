@@ -8,7 +8,8 @@ import { Card, Button } from "@/components/ui"
 import { formatTaka } from "@/lib/utils"
 import { authClient } from "@/lib/auth/auth-client"
 import { useRouter } from "next/navigation"
-import { Package, LogOut, ArrowRight, Loader2, ClipboardList } from "lucide-react"
+import { PackageIcon, LogOutIcon, ArrowRightIcon, Loader2Icon, ClipboardListIcon } from "@/lib/icons";
+
 
 interface Props {
   subdomain: string
@@ -40,7 +41,7 @@ export function CustomerOrdersList({ subdomain, merchantId, isAnonymousUser, cus
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2Icon className="h-8 w-8 animate-spin text-primary" />
         <span className="text-caption text-shade-50">Loading your orders...</span>
       </div>
     )
@@ -79,7 +80,7 @@ export function CustomerOrdersList({ subdomain, merchantId, isAnonymousUser, cus
           onClick={handleLogout}
           className="flex items-center gap-2 text-caption font-semibold"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOutIcon className="h-4 w-4" />
           <span>Exit Session</span>
         </Button>
       </div>
@@ -88,7 +89,7 @@ export function CustomerOrdersList({ subdomain, merchantId, isAnonymousUser, cus
         /* Empty State */
         <Card variant="default" className="border border-hairline-light p-12 flex flex-col items-center justify-center text-center gap-6 min-h-64 bg-canvas-light max-w-xl mx-auto">
           <div className="w-16 h-16 rounded-full bg-pistachio-10 flex items-center justify-center text-ink border border-hairline-light">
-            <ClipboardList className="h-8 w-8 stroke-[1.5]" />
+            <ClipboardListIcon className="h-8 w-8 stroke-[1.5]" />
           </div>
           <div className="flex flex-col gap-2 max-w-sm">
             <h2 className="text-heading-xl font-medium text-ink">
@@ -154,7 +155,7 @@ export function CustomerOrdersList({ subdomain, merchantId, isAnonymousUser, cus
                     className="text-caption font-semibold flex items-center gap-1.5 hover:text-primary p-0 h-auto"
                   >
                     <span>Details</span>
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRightIcon className="h-4 w-4" />
                   </Button>
                 </div>
               </Card>

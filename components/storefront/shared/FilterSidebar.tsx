@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { ChevronDown, ChevronUp, Filter } from "lucide-react"
+import { ChevronDownIcon, ChevronUpIcon, FilterIcon } from "@/lib/icons";
 
 interface Category {
   id: string
@@ -65,7 +65,7 @@ export function FilterSidebar({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[var(--color-hairline-light)] pb-4">
         <div className="flex items-center gap-2 text-[var(--color-ink)]">
-          <Filter className="h-5 w-5 stroke-[2]" />
+          <FilterIcon className="h-5 w-5 stroke-[2]" />
           <h3 className="text-storefront-heading-sm font-bold uppercase tracking-wider">Filters</h3>
         </div>
         <button
@@ -84,7 +84,7 @@ export function FilterSidebar({
           className="flex items-center justify-between w-full text-storefront-body-strong font-bold text-[var(--color-ink)] uppercase tracking-wider mb-3 cursor-pointer border-none bg-transparent"
         >
           <span>Categories</span>
-          {sections.categories ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          {sections.categories ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
         </button>
         {sections.categories && (
           <div className="flex flex-col gap-2 pl-1">
@@ -119,7 +119,7 @@ export function FilterSidebar({
           className="flex items-center justify-between w-full text-storefront-body-strong font-bold text-[var(--color-ink)] uppercase tracking-wider mb-3 cursor-pointer border-none bg-transparent"
         >
           <span>Price Range</span>
-          {sections.price ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          {sections.price ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
         </button>
         {sections.price && (
           <div className="flex flex-col gap-2 pl-1">
@@ -146,7 +146,7 @@ export function FilterSidebar({
           className="flex items-center justify-between w-full text-storefront-body-strong font-bold text-[var(--color-ink)] uppercase tracking-wider mb-3 cursor-pointer border-none bg-transparent"
         >
           <span>Colors</span>
-          {sections.colors ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          {sections.colors ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
         </button>
         {sections.colors && (
           <div className="flex flex-wrap gap-2.5 pt-1 pl-1">
@@ -183,7 +183,7 @@ export function FilterSidebar({
           className="flex items-center justify-between w-full text-storefront-body-strong font-bold text-[var(--color-ink)] uppercase tracking-wider mb-3 cursor-pointer border-none bg-transparent"
         >
           <span>Sizes</span>
-          {sections.sizes ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          {sections.sizes ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
         </button>
         {sections.sizes && (
           <div className="grid grid-cols-3 gap-2 pt-1 pl-1">

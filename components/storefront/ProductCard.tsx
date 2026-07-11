@@ -2,7 +2,8 @@
 
 import React, { useState } from "react"
 import { Card } from "@/components/ui"
-import { ImageIcon } from "lucide-react"
+import { ImageIcon } from "@/lib/icons";
+
 import { supabase } from "@/lib/supabase/client"
 import { useCart } from "@/hooks/use-cart"
 import { PriceDisplay } from "@/components/storefront/shared/PriceDisplay"

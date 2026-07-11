@@ -4,7 +4,7 @@ import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import { promoteGuestSession } from "@/app/(storefront)/[subdomain]/orders/actions"
 import { Card, Button, Input, FormLabel } from "@/components/ui"
-import { Sparkles, Loader2, Check, User, Mail, Lock } from "lucide-react"
+import { SparklesIcon, Loader2Icon, CheckIcon, UserIcon, MailIcon, LockIcon } from "@/lib/icons";
 
 interface Props {
   guestName?: string
@@ -62,7 +62,7 @@ export function PromoteAccountCard({ guestName = "" }: Props) {
     return (
       <Card variant="default" className="p-6 bg-aloe-10/20 border border-aloe-10/40 rounded-xl text-ink flex flex-col items-center gap-3 text-center animate-scale-up">
         <div className="w-10 h-10 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-800">
-          <Check className="h-5 w-5 stroke-[2.5]" />
+          <CheckIcon className="h-5 w-5 stroke-[2.5]" />
         </div>
         <div>
           <h3 className="font-semibold text-ink">Account Created!</h3>
@@ -78,7 +78,7 @@ export function PromoteAccountCard({ guestName = "" }: Props) {
     <Card variant="default" className="p-6 bg-canvas-light border border-hairline-light flex flex-col gap-5">
       <div className="flex items-start gap-3">
         <div className="p-2 bg-aloe-10 text-ink rounded-lg shrink-0 border border-aloe-10/20">
-          <Sparkles className="h-5 w-5 text-emerald-800" />
+          <SparklesIcon className="h-5 w-5 text-emerald-800" />
         </div>
         <div className="flex flex-col gap-1">
           <h3 className="text-body-strong font-bold text-ink uppercase tracking-wider">
@@ -100,7 +100,7 @@ export function PromoteAccountCard({ guestName = "" }: Props) {
         <div>
           <FormLabel htmlFor="promote-name">Full Name</FormLabel>
           <div className="relative mt-1">
-            <User className="absolute left-3 top-3.5 h-4.5 w-4.5 text-shade-40 pointer-events-none" />
+            <UserIcon className="absolute left-3 top-3.5 h-4.5 w-4.5 text-shade-40 pointer-events-none" />
             <Input
               id="promote-name"
               type="text"
@@ -118,7 +118,7 @@ export function PromoteAccountCard({ guestName = "" }: Props) {
           <div>
             <FormLabel htmlFor="promote-email">Email Address</FormLabel>
             <div className="relative mt-1">
-              <Mail className="absolute left-3 top-3.5 h-4.5 w-4.5 text-shade-40 pointer-events-none" />
+              <MailIcon className="absolute left-3 top-3.5 h-4.5 w-4.5 text-shade-40 pointer-events-none" />
               <Input
                 id="promote-email"
                 type="email"
@@ -135,7 +135,7 @@ export function PromoteAccountCard({ guestName = "" }: Props) {
           <div>
             <FormLabel htmlFor="promote-password">Password</FormLabel>
             <div className="relative mt-1">
-              <Lock className="absolute left-3 top-3.5 h-4.5 w-4.5 text-shade-40 pointer-events-none" />
+              <LockIcon className="absolute left-3 top-3.5 h-4.5 w-4.5 text-shade-40 pointer-events-none" />
               <Input
                 id="promote-password"
                 type="password"
@@ -158,7 +158,7 @@ export function PromoteAccountCard({ guestName = "" }: Props) {
         >
           {loading ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+              <Loader2Icon className="h-4 w-4 animate-spin mr-1.5" />
               Creating Account...
             </>
           ) : (

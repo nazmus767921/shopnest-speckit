@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from "react"
-import { ImageIcon, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { ImageIcon, XIcon, ChevronLeftIcon, ChevronRightIcon } from "@/lib/icons";
+
 import { supabase } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 
@@ -167,7 +168,7 @@ export function ImageGallery({
             className="absolute top-6 right-6 p-2 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-white cursor-pointer transition-colors z-[110] border-none"
             aria-label="Close fullscreen gallery"
           >
-            <X className="h-6 w-6" />
+            <XIcon className="h-6 w-6" />
           </button>
 
           {/* Large Image container */}
@@ -188,7 +189,7 @@ export function ImageGallery({
                 className="absolute left-6 top-1/2 -translate-y-1/2 p-3 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-white cursor-pointer transition-colors z-[110] border-none flex items-center justify-center"
                 aria-label="Previous image"
               >
-                <ChevronLeft className="h-6 w-6 stroke-[2.5]" />
+                <ChevronLeftIcon className="h-6 w-6 stroke-[2.5]" />
               </button>
 
               {/* Next Arrow */}
@@ -197,7 +198,7 @@ export function ImageGallery({
                 className="absolute right-6 top-1/2 -translate-y-1/2 p-3 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-white cursor-pointer transition-colors z-[110] border-none flex items-center justify-center"
                 aria-label="Next image"
               >
-                <ChevronRight className="h-6 w-6 stroke-[2.5]" />
+                <ChevronRightIcon className="h-6 w-6 stroke-[2.5]" />
               </button>
 
               {/* Indicator dots or fraction */}
