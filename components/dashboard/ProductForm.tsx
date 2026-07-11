@@ -25,6 +25,7 @@ import {
   ComboboxEmpty,
 } from "@/components/ui/combobox"
 import { UploadCloud, X, Loader2, ArrowLeft, ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -82,6 +83,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
   const [productId] = useState(() => initialData?.id || initialProductId || crypto.randomUUID())
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
+  const isEditMode = !!initialData
 
   React.useEffect(() => {
     setMounted(true)
@@ -100,7 +102,29 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
     }))
   })
 
-  const { data: categories = [] } = useQuery({
+  // Track image dirty state separately (images aren't part of TanStack Form state)
+  const initialImagePaths = React.useMemo(
+    () => (initialData?.images ? initialData.images.map((img) => img.storagePath).sort() : []),
+    [initialData]
+  )
+  const imageDirty = React.useMemo(() => {
+    if (!isEditMode) {
+      // New product: dirty if any images added
+      return images.length > 0
+    }
+    // Edit mode: compare current images to initial
+    const currentPaths = images
+      .filter((img) => img.storagePath)
+      .map((img) => img.storagePath!)
+      .sort()
+    const hasNewFiles = images.some((img) => img.file)
+    const pathsChanged =
+      currentPaths.length !== initialImagePaths.length ||
+      currentPaths.some((path, i) => path !== initialImagePaths[i])
+    return hasNewFiles || pathsChanged
+  }, [images, isEditMode, initialImagePaths])
+
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
     queryKey: ["categories", merchantId],
     queryFn: async () => {
       const res = await getCategoriesAction()
@@ -310,15 +334,42 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
   }
 
   const saveButton = (
-    <Button
-      type="submit"
-      form="product-form"
-      disabled={isPending}
-      className="flex items-center gap-2"
-    >
-      {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-      <span>{initialData ? "Save Changes" : "Create Product"}</span>
-    </Button>
+    <form.Subscribe
+      selector={(state) => ({
+        isDefaultValue: state.isDefaultValue,
+        isValid: state.isValid,
+      })}
+      children={({ isDefaultValue, isValid }) => {
+        // Edit mode: only need changes. New mode: need changes AND valid.
+        const formChanged = !isDefaultValue || imageDirty
+        const canSave = isEditMode ? formChanged : formChanged && isValid
+
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={0} className="inline-flex">
+                  <Button
+                    type="submit"
+                    form="product-form"
+                    disabled={isPending || !canSave}
+                    className="flex items-center gap-2"
+                  >
+                    {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                    <span>{isEditMode ? "Save Changes" : "Create Product"}</span>
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {!canSave && !isPending && (
+                <TooltipContent side="bottom">
+                  {isEditMode ? "No changes to save" : "Fill in the form to continue"}
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        )
+      }}
+    />
   )
 
   const portalContainer = typeof window !== "undefined" ? document.getElementById("edit-product-header-actions") : null
@@ -328,8 +379,10 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
       {!hideHeader && (
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" className="rounded-full" render={<Link href="/dashboard/products" />}>
-              <ArrowLeft className="h-4 w-4" />
+            <Button variant="outline" size="icon-lg" className="rounded-sm" type="button" asChild>
+              <Link href="/dashboard/products">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
             </Button>
             <div>
               <h1 className="text-2xl font-bold tracking-tight leading-none">
@@ -526,30 +579,37 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                   return (
                     <Field>
                       <FieldLabel>Category</FieldLabel>
-                      <Combobox
-                        value={field.state.value || ""}
-                        onValueChange={(val) => field.handleChange(val || null)}
-                        inputValue={searchQuery}
-                        onInputValueChange={(val) => setSearchQuery(val)}
-                        itemToStringLabel={(val) => {
-                          const cat = categories.find((c) => c.id === val)
-                          return cat ? cat.name : ""
-                        }}
-                      >
-                        <ComboboxInput placeholder="Select a category..." className="w-full" />
-                        <ComboboxContent>
-                          <ComboboxList>
-                            {filteredCategories.map((cat) => (
-                              <ComboboxItem key={cat.id} value={cat.id}>
-                                {cat.name}
-                              </ComboboxItem>
-                            ))}
-                            {filteredCategories.length === 0 && (
-                              <ComboboxEmpty>No categories found.</ComboboxEmpty>
-                            )}
-                          </ComboboxList>
-                        </ComboboxContent>
-                      </Combobox>
+                      {categoriesLoading ? (
+                        <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-input bg-muted/50">
+                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">Loading categories...</span>
+                        </div>
+                      ) : (
+                        <Combobox
+                          value={field.state.value || ""}
+                          onValueChange={(val) => field.handleChange(val || null)}
+                          inputValue={searchQuery}
+                          onInputValueChange={(val) => setSearchQuery(val)}
+                          itemToStringLabel={(val) => {
+                            const cat = categories.find((c) => c.id === val)
+                            return cat ? cat.name : ""
+                          }}
+                        >
+                          <ComboboxInput placeholder="Select a category..." className="w-full" />
+                          <ComboboxContent>
+                            <ComboboxList>
+                              {filteredCategories.map((cat) => (
+                                <ComboboxItem key={cat.id} value={cat.id}>
+                                  {cat.name}
+                                </ComboboxItem>
+                              ))}
+                              {filteredCategories.length === 0 && (
+                                <ComboboxEmpty>No categories found.</ComboboxEmpty>
+                              )}
+                            </ComboboxList>
+                          </ComboboxContent>
+                        </Combobox>
+                      )}
                       {field.state.meta.errors.length > 0 && (
                         <FieldError>
                           {getErrorMessage(field.state.meta.errors[0])}

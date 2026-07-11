@@ -646,7 +646,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                   product.stockCount <= product.lowStockThreshold ? `Low stock (Threshold: ${product.lowStockThreshold})` :
                     "In Stock"
               }
-              className="inline-flex items-center gap-1.5 text-sm bg-muted border border-border px-2 py-1.5 rounded-md font-semibold text-muted-foreground"
+              className="inline-flex items-center gap-1.5 text-xs bg-muted border border-border px-2 py-1.5 rounded-md text-muted-foreground"
             >
               <span className={cn(
                 "h-2 w-2 rounded-full shrink-0",
@@ -951,7 +951,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                 <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
                   <Filter className="h-3 w-3" /> Filters:
                 </span>
-                
+
                 {searchQuery.trim() !== "" && (
                   <span className="inline-flex items-center gap-1 text-xs bg-muted border border-border rounded-full pl-2.5 pr-1 py-1 font-medium text-foreground">
                     Search: &ldquo;{searchQuery}&rdquo;
@@ -1212,7 +1212,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                                 </Badge>
                               )}
                             </div>
-                            
+
                             {/* Mobile Options Trigger (Bottom Sheet) */}
                             <Button
                               variant="ghost"

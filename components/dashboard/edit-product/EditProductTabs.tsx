@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronLeft } from "lucide-react";
 import { ProductForm } from "@/components/dashboard/ProductForm";
 import { VariantsSection } from "@/components/dashboard/product-variant-editor/VariantsSection";
 import { MetadataSection } from "@/components/dashboard/product-variant-editor/MetadataSection";
@@ -88,8 +88,10 @@ export function EditProductTabs({
     <div className="text-foreground">
       <div className="flex items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" className="rounded-full" render={<Link href="/dashboard/products" />}>
-            <ArrowLeft className="h-4 w-4" />
+          <Button variant="ghost" size="icon-lg" className="rounded-sm" type="button" asChild>
+            <Link href="/dashboard/products">
+              <ChevronLeft className="h-4 w-4" />
+            </Link>
           </Button>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground leading-none">

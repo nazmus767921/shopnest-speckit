@@ -749,7 +749,7 @@ export function AttributeEditor({
               type="button"
               variant="outline"
               onClick={addAttribute}
-              className="w-full justify-center border-dashed flex items-center gap-1.5 rounded-full"
+              className="w-full justify-center border-dashed flex items-center gap-1.5 rounded-sm"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Add {attributes.length >= MAX_ATTRIBUTES ? "" : "Another Attribute"}</span>
