@@ -5,7 +5,7 @@ import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { getProducts } from "@/db/queries/products"
 import { ProductsClient } from "./components/ProductsClient"
 import { redirect } from "next/navigation"
-import { getMerchantPlan } from "@/lib/plans/getPlan"
+import { getCachedMerchantPlan } from "@/lib/cache/plans"
 import { Suspense } from "react"
 
 export default function ProductsPage() {
@@ -30,7 +30,7 @@ async function ProductsPageContent() {
 
   const initialProducts = await getProducts(merchant.id)
 
-  const plan = await getMerchantPlan(merchant.id)
+  const plan = await getCachedMerchantPlan(merchant.id)
   const maxProducts = plan?.features.max_products ?? null
   const limitReached = maxProducts !== null && initialProducts.length >= maxProducts
 

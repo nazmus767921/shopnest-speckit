@@ -3,7 +3,7 @@ import { headers } from "next/headers"
 import { auth } from "@/lib/auth/auth"
 import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { getProductById } from "@/db/queries/products"
-import { getMerchantPlan } from "@/lib/plans/getPlan"
+import { getCachedMerchantPlan } from "@/lib/cache/plans"
 import { redirect, notFound } from "next/navigation"
 import { Suspense } from "react"
 import { EditProductTabs } from "@/components/dashboard/edit-product/EditProductTabs"
@@ -39,7 +39,7 @@ async function EditProductPageContent({ params }: Props) {
     notFound()
   }
 
-  const plan = await getMerchantPlan(merchant.id)
+  const plan = await getCachedMerchantPlan(merchant.id)
   const maxImages = plan?.features.max_images_per_product ?? 5
   const imageSizeLimitMb = plan?.features.image_size_limit_mb ?? 2
 

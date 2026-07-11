@@ -98,40 +98,40 @@ function extractColorsFromImage(url: string): Promise<string[]> {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         if (!ctx) return resolve([]);
-        
+
         canvas.width = 50;
         canvas.height = 50;
         ctx.drawImage(img, 0, 0, 50, 50);
-        
+
         const imageData = ctx.getImageData(0, 0, 50, 50).data;
         const colorCounts: Record<string, number> = {};
-        
+
         for (let i = 0; i < imageData.length; i += 16) {
           const r = imageData[i];
           const g = imageData[i + 1];
           const b = imageData[i + 2];
           const a = imageData[i + 3];
-          
+
           if (a < 128) continue;
-          
+
           const factor = 24;
           const rRound = Math.round(r / factor) * factor;
           const gRound = Math.round(g / factor) * factor;
           const bRound = Math.round(b / factor) * factor;
-          
+
           const hex = `#${((1 << 24) + (rRound << 16) + (gRound << 8) + bRound).toString(16).slice(1)}`;
-          
+
           const brightness = (r + g + b) / 3;
           if (brightness > 242) continue; // skip pure white/gray backgrounds
-          
+
           colorCounts[hex] = (colorCounts[hex] || 0) + 1;
         }
-        
+
         const sortedColors = Object.entries(colorCounts)
           .sort((a, b) => b[1] - a[1])
           .slice(0, 4)
           .map(([hex]) => hex);
-          
+
         resolve(sortedColors);
       } catch {
         resolve([]);
@@ -229,7 +229,7 @@ function TagInput({
 
       // Smart semantic color matching or default color from index
       const matched = matchSemanticColor(trimmed);
-      const defaultColor = displayType === "swatch" 
+      const defaultColor = displayType === "swatch"
         ? (matched || PREMIUM_COLORS[options.length % PREMIUM_COLORS.length].hex)
         : undefined;
 
@@ -279,7 +279,7 @@ function TagInput({
       {options.map((opt, i) => {
         const hasCustomColor = displayType === "swatch";
         const dotColor = opt.swatchColor || PREMIUM_COLORS[i % PREMIUM_COLORS.length].hex;
-        
+
         return (
           <div
             key={i}
@@ -523,15 +523,17 @@ function AttributeRow({
 
       {/* Delete Attribute Button */}
       <div className="order-first sm:order-last self-end sm:self-center">
-        <button
+        <Button
           type="button"
           onClick={() => onDelete(attrIndex)}
           disabled={disabled}
-          className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors border-none bg-transparent cursor-pointer shrink-0"
-          title="Delete Attribute"
+          variant={'destructive'}
+          size={'icon-sm'}
+          className="shrink-0 border-none bg-transparent! hover:bg-destructive/20!"
+          title="Remove Attribute"
         >
           <Trash2 className="h-4 w-4" />
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -562,7 +564,7 @@ export function AttributeEditor({
   useEffect(() => {
     async function getColors() {
       if (productImages.length === 0) return;
-      
+
       // Use cover image (first image)
       const coverImage = productImages[0];
       if (!coverImage) return;
@@ -673,10 +675,10 @@ export function AttributeEditor({
 
   const removeOptionVariantCount = pendingRemoveOption
     ? estimateOptionVariantCount(
-        attributes,
-        pendingRemoveOption.attrIndex,
-        pendingRemoveOption.optIndex,
-      )
+      attributes,
+      pendingRemoveOption.attrIndex,
+      pendingRemoveOption.optIndex,
+    )
     : 0;
 
   return (

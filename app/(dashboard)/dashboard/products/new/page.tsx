@@ -2,7 +2,7 @@ import React from "react"
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth/auth"
 import { getMerchantByOwnerId } from "@/db/queries/merchants"
-import { getMerchantPlan } from "@/lib/plans/getPlan"
+import { getCachedMerchantPlan } from "@/lib/cache/plans"
 import { ProductForm } from "@/components/dashboard/ProductForm"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
@@ -27,7 +27,7 @@ async function NewProductPageContent() {
     redirect("/onboarding")
   }
 
-  const plan = await getMerchantPlan(merchant.id)
+  const plan = await getCachedMerchantPlan(merchant.id)
   const maxImages = plan?.features.max_images_per_product ?? 5
   const imageSizeLimitMb = plan?.features.image_size_limit_mb ?? 2
 

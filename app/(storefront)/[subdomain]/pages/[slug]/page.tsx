@@ -3,7 +3,7 @@ import React, { Suspense } from "react"
 import { notFound } from "next/navigation"
 import { headers } from "next/headers"
 import { connection } from "next/server"
-import { getMerchantById } from "@/db/queries/merchants"
+import { getCachedMerchantById } from "@/lib/cache/merchants"
 import { getCachedPageBySlug } from "@/db/queries/pages"
 import { getTemplate } from "@/templates/registry"
 
@@ -35,7 +35,7 @@ async function StandardPageContent({ params }: Props) {
 
 
   const [merchant, page] = await Promise.all([
-    getMerchantById(merchantId),
+    getCachedMerchantById(merchantId),
     getCachedPageBySlug(merchantId, slug)
   ])
 

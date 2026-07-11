@@ -2,7 +2,7 @@ import React from "react"
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth/auth"
 import { getMerchantByOwnerId } from "@/db/queries/merchants"
-import { getCategories } from "@/db/queries/categories"
+import { getCachedCategories } from "@/lib/cache/categories"
 import { CategoriesClient } from "./components/CategoriesClient"
 import { Suspense } from "react"
 
@@ -31,7 +31,7 @@ async function CategoriesPageContent() {
     )
   }
 
-  const initialCategories = await getCategories(merchant.id)
+  const initialCategories = await getCachedCategories(merchant.id)
 
   return (
     <div className="flex flex-col gap-8 animate-fade-in text-foreground">

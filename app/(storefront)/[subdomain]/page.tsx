@@ -1,10 +1,10 @@
 import React from "react"
 import { headers } from "next/headers"
-import { getPublishedProducts } from "@/db/queries/products"
-import { getMerchantById } from "@/db/queries/merchants"
+import { getCachedPublishedProducts } from "@/lib/cache/products"
+import { getCachedMerchantById } from "@/lib/cache/merchants"
 import { getTemplate } from "@/templates/registry"
 import { type CategoryWithProducts } from "@/templates/types"
-import { getStorefrontSections } from "@/db/queries/storefront-sections"
+import { getCachedStorefrontSections } from "@/lib/cache/storefront"
 import { defaultStorefrontSections } from "@/lib/storefront-sections/defaults"
 import { Suspense } from "react"
 import { connection } from "next/server"
@@ -30,7 +30,7 @@ async function StorefrontPageContent({ params }: Props) {
   const merchantId = headersList.get("x-merchant-id") || ""
   const template = headersList.get("x-merchant-template") || "general"
 
-  const merchant = merchantId ? await getMerchantById(merchantId) : null
+  const merchant = merchantId ? await getCachedMerchantById(merchantId) : null
 
   const store = {
     id: merchant?.id || "",
@@ -39,7 +39,7 @@ async function StorefrontPageContent({ params }: Props) {
     template,
   }
 
-  let sections = merchantId ? await getStorefrontSections(merchantId) : []
+  let sections = merchantId ? await getCachedStorefrontSections(merchantId) : []
   if (!sections || sections.length === 0) {
     sections = defaultStorefrontSections as any
   }

@@ -3,7 +3,8 @@
 import { auth } from "@/lib/auth/auth"
 import { headers } from "next/headers"
 import { getMerchantByOwnerId } from "@/db/queries/merchants"
-import { saveStorefrontSections, getStorefrontSections } from "@/db/queries/storefront-sections"
+import { getCachedStorefrontSections } from "@/lib/cache/storefront"
+import { saveStorefrontSections } from "@/db/queries/storefront-sections"
 import { updateStorefrontSectionsSchema } from "@/lib/validations/storefront-sections"
 import { defaultStorefrontSections } from "@/lib/storefront-sections/defaults"
 import { revalidateTag } from "next/cache"
@@ -29,7 +30,7 @@ export async function saveStorefrontSectionsAction(rawSections: any) {
 
     await saveStorefrontSections(merchant.id, parseResult.data)
 
-    revalidateTag(`storefront-sections-${merchant.subdomain}`, 'max')
+    revalidateTag(`storefront-${merchant.id}`, "max")
 
     return { success: true }
   } catch (error: any) {
@@ -53,7 +54,7 @@ export async function seedDefaultSectionsAction() {
     }
 
     // Check if merchant already has sections
-    const existingSections = await getStorefrontSections(merchant.id, false)
+    const existingSections = await getCachedStorefrontSections(merchant.id, false)
     if (existingSections.length > 0) {
       return { success: true, seeded: false }
     }
@@ -61,7 +62,7 @@ export async function seedDefaultSectionsAction() {
     // Seed defaults
     await saveStorefrontSections(merchant.id, defaultStorefrontSections)
     
-    revalidateTag(`storefront-sections-${merchant.subdomain}`, 'max')
+    revalidateTag(`storefront-${merchant.id}`, "max")
 
     return { success: true, seeded: true }
   } catch (error: any) {

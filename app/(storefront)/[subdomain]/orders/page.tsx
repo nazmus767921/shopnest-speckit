@@ -2,7 +2,7 @@ import React from "react"
 import { headers } from "next/headers"
 import { notFound } from "next/navigation"
 import { auth } from "@/lib/auth/auth"
-import { getMerchantById } from "@/db/queries/merchants"
+import { getCachedMerchantById } from "@/lib/cache/merchants"
 import { OrdersLookupForm } from "@/components/storefront/OrdersLookupForm"
 import { CustomerOrdersList } from "@/components/storefront/CustomerOrdersList"
 import type { Metadata } from "next"
@@ -39,7 +39,7 @@ async function OrdersPageContent({ params }: Props) {
   }
 
   // Load merchant info from database to confirm existence
-  const merchant = await getMerchantById(merchantId)
+  const merchant = await getCachedMerchantById(merchantId)
   if (!merchant) {
     notFound()
   }

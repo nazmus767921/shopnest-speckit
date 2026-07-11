@@ -1,7 +1,7 @@
 import React from "react"
 import { headers } from "next/headers"
 import { notFound } from "next/navigation"
-import { getMerchantById } from "@/db/queries/merchants"
+import { getCachedMerchantById } from "@/lib/cache/merchants"
 import { getShippingZonesWithDistricts } from "@/db/queries/shippingZones"
 import { CheckoutClientPage } from "@/components/storefront/CheckoutClientPage"
 import type { Metadata } from "next"
@@ -40,7 +40,7 @@ async function CheckoutPageContent({ params }: Props) {
   }
 
   // Load merchant settings directly from database server-side (Zero-Trust Approach)
-  const merchant = await getMerchantById(merchantId)
+  const merchant = await getCachedMerchantById(merchantId)
   if (!merchant) {
     notFound()
   }

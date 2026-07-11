@@ -2,11 +2,12 @@ import React from "react"
 import { headers } from "next/headers"
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
-import { getPublishedProductBySlug, getPublishedProducts } from "@/db/queries/products"
-import { getMerchantById } from "@/db/queries/merchants"
+import { getCachedPublishedProducts } from "@/lib/cache/products"
+import { getCachedPublishedProductBySlug } from "@/lib/cache/products"
+import { getCachedMerchantById } from "@/lib/cache/merchants"
 import { getTemplate } from "@/templates/registry"
 import { getAttributesWithOptionsByProductId, getVariantsWithCombinationsByProductId } from "@/db/queries/variants"
-import { getStorefrontSections } from "@/db/queries/storefront-sections"
+import { getCachedStorefrontSections } from "@/lib/cache/storefront"
 import { Suspense } from "react"
 import { connection } from "next/server"
 
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const merchantId = headersList.get("x-merchant-id") || ""
   const merchantName = headersList.get("x-merchant-name") || "Boutique Store"
 
-  const product = merchantId ? await getPublishedProductBySlug(merchantId, slug) : null
+  const product = merchantId ? await getCachedPublishedProductBySlug(merchantId, slug) : null
 
   if (!product) {
     return {
@@ -53,13 +54,13 @@ async function ProductDetailPageContent({ params }: Props) {
     notFound()
   }
 
-  const product = await getPublishedProductBySlug(merchantId, slug)
+  const product = await getCachedPublishedProductBySlug(merchantId, slug)
 
   if (!product) {
     notFound()
   }
 
-  const merchant = await getMerchantById(merchantId)
+  const merchant = await getCachedMerchantById(merchantId)
 
   // Fetch metadata and variant data
   const variantAttributes = product.hasVariants
@@ -102,7 +103,7 @@ async function ProductDetailPageContent({ params }: Props) {
   }
 
   // Fetch related products
-  const allProducts = await getPublishedProducts(merchantId)
+  const allProducts = await getCachedPublishedProducts(merchantId)
   const relatedProducts = allProducts.filter((p) => p.id !== product.id).slice(0, 4)
 
   const formattedRelatedProducts = relatedProducts.map((p) => {
@@ -130,7 +131,7 @@ async function ProductDetailPageContent({ params }: Props) {
     template,
   }
 
-  const sections = merchantId ? await getStorefrontSections(merchantId) : []
+  const sections = merchantId ? await getCachedStorefrontSections(merchantId) : []
   const faqSection = sections.find((s: any) => s.sectionKey === "faq")
   const faqs = faqSection?.content?.items || []
 

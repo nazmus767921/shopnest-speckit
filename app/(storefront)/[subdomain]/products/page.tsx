@@ -1,8 +1,8 @@
 import React from "react"
 import { headers } from "next/headers"
 import { getFilteredPublishedProducts } from "@/db/queries/products"
-import { getCategories } from "@/db/queries/categories"
-import { getMerchantById } from "@/db/queries/merchants"
+import { getCachedCategories } from "@/lib/cache/categories"
+import { getCachedMerchantById } from "@/lib/cache/merchants"
 import { getTemplate } from "@/templates/registry"
 import { type Category } from "@/templates/types"
 import { Suspense } from "react"
@@ -37,8 +37,8 @@ async function ProductsPageContent({ params, searchParams }: Props) {
   const merchantId = headersList.get("x-merchant-id") || ""
   const template = headersList.get("x-merchant-template") || "general"
 
-  const merchant = merchantId ? await getMerchantById(merchantId) : null
-  const rawCategories = merchantId ? await getCategories(merchantId) : []
+  const merchant = merchantId ? await getCachedMerchantById(merchantId) : null
+  const rawCategories = merchantId ? await getCachedCategories(merchantId) : []
   const products = merchantId
     ? await getFilteredPublishedProducts(merchantId, { categoryId, search })
     : []

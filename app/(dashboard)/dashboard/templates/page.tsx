@@ -5,7 +5,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth/auth"
 import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { getActiveTemplates } from "@/db/queries/templates"
-import { getStorefrontSections } from "@/db/queries/storefront-sections"
+import { getCachedStorefrontSections } from "@/lib/cache/storefront"
 import { TemplatesPageClient } from "./components/TemplatesPageClient"
 
 import { connection } from "next/server"
@@ -65,7 +65,7 @@ async function TemplatesPageContent() {
     }
   })
 
-  const sections = await getStorefrontSections(merchant.id, false)
+  const sections = await getCachedStorefrontSections(merchant.id, false)
 
   return (
     <TemplatesPageClient 

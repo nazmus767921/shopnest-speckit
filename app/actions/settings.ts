@@ -5,9 +5,10 @@ import { auth } from "@/lib/auth/auth"
 import { getMerchantByOwnerId, updateStoreSettings, updateMerchantTemplate, updateThemeSettings } from "@/db/queries/merchants"
 import { storeSettingsSchema } from "@/lib/validations/settings"
 
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 
-import { getMerchantPlan } from "@/lib/plans/getPlan"
+import { getCachedMerchantPlan } from "@/lib/cache/plans"
+import { redis } from "@/lib/redis/client"
 
 async function getAuthenticatedMerchant() {
   const session = await auth.api.getSession({
@@ -29,7 +30,7 @@ async function getAuthenticatedMerchant() {
  */
 export async function updateStoreSettingsAction(values: unknown) {
   try {
-    const { storeSettingsSchema } = await import("@/lib/validations/settings")
+
     const merchant = await getAuthenticatedMerchant()
     const result = storeSettingsSchema.safeParse(values)
 
@@ -38,7 +39,7 @@ export async function updateStoreSettingsAction(values: unknown) {
     }
 
     // Invariant 7: Subscription plan limits and features are checked on the server side
-    const plan = await getMerchantPlan(merchant.id)
+    const plan = await getCachedMerchantPlan(merchant.id)
     const isCodRequested = result.data.codEnabled || result.data.payDeliveryChargeFirst
     if (isCodRequested && !plan?.features?.cod) {
       throw new Error("Upgrade plan to enable Cash on Delivery.")
@@ -56,6 +57,10 @@ export async function updateStoreSettingsAction(values: unknown) {
       nagadWalletNumber: result.data.nagadWalletNumber || null,
     })
 
+
+    await redis.del(`proxy:subdomain:${merchant.subdomain}`)
+
+    revalidateTag(`merchant-${merchant.id}`, "max")
     revalidatePath("/dashboard/settings")
     return { success: true, merchant: updated }
   } catch (error: any) {
@@ -69,7 +74,7 @@ export async function getAvailableTemplatesAction() {
   try {
     const { getActiveTemplates } = await import("@/db/queries/templates")
     const merchant = await getAuthenticatedMerchant()
-    const plan = await getMerchantPlan(merchant.id)
+    const plan = await getCachedMerchantPlan(merchant.id)
     const tier = plan?.slug || "starter"
 
     const templates = await getActiveTemplates()
@@ -99,7 +104,7 @@ export async function applyTemplateAction(templateSlug: string) {
   try {
     const { getTemplateBySlug } = await import("@/db/queries/templates")
     const merchant = await getAuthenticatedMerchant()
-    const plan = await getMerchantPlan(merchant.id)
+    const plan = await getCachedMerchantPlan(merchant.id)
     const tier = plan?.slug || "starter"
 
     const template = await getTemplateBySlug(templateSlug)
@@ -114,6 +119,9 @@ export async function applyTemplateAction(templateSlug: string) {
 
     const updated = await updateMerchantTemplate(merchant.id, templateSlug)
 
+    await redis.del(`proxy:subdomain:${merchant.subdomain}`)
+
+    revalidateTag(`merchant-${merchant.id}`, "max")
     revalidatePath("/dashboard/settings")
     return { success: true, merchant: updated }
   } catch (err: any) {
@@ -126,6 +134,10 @@ export async function updateThemeSettingsAction(themeSettings: any) {
     const merchant = await getAuthenticatedMerchant()
     await updateThemeSettings(merchant.id, themeSettings)
     
+
+    await redis.del(`proxy:subdomain:${merchant.subdomain}`)
+
+    revalidateTag(`merchant-${merchant.id}`, "max")
     // Purge everything related to this merchant from cache
     revalidatePath("/dashboard/templates")
     revalidatePath("/", "layout") // Revalidate entire app to ensure storefront picks it up

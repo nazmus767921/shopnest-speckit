@@ -66,7 +66,7 @@ export async function createProductAction(values: unknown) {
     )
 
     revalidatePath("/dashboard/products")
-    revalidateTag("product-images")
+    revalidateTag("product-images", "max")
     return { success: true, product }
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to create product." }
@@ -114,7 +114,7 @@ export async function updateProductAction(productId: string, values: unknown) {
 
     revalidatePath("/dashboard/products")
     revalidatePath(`/dashboard/products/${productId}/edit`)
-    revalidateTag("product-images")
+    revalidateTag("product-images", "max")
     return { success: true, product }
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to update product." }

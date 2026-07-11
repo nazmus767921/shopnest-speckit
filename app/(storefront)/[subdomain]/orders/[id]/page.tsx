@@ -3,7 +3,7 @@ import { headers } from "next/headers"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { auth } from "@/lib/auth/auth"
-import { getMerchantById } from "@/db/queries/merchants"
+import { getCachedMerchantById } from "@/lib/cache/merchants"
 import { fetchCustomerOrderDetails } from "../actions"
 import { CustomerOrderDetailClient } from "@/components/storefront/CustomerOrderDetailClient"
 import { Card, Button } from "@/components/ui"
@@ -42,7 +42,7 @@ async function OrderDetailPageContent({ params }: Props) {
   }
 
   // Load merchant info from database
-  const merchant = await getMerchantById(merchantId)
+  const merchant = await getCachedMerchantById(merchantId)
   if (!merchant) {
     notFound()
   }
