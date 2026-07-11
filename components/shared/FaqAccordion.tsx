@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { ChevronDown } from "lucide-react"
+import { ChevronDownIcon } from "@/lib/icons";
+
 import { cn } from "@/lib/utils"
 
 interface FaqItem {
@@ -56,7 +57,7 @@ export function FaqAccordion() {
               <span className="text-heading-sm text-ink font-medium group-hover:text-primary transition-colors duration-200">
                 {item.question}
               </span>
-              <ChevronDown
+              <ChevronDownIcon
                 className={cn(
                   "h-5 w-5 text-shade-50 transition-transform duration-300",
                   {
