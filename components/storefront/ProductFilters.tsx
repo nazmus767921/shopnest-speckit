@@ -73,15 +73,16 @@ export function ProductFilters({
           activeSize={activeSize}
           onFilterChange={handleFilterChange}
           onClearAll={clearAllFilters}
+          isMobile={false}
         />
       </div>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="right">
-          <SheetHeader>
-            <SheetTitle>FilterIcon Products</SheetTitle>
+        <SheetContent side="bottom" className="h-[85vh] overflow-y-auto rounded-t-xl px-0 py-0 flex flex-col">
+          <SheetHeader className="px-6 py-4 border-b border-zinc-200">
+            <SheetTitle className="text-center">Filter Products</SheetTitle>
           </SheetHeader>
-          <div className="px-2 py-4">
+          <div className="flex-grow overflow-y-auto bg-[var(--color-canvas-warm)]">
             <FilterSidebar
               categories={categories}
               activeCategory={activeCategory}
@@ -90,6 +91,7 @@ export function ProductFilters({
               activeSize={activeSize}
               onFilterChange={handleFilterChange}
               onClearAll={clearAllFilters}
+              isMobile={true}
             />
           </div>
         </SheetContent>

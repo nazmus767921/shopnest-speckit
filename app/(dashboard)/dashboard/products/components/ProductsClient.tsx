@@ -247,6 +247,8 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
   const [statusFilter, setStatusFilter] = React.useState<"all" | "published" | "draft">("all")
   const [stockFilter, setStockFilter] = React.useState<"all" | "in_stock" | "low_stock" | "out_of_stock">("all")
   const [categoryFilter, setCategoryFilter] = React.useState<string>("all")
+
+
   const [sortBy, setSortBy] = React.useState<"newest" | "price_asc" | "price_desc" | "stock_asc" | "stock_desc">("newest")
 
   // Fetch Categories for filtering & bulk action selection
@@ -260,6 +262,16 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
       return response.categories || []
     },
   })
+
+  const getCategoryFullName = React.useCallback((categoryId: string, fallbackName?: string) => {
+    const cat = categories.find(c => c.id === categoryId);
+    if (!cat) return fallbackName || "";
+    if (cat.parentId) {
+      const parent = categories.find(c => c.id === cat.parentId);
+      if (parent) return `${parent.name} • ${cat.name}`;
+    }
+    return cat.name;
+  }, [categories]);
 
   const { data: products = initialProducts, refetch } = useQuery({
     queryKey: ["products", merchantId],
@@ -563,7 +575,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
               className="bg-primary/10 hover:bg-primary/15 border-primary/20 text-primary font-semibold flex items-center gap-1.5 py-1 px-3 h-7 rounded-full w-fit whitespace-nowrap"
             >
               <FolderOpenIcon className="h-3.5 w-3.5" />
-              <span>{category.name}</span>
+              <span>{getCategoryFullName(category.id, category.name)}</span>
             </Badge>
           ) : (
             <span className="text-sm text-muted-foreground italic whitespace-nowrap">Uncategorized</span>
@@ -727,7 +739,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
         }
       }
     ],
-    [isPending, deleteMutation.isPending, togglePublishMutation.isPending, togglePromotionMutation.isPending]
+    [isPending, deleteMutation.isPending, togglePublishMutation.isPending, togglePromotionMutation.isPending, getCategoryFullName]
   )
 
   const statusTabs = [
@@ -865,14 +877,14 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                 <div className="flex items-center gap-2 grow sm:grow-0">
                   <span className="text-sm text-muted-foreground font-medium">Category:</span>
                   <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                    <SelectTrigger className="w-[150px] rounded-xl border-border bg-card">
+                    <SelectTrigger className="h-8 text-xs font-medium w-[140px] shadow-sm bg-background border-border" id="category-filter-trigger">
                       <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Categories</SelectItem>
                       {categories.map((c) => (
                         <SelectItem key={c.id} value={c.id}>
-                          {c.name}
+                          {getCategoryFullName(c.id)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -944,7 +956,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
 
                 {categoryFilter !== "all" && (
                   <span className="inline-flex items-center gap-1 text-xs bg-muted border border-border rounded-full pl-2.5 pr-1 py-1 font-medium text-foreground">
-                    Category: {activeCategoryObject?.name || "Selected"}
+                    Category: {activeCategoryObject ? getCategoryFullName(activeCategoryObject.id, activeCategoryObject.name) : "Selected"}
                     <button onClick={() => setCategoryFilter("all")} className="hover:bg-muted/80 rounded-full p-0.5 ml-1">
                       <XIcon className="h-3 w-3" />
                     </button>
@@ -1067,7 +1079,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                                   className="bg-primary/10 hover:bg-primary/15 border-primary/20 text-primary font-semibold flex items-center gap-1 py-0.5 px-2.5 h-6 rounded-full w-fit whitespace-nowrap text-[10px]"
                                 >
                                   <FolderOpenIcon className="h-3 w-3" />
-                                  <span className="truncate max-w-[70px]">{product.category.name}</span>
+                                  <span className="truncate max-w-[70px]">{getCategoryFullName(product.category.id, product.category.name)}</span>
                                 </Badge>
                               ) : (
                                 <span className="text-[10px] text-muted-foreground italic truncate">Uncategorized</span>
@@ -1189,7 +1201,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                                   className="bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-semibold flex items-center gap-1.5 py-0.5 px-2.5 h-6 rounded-full w-fit whitespace-nowrap text-[10px] self-start"
                                 >
                                   <FolderOpenIcon className="h-3 w-3" />
-                                  <span>{product.category.name}</span>
+                                  <span>{getCategoryFullName(product.category.id, product.category.name)}</span>
                                 </Badge>
                               )}
                             </div>
@@ -1304,13 +1316,11 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
                 <DropdownMenuLabel>Move to Category</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => bulkCategoryMutation.mutate({ ids: selectedIds, categoryId: null })}>
-                  <FolderOpenIcon className="mr-2 h-4 w-4" />
-                  <span>Uncategorized</span>
+                  Clear Category
                 </DropdownMenuItem>
                 {categories.map((c) => (
                   <DropdownMenuItem key={c.id} onClick={() => bulkCategoryMutation.mutate({ ids: selectedIds, categoryId: c.id })}>
-                    <TagIcon className="mr-2 h-4 w-4" />
-                    <span>{c.name}</span>
+                    {getCategoryFullName(c.id)}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>

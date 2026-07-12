@@ -5,7 +5,22 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { ChevronDownIcon, ChevronUpIcon, FilterIcon, XIcon, SearchIcon } from "@/lib/icons";
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet"
-
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
+} from "@/components/ui/dropdown-menu"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 interface Category {
   id: string
   name: string
@@ -139,6 +154,17 @@ export function FashionProductFilters({
 
   const hasActiveFilters = !!(activeCategory || activePrice || activeColor || activeSize)
 
+  const parentCategories = categories.filter((c) => !c.parentId)
+  const childrenByParentId = categories.reduce((acc, cat) => {
+    if (cat.parentId) {
+      if (!acc[cat.parentId]) acc[cat.parentId] = []
+      acc[cat.parentId].push(cat)
+    }
+    return acc
+  }, {} as Record<string, Category[]>)
+
+  const [activeMobileView, setActiveMobileView] = useState<string | null>(null)
+
   const toggleMobileSection = (sec: keyof typeof mobileSections) => {
     setMobileSections(prev => ({ ...prev, [sec]: !prev[sec] }))
   }
@@ -151,44 +177,81 @@ export function FashionProductFilters({
         {/* Left Side: FilterIcon Dropdowns (Desktop) */}
         <div className="hidden md:flex items-center gap-3">
           {/* Category Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setActiveDropdown(activeDropdown === "category" ? null : "category")}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full border text-xs font-sans uppercase tracking-[0.1em] transition-colors cursor-pointer bg-white ${
-                activeCategory 
-                  ? "border-black text-black bg-zinc-50 font-medium" 
-                  : "border-zinc-200 text-zinc-500 hover:border-zinc-400"
-              }`}
-              aria-expanded={activeDropdown === "category"}
-              aria-haspopup="true"
-            >
-              <span>{getCategoryLabel()}</span>
-              {activeDropdown === "category" ? <ChevronUpIcon className="h-3 w-3" /> : <ChevronDownIcon className="h-3 w-3" />}
-            </button>
-            {activeDropdown === "category" && (
-              <div className="absolute top-full left-0 mt-2 bg-white border border-zinc-200 rounded-xl p-3 min-w-[200px] max-h-[300px] overflow-y-auto flex flex-col gap-1.5 z-50">
-                <button
-                  onClick={() => handleFilterChange("category", "")}
-                  className={`text-left text-xs font-sans py-1.5 px-2.5 rounded hover:bg-zinc-50 transition-colors border-none bg-transparent cursor-pointer ${
-                    !activeCategory ? "font-bold text-black" : "text-zinc-500"
-                  }`}
-                >
-                  All Categories
-                </button>
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => handleFilterChange("category", cat.id)}
-                    className={`text-left text-xs font-sans py-1.5 px-2.5 rounded hover:bg-zinc-50 transition-colors border-none bg-transparent cursor-pointer ${
-                      activeCategory === cat.id ? "font-bold text-black" : "text-zinc-500"
+          <DropdownMenu open={activeDropdown === "category"} onOpenChange={(open) => setActiveDropdown(open ? "category" : null)}>
+            <DropdownMenuTrigger asChild>
+              <button
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full border text-xs font-sans uppercase tracking-[0.1em] transition-colors cursor-pointer bg-white ${
+                  activeCategory 
+                    ? "border-black text-black bg-zinc-50 font-medium" 
+                    : "border-zinc-200 text-zinc-500 hover:border-zinc-400"
+                }`}
+              >
+                <span>{getCategoryLabel()}</span>
+                {activeDropdown === "category" ? <ChevronUpIcon className="h-3 w-3" /> : <ChevronDownIcon className="h-3 w-3" />}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56 p-2 rounded-xl border border-zinc-200 shadow-sm bg-white">
+              <DropdownMenuItem
+                onClick={() => handleFilterChange("category", "")}
+                className={`text-xs font-sans py-2 px-3 rounded hover:bg-zinc-50 cursor-pointer ${
+                  !activeCategory ? "font-bold text-black" : "text-zinc-500"
+                }`}
+              >
+                All Categories
+              </DropdownMenuItem>
+              {parentCategories.map((parent) => {
+                const children = childrenByParentId[parent.id] || []
+                if (children.length > 0) {
+                  return (
+                    <DropdownMenuSub key={parent.id}>
+                      <DropdownMenuSubTrigger
+                        className={`text-xs font-sans py-2 px-3 rounded hover:bg-zinc-50 cursor-pointer ${
+                          activeCategory === parent.id || children.some(c => c.id === activeCategory)
+                            ? "font-bold text-black" : "text-zinc-500"
+                        }`}
+                      >
+                        {parent.name}
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuPortal>
+                        <DropdownMenuSubContent className="w-48 p-2 rounded-xl border border-zinc-200 shadow-sm bg-white">
+                          <DropdownMenuItem
+                            onClick={() => handleFilterChange("category", parent.id)}
+                            className={`text-xs font-sans py-2 px-3 rounded hover:bg-zinc-50 cursor-pointer ${
+                              activeCategory === parent.id ? "font-bold text-black" : "text-zinc-500"
+                            }`}
+                          >
+                            All {parent.name}
+                          </DropdownMenuItem>
+                          {children.map((child) => (
+                            <DropdownMenuItem
+                              key={child.id}
+                              onClick={() => handleFilterChange("category", child.id)}
+                              className={`text-xs font-sans py-2 px-3 rounded hover:bg-zinc-50 cursor-pointer ${
+                                activeCategory === child.id ? "font-bold text-black" : "text-zinc-500"
+                              }`}
+                            >
+                              {child.name}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuSubContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenuSub>
+                  )
+                }
+                return (
+                  <DropdownMenuItem
+                    key={parent.id}
+                    onClick={() => handleFilterChange("category", parent.id)}
+                    className={`text-xs font-sans py-2 px-3 rounded hover:bg-zinc-50 cursor-pointer ${
+                      activeCategory === parent.id ? "font-bold text-black" : "text-zinc-500"
                     }`}
                   >
-                    {cat.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+                    {parent.name}
+                  </DropdownMenuItem>
+                )
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* Price Dropdown */}
           <div className="relative">
@@ -350,44 +413,99 @@ export function FashionProductFilters({
       </div>
 
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <SheetContent side="right" className="flex flex-col h-full">
-          <SheetHeader>
-            <SheetTitle>Filters</SheetTitle>
+        <SheetContent side="bottom" className="h-[85vh] overflow-y-auto rounded-t-xl flex flex-col px-0 py-0">
+          <SheetHeader className="px-6 py-4 border-b border-zinc-200">
+            {activeMobileView ? (
+              <div className="flex items-center">
+                <button onClick={() => setActiveMobileView(null)} className="text-xs font-sans font-medium uppercase tracking-wider text-zinc-500 hover:text-black cursor-pointer border-none bg-transparent">
+                  {"< Back"}
+                </button>
+                <SheetTitle className="text-center w-full pr-8">
+                  {categories.find(c => c.id === activeMobileView)?.name || "Subcategories"}
+                </SheetTitle>
+              </div>
+            ) : (
+              <SheetTitle className="text-center">Filters</SheetTitle>
+            )}
           </SheetHeader>
           <div className="flex-grow overflow-y-auto w-full bg-[var(--color-canvas-warm)] flex flex-col gap-4 select-none pb-4 px-6 py-4">
-            {/* Category Section */}
-            <div className="border-b border-zinc-200/60 pb-4">
-              <button
-                onClick={() => toggleMobileSection("categories")}
-                className="flex items-center justify-between w-full text-xs font-bold font-sans uppercase tracking-[0.1em] text-ink cursor-pointer border-none bg-transparent py-2"
-              >
-                <span>Category</span>
-                {mobileSections.categories ? <ChevronUpIcon className="h-4 w-4 stroke-[1.5]" /> : <ChevronDownIcon className="h-4 w-4 stroke-[1.5]" />}
-              </button>
-              {mobileSections.categories && (
-                <div className="flex flex-col gap-2.5 pt-2 pl-1.5">
+            {activeMobileView ? (
+              <div className="flex flex-col gap-1 w-full">
+                <button
+                  onClick={() => handleFilterChange("category", activeMobileView)}
+                  className={`flex items-center justify-between text-left text-sm font-sans py-4 transition-colors border-b border-zinc-200 bg-transparent cursor-pointer ${
+                    activeCategory === activeMobileView ? "text-black font-bold" : "text-zinc-600"
+                  }`}
+                >
+                  <span>All {categories.find(c => c.id === activeMobileView)?.name}</span>
+                  {activeCategory === activeMobileView && <span className="h-1.5 w-1.5 rounded-full bg-black"></span>}
+                </button>
+                {(childrenByParentId[activeMobileView] || []).map(child => (
                   <button
-                    onClick={() => handleFilterChange("category", "")}
-                    className={`text-left text-xs font-sans py-1.5 transition-colors border-none bg-transparent cursor-pointer ${
-                      !activeCategory ? "text-black font-bold" : "text-zinc-500"
+                    key={child.id}
+                    onClick={() => handleFilterChange("category", child.id)}
+                    className={`flex items-center justify-between text-left text-sm font-sans py-4 transition-colors border-b border-zinc-200 bg-transparent cursor-pointer ${
+                      activeCategory === child.id ? "text-black font-bold" : "text-zinc-600"
                     }`}
                   >
-                    All Categories
+                    <span>{child.name}</span>
+                    {activeCategory === child.id && <span className="h-1.5 w-1.5 rounded-full bg-black"></span>}
                   </button>
-                  {categories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => handleFilterChange("category", cat.id)}
-                      className={`text-left text-xs font-sans py-1.5 transition-colors border-none bg-transparent cursor-pointer ${
-                        activeCategory === cat.id ? "text-black font-bold" : "text-zinc-500"
-                      }`}
-                    >
-                      {cat.name}
-                    </button>
-                  ))}
+                ))}
+              </div>
+            ) : (
+              <>
+                {/* Category Section */}
+                <div className="border-b border-zinc-200/60 pb-4">
+                  <button
+                    onClick={() => toggleMobileSection("categories")}
+                    className="flex items-center justify-between w-full text-xs font-bold font-sans uppercase tracking-[0.1em] text-ink cursor-pointer border-none bg-transparent py-2"
+                  >
+                    <span>Category</span>
+                    {mobileSections.categories ? <ChevronUpIcon className="h-4 w-4 stroke-[1.5]" /> : <ChevronDownIcon className="h-4 w-4 stroke-[1.5]" />}
+                  </button>
+                  {mobileSections.categories && (
+                    <div className="flex flex-col gap-2.5 pt-2 pl-1.5 w-full">
+                      <button
+                        onClick={() => handleFilterChange("category", "")}
+                        className={`text-left text-xs font-sans py-1.5 transition-colors border-none bg-transparent cursor-pointer ${
+                          !activeCategory ? "text-black font-bold" : "text-zinc-500"
+                        }`}
+                      >
+                        All Categories
+                      </button>
+                      {parentCategories.map((parent) => {
+                        const children = childrenByParentId[parent.id] || []
+                        if (children.length > 0) {
+                          return (
+                            <button
+                              key={parent.id}
+                              onClick={() => setActiveMobileView(parent.id)}
+                              className={`flex items-center justify-between text-left text-xs font-sans py-2 transition-colors border-none bg-transparent cursor-pointer w-full hover:text-black ${
+                                activeCategory === parent.id || children.some(c => c.id === activeCategory)
+                                  ? "text-black font-bold" : "text-zinc-500"
+                              }`}
+                            >
+                              <span>{parent.name}</span>
+                              <ChevronDownIcon className="h-4 w-4 -rotate-90 stroke-[1.5]" />
+                            </button>
+                          )
+                        }
+                        return (
+                          <button
+                            key={parent.id}
+                            onClick={() => handleFilterChange("category", parent.id)}
+                            className={`text-left text-xs font-sans py-2 transition-colors border-none bg-transparent cursor-pointer block w-full hover:text-black ${
+                              activeCategory === parent.id ? "text-black font-bold" : "text-zinc-500"
+                            }`}
+                          >
+                            {parent.name}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
             {/* Price Section */}
             <div className="border-b border-zinc-200/60 pb-4">
@@ -484,6 +602,8 @@ export function FashionProductFilters({
                 </div>
               )}
             </div>
+              </>
+            )}
           </div>
           <SheetFooter className="mt-auto p-6">
             <div className="flex flex-col gap-3 w-full">

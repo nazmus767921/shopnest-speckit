@@ -5,6 +5,7 @@ import "@/templates/general/styles.css"
 import "@/templates/fashion/styles.css"
 import { getCachedMerchantById } from "@/lib/cache/merchants"
 import { getCachedMenuBySlug } from "@/db/queries/navigation"
+import { getCachedCategories } from "@/lib/cache/categories"
 import { getTemplate } from "@/templates/registry"
 import { getCachedStorefrontSections } from "@/lib/cache/storefront"
 import { defaultStorefrontSections } from "@/lib/storefront-sections/defaults"
@@ -78,11 +79,12 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
   // Fetch menus dynamically with fallbacks handled inside template
   const mainMenu = merchantId ? await getCachedMenuBySlug(merchantId, "main-menu") : null
   const footerMenu = merchantId ? await getCachedMenuBySlug(merchantId, "footer-menu") : null
+  const categories = merchantId ? await getCachedCategories(merchantId) : []
 
   return (
     <div style={themeVars} className={`storefront-template-${template} ${archivoBlack.variable} ${fontClasses} min-h-screen flex flex-col font-sans overflow-x-hidden`}>
       {/* Dynamic Template Header */}
-      <templateModule.Navbar store={store} subdomain={subdomain} menu={mainMenu} />
+      <templateModule.Navbar store={store} subdomain={subdomain} menu={mainMenu} categories={categories} />
 
       {/* Main Content Area */}
       <main className={`grow px-4 md:px-8 ${template === "fashion" ? "pt-[81px] pb-16 md:pt-[89px] md:pb-24" : "py-8 md:py-12"}`}>

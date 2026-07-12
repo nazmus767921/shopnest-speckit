@@ -1,6 +1,6 @@
 import { db } from "@/db"
 import { categories, products, merchants } from "@/db/schema"
-import { eq, and, desc, count, isNull } from "drizzle-orm"
+import { eq, and, desc, count, isNull, sql } from "drizzle-orm"
 import { assertPlanLimit } from "@/lib/plans/assertPlan"
 
 /**
@@ -14,14 +14,18 @@ export async function getCategories(merchantId: string) {
       merchantId: categories.merchantId,
       name: categories.name,
       slug: categories.slug,
+      parentId: categories.parentId,
       createdAt: categories.createdAt,
       updatedAt: categories.updatedAt,
-      productCount: count(products.id),
+      productCount: sql<number>`count(distinct ${products.id})::int`,
     })
     .from(categories)
     .leftJoin(
       products,
-      and(eq(products.categoryId, categories.id), isNull(products.deletedAt))
+      and(
+        isNull(products.deletedAt),
+        sql`${products.categoryId} = ${categories.id} OR ${products.categoryId} IN (SELECT id FROM categories WHERE parent_id = ${categories.id})`
+      )
     )
     .where(eq(categories.merchantId, merchantId))
     .groupBy(categories.id)
@@ -50,6 +54,7 @@ export async function createCategory(
   data: {
     name: string
     slug: string
+    parentId?: string | null
   }
 ) {
   // Count existing categories
@@ -74,6 +79,7 @@ export async function createCategory(
       merchantId,
       name: data.name,
       slug: data.slug.trim().toLowerCase(),
+      parentId: data.parentId ?? null,
     })
     .returning()
 
@@ -89,6 +95,7 @@ export async function updateCategory(
   data: {
     name: string
     slug: string
+    parentId?: string | null
   }
 ) {
   const existing = await getCategoryById(merchantId, categoryId)
@@ -101,6 +108,7 @@ export async function updateCategory(
     .set({
       name: data.name,
       slug: data.slug.trim().toLowerCase(),
+      parentId: data.parentId === undefined ? existing.parentId : data.parentId,
       updatedAt: new Date(),
     })
     .where(

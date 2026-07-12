@@ -48,6 +48,7 @@ async function ProductsPageContent({ params, searchParams }: Props) {
     name: c.name,
     slug: c.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
     description: null,
+    parentId: c.parentId,
   }))
 
   let formattedProducts = products.map((p) => {

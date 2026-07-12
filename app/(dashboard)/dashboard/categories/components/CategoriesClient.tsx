@@ -4,11 +4,17 @@ import React, { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { type ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table"
-import { PlusIcon, FolderTreeIcon, PencilIcon, Trash2Icon, SearchIcon, InfoIcon, Loader2Icon } from "@/lib/icons";
+import { PlusIcon, FolderTreeIcon, PencilIcon, Trash2Icon, SearchIcon, InfoIcon, Loader2Icon, MoreVerticalIcon } from "@/lib/icons";
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { CategoryModal } from "./CategoryModal"
 import {
   AlertDialog,
@@ -28,6 +34,7 @@ interface Category {
   merchantId: string
   name: string
   slug: string
+  parentId: string | null
   createdAt: Date
   updatedAt: Date
   productCount: number
@@ -76,6 +83,23 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
     cat.slug.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  const orderedCategories = React.useMemo(() => {
+    const parents = filteredCategories.filter(c => !c.parentId)
+    const result: Category[] = []
+    
+    parents.forEach(parent => {
+      result.push(parent)
+      const children = filteredCategories.filter(c => c.parentId === parent.id)
+      result.push(...children)
+    })
+    
+    const processedIds = new Set(result.map(c => c.id))
+    const orphans = filteredCategories.filter(c => !processedIds.has(c.id))
+    result.push(...orphans)
+    
+    return result
+  }, [filteredCategories])
+
   const handleOpenCreate = () => {
     setEditingCategory(null)
     setIsModalOpen(true)
@@ -111,8 +135,12 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
         accessorKey: "name",
         header: "Category Name",
         cell: ({ row }) => (
-          <span className="text-base font-semibold text-foreground">
+          <span className="text-base font-semibold text-foreground flex items-center gap-2">
+            {row.original.parentId && <span className="text-muted-foreground">↳</span>}
             {row.original.name}
+            {row.original.parentId && (
+              <Badge variant="outline" className="text-xs font-normal">Subcategory</Badge>
+            )}
           </span>
         )
       },
@@ -253,61 +281,64 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
           <div className="hidden md:block">
             <DataTable
               columns={columns}
-              data={filteredCategories}
+              data={orderedCategories}
               getRowId={(row) => row.id}
             />
           </div>
 
           {/* Mobile Cards View (< md viewports) */}
-          <div className="grid grid-cols-1 gap-4 md:hidden">
-            {filteredCategories.length === 0 ? (
-              <div className="text-center p-8 text-sm text-muted-foreground italic bg-card border border-border rounded-xl">
+          <div className="flex flex-col md:hidden border border-border rounded-xl bg-card overflow-hidden">
+            {orderedCategories.length === 0 ? (
+              <div className="text-center p-8 text-sm text-muted-foreground italic">
                 No matching categories found.
               </div>
             ) : (
-              filteredCategories.map((cat) => (
-                <Card
+              orderedCategories.map((cat, index) => (
+                <div
                   key={cat.id}
-                  className="flex flex-col border border-border bg-card p-4 gap-4"
+                  className={cn(
+                    "flex items-center justify-between p-4",
+                    index !== orderedCategories.length - 1 && "border-b border-border/50"
+                  )}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex flex-col gap-1 min-w-0">
-                      <h3 className="text-base font-bold text-foreground truncate">
+                  <div className="flex flex-col gap-1 min-w-0 flex-1" style={{ paddingLeft: cat.parentId ? '1.5rem' : '0' }}>
+                    <div className="flex items-center gap-2">
+                      {cat.parentId && <span className="text-muted-foreground/60 select-none">↳</span>}
+                      <span className={cn("text-sm truncate", cat.parentId ? "text-muted-foreground" : "font-bold text-foreground")}>
                         {cat.name}
-                      </h3>
-                      <span className="text-sm text-muted-foreground font-mono truncate">
-                        {cat.slug}
                       </span>
+                      {cat.parentId && (
+                        <Badge variant="outline" className="text-[9px] font-normal px-1.5 py-0">Sub</Badge>
+                      )}
                     </div>
-
-                    <Badge variant="default" className="shrink-0 font-medium">
-                      {cat.productCount} product{cat.productCount !== 1 ? "s" : ""}
-                    </Badge>
+                    <span className="text-xs text-muted-foreground/80 font-mono truncate">
+                      /{cat.slug} • {cat.productCount} prod{cat.productCount !== 1 && "s"}
+                    </span>
                   </div>
 
-                  <div className="flex gap-3 border-t border-border/50 pt-3 mt-1">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleOpenEdit(cat)}
-                      className="flex-1 justify-center items-center gap-1.5 py-2 min-h-10 cursor-pointer"
-                    >
-                      <PencilIcon className="h-4 w-4 text-muted-foreground" />
-                      <span>Edit</span>
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(cat.id, cat.name)}
-                      disabled={deleteMutation.isPending}
-                      className="flex-1 justify-center items-center gap-1.5 py-2 min-h-10 border-red-200 text-red-650 hover:bg-red-50 dark:hover:bg-red-950/20 hover:border-red-300 hover:text-red-700 cursor-pointer disabled:opacity-50"
-                    >
-                      <Trash2Icon className="h-4 w-4" />
-                      <span>Delete</span>
-                    </Button>
+                  <div className="flex items-center pl-3">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                          <MoreVerticalIcon className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-[160px]">
+                        <DropdownMenuItem onClick={() => handleOpenEdit(cat)} className="gap-2 cursor-pointer">
+                          <PencilIcon className="h-4 w-4 text-muted-foreground" />
+                          <span>Edit</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleDelete(cat.id, cat.name)} 
+                          className="gap-2 text-red-650 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/20 cursor-pointer"
+                        >
+                          <Trash2Icon className="h-4 w-4" />
+                          <span>Delete</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                </Card>
+                </div>
               ))
             )}
           </div>
@@ -318,6 +349,8 @@ export function CategoriesClient({ initialCategories, merchantId, plan }: Catego
       {isModalOpen && (
         <CategoryModal
           editingCategory={editingCategory}
+          parentCategories={categories.filter(c => c.parentId === null && c.id !== editingCategory?.id)}
+          hasChildren={editingCategory ? categories.some(c => c.parentId === editingCategory.id) : false}
           onClose={handleModalClose}
         />
       )}

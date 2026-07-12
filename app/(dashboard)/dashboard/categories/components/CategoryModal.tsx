@@ -21,16 +21,20 @@ const categorySchema = z.object({
   name: z.string().min(2, "Category name must be at least 2 characters."),
   slug: z.string().min(2, "Slug must be at least 2 characters.")
     .regex(/^[a-z0-9-]+$/, "Slug must only contain lowercase alphanumeric characters and hyphens."),
+  parentId: z.string().nullable().optional(),
 })
 
 interface Category {
   id: string
   name: string
   slug: string
+  parentId: string | null
 }
 
 interface CategoryModalProps {
   editingCategory: Category | null
+  parentCategories: Category[]
+  hasChildren: boolean
   onClose: () => void
 }
 
@@ -42,7 +46,7 @@ function slugify(text: string): string {
     .replace(/(^-|-$)/g, "")
 }
 
-export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) {
+export function CategoryModal({ editingCategory, parentCategories, hasChildren, onClose }: CategoryModalProps) {
   const isEditing = !!editingCategory
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -52,20 +56,26 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
     defaultValues: {
       name: editingCategory?.name ?? "",
       slug: editingCategory?.slug ?? "",
+      parentId: editingCategory?.parentId ?? "none",
     },
     onSubmit: async ({ value }) => {
       setSuccessMessage(null)
       setErrorMessage(null)
 
-      const validation = categorySchema.safeParse(value)
+      const validation = categorySchema.safeParse({
+        ...value,
+        parentId: value.parentId === "none" ? null : value.parentId
+      })
       if (!validation.success) {
         setErrorMessage(validation.error.issues[0].message)
         return
       }
+      
+      const payload = validation.data
 
       const result = isEditing
-        ? await updateCategoryAction(editingCategory.id, value)
-        : await createCategoryAction(value)
+        ? await updateCategoryAction(editingCategory.id, payload)
+        : await createCategoryAction(payload)
 
       if (result.success) {
         setSuccessMessage(isEditing ? "Category updated successfully." : "Category created successfully.")
@@ -105,7 +115,10 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
                     const newName = e.target.value
                     field.handleChange(newName)
                     if (!isSlugEdited) {
-                      form.setFieldValue("slug", slugify(newName))
+                      const parentId = form.getFieldValue("parentId")
+                      const parentCategory = parentId && parentId !== "none" ? parentCategories.find(c => c.id === parentId) : null
+                      const prefix = parentCategory ? `${parentCategory.slug}-` : ""
+                      form.setFieldValue("slug", slugify(prefix + newName))
                     }
                   }}
                   onBlur={field.handleBlur}
@@ -136,6 +149,48 @@ export function CategoryModal({ editingCategory, onClose }: CategoryModalProps) 
                 <FieldDescription>
                   Used for SEO friendly URLs on the storefront (lowercase letters, numbers, and hyphens only).
                 </FieldDescription>
+                {field.state.meta.errors.length > 0 && (
+                  <FieldError>{String(field.state.meta.errors[0])}</FieldError>
+                )}
+              </Field>
+            )}
+          </form.Field>
+
+          {/* Parent Category */}
+          <form.Field name="parentId">
+            {(field) => (
+              <Field>
+                <FieldLabel htmlFor="modal-cat-parent">Parent Category (Optional)</FieldLabel>
+                <select
+                  id="modal-cat-parent"
+                  value={field.state.value}
+                  onChange={(e) => {
+                    const newParentId = e.target.value
+                    field.handleChange(newParentId)
+                    if (!isSlugEdited) {
+                      const parentCategory = newParentId !== "none" ? parentCategories.find(c => c.id === newParentId) : null
+                      const prefix = parentCategory ? `${parentCategory.slug}-` : ""
+                      const currentName = form.getFieldValue("name")
+                      if (currentName) {
+                        form.setFieldValue("slug", slugify(prefix + currentName))
+                      }
+                    }
+                  }}
+                  disabled={hasChildren}
+                  className="w-full text-sm border border-border rounded-md px-3 py-2 bg-background text-foreground outline-none focus:border-ring transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="none">None (Top-level Category)</option>
+                  {parentCategories.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+                {hasChildren && (
+                  <FieldDescription className="text-amber-600 dark:text-amber-500">
+                    This category has subcategories. It cannot be nested under another category.
+                  </FieldDescription>
+                )}
                 {field.state.meta.errors.length > 0 && (
                   <FieldError>{String(field.state.meta.errors[0])}</FieldError>
                 )}

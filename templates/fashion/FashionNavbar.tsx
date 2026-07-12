@@ -9,7 +9,7 @@ import { CartIconButton } from "@/components/storefront/shared/CartIconButton"
 import { type NavbarProps } from "../types"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 
-export function FashionNavbar({ store, subdomain, menu }: NavbarProps) {
+export function FashionNavbar({ store, subdomain, menu, categories }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
 
@@ -36,7 +36,23 @@ export function FashionNavbar({ store, subdomain, menu }: NavbarProps) {
 
   // Build menu tree (1-level nesting)
   const topLevelItems = menuItems.filter((item: any) => !item.parentId)
-  const getChildren = (parentId: string) => menuItems.filter((item: any) => item.parentId === parentId)
+  const getChildren = (parentId: string) => {
+    const manualChildren = menuItems.filter((item: any) => item.parentId === parentId)
+    const parentItem = menuItems.find((item: any) => item.id === parentId)
+    
+    let autoChildren: any[] = []
+    if (parentItem?.type === "category" && parentItem.category && categories) {
+      const subcats = categories.filter((c: any) => c.parentId === parentItem.category.id)
+      autoChildren = subcats.map((c: any) => ({
+        id: `auto-subcat-${c.id}`,
+        label: c.name,
+        type: "category",
+        category: c,
+      }))
+    }
+    
+    return [...manualChildren, ...autoChildren]
+  }
 
   const hasCustomMenu = topLevelItems.length > 0
   const visibleItems = topLevelItems.slice(0, 5)

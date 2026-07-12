@@ -6,7 +6,8 @@ import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { getCachedCategories } from "@/lib/cache/categories"
 import { createCategory,
   updateCategory,
-  deleteCategory } from "@/db/queries/categories"
+  deleteCategory,
+  getCategoryById } from "@/db/queries/categories"
 import { z } from "zod"
 import { revalidatePath, revalidateTag } from "next/cache"
 
@@ -14,6 +15,7 @@ const categorySchema = z.object({
   name: z.string().min(2, "Category name must be at least 2 characters."),
   slug: z.string().min(2, "Slug must be at least 2 characters.")
     .regex(/^[a-z0-9-]+$/, "Slug must only contain lowercase alphanumeric characters and hyphens."),
+  parentId: z.string().nullable().optional(),
 })
 
 async function getAuthenticatedMerchant() {
@@ -48,8 +50,16 @@ export async function createCategoryAction(values: unknown) {
       throw new Error(result.error.issues[0].message)
     }
 
-    const { name, slug } = result.data
-    const created = await createCategory(merchant.id, { name, slug })
+    const { name, slug, parentId } = result.data
+
+    if (parentId) {
+      const parentCat = await getCategoryById(merchant.id, parentId)
+      if (parentCat?.parentId) {
+        throw new Error("Maximum category depth exceeded. A subcategory cannot have its own subcategories.")
+      }
+    }
+
+    const created = await createCategory(merchant.id, { name, slug, parentId: parentId || null })
 
     revalidateTag(`categories-${merchant.id}`, "max");
     revalidatePath("/dashboard/categories")
@@ -68,8 +78,19 @@ export async function updateCategoryAction(categoryId: string, values: unknown) 
       throw new Error(result.error.issues[0].message)
     }
 
-    const { name, slug } = result.data
-    const updated = await updateCategory(merchant.id, categoryId, { name, slug })
+    const { name, slug, parentId } = result.data
+
+    if (parentId) {
+      if (parentId === categoryId) {
+        throw new Error("A category cannot be its own parent.")
+      }
+      const parentCat = await getCategoryById(merchant.id, parentId)
+      if (parentCat?.parentId) {
+        throw new Error("Maximum category depth exceeded. A subcategory cannot have its own subcategories.")
+      }
+    }
+
+    const updated = await updateCategory(merchant.id, categoryId, { name, slug, parentId: parentId || null })
 
     revalidateTag(`categories-${merchant.id}`, "max");
     revalidatePath("/dashboard/categories")

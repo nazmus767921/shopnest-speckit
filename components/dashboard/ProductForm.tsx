@@ -137,18 +137,28 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
 
   const [searchQuery, setSearchQuery] = useState("")
 
+  const getCategoryFullName = React.useCallback((categoryId: string) => {
+    const cat = categories.find(c => c.id === categoryId);
+    if (!cat) return "";
+    if (cat.parentId) {
+      const parent = categories.find(c => c.id === cat.parentId);
+      if (parent) return `${parent.name} • ${cat.name}`;
+    }
+    return cat.name;
+  }, [categories]);
+
   const filteredCategories = React.useMemo(() => {
     if (!searchQuery) return categories
     return categories.filter((cat) =>
-      cat.name.toLowerCase().includes(searchQuery.toLowerCase())
+      getCategoryFullName(cat.id).toLowerCase().includes(searchQuery.toLowerCase())
     )
-  }, [categories, searchQuery])
+  }, [categories, searchQuery, getCategoryFullName])
 
   React.useEffect(() => {
     if (initialData?.categoryId && categories.length > 0) {
       const cat = categories.find((c) => c.id === initialData.categoryId)
       if (cat) {
-        setSearchQuery(cat.name)
+        setSearchQuery(getCategoryFullName(cat.id))
       }
     }
   }, [categories, initialData])
@@ -591,17 +601,14 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                           onValueChange={(val) => field.handleChange(val || null)}
                           inputValue={searchQuery}
                           onInputValueChange={(val) => setSearchQuery(val)}
-                          itemToStringLabel={(val) => {
-                            const cat = categories.find((c) => c.id === val)
-                            return cat ? cat.name : ""
-                          }}
+                          itemToStringLabel={(val) => getCategoryFullName(val)}
                         >
                           <ComboboxInput placeholder="Select a category..." className="w-full" />
                           <ComboboxContent>
                             <ComboboxList>
                               {filteredCategories.map((cat) => (
                                 <ComboboxItem key={cat.id} value={cat.id}>
-                                  {cat.name}
+                                  {getCategoryFullName(cat.id)}
                                 </ComboboxItem>
                               ))}
                               {filteredCategories.length === 0 && (

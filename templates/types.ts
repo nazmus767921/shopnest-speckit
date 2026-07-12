@@ -62,6 +62,7 @@ export interface Category {
   name: string
   slug: string
   description: string | null
+  parentId?: string | null
 }
 
 export interface CategoryWithProducts extends Category {
@@ -110,6 +111,7 @@ export interface NavbarProps {
   store: StoreData
   subdomain: string
   menu?: any
+  categories?: Category[]
 }
 
 export interface FooterProps {

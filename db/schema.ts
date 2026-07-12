@@ -1,4 +1,4 @@
-import { pgTable, text, jsonb, timestamp, boolean, integer, numeric, index, uniqueIndex } from "drizzle-orm/pg-core"
+import { pgTable, text, jsonb, timestamp, boolean, integer, numeric, index, uniqueIndex, AnyPgColumn } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm"
 import type { PlanFeatures } from "@/lib/plans/types"
 
@@ -375,6 +375,7 @@ export const categories = pgTable("categories", {
     .references(() => merchants.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   slug: text("slug").notNull(),
+  parentId: text("parent_id").references((): AnyPgColumn => categories.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (table) => [

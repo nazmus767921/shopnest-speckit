@@ -2,10 +2,17 @@
 
 import React, { useState } from "react"
 import { ChevronDownIcon, ChevronUpIcon, FilterIcon } from "@/lib/icons";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 interface Category {
   id: string
   name: string
+  parentId?: string | null
 }
 
 interface FilterSidebarProps {
@@ -17,6 +24,7 @@ interface FilterSidebarProps {
   onFilterChange: (key: string, value: string) => void
   onClearAll: () => void
   className?: string
+  isMobile?: boolean
 }
 
 const colorOptions = [
@@ -47,8 +55,18 @@ export function FilterSidebar({
   activeSize,
   onFilterChange,
   onClearAll,
-  className = ""
+  className = "",
+  isMobile = false
 }: FilterSidebarProps) {
+  const parentCategories = categories.filter((c) => !c.parentId)
+  const childrenByParentId = categories.reduce((acc, cat) => {
+    if (cat.parentId) {
+      if (!acc[cat.parentId]) acc[cat.parentId] = []
+      acc[cat.parentId].push(cat)
+    }
+    return acc
+  }, {} as Record<string, Category[]>)
+
   const [sections, setSections] = useState({
     categories: true,
     price: true,
@@ -56,25 +74,75 @@ export function FilterSidebar({
     sizes: true,
   })
 
+  const [activeMobileView, setActiveMobileView] = useState<string | null>(null)
+
+  const getCategoryFullName = React.useCallback((categoryId: string) => {
+    const cat = categories.find(c => c.id === categoryId);
+    if (!cat) return "";
+    if (cat.parentId) {
+      const parent = categories.find(c => c.id === cat.parentId);
+      if (parent) return `${parent.name} • ${cat.name}`;
+    }
+    return cat.name;
+  }, [categories]);
+
   const toggleSection = (section: keyof typeof sections) => {
     setSections((prev) => ({ ...prev, [section]: !prev[section] }))
   }
 
   return (
-    <div className={`flex flex-col gap-6 bg-[var(--color-canvas-light)] p-6 rounded-[var(--radius-lg)] border border-[var(--color-hairline-light)] w-full ${className}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--color-hairline-light)] pb-4">
-        <div className="flex items-center gap-2 text-[var(--color-ink)]">
-          <FilterIcon className="h-5 w-5 stroke-[2]" />
-          <h3 className="text-storefront-heading-sm font-bold uppercase tracking-wider">Filters</h3>
-        </div>
-        <button
-          onClick={onClearAll}
-          className="text-storefront-caption text-[var(--color-shade-40)] hover:text-[var(--color-ink)] underline cursor-pointer border-none bg-transparent"
-        >
-          Clear All
-        </button>
-      </div>
+    <div className={`flex flex-col gap-6 bg-[var(--color-canvas-light)] p-6 rounded-[var(--radius-lg)] border border-[var(--color-hairline-light)] w-full h-full overflow-y-auto ${className}`}>
+      {isMobile && activeMobileView ? (
+        <>
+          {/* Drill-down Header */}
+          <div className="flex items-center gap-2 border-b border-[var(--color-hairline-light)] pb-4">
+            <button onClick={() => setActiveMobileView(null)} className="text-storefront-body-md text-[var(--color-shade-40)] hover:text-[var(--color-ink)] cursor-pointer border-none bg-transparent">
+              {"< Back"}
+            </button>
+            <h3 className="text-storefront-heading-sm font-bold uppercase tracking-wider mx-auto pr-10">
+              {categories.find(c => c.id === activeMobileView)?.name || "Subcategories"}
+            </h3>
+          </div>
+          {/* Drill-down Content */}
+          <div className="flex flex-col gap-2 pl-2">
+            <button
+              onClick={() => onFilterChange("category", activeMobileView)}
+              className={`text-left text-storefront-body-md py-3 transition-all cursor-pointer border-b border-[var(--color-hairline-light)] bg-transparent flex items-center justify-between ${
+                activeCategory === activeMobileView ? "text-[var(--color-ink)] font-bold" : "text-[var(--color-shade-40)] hover:text-[var(--color-ink)]"
+              }`}
+            >
+              <span>All {categories.find(c => c.id === activeMobileView)?.name}</span>
+              {activeCategory === activeMobileView && <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-ink)]"></span>}
+            </button>
+            {(childrenByParentId[activeMobileView] || []).map((child) => (
+              <button
+                key={child.id}
+                onClick={() => onFilterChange("category", child.id)}
+                className={`text-left text-storefront-body-md py-3 transition-all cursor-pointer border-b border-[var(--color-hairline-light)] bg-transparent flex items-center justify-between ${
+                  activeCategory === child.id ? "text-[var(--color-ink)] font-bold" : "text-[var(--color-shade-40)] hover:text-[var(--color-ink)]"
+                }`}
+              >
+                <span>{child.name}</span>
+                {activeCategory === child.id && <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-ink)]"></span>}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-[var(--color-hairline-light)] pb-4">
+            <div className="flex items-center gap-2 text-[var(--color-ink)]">
+              <FilterIcon className="h-5 w-5 stroke-[2]" />
+              <h3 className="text-storefront-heading-sm font-bold uppercase tracking-wider">Filters</h3>
+            </div>
+            <button
+              onClick={onClearAll}
+              className="text-storefront-caption text-[var(--color-shade-40)] hover:text-[var(--color-ink)] underline cursor-pointer border-none bg-transparent"
+            >
+              Clear All
+            </button>
+          </div>
 
       {/* 1. Categories Accordion */}
       <div className="flex flex-col border-b border-[var(--color-hairline-light)] pb-4">
@@ -96,17 +164,89 @@ export function FilterSidebar({
             >
               All Categories
             </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => onFilterChange("category", cat.id)}
-                className={`text-left text-storefront-body-md py-1 transition-all cursor-pointer border-none bg-transparent ${
-                  activeCategory === cat.id ? "text-[var(--color-ink)] font-bold" : "text-[var(--color-shade-40)] hover:text-[var(--color-ink)]"
-                }`}
-              >
-                {cat.name}
-              </button>
-            ))}
+            {isMobile ? (
+              <>
+                {parentCategories.map((parent) => {
+                  const children = childrenByParentId[parent.id] || []
+                  if (children.length > 0) {
+                    return (
+                      <button
+                        key={parent.id}
+                        onClick={() => setActiveMobileView(parent.id)}
+                        className={`flex items-center justify-between text-left text-storefront-body-md py-2 transition-all cursor-pointer border-none bg-transparent w-full ${
+                          activeCategory === parent.id || children.some(c => c.id === activeCategory)
+                            ? "text-[var(--color-ink)] font-bold" : "text-[var(--color-shade-40)] hover:text-[var(--color-ink)]"
+                        }`}
+                      >
+                        <span>{parent.name}</span>
+                        <ChevronDownIcon className="h-4 w-4 -rotate-90" />
+                      </button>
+                    )
+                  }
+                  return (
+                    <button
+                      key={parent.id}
+                      onClick={() => onFilterChange("category", parent.id)}
+                      className={`text-left text-storefront-body-md py-2 transition-all cursor-pointer border-none bg-transparent block w-full ${
+                        activeCategory === parent.id ? "text-[var(--color-ink)] font-bold" : "text-[var(--color-shade-40)] hover:text-[var(--color-ink)]"
+                      }`}
+                    >
+                      {parent.name}
+                    </button>
+                  )
+                })}
+              </>
+            ) : (
+              <Accordion type="multiple" className="w-full">
+                {parentCategories.map((parent) => {
+                  const children = childrenByParentId[parent.id] || []
+                  if (children.length > 0) {
+                    return (
+                      <AccordionItem value={parent.id} key={parent.id} className="border-none">
+                        <AccordionTrigger className={`text-left text-storefront-body-md py-1 transition-all cursor-pointer border-none bg-transparent hover:no-underline ${
+                            activeCategory === parent.id || children.some(c => c.id === activeCategory)
+                              ? "text-[var(--color-ink)] font-bold" : "text-[var(--color-shade-40)] hover:text-[var(--color-ink)]"
+                          }`}>
+                          {parent.name}
+                        </AccordionTrigger>
+                        <AccordionContent className="flex flex-col gap-2 pl-4 pt-1">
+                          <button
+                            onClick={() => onFilterChange("category", parent.id)}
+                            className={`text-left text-storefront-body-md py-1 transition-all cursor-pointer border-none bg-transparent ${
+                              activeCategory === parent.id ? "text-[var(--color-ink)] font-bold" : "text-[var(--color-shade-40)] hover:text-[var(--color-ink)]"
+                            }`}
+                          >
+                            All {parent.name}
+                          </button>
+                          {children.map((child) => (
+                            <button
+                              key={child.id}
+                              onClick={() => onFilterChange("category", child.id)}
+                              className={`text-left text-storefront-body-md py-1 transition-all cursor-pointer border-none bg-transparent ${
+                                activeCategory === child.id ? "text-[var(--color-ink)] font-bold" : "text-[var(--color-shade-40)] hover:text-[var(--color-ink)]"
+                              }`}
+                            >
+                              {child.name}
+                            </button>
+                          ))}
+                        </AccordionContent>
+                      </AccordionItem>
+                    )
+                  }
+                  return (
+                    <button
+                      key={parent.id}
+                      onClick={() => onFilterChange("category", parent.id)}
+                      className={`text-left text-storefront-body-md py-1 transition-all cursor-pointer border-none bg-transparent block w-full ${
+                        activeCategory === parent.id ? "text-[var(--color-ink)] font-bold" : "text-[var(--color-shade-40)] hover:text-[var(--color-ink)]"
+                      }`}
+                    >
+                      {parent.name}
+                    </button>
+                  )
+                })}
+              </Accordion>
+            )}
           </div>
         )}
       </div>
@@ -207,6 +347,8 @@ export function FilterSidebar({
           </div>
         )}
       </div>
+        </>
+      )}
     </div>
   )
 }
