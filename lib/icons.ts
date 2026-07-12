@@ -147,6 +147,7 @@ export { FolderTree as FolderTreeIcon } from "lucide-react"
 export { FileText as FileTextIcon } from "lucide-react"
 export { BookText as BookTextIcon } from "lucide-react"
 export { Calendar as CalendarIcon } from "lucide-react"
+export { Clock as ClockIcon } from "lucide-react"
 
 // ─── Status & Motion ─────────────────────────────────────────────────────────
 export { Zap as ZapIcon } from "lucide-react"
