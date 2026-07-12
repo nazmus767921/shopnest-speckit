@@ -32,7 +32,9 @@ import {
 } from "./SectionEditors"
 import { StorefrontSection } from "@/lib/storefront-sections/types"
 import { defaultStorefrontSections } from "@/lib/storefront-sections/defaults"
-import { LivePreviewCanvas } from "./LivePreviewCanvas"
+import { PreviewPane } from "./PreviewPane"
+import { UnsavedChangesBar } from "./UnsavedChangesBar"
+import { fontPairs } from "@/lib/fonts"
 import { DraggableSectionItem } from "./DraggableSectionItem"
 
 import {
@@ -56,9 +58,10 @@ interface TemplatesPageClientProps {
   currentTemplate: string
   initialSections: StorefrontSection[]
   initialThemeSettings?: any
+  merchantSubdomain: string
 }
 
-export function TemplatesPageClient({ templates, currentTemplate, initialSections, initialThemeSettings }: TemplatesPageClientProps) {
+export function TemplatesPageClient({ templates, currentTemplate, initialSections, initialThemeSettings, merchantSubdomain }: TemplatesPageClientProps) {
   const [selectedTemplate, setSelectedTemplate] = useState(currentTemplate)
   const getSectionsWithFooter = (secs: any[]) => {
     if (secs.length === 0) return secs
@@ -92,6 +95,7 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
 
   const [activeAccordion, setActiveAccordion] = useState<string>("sections") // "template", "theme", "sections"
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
+  const [isPanelExpanded, setIsPanelExpanded] = useState(true)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -158,6 +162,47 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
       toast.error(res.error || "Failed to save theme settings.")
     }
     setIsSavingTheme(false)
+  }
+
+  const handleSaveAll = async () => {
+    setIsSaving(true)
+    setIsSavingTheme(true)
+    const promises = []
+    
+    if (hasUnsavedSections) {
+      const orderedSections = sections.map((sec, index) => ({
+        ...sec,
+        sortOrder: index
+      }))
+      promises.push(saveStorefrontSectionsAction(orderedSections).then(res => {
+        if (res.success) {
+          setSections(orderedSections)
+          setBaselineSections(orderedSections)
+        } else {
+          toast.error(res.error || "Failed to save sections.")
+        }
+      }))
+    }
+    
+    if (hasUnsavedTheme) {
+      promises.push(updateThemeSettingsAction(themeSettings).then(res => {
+        if (res.success) {
+          setBaselineTheme(themeSettings)
+        } else {
+          toast.error(res.error || "Failed to save theme settings.")
+        }
+      }))
+    }
+    
+    await Promise.all(promises)
+    toast.success("Changes saved successfully.")
+    setIsSaving(false)
+    setIsSavingTheme(false)
+  }
+
+  const handleDiscardAll = () => {
+    setSections(baselineSections)
+    setThemeSettings(baselineTheme)
   }
 
   const renderEditorForSection = (section: any, onChange: (newContent: any) => void) => {
@@ -260,10 +305,10 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
   ]
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-20 items-start text-foreground">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-20 items-start text-foreground transition-all duration-300">
 
       {/* Left Pane: Controls */}
-      <div className="lg:col-span-5 flex flex-col gap-6">
+      <div className={`flex flex-col gap-6 transition-all duration-300 ${isPanelExpanded ? "lg:col-span-5 opacity-100" : "hidden opacity-0"}`}>
 
         {/* Accordion 1: Active Theme */}
         <div className="border border-border rounded-xl bg-card">
@@ -315,15 +360,6 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
               </div>
             </button>
             <div className="flex items-center gap-4">
-              {activeAccordion === 'theme' && (
-                <Button
-                  onClick={handleSaveThemeSettings}
-                  disabled={isSavingTheme || !hasUnsavedTheme}
-                  className={`rounded-md ${hasUnsavedTheme ? 'bg-amber-500 hover:bg-amber-600 text-white dark:text-black border-transparent' : ''}`}
-                >
-                  {isSavingTheme ? "Saving..." : "Save"}
-                </Button>
-              )}
               <button onClick={() => setActiveAccordion(activeAccordion === 'theme' ? '' : 'theme')}>
                 {activeAccordion === 'theme' ? <ChevronDownIcon className="w-5 h-5 text-muted-foreground" /> : <ChevronRightIcon className="w-5 h-5 text-muted-foreground" />}
               </button>
@@ -392,6 +428,55 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                     </Select>
                   </div>
                 </div>
+
+                {/* Typography */}
+                <div className="flex flex-col gap-4 md:col-span-2 border-t pt-6">
+                  <h3 className="font-semibold text-sm">Typography</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-muted-foreground">Heading Font</label>
+                      <Select
+                        value={themeSettings.typography?.headingFont || "Inter"}
+                        onValueChange={(val) => setThemeSettings({
+                          ...themeSettings,
+                          typography: { ...themeSettings.typography, headingFont: val }
+                        })}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Heading Font" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {fontPairs.map(fp => (
+                            <SelectItem key={`heading-${fp.id}`} value={fp.headingFont} style={{ fontFamily: `var(--font-${fp.id.split('-')[0]})` }}>
+                              {fp.headingFont}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-muted-foreground">Body Font</label>
+                      <Select
+                        value={themeSettings.typography?.bodyFont || "Inter"}
+                        onValueChange={(val) => setThemeSettings({
+                          ...themeSettings,
+                          typography: { ...themeSettings.typography, bodyFont: val }
+                        })}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Body Font" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {fontPairs.map(fp => (
+                            <SelectItem key={`body-${fp.id}`} value={fp.bodyFont}>
+                              {fp.bodyFont}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -417,15 +502,6 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
               </div>
             </button>
             <div className="flex items-center gap-4">
-              {activeAccordion === 'sections' && (
-                <Button
-                  onClick={handleSaveSections}
-                  disabled={isSaving || !hasUnsavedSections}
-                  className={`rounded-md ${hasUnsavedSections ? 'bg-amber-500 hover:bg-amber-600 text-white dark:text-black border-transparent' : ''}`}
-                >
-                  {isSaving ? "Saving..." : "Save"}
-                </Button>
-              )}
               <button onClick={() => setActiveAccordion(activeAccordion === 'sections' ? '' : 'sections')}>
                 {activeAccordion === 'sections' ? <ChevronDownIcon className="w-5 h-5 text-muted-foreground" /> : <ChevronRightIcon className="w-5 h-5 text-muted-foreground" />}
               </button>
@@ -502,13 +578,23 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
       </div>
 
       {/* Right Pane: Live Preview Canvas */}
-      <div className="lg:col-span-7">
-        <LivePreviewCanvas
+      <div className={`${isPanelExpanded ? "lg:col-span-7" : "lg:col-span-12"} h-[calc(100vh-120px)] sticky top-6 transition-all duration-300`}>
+        <PreviewPane
           sections={sections}
           themeSettings={themeSettings}
+          merchantSubdomain={merchantSubdomain}
+          expandedSectionKey={expandedSection}
+          isPanelExpanded={isPanelExpanded}
+          onTogglePanel={() => setIsPanelExpanded(!isPanelExpanded)}
         />
       </div>
 
+      <UnsavedChangesBar 
+        hasUnsavedChanges={hasUnsavedSections || hasUnsavedTheme} 
+        isSaving={isSaving || isSavingTheme} 
+        onSave={handleSaveAll} 
+        onDiscard={handleDiscardAll} 
+      />
     </div>
   )
 }

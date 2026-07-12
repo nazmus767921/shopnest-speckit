@@ -24,7 +24,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </Suspense>
 
           <main className="grow py-8 px-4 md:px-8 pb-10 bg-muted/10">
-            <div className="w-full max-w-7xl mx-auto">{children}</div>
+            <div className="w-full">{children}</div>
           </main>
         </SidebarInset>
       </div>
