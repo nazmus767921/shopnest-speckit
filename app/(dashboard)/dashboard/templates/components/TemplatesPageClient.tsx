@@ -446,9 +446,9 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                           <SelectValue placeholder="Heading Font" />
                         </SelectTrigger>
                         <SelectContent>
-                          {fontPairs.map(fp => (
-                            <SelectItem key={`heading-${fp.id}`} value={fp.headingFont} style={{ fontFamily: `var(--font-${fp.id.split('-')[0]})` }}>
-                              {fp.headingFont}
+                          {Array.from(new Set(fontPairs.map(fp => fp.headingFont))).map(font => (
+                            <SelectItem key={`heading-${font}`} value={font}>
+                              {font}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -467,9 +467,9 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
                           <SelectValue placeholder="Body Font" />
                         </SelectTrigger>
                         <SelectContent>
-                          {fontPairs.map(fp => (
-                            <SelectItem key={`body-${fp.id}`} value={fp.bodyFont}>
-                              {fp.bodyFont}
+                          {Array.from(new Set(fontPairs.map(fp => fp.bodyFont))).map(font => (
+                            <SelectItem key={`body-${font}`} value={font}>
+                              {font}
                             </SelectItem>
                           ))}
                         </SelectContent>
