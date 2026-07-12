@@ -8,6 +8,7 @@ import { getActiveTemplates } from "@/db/queries/templates"
 import { getCachedStorefrontSections } from "@/lib/cache/storefront"
 import { TemplatesPageClient } from "./components/TemplatesPageClient"
 import { TemplatesSkeleton } from "./components/TemplatesSkeleton"
+import { ExternalLinkIcon } from "@/lib/icons"
 
 import { connection } from "next/server"
 import { Suspense } from "react"
@@ -19,14 +20,17 @@ export const metadata: Metadata = {
 export default function TemplatesPage() {
   return (
     <div className="flex-1 w-full space-y-8 animate-fade-in p-6 text-foreground">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold text-foreground">Storefront Templates</h1>
-        <p className="text-sm text-muted-foreground">
-          Choose a design template for your storefront and customize the homepage sections.
-        </p>
-      </div>
-
-      <Suspense fallback={<TemplatesSkeleton />}>
+      <Suspense fallback={
+        <>
+          <div className="flex flex-col gap-2">
+            <h1 className="text-2xl font-bold text-foreground">Storefront Templates</h1>
+            <p className="text-sm text-muted-foreground">
+              Choose a design template for your storefront and customize the homepage sections.
+            </p>
+          </div>
+          <TemplatesSkeleton />
+        </>
+      }>
         <TemplatesPageContent />
       </Suspense>
     </div>
@@ -67,13 +71,37 @@ async function TemplatesPageContent() {
   })
 
   const sections = await getCachedStorefrontSections(merchant.id, false)
+  const headersObj = await headers()
+  const host = headersObj.get("host") || "localhost:3000"
+  const protocol = host.includes("localhost") ? "http:" : "https:"
+  const storeUrl = `${protocol}//${merchant.subdomain}.${host.replace("app.", "")}`
 
   return (
-    <TemplatesPageClient 
-      templates={mappedTemplates} 
-      currentTemplate={merchant.template || "general"} 
-      initialSections={sections as any}
-      initialThemeSettings={merchant.themeSettings as any}
-    />
+    <>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold text-foreground">Storefront Templates</h1>
+          <a
+            href={storeUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center text-sm font-medium text-primary hover:underline bg-primary/10 px-3 py-1.5 rounded-full"
+          >
+            Visit Store <ExternalLinkIcon className="w-4 h-4 ml-1" />
+          </a>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Choose a design template for your storefront and customize the homepage sections.
+        </p>
+      </div>
+
+      <TemplatesPageClient 
+        templates={mappedTemplates} 
+        currentTemplate={merchant.template || "general"} 
+        initialSections={sections as any}
+        initialThemeSettings={merchant.themeSettings as any}
+        merchantSubdomain={merchant.subdomain || ""}
+      />
+    </>
   )
 }

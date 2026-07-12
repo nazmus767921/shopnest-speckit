@@ -27,3 +27,19 @@ export function formatTaka(pricePaisa: number | null | undefined): string {
     })
   )
 }
+
+export function parseWhatsAppUrl(input: string | null | undefined): string {
+  if (!input) return "";
+  
+  const trimmed = input.trim();
+  if (trimmed === "") return "";
+
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    return trimmed;
+  }
+
+  const numericOnly = trimmed.replace(/\D/g, "");
+  if (!numericOnly) return "";
+
+  return `https://wa.me/${numericOnly}`;
+}

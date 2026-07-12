@@ -3,7 +3,9 @@
 import React from "react"
 import Link from "next/link"
 import { NewsletterSignup } from "@/components/storefront/shared/NewsletterSignup"
+import { FacebookIcon, InstagramIcon, WhatsAppIcon, TikTokIcon } from "@/lib/icons"
 import { type FooterProps } from "../types"
+import { parseWhatsAppUrl } from "@/lib/utils"
 
 export function FashionFooter({ store, menu, footerSection }: FooterProps) {
   const content = footerSection?.content || {}
@@ -44,18 +46,22 @@ export function FashionFooter({ store, menu, footerSection }: FooterProps) {
               <div className="flex items-center gap-3">
                 {parsedSocialLinks.facebook && (
                   <a href={parsedSocialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-[var(--color-on-primary)]/75 hover:text-[var(--color-on-primary)] transition-colors" aria-label="Facebook">
-                    <svg className="h-4.5 w-4.5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z" />
-                    </svg>
+                    <FacebookIcon className="h-4.5 w-4.5 fill-current" />
                   </a>
                 )}
                 {parsedSocialLinks.instagram && (
                   <a href={parsedSocialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-[var(--color-on-primary)]/75 hover:text-[var(--color-on-primary)] transition-colors" aria-label="Instagram">
-                    <svg className="h-4.5 w-4.5 fill-none stroke-current" strokeWidth="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                    </svg>
+                    <InstagramIcon className="h-4.5 w-4.5 fill-none stroke-current" strokeWidth={1.8} />
+                  </a>
+                )}
+                {parsedSocialLinks.whatsapp && (
+                  <a href={parseWhatsAppUrl(parsedSocialLinks.whatsapp)} target="_blank" rel="noopener noreferrer" className="text-[var(--color-on-primary)]/75 hover:text-[var(--color-on-primary)] transition-colors" aria-label="WhatsApp">
+                    <WhatsAppIcon className="h-4.5 w-4.5 fill-none stroke-current" strokeWidth={1.8} />
+                  </a>
+                )}
+                {parsedSocialLinks.tiktok && (
+                  <a href={parsedSocialLinks.tiktok} target="_blank" rel="noopener noreferrer" className="text-[var(--color-on-primary)]/75 hover:text-[var(--color-on-primary)] transition-colors" aria-label="TikTok">
+                    <TikTokIcon className="h-4.5 w-4.5 fill-none stroke-current" strokeWidth={1.8} />
                   </a>
                 )}
               </div>

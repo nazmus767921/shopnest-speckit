@@ -11,23 +11,23 @@ export function BrandStory({ content }: { content: AboutContent }) {
         
         {/* Text Content Column */}
         <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-6 order-2 md:order-1">
-          <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[var(--color-shade-50)] font-sans">
+          <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-[var(--color-shade-50)] font-[family-name:var(--font-body)]">
             The Essence
           </span>
-          <h2 className="font-display text-4xl md:text-6xl font-light uppercase tracking-wide text-[var(--color-ink)] leading-[1.15] max-w-xl">
+          <h2 className="font-[family-name:var(--font-heading)] text-4xl md:text-6xl font-light uppercase tracking-wide text-[var(--color-ink)] leading-[1.15] max-w-xl">
             {title}
           </h2>
           
           <div className="w-16 h-px bg-[var(--color-hairline-warm)] my-1" />
           
-          <p className="text-sm md:text-base text-zinc-550 leading-relaxed font-sans font-light max-w-xl">
+          <p className="text-sm md:text-base text-zinc-550 leading-relaxed font-[family-name:var(--font-body)] font-light max-w-xl">
             {description}
           </p>
           
           {buttonText && (
             <div className="pt-4">
               <Link href={buttonLink || "/about"}>
-                <button className="h-12 px-10 rounded-[var(--radius)] border border-shade-30 hover:border-ink text-ink bg-transparent font-sans font-semibold text-xs uppercase tracking-[0.15em] transition-colors duration-300 cursor-pointer select-none">
+                <button className="h-12 px-10 rounded-[var(--radius)] border border-shade-30 hover:border-ink text-ink bg-transparent font-[family-name:var(--font-body)] font-semibold text-xs uppercase tracking-[0.15em] transition-colors duration-300 cursor-pointer select-none">
                   {buttonText}
                 </button>
               </Link>
@@ -48,7 +48,7 @@ export function BrandStory({ content }: { content: AboutContent }) {
             </div>
           ) : (
             <div className="relative aspect-[3/4] w-full max-w-lg mx-auto md:ml-auto bg-[var(--color-surface-product)] border border-[var(--color-hairline-warm)]/40 rounded-[var(--radius)] flex items-center justify-center">
-              <span className="text-zinc-400 font-sans text-xs tracking-widest uppercase font-light">Boutique Story</span>
+              <span className="text-zinc-400 font-[family-name:var(--font-body)] text-xs tracking-widest uppercase font-light">Boutique Story</span>
             </div>
           )}
         </div>

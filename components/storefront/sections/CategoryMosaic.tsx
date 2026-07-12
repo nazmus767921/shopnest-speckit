@@ -17,8 +17,8 @@ export async function CategoryMosaic({ content, merchantId }: { content: Categor
     <section className="py-24 md:py-32 px-4 md:px-8 max-w-screen-2xl mx-auto w-full">
       <div className="flex flex-col gap-16">
         <div className="flex flex-col md:flex-row items-baseline justify-between gap-6">
-          <h2 className="text-4xl md:text-5xl font-sans font-light tracking-tight text-ink">{title}</h2>
-          <Link href="/products" className="text-sm font-sans font-medium uppercase tracking-widest text-zinc-500 hover:text-ink transition-colors">
+          <h2 className="text-4xl md:text-5xl font-[family-name:var(--font-heading)] font-light tracking-tight text-[var(--color-ink)]">{title}</h2>
+          <Link href="/products" className="text-sm font-[family-name:var(--font-body)] font-medium uppercase tracking-widest text-[var(--color-shade-50)] hover:text-[var(--color-ink)] transition-colors">
             Explore Collection
           </Link>
         </div>
@@ -38,10 +38,10 @@ export async function CategoryMosaic({ content, merchantId }: { content: Categor
                 {/* Content */}
                 <div className="relative z-10 w-full overflow-hidden">
                   <div className="flex items-center gap-4">
-                    <span className="text-white/60 font-sans text-sm font-light tracking-widest tabular-nums">
+                    <span className="text-white/60 font-[family-name:var(--font-body)] text-sm font-light tracking-widest tabular-nums">
                       0{idx + 1}
                     </span>
-                    <h3 className="text-white font-sans font-medium text-2xl md:text-3xl tracking-wide whitespace-nowrap transform md:origin-bottom-left md:group-hover:scale-110 transition-transform duration-700">
+                    <h3 className="text-white font-[family-name:var(--font-heading)] font-medium text-2xl md:text-3xl tracking-wide whitespace-nowrap transform md:origin-bottom-left md:group-hover:scale-110 transition-transform duration-700">
                       {category.name}
                     </h3>
                   </div>
@@ -58,14 +58,14 @@ export async function CategoryMosaic({ content, merchantId }: { content: Categor
                 href={`/products?category=${category.slug}`}
                 className="group relative overflow-hidden rounded-[var(--radius)] bg-[var(--color-surface-product)] p-8 min-h-[220px] flex flex-col justify-between hover:bg-[var(--color-surface-hover)] transition-all duration-300 border border-[var(--color-hairline-warm)]/10 hover:border-[var(--color-hairline-warm)]/30"
               >
-                <div className="text-zinc-500 font-sans text-xs font-light tracking-widest tabular-nums">
+                <div className="text-[var(--color-shade-50)] font-[family-name:var(--font-body)] text-xs font-light tracking-widest tabular-nums">
                   0{idx + 1}
                 </div>
                 <div>
-                  <h3 className="text-ink font-sans font-medium text-xl md:text-2xl tracking-wide transform group-hover:translate-x-1 transition-transform duration-300">
+                  <h3 className="text-[var(--color-ink)] font-[family-name:var(--font-heading)] font-medium text-xl md:text-2xl tracking-wide transform group-hover:translate-x-1 transition-transform duration-300">
                     {category.name}
                   </h3>
-                  <span className="text-zinc-500 font-sans text-xs font-light uppercase tracking-wider block mt-4 opacity-70 group-hover:opacity-100 transition-opacity">
+                  <span className="text-[var(--color-shade-50)] font-[family-name:var(--font-body)] text-xs font-light uppercase tracking-wider block mt-4 opacity-70 group-hover:opacity-100 transition-opacity">
                     Shop Category →
                   </span>
                 </div>

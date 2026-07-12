@@ -1,5 +1,6 @@
 import { ThemeSettings } from "@/templates/types"
 import React from "react"
+import { getFontFamily } from "./fonts"
 
 export function getThemeVariables(settings?: ThemeSettings | null): React.CSSProperties {
   if (!settings) return {}
@@ -40,6 +41,15 @@ export function getThemeVariables(settings?: ThemeSettings | null): React.CSSPro
     vars["--radius-lg"] = r
     vars["--radius-xl"] = r
     vars["--radius-pill"] = r
+  }
+
+  if (settings.typography) {
+    if (settings.typography.headingFont) {
+      vars["--font-heading"] = getFontFamily(settings.typography.headingFont)
+    }
+    if (settings.typography.bodyFont) {
+      vars["--font-body"] = getFontFamily(settings.typography.bodyFont)
+    }
   }
 
   return vars as React.CSSProperties

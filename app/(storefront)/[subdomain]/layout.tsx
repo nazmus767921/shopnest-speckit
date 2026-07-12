@@ -12,6 +12,7 @@ import { Archivo_Black } from "next/font/google"
 import { Suspense } from "react"
 import { connection } from "next/server"
 import { getThemeVariables } from "@/lib/theme"
+import { fontClasses } from "@/lib/fonts"
 
 const archivoBlack = Archivo_Black({
   weight: "400",
@@ -79,7 +80,7 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
   const footerMenu = merchantId ? await getCachedMenuBySlug(merchantId, "footer-menu") : null
 
   return (
-    <div style={themeVars} className={`storefront-template-${template} ${archivoBlack.variable} min-h-screen flex flex-col font-sans overflow-x-hidden`}>
+    <div style={themeVars} className={`storefront-template-${template} ${archivoBlack.variable} ${fontClasses} min-h-screen flex flex-col font-sans overflow-x-hidden`}>
       {/* Dynamic Template Header */}
       <templateModule.Navbar store={store} subdomain={subdomain} menu={mainMenu} />
 

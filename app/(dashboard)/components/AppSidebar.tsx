@@ -3,7 +3,8 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboardIcon, LayoutTemplateIcon, ShoppingBagIcon, TagIcon, SettingsIcon, CreditCardIcon, PercentIcon, FolderTreeIcon, FileTextIcon, MenuIcon, GlobeIcon, ExternalLinkIcon, ChevronsUpDownIcon, ChevronRightIcon, ShieldIcon } from "@/lib/icons";
+import { LayoutDashboardIcon, LayoutTemplateIcon, ShoppingBagIcon, TagIcon, SettingsIcon, CreditCardIcon, PercentIcon, FolderTreeIcon, FileTextIcon, MenuIcon, GlobeIcon, ExternalLinkIcon, ChevronsUpDownIcon, ChevronRightIcon, ShieldIcon, Share2Icon, ClockIcon } from "@/lib/icons";
+import { ShareStorefrontDialog } from "@/components/dashboard/ShareStorefrontDialog";
 
 import {
   Sidebar,
@@ -35,6 +36,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { LogoutButton } from "./LogoutButton"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 interface AppSidebarProps {
@@ -64,6 +66,7 @@ export function AppSidebar({
 
   // Storefront group is expanded by default
   const [isStorefrontOpen, setIsStorefrontOpen] = useState(true)
+  const [isShareOpen, setIsShareOpen] = useState(false)
 
   const storeName = merchant?.name || "Boutique Store"
   const storeInitials = storeName
@@ -86,13 +89,15 @@ export function AppSidebar({
   // Trial Calculations
   const isTrial = merchant?.subscriptionStatus === "trial"
   const trialExpiry = merchant?.trialExpiry ? new Date(merchant.trialExpiry) : null
+  let trialHoursLeft = 0
   let trialDaysLeft = 0
-  let trialProgress = 0
   if (trialExpiry) {
     const diffTime = trialExpiry.getTime() - Date.now()
-    trialDaysLeft = Math.max(0, Math.round(diffTime / (1000 * 60 * 60 * 24)))
-    trialProgress = Math.min(100, Math.max(0, (diffTime / (7 * 1000 * 60 * 60 * 24)) * 100))
+    trialHoursLeft = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60)))
+    trialDaysLeft = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)))
   }
+  
+  const isUrgent = trialHoursLeft < 48
 
   const handleLinkClick = () => {
     if (isMobile) {
@@ -183,16 +188,30 @@ export function AppSidebar({
                   asChild
                   isActive={pathname === "/dashboard"}
                   className={cn(
-                    "w-full flex items-center gap-3 px-3 py-3 rounded-none text-sm transition-all duration-150 font-medium",
+                    "w-full flex items-center gap-3 px-3 py-5 rounded-none text-[15px] transition-all duration-150 font-medium",
                     pathname === "/dashboard"
                       ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-primary font-bold shadow-xs"
                       : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                   )}
                 >
                   <Link href="/dashboard" onClick={handleLinkClick}>
-                    <LayoutDashboardIcon className="h-4 w-4 shrink-0" />
+                    <LayoutDashboardIcon className="shrink-0" style={{ width: '18px', height: '18px' }} />
                     <span>Dashboard</span>
                   </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  className="w-full flex items-center justify-between gap-3 px-3 py-5 rounded-none text-[15px] transition-all duration-150 font-medium text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                >
+                  <a href={storefrontUrl} target="_blank" rel="noopener noreferrer" onClick={handleLinkClick}>
+                    <span className="flex items-center gap-3">
+                      <GlobeIcon className="shrink-0" style={{ width: '18px', height: '18px' }} />
+                      <span>View Live Store</span>
+                    </span>
+                    <ExternalLinkIcon className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+                  </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -266,7 +285,7 @@ export function AppSidebar({
                         asChild
                         isActive={isActive}
                         className={cn(
-                          "w-full flex items-center justify-between gap-3 px-3 py-3 rounded-none text-sm transition-all duration-150 font-medium",
+                          "w-full flex items-center justify-between gap-3 px-3 py-5 rounded-none text-[15px] transition-all duration-150 font-medium",
                           isActive
                             ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-primary font-bold shadow-xs"
                             : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
@@ -274,7 +293,7 @@ export function AppSidebar({
                       >
                         <Link href={item.href} onClick={handleLinkClick}>
                           <span className="flex items-center gap-3">
-                            <Icon className="h-4 w-4 shrink-0" />
+                            <Icon className="h-5 w-5 shrink-0" />
                             <span>{item.label}</span>
                           </span>
                         </Link>
@@ -302,16 +321,36 @@ export function AppSidebar({
                   asChild
                   isActive={pathname.startsWith("/dashboard/billing")}
                   className={cn(
-                    "w-full flex items-center gap-3 px-3 py-3 rounded-none text-sm transition-all duration-150 font-medium",
+                    "w-full flex items-center gap-3 px-3 py-5 rounded-none text-[15px] transition-all duration-150 font-medium",
                     pathname.startsWith("/dashboard/billing")
                       ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-primary font-bold shadow-xs"
                       : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                   )}
                 >
                   <Link href="/dashboard/billing" onClick={handleLinkClick}>
-                    <CreditCardIcon className="h-4 w-4 shrink-0" />
+                    <CreditCardIcon className="shrink-0" style={{ width: '18px', height: '18px' }} />
                     <span>Billing & Plan</span>
                   </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Others Group */}
+        <SidebarGroup className="p-0 pt-4 border-t border-sidebar-border/40">
+          <SidebarGroupLabel className="px-3 text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest mb-1.5">
+            Others
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setIsShareOpen(true)}
+                  className="w-full flex items-center gap-3 px-3 py-5 rounded-none text-[15px] transition-all duration-150 font-medium text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground cursor-pointer"
+                >
+                  <Share2Icon className="shrink-0" style={{ width: '18px', height: '18px' }} />
+                  <span>Share Storefront</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -323,22 +362,37 @@ export function AppSidebar({
       <SidebarFooter className="border-t border-sidebar-border px-4 py-4 flex flex-col gap-4 shrink-0">
         {/* Trial Progress indicator */}
         {isTrial && (
-          <div className="border border-amber-500/30 bg-amber-500/5 rounded-none p-3 flex flex-col gap-2 shadow-2xs">
-            <div className="flex items-center justify-between text-xs font-bold text-amber-700 dark:text-amber-400">
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-none bg-amber-500 animate-pulse" />
-                Free Trial
-              </span>
-              <span>
-                {trialDaysLeft} {trialDaysLeft === 1 ? "Day" : "Days"} Left
-              </span>
+          <div className={cn(
+            "rounded-xl p-4 flex flex-col gap-3 shadow-sm border",
+            isUrgent 
+              ? "bg-red-500/10 border-red-500/20 text-red-900 dark:text-red-400" 
+              : "bg-amber-500/10 border-amber-500/20 text-amber-900 dark:text-amber-400"
+          )}>
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-1.5 font-bold text-sm">
+                <ClockIcon className="w-4 h-4 shrink-0" />
+                <span>Keep your workflow running smoothly.</span>
+              </div>
+              <p className={cn(
+                "text-xs leading-relaxed opacity-90",
+                isUrgent ? "text-red-800 dark:text-red-300" : "text-amber-800 dark:text-amber-300"
+              )}>
+                Your free trial ends in {isUrgent ? `${trialHoursLeft} hours` : `${trialDaysLeft} days`}. Secure your data and unlock unlimited access by picking a plan today.
+              </p>
             </div>
-            <div className="h-1.5 w-full bg-muted rounded-none overflow-hidden">
-              <div
-                className="h-full rounded-none bg-amber-600 transition-all duration-500"
-                style={{ width: `${trialProgress}%` }}
-              />
-            </div>
+            <Button 
+              asChild 
+              className={cn(
+                "w-full font-bold h-9",
+                isUrgent 
+                  ? "bg-red-600 hover:bg-red-700 text-white" 
+                  : "bg-amber-600 hover:bg-amber-700 text-white"
+              )}
+            >
+              <Link href="/dashboard/billing">
+                {isUrgent ? "Keep My Plan" : "Upgrade Plan"}
+              </Link>
+            </Button>
           </div>
         )}
 
@@ -396,6 +450,13 @@ export function AppSidebar({
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarFooter>
+
+      {/* Share Storefront Dialog */}
+      <ShareStorefrontDialog 
+        isOpen={isShareOpen} 
+        setIsOpen={setIsShareOpen} 
+        storefrontUrl={storefrontUrl} 
+      />
     </Sidebar>
   )
 }
