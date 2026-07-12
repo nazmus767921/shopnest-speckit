@@ -14,8 +14,6 @@
   --radius-lg: 20px;
   --radius-xl: 20px;
   --radius-pill: 9999px;
-  --font-display: var(--font-archivo-black), sans-serif;
-  --font-sans: var(--font-inter), "Inter Variable", Inter, sans-serif;
   
   --color-surface-product: #F0EEED;
   --color-surface-secondary: #F2F0F1;
@@ -42,57 +40,57 @@
 
   /* Typography helpers */
   .text-storefront-display-huge {
-    font-family: var(--font-display);
+    font-family: var(--font-heading);
     font-size: 48px;
     font-weight: 800;
     line-height: 1.1;
     text-transform: uppercase;
   }
   .text-storefront-display-lg {
-    font-family: var(--font-display);
+    font-family: var(--font-heading);
     font-size: 40px;
     font-weight: 800;
     line-height: 1.1;
     text-transform: uppercase;
   }
   .text-storefront-heading-lg {
-    font-family: var(--font-display);
+    font-family: var(--font-heading);
     font-size: 32px;
     font-weight: 700;
     line-height: 1.2;
   }
   .text-storefront-heading-md {
-    font-family: var(--font-display);
+    font-family: var(--font-heading);
     font-size: 24px;
     font-weight: 700;
     line-height: 1.2;
   }
   .text-storefront-heading-sm {
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-size: 20px;
     font-weight: 700;
     line-height: 1.4;
   }
   .text-storefront-body-lg {
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-size: 16px;
     font-weight: 400;
     line-height: 1.5;
   }
   .text-storefront-body-md {
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 400;
     line-height: 1.5;
   }
   .text-storefront-body-strong {
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 600;
     line-height: 1.5;
   }
   .text-storefront-caption {
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-size: 12px;
     font-weight: 400;
     line-height: 1.4;
@@ -102,7 +100,7 @@
   .btn-storefront-primary {
     background-color: var(--color-primary);
     color: var(--color-on-primary);
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-weight: 600;
     border-radius: var(--radius-pill);
     padding: 16px 32px;
@@ -118,7 +116,7 @@
   .btn-storefront-secondary {
     background-color: var(--color-surface-secondary);
     color: var(--color-ink);
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-weight: 600;
     border-radius: var(--radius-pill);
     padding: 16px 32px;
@@ -135,7 +133,7 @@
     background-color: transparent;
     color: var(--color-ink);
     border: 1px solid var(--color-hairline-light);
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-weight: 600;
     border-radius: var(--radius-pill);
     padding: 16px 32px;
@@ -152,7 +150,7 @@
   .tag-storefront-discount {
     background-color: var(--color-discount-bg);
     color: var(--color-discount-text);
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-size: 12px;
     font-weight: 400;
     border-radius: var(--radius-pill);
@@ -177,7 +175,7 @@
   .input-storefront-text {
     background-color: var(--color-surface-secondary);
     color: var(--color-ink);
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     font-size: 14px;
     border-radius: var(--radius-pill);
     padding: 16px 24px;
