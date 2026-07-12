@@ -6,6 +6,7 @@ import {
   Cormorant_Garamond,
   Outfit,
   Space_Grotesk,
+  Archivo_Black,
 } from "next/font/google"
 
 export const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -15,6 +16,7 @@ export const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-mon
 export const cormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], variable: "--font-cormorant" })
 export const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" })
 export const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk" })
+export const archivoBlack = Archivo_Black({ subsets: ["latin"], weight: "400", variable: "--font-archivo-black" })
 
 export type FontPair = {
   id: string
@@ -59,6 +61,12 @@ export const fontPairs: FontPair[] = [
     name: "Quirky Modern (Space Grotesk / Inter)",
     headingFont: "Space Grotesk",
     bodyFont: "Inter",
+  },
+  {
+    id: "heavy-impact",
+    name: "Heavy Impact (Archivo Black / Inter)",
+    headingFont: "Archivo Black",
+    bodyFont: "Inter",
   }
 ]
 
@@ -71,6 +79,7 @@ export function getFontFamily(fontName: string): string {
     case "Cormorant Garamond": return "var(--font-cormorant)"
     case "Outfit": return "var(--font-outfit)"
     case "Space Grotesk": return "var(--font-space-grotesk)"
+    case "Archivo Black": return "var(--font-archivo-black)"
     default: return "var(--font-inter)"
   }
 }
@@ -82,5 +91,6 @@ export const fontClasses = [
   montserrat.variable,
   cormorant.variable,
   outfit.variable,
-  spaceGrotesk.variable
+  spaceGrotesk.variable,
+  archivoBlack.variable
 ].join(" ")
