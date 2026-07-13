@@ -338,12 +338,13 @@ export async function getFilteredPublishedProducts(
   ]
 
   if (filters.categoryId) {
-    conditions.push(
-      or(
-        eq(products.categoryId, filters.categoryId),
-        sql`${products.categoryId} IN (SELECT id FROM categories WHERE parent_id = ${filters.categoryId})`
-      )
+    const condition = or(
+      eq(products.categoryId, filters.categoryId!),
+      sql`${products.categoryId} IN (SELECT id FROM categories WHERE parent_id = ${filters.categoryId!})`
     )
+    if (condition) {
+      conditions.push(condition)
+    }
   }
 
   if (filters.search) {
