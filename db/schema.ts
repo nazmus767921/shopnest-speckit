@@ -666,6 +666,8 @@ export const merchantsRelations = relations(merchants, ({ one, many }) => ({
   productVariants: many(productVariants),
   productMetadata: many(productMetadata),
   storefrontSections: many(storefrontSections),
+  mediaFolders: many(mediaFolders),
+  mediaFiles: many(mediaFiles),
 }))
 
 export const storefrontSectionsRelations = relations(storefrontSections, ({ one }) => ({
@@ -964,3 +966,49 @@ export const menuItemsRelations = relations(menuItems, ({ one, many }) => ({
   }),
 }))
 
+export const mediaFolders = pgTable("media_folders", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  merchantId: text("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  slug: text("slug").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("media_folders_merchant_id_idx").on(table.merchantId),
+]).enableRLS()
+
+export const mediaFiles = pgTable("media_files", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  merchantId: text("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  url: text("url").notNull(),
+  key: text("key").notNull().unique(),
+  name: text("name").notNull(),
+  size: integer("size").notNull(),
+  type: text("type").notNull(), // MIME type
+  folder: text("folder").notNull().default("uncategorized"),
+  isStarred: boolean("is_starred").notNull().default(false),
+  uploadedById: text("uploaded_by_id").references(() => user.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("media_files_merchant_id_idx").on(table.merchantId),
+  index("media_files_folder_idx").on(table.folder),
+]).enableRLS()
+
+export const mediaFoldersRelations = relations(mediaFolders, ({ one }) => ({
+  merchant: one(merchants, {
+    fields: [mediaFolders.merchantId],
+    references: [merchants.id],
+  }),
+}))
+
+export const mediaFilesRelations = relations(mediaFiles, ({ one }) => ({
+  merchant: one(merchants, {
+    fields: [mediaFiles.merchantId],
+    references: [merchants.id],
+  }),
+  uploadedBy: one(user, {
+    fields: [mediaFiles.uploadedById],
+    references: [user.id],
+  }),
+}))
