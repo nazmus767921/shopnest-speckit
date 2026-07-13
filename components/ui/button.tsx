@@ -18,13 +18,20 @@ const buttonVariants = cva(
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
-        link: "text-primary underline-offset-4 hover:underline",
+        primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+        danger: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        warning: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        "outline-light": "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        "outline-dark": "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        shade: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        mint: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
       },
       size: {
         default:
           "h-10 gap-1.5 px-4 has-data-[icon=inline-end]:pr-3.5 has-data-[icon=inline-start]:pl-3.5",
         xs: "h-6 gap-1 px-2.5 text-xs has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3",
         sm: "h-8 gap-1 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",
+        md: "h-9 px-4 py-2 gap-1.5",
         lg: "h-12 gap-1.5 px-5 has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4",
         icon: "size-10",
         "icon-xs": "size-6 [&_svg:not([class*='size-'])]:size-3",

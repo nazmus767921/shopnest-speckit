@@ -7,9 +7,53 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
 function AlertDialog({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  description,
+  confirmText,
+  cancelText,
+  variant,
+  isPending,
+  open,
+  onOpenChange,
+  children,
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
-  return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />
+}: React.ComponentProps<typeof AlertDialogPrimitive.Root> & {
+  isOpen?: boolean
+  onClose?: () => void
+  onConfirm?: () => void
+  title?: React.ReactNode
+  description?: React.ReactNode
+  confirmText?: string
+  cancelText?: string
+  variant?: any
+  isPending?: boolean
+}) {
+  if (isOpen !== undefined) {
+    return (
+      <AlertDialogPrimitive.Root open={isOpen} onOpenChange={(o) => { if (!o && onClose) onClose() }} {...props}>
+        <AlertDialogContent>
+          {(title || description) && (
+            <AlertDialogHeader>
+              {title && <AlertDialogTitle>{title}</AlertDialogTitle>}
+              {description && <AlertDialogDescription>{description}</AlertDialogDescription>}
+            </AlertDialogHeader>
+          )}
+          <AlertDialogFooter>
+            {cancelText && <AlertDialogCancel onClick={onClose} disabled={isPending}>{cancelText}</AlertDialogCancel>}
+            {confirmText && (
+              <AlertDialogAction variant={variant === "danger" ? "destructive" : variant} onClick={onConfirm} disabled={isPending}>
+                {confirmText}
+              </AlertDialogAction>
+            )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogPrimitive.Root>
+    )
+  }
+  return <AlertDialogPrimitive.Root data-slot="alert-dialog" open={open} onOpenChange={onOpenChange} {...props}>{children}</AlertDialogPrimitive.Root>
 }
 
 function AlertDialogTrigger({

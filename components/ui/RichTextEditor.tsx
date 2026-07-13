@@ -75,20 +75,20 @@ export function RichTextEditor({
       e.stopPropagation()
     }
     if (linkUrl.trim() === "") {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run()
+      editor?.chain().focus().extendMarkRange("link").unsetLink().run()
     } else {
       let url = linkUrl.trim()
       if (!/^https?:\/\//i.test(url) && !/^\//.test(url)) {
         url = `https://${url}`
       }
-      editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run()
+      editor?.chain().focus().extendMarkRange("link").setLink({ href: url }).run()
     }
     setIsLinking(false)
     setLinkUrl("")
   }
 
   const handleOpenLinkInput = () => {
-    const previousUrl = editor.getAttributes("link").href || ""
+    const previousUrl = editor?.getAttributes("link").href || ""
     setLinkUrl(previousUrl)
     setIsLinking(true)
   }
@@ -129,7 +129,7 @@ export function RichTextEditor({
     }
   })
 
-  if (!editor) {
+  if (!editor || !activeStates) {
     return null
   }
 

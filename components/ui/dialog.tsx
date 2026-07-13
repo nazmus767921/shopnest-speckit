@@ -8,9 +8,36 @@ import { Button } from "@/components/ui/button"
 import { XIcon } from "@/lib/icons";
 
 function Dialog({
+  isOpen,
+  onClose,
+  title,
+  description,
+  children,
+  open,
+  onOpenChange,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Root>) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+}: React.ComponentProps<typeof DialogPrimitive.Root> & {
+  isOpen?: boolean
+  onClose?: () => void
+  title?: React.ReactNode
+  description?: React.ReactNode
+}) {
+  if (isOpen !== undefined) {
+    return (
+      <DialogPrimitive.Root open={isOpen} onOpenChange={(o) => { if (!o && onClose) onClose() }} {...props}>
+        <DialogContent>
+          {(title || description) && (
+            <DialogHeader>
+              {title && <DialogTitle>{title}</DialogTitle>}
+              {description && <DialogDescription>{description}</DialogDescription>}
+            </DialogHeader>
+          )}
+          {children}
+        </DialogContent>
+      </DialogPrimitive.Root>
+    )
+  }
+  return <DialogPrimitive.Root data-slot="dialog" open={open} onOpenChange={onOpenChange} {...props}>{children}</DialogPrimitive.Root>
 }
 
 function DialogTrigger({
