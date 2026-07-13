@@ -71,7 +71,7 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
   }
   let footerSection = sections.find((s: any) => s.sectionKey === "footer")
   if (!footerSection) {
-    footerSection = defaultStorefrontSections.find(s => s.sectionKey === "footer")
+    footerSection = defaultStorefrontSections.find(s => s.sectionKey === "footer") as any
   }
 
   const themeVars = getThemeVariables(store.themeSettings)
@@ -84,7 +84,7 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
   return (
     <div style={themeVars} className={`storefront-template-${template} ${archivoBlack.variable} ${fontClasses} min-h-screen flex flex-col font-sans overflow-x-hidden`}>
       {/* Dynamic Template Header */}
-      <templateModule.Navbar store={store} subdomain={subdomain} menu={mainMenu} categories={categories} />
+      <templateModule.Navbar store={store} subdomain={subdomain} menu={mainMenu} categories={categories as any} />
 
       {/* Main Content Area */}
       <main className={`grow px-4 md:px-8 ${template === "fashion" ? "pt-[81px] pb-16 md:pt-[89px] md:pb-24" : "py-8 md:py-12"}`}>

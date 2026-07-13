@@ -17,7 +17,7 @@ interface Props {
     variantLabel?: string
   }
   quantity?: number
-  size?: "sm" | "md" | "lg"
+  size?: "default" | "sm" | "lg"
   className?: string
 }
 

@@ -43,7 +43,7 @@ async function PreviewPageContent() {
 
   return (
     <PreviewClient 
-      initialSections={sections} 
+      initialSections={sections as any} 
       initialThemeSettings={merchant.themeSettings} 
     />
   )

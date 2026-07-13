@@ -259,12 +259,12 @@ export default async function MarketingPage() {
                   </div>
                   <div className="pt-8">
                     {isGrowth ? (
-                      <Button variant="ghost" className="w-full bg-on-primary text-primary hover:bg-on-primary/90 active:bg-shade-30 font-semibold focus-visible:ring-on-primary focus-visible:ring-offset-canvas-night" as={Link} href={`/register?plan=${p.slug}`}>
-                        Start Free Trial
+                      <Button variant="ghost" className="w-full bg-on-primary text-primary hover:bg-on-primary/90 active:bg-shade-30 font-semibold focus-visible:ring-on-primary focus-visible:ring-offset-canvas-night" asChild>
+                        <Link href={`/register?plan=${p.slug}`}>Start Free Trial</Link>
                       </Button>
                     ) : (
-                      <Button variant="outline-dark" className="w-full" as={Link} href={`/register?plan=${p.slug}`}>
-                        Start Free Trial
+                      <Button variant="outline-dark" className="w-full" asChild>
+                        <Link href={`/register?plan=${p.slug}`}>Start Free Trial</Link>
                       </Button>
                     )}
                   </div>

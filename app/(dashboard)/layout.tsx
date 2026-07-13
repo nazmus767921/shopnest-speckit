@@ -49,7 +49,7 @@ async function DashboardSidebarWrapper() {
 
   return (
     <AppSidebar
-      merchant={merchant}
+      merchant={merchant || null}
       user={session.user}
       storefrontUrl={storefrontUrl}
       storefrontDisplay={storefrontDisplay}

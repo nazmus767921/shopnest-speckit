@@ -133,7 +133,7 @@ async function ProductDetailPageContent({ params }: Props) {
 
   const sections = merchantId ? await getCachedStorefrontSections(merchantId) : []
   const faqSection = sections.find((s: any) => s.sectionKey === "faq")
-  const faqs = faqSection?.content?.items || []
+  const faqs = (faqSection?.content as any)?.questions || []
 
   const templateModule = getTemplate(template)
 

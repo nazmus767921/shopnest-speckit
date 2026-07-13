@@ -70,7 +70,7 @@ async function TemplatesPageContent() {
     }
   })
 
-  const sections = await getCachedStorefrontSections(merchant.id, false)
+  const sections = await getCachedStorefrontSections(merchant.id)
   const headersObj = await headers()
   const host = headersObj.get("host") || "localhost:3000"
   const protocol = host.includes("localhost") ? "http:" : "https:"

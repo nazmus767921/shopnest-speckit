@@ -571,8 +571,8 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
           const category = row.original.category
           return category ? (
             <Badge
-              variant="secondary"
-              className="bg-primary/10 hover:bg-primary/15 border-primary/20 text-primary font-semibold flex items-center gap-1.5 py-1 px-3 h-7 rounded-full w-fit whitespace-nowrap"
+              variant="unstyled"
+              className="bg-primary/10! hover:bg-primary/15! border-primary/20! text-primary! font-semibold! flex items-center gap-1.5 py-1! px-3! h-7! rounded-full w-fit whitespace-nowrap"
             >
               <FolderOpenIcon className="h-3.5 w-3.5" />
               <span>{getCategoryFullName(category.id, category.name)}</span>

@@ -2,8 +2,8 @@ import React from "react"
 import { FaqContent } from "@/lib/storefront-sections/types"
 
 export function FaqSection({ content }: { content: FaqContent }) {
-  const parsedFaqs = content.items || content.questions || []
-  const heading = content.heading || content.title || "Frequently Asked Questions"
+  const parsedFaqs = content.questions || []
+  const heading = content.heading || "Frequently Asked Questions"
 
   if (parsedFaqs.length === 0) return null
 

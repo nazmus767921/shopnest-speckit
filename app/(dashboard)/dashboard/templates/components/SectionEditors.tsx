@@ -250,15 +250,15 @@ export function ProductGridEditor({ content, onChange }: { content: ProductGridC
 }
 
 export function FaqEditor({ content, onChange }: { content: FaqContent, onChange: (c: FaqContent) => void }) {
-  const items = content.items || []
+  const questions = content.questions || []
 
   return (
     <div className="flex flex-col gap-4 text-foreground">
       <div className="flex flex-col gap-1.5">
         <FormLabel>Title</FormLabel>
         <Input
-          value={content.title || ""}
-          onChange={(e) => onChange({ ...content, title: e.target.value })}
+          value={content.heading || ""}
+          onChange={(e) => onChange({ ...content, heading: e.target.value })}
           placeholder="Frequently Asked Questions"
           className="rounded-lg bg-background border-border"
         />
@@ -272,26 +272,26 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
             variant="outline"
             size="sm"
             onClick={() => {
-              if (items.length < 8) {
-                onChange({ ...content, items: [...items, { question: "", answer: "" }] })
+              if (questions.length < 8) {
+                onChange({ ...content, questions: [...questions, { question: "", answer: "" }] })
               }
             }}
-            disabled={items.length >= 8}
+            disabled={questions.length >= 8}
             className="h-8 rounded-full"
           >
             <PlusIcon className="w-4 h-4 mr-1" /> Add FAQ
           </Button>
         </div>
 
-        {items.map((item, idx) => (
+        {questions.map((item, idx) => (
           <div key={idx} className="flex gap-3 items-start border border-border p-4 rounded-xl bg-card">
             <div className="flex flex-col gap-3 flex-1">
               <Input
                 value={item.question}
                 onChange={(e) => {
-                  const newItems = [...items]
-                  newItems[idx].question = e.target.value
-                  onChange({ ...content, items: newItems })
+                  const newQuestions = [...questions]
+                  newQuestions[idx].question = e.target.value
+                  onChange({ ...content, questions: newQuestions })
                 }}
                 placeholder="Question"
                 className="rounded-lg bg-background border-border"
@@ -299,9 +299,9 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
               <Textarea
                 value={item.answer}
                 onChange={(e) => {
-                  const newItems = [...items]
-                  newItems[idx].answer = e.target.value
-                  onChange({ ...content, items: newItems })
+                  const newQuestions = [...questions]
+                  newQuestions[idx].answer = e.target.value
+                  onChange({ ...content, questions: newQuestions })
                 }}
                 placeholder="Answer"
                 rows={2}
@@ -311,9 +311,9 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
             <button
               type="button"
               onClick={() => {
-                const newItems = [...items]
-                newItems.splice(idx, 1)
-                onChange({ ...content, items: newItems })
+                const newQuestions = [...questions]
+                newQuestions.splice(idx, 1)
+                onChange({ ...content, questions: newQuestions })
               }}
               className="text-muted-foreground/60 hover:text-destructive p-2 cursor-pointer transition-colors"
             >
@@ -321,7 +321,7 @@ export function FaqEditor({ content, onChange }: { content: FaqContent, onChange
             </button>
           </div>
         ))}
-        {items.length === 0 && (
+        {questions.length === 0 && (
           <p className="text-sm text-muted-foreground italic">No FAQs added yet.</p>
         )}
       </div>

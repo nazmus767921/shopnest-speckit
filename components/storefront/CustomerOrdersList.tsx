@@ -99,8 +99,8 @@ export function CustomerOrdersList({ subdomain, merchantId, isAnonymousUser, cus
               We couldn't find any orders placed under this account.
             </p>
           </div>
-          <Button as={Link} href="/" variant="primary" className="font-semibold">
-            Browse Products
+          <Button asChild variant="primary" className="font-semibold">
+            <Link href="/">Browse Products</Link>
           </Button>
         </Card>
       ) : (
@@ -148,14 +148,15 @@ export function CustomerOrdersList({ subdomain, merchantId, isAnonymousUser, cus
                     </span>
                   </div>
                   <Button
-                    as={Link}
-                    href={`/orders/${order.id}`}
+                    asChild
                     variant="ghost"
                     size="sm"
                     className="text-caption font-semibold flex items-center gap-1.5 hover:text-primary p-0 h-auto"
                   >
-                    <span>Details</span>
-                    <ArrowRightIcon className="h-4 w-4" />
+                    <Link href={`/orders/${order.id}`}>
+                      <span>Details</span>
+                      <ArrowRightIcon className="h-4 w-4" />
+                    </Link>
                   </Button>
                 </div>
               </Card>

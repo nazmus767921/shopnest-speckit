@@ -27,7 +27,7 @@ async function main() {
 
   let migratedCount = 0
 
-  for (const merchant of merchants.rows) {
+  for (const merchant of merchants) {
     const merchantId = merchant.id as string
     const merchantName = merchant.name as string
     

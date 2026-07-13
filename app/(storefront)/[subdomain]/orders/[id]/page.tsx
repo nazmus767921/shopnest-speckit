@@ -87,12 +87,14 @@ async function OrderDetailPageContent({ params }: Props) {
             </p>
           </div>
           <div className="flex flex-col gap-3 w-full">
-            <Button as={Link} href={`/orders`} variant="primary" className="w-full font-semibold flex items-center justify-center gap-2">
-              <ArrowLeftIcon className="h-4 w-4" />
-              <span>Go to Orders Tracking</span>
+            <Button asChild variant="primary" className="w-full font-semibold flex items-center justify-center gap-2">
+              <Link href={`/orders`}>
+                <ArrowLeftIcon className="h-4 w-4" />
+                <span>Go to Orders Tracking</span>
+              </Link>
             </Button>
-            <Button as={Link} href="/" variant="outline-light" className="w-full font-medium">
-              Back to Storefront
+            <Button asChild variant="outline-light" className="w-full font-medium">
+              <Link href="/">Back to Storefront</Link>
             </Button>
           </div>
         </Card>
