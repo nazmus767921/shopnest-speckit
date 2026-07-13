@@ -24,13 +24,23 @@ export { ChevronsUpDown as ChevronsUpDownIcon } from "lucide-react"
 export { Check as CheckIcon } from "lucide-react"
 export { X as XIcon } from "lucide-react"
 export { Plus as PlusIcon } from "lucide-react"
-export { Minus as MinusIcon } from "lucide-react"
-export { Copy as CopyIcon } from "lucide-react"
+export { MousePointer2 as MousePointer2Icon } from "lucide-react"
+export { Map as MapIcon } from "lucide-react"
+
+// ─── Media Library ───────────────────────────────────────────────────────────
+export { Folder as FolderIcon } from "lucide-react"
+export { LayoutGrid as LayoutGridIcon } from "lucide-react"
+export { Move as MoveIcon } from "lucide-react"
+export { FolderOutput as FolderOutputIcon } from "lucide-react"
+
+
 export { RefreshCw as RefreshCwIcon } from "lucide-react"
 export { RotateCcw as RotateCcwIcon } from "lucide-react"
 export { RotateCw as RotateCwIcon } from "lucide-react"
 export { Undo as UndoIcon } from "lucide-react"
 export { Redo as RedoIcon } from "lucide-react"
+export { Minus as MinusIcon } from "lucide-react"
+export { Copy as CopyIcon } from "lucide-react"
 export { Save as SaveIcon } from "lucide-react"
 export { UploadCloud as UploadCloudIcon } from "lucide-react"
 export { Clipboard as ClipboardIcon } from "lucide-react"
@@ -162,7 +172,6 @@ export { Flame as FlameIcon } from "lucide-react"
 export { Star as StarIcon } from "lucide-react"
 export { Circle as CircleIcon } from "lucide-react"
 export { Square as SquareIcon } from "lucide-react"
-
 // ─── Misc ────────────────────────────────────────────────────────────────────
 export { Archive as ArchiveIcon } from "lucide-react"
 export { Ban as BanIcon } from "lucide-react"
