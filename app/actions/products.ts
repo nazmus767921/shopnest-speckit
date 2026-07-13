@@ -8,7 +8,7 @@ import { productFormSchema } from "@/lib/validations/products"
 import { revalidatePath, revalidateTag } from "next/cache"
 import { assertPlanLimit } from "@/lib/plans/assertPlan"
 import { db } from "@/db"
-import { productPromotions } from "@/db/schema"
+import { productPromotions, products } from "@/db/schema"
 import { eq, and, inArray } from "drizzle-orm"
 
 async function getAuthenticatedMerchant() {

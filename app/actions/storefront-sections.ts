@@ -54,7 +54,7 @@ export async function seedDefaultSectionsAction() {
     }
 
     // Check if merchant already has sections
-    const existingSections = await getCachedStorefrontSections(merchant.id, false)
+    const existingSections = await getCachedStorefrontSections(merchant.id)
     if (existingSections.length > 0) {
       return { success: true, seeded: false }
     }

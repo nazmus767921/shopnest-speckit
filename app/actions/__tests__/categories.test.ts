@@ -40,7 +40,7 @@ describe("Category Actions - Hierarchy Limits", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(auth.api.getSession).mockResolvedValue({
-      user: { id: "user_1" },
+      user: { id: "user_1" } as any,
       session: { id: "sess_1", expiresAt: new Date(), ipAddress: null, userAgent: null, userId: "user_1", token: "xyz", createdAt: new Date(), updatedAt: new Date(), impersonatedBy: null },
     })
     vi.mocked(getMerchantByOwnerId).mockResolvedValue({

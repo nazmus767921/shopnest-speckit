@@ -6,7 +6,6 @@ import * as schema from "@/db/schema"
 
 describe("Media Management Database Schema", () => {
   it("should have media_folders table with merchantId isolation", () => {
-    // @ts-expect-error TDD - table not yet created
     const cols = getTableColumns(schema.mediaFolders)
     expect(cols).toHaveProperty("id")
     expect(cols).toHaveProperty("merchantId")
@@ -15,7 +14,6 @@ describe("Media Management Database Schema", () => {
   })
 
   it("should have media_files table with merchantId isolation", () => {
-    // @ts-expect-error TDD - table not yet created
     const cols = getTableColumns(schema.mediaFiles)
     expect(cols).toHaveProperty("id")
     expect(cols).toHaveProperty("merchantId")
