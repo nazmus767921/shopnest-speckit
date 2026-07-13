@@ -26,6 +26,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -116,6 +117,7 @@ function SortableParentItem({
           <div
             {...attributes}
             {...listeners}
+            style={{ touchAction: "none" }}
             className="cursor-grab active:cursor-grabbing p-1.5 hover:bg-muted rounded text-muted-foreground/40 hover:text-foreground transition-colors shrink-0"
             title="Drag to reorder"
           >
@@ -272,6 +274,7 @@ function SortableChildItem({
         <div
           {...attributes}
           {...listeners}
+          style={{ touchAction: "none" }}
           className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded text-muted-foreground/30 hover:text-foreground transition-colors shrink-0"
           title="Drag to reorder"
         >
@@ -377,6 +380,12 @@ export function NavigationClient({
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {

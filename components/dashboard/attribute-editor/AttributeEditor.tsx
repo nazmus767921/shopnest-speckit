@@ -9,7 +9,7 @@ import { RemoveOptionDialog } from "@/components/dashboard/attribute-editor/Remo
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase/client";
+import { supabase, getMediaUrl } from "@/lib/supabase/client";
 
 interface AttributeEditorProps {
   attributes: AttributeInput[];
@@ -570,9 +570,7 @@ export function AttributeEditor({
       const coverImage = productImages[0];
       if (!coverImage) return;
 
-      const publicUrl = supabase.storage
-        .from("product-images")
-        .getPublicUrl(coverImage.storagePath).data.publicUrl;
+      const publicUrl = getMediaUrl(coverImage.storagePath);
 
       const colors = await extractColorsFromImage(publicUrl);
       if (colors.length > 0) {

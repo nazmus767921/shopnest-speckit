@@ -12,6 +12,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -58,6 +59,12 @@ export function MetadataEditor({
   // Configure Dnd sensors
   const sensors = useSensors(
     useSensor(PointerSensor),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -342,6 +349,7 @@ function SortableRow({
           {...attributes}
           {...listeners}
           disabled={disabled}
+          style={{ touchAction: "none" }}
           className="cursor-grab active:cursor-grabbing p-1.5 text-muted-foreground hover:text-foreground transition-colors hover:bg-muted rounded-md border-none bg-transparent"
           aria-label="Drag to reorder"
         >

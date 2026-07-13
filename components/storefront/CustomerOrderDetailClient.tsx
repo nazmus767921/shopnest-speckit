@@ -6,7 +6,7 @@ import { StatusBadge } from "./StatusBadge"
 import { PromoteAccountCard } from "./PromoteAccountCard"
 import { Card, Button } from "@/components/ui"
 import { formatTaka } from "@/lib/utils"
-import { supabase } from "@/lib/supabase/client"
+import { supabase, getMediaUrl } from "@/lib/supabase/client"
 import { ArrowLeftIcon, CheckIcon, MapPinIcon, PhoneIcon, UserIcon, CalendarIcon, ReceiptIcon, AlertTriangleIcon, ImageIcon, ShoppingBagIcon } from "@/lib/icons";
 
 
@@ -42,7 +42,7 @@ export function CustomerOrderDetailClient({ order, isAnonymousUser, subdomain }:
   const getProductImageUrl = (item: any) => {
     const images = item.product?.images || []
     if (images.length > 0 && images[0].storagePath) {
-      return supabase.storage.from("product-images").getPublicUrl(images[0].storagePath).data.publicUrl
+      return getMediaUrl(images[0].storagePath)
     }
     return null
   }

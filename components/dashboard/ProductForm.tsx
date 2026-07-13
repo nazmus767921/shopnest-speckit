@@ -4,10 +4,11 @@ import React, { useState, useTransition, useRef } from "react"
 import { createPortal } from "react-dom"
 import { useRouter } from "next/navigation"
 import { useForm } from "@tanstack/react-form"
-import { supabase } from "@/lib/supabase/client"
+import { supabase, getMediaUrl } from "@/lib/supabase/client"
 import { productFormSchema } from "@/lib/validations/products"
 import { createProductAction, updateProductAction } from "@/app/actions/products"
 import { getCategoriesAction } from "@/app/actions/categories"
+import UploadGallery, { MediaImage } from "@/components/shared/UploadGallery"
 import { useQuery } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -48,12 +49,7 @@ function getErrorMessage(error: any): string | null {
   return String(error)
 }
 
-interface ImageItem {
-  id: string
-  storagePath?: string
-  previewUrl: string
-  file?: File
-}
+// ImageItem is replaced by MediaImage from UploadGallery
 
 interface ProductFormProps {
   merchantId: string
@@ -90,16 +86,15 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
     setMounted(true)
   }, [])
 
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const [errorAlert, setErrorAlert] = useState<{ title: string; message: string } | null>(null)
-
-  const [images, setImages] = useState<ImageItem[]>(() => {
+  const [images, setImages] = useState<MediaImage[]>(() => {
     if (!initialData?.images) return []
     return initialData.images.map((img) => ({
-      id: crypto.randomUUID(),
-      storagePath: img.storagePath,
-      previewUrl: supabase.storage.from("product-images").getPublicUrl(img.storagePath).data.publicUrl,
+      id: img.storagePath,
+      key: img.storagePath,
+      url: getMediaUrl(img.storagePath),
+      name: img.storagePath.split("/").pop() || "image",
+      size: 0,
+      type: "image/unknown",
     }))
   })
 
@@ -110,19 +105,13 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
   )
   const imageDirty = React.useMemo(() => {
     if (!isEditMode) {
-      // New product: dirty if any images added
       return images.length > 0
     }
-    // Edit mode: compare current images to initial
-    const currentPaths = images
-      .filter((img) => img.storagePath)
-      .map((img) => img.storagePath!)
-      .sort()
-    const hasNewFiles = images.some((img) => img.file)
+    const currentPaths = images.map((img) => img.key).sort()
     const pathsChanged =
       currentPaths.length !== initialImagePaths.length ||
       currentPaths.some((path, i) => path !== initialImagePaths[i])
-    return hasNewFiles || pathsChanged
+    return pathsChanged
   }, [images, isEditMode, initialImagePaths])
 
   const { data: categories = [], isLoading: categoriesLoading } = useQuery({
@@ -163,17 +152,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
     }
   }, [categories, initialData])
 
-  const moveImage = (index: number, direction: "left" | "right") => {
-    const newIndex = direction === "left" ? index - 1 : index + 1
-    if (newIndex < 0 || newIndex >= images.length) return
-    setImages((prev) => {
-      const list = [...prev]
-      const temp = list[index]
-      list[index] = list[newIndex]
-      list[newIndex] = temp
-      return list
-    })
-  }
+  // Reordering is handled inside UploadGallery via dnd-kit
 
   const form = useForm({
     defaultValues: {
@@ -197,29 +176,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
 
       startTransition(async () => {
         try {
-          const finalImagePaths: string[] = []
-
-          for (const img of images) {
-            if (img.file) {
-              const fileExt = img.file.name.split(".").pop()
-              const fileUuid = crypto.randomUUID()
-              const filePath = `product-images/${merchantId}/${productId}/${fileUuid}.${fileExt}`
-
-              const { error: uploadError } = await supabase.storage
-                .from("product-images")
-                .upload(filePath, img.file, {
-                  cacheControl: "3600",
-                  upsert: false,
-                })
-
-              if (uploadError) {
-                throw new Error(`Upload failed: ${uploadError.message}`)
-              }
-              finalImagePaths.push(filePath)
-            } else if (img.storagePath) {
-              finalImagePaths.push(img.storagePath)
-            }
-          }
+          const finalImagePaths = images.map((img) => img.key)
 
           const payload = {
             ...value,
@@ -250,99 +207,7 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
     },
   })
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return
-    const selectedFiles = Array.from(e.target.files).filter(file => file.type.startsWith("image/"))
-
-    const sizeLimitBytes = imageSizeLimitMb * 1024 * 1024
-    const oversizedFiles = selectedFiles.filter(file => file.size > sizeLimitBytes)
-    if (oversizedFiles.length > 0) {
-      setErrorAlert({
-        title: "File Size Limit Exceeded",
-        message: `Some images exceed the ${imageSizeLimitMb}MB limit and were not added.`
-      })
-    }
-
-    const validFiles = selectedFiles.filter(file => file.size <= sizeLimitBytes)
-    const availableSlots = maxImages - images.length
-    if (validFiles.length > availableSlots) {
-      setErrorAlert({
-        title: "Upload Limit Exceeded",
-        message: `You can only upload up to ${maxImages} images. Only the first ${availableSlots} were added.`
-      })
-    }
-
-    const filesToAdd = validFiles.slice(0, availableSlots)
-    if (filesToAdd.length === 0) return
-
-    const newItems = filesToAdd.map((file) => ({
-      id: crypto.randomUUID(),
-      previewUrl: URL.createObjectURL(file),
-      file,
-    }))
-
-    setImages((prev) => [...prev, ...newItems])
-    if (e.target) e.target.value = ""
-  }
-
-  const removeImage = (id: string) => {
-    setImages((prev) => prev.filter((img) => img.id !== id))
-  }
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    if (images.length < maxImages) {
-      setIsDragging(true)
-    }
-  }
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
-  }
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
-
-    if (images.length >= maxImages) return
-
-    if (e.dataTransfer.files) {
-      const droppedFiles = Array.from(e.dataTransfer.files).filter(file =>
-        file.type.startsWith("image/")
-      )
-
-      const sizeLimitBytes = imageSizeLimitMb * 1024 * 1024
-      const oversizedFiles = droppedFiles.filter(file => file.size > sizeLimitBytes)
-      if (oversizedFiles.length > 0) {
-        setErrorAlert({
-          title: "File Size Limit Exceeded",
-          message: `Some images exceed the ${imageSizeLimitMb}MB limit and were not added.`
-        })
-      }
-
-      const validFiles = droppedFiles.filter(file => file.size <= sizeLimitBytes)
-      const availableSlots = maxImages - images.length
-      const filesToAdd = validFiles.slice(0, availableSlots)
-
-      if (validFiles.length > availableSlots) {
-        setErrorAlert({
-          title: "Upload Limit Exceeded",
-          message: `You can only upload up to ${maxImages} images. Only the first ${availableSlots} were added.`
-        })
-      }
-
-      if (filesToAdd.length === 0) return
-
-      const newItems = filesToAdd.map((file) => ({
-        id: crypto.randomUUID(),
-        previewUrl: URL.createObjectURL(file),
-        file,
-      }))
-
-      setImages((prev) => [...prev, ...newItems])
-    }
-  }
+  // Local file changes and dragging state are now fully managed by UploadGallery
 
   const saveButton = (
     <form.Subscribe
@@ -736,14 +601,9 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
             </CardContent>
           </Card>
 
-          {/* Product Media Card */}
-          <div
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            className="relative flex flex-col grow"
-          >
-            <Card className="grow flex flex-col">
+          {/* Product Media Card using the new UploadGallery */}
+          <div className="relative flex flex-col grow">
+            <Card className="grow flex flex-col animate-in fade-in duration-200">
               <CardHeader className="border-b border-border pb-3 flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-base font-semibold uppercase tracking-wider">Product Images</CardTitle>
                 <span className="text-xs font-medium text-muted-foreground normal-case">
@@ -751,133 +611,18 @@ export function ProductForm({ merchantId, productId: initialProductId, initialDa
                 </span>
               </CardHeader>
               <CardContent className="pt-6 flex flex-col gap-5 grow">
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5">
-                  {Array.from({ length: maxImages }).map((_, index) => {
-                    const img = images[index]
-                    if (img) {
-                      return (
-                        <div
-                          key={img.id}
-                          className="relative group border border-border rounded-xl overflow-hidden bg-muted/20 aspect-square transition-all duration-300 hover:border-muted-foreground/30"
-                        >
-                          <img
-                            src={img.previewUrl}
-                            alt={`Upload preview ${index + 1}`}
-                            className="object-cover w-full h-full"
-                          />
-                          {index === 0 && (
-                            <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider select-none">
-                              Cover
-                            </span>
-                          )}
-
-                          <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-2">
-                            <div className="flex justify-end">
-                              <button
-                                type="button"
-                                onClick={() => removeImage(img.id)}
-                                className="p-1 bg-red-650 hover:bg-red-600 text-white rounded-full transition-colors duration-150 cursor-pointer border-none"
-                                title="Delete Image"
-                              >
-                                <XIcon className="h-3 w-3" />
-                              </button>
-                            </div>
-
-                            <div className="flex justify-between w-full gap-1">
-                              {index > 0 ? (
-                                <button
-                                  type="button"
-                                  onClick={() => moveImage(index, "left")}
-                                  className="p-1.5 bg-black/60 hover:bg-black/90 text-white rounded-full transition-colors duration-150 cursor-pointer border-none"
-                                  title="Move Left"
-                                >
-                                  <ChevronLeftIcon className="h-3.5 w-3.5 stroke-[2.5]" />
-                                </button>
-                              ) : (
-                                <div className="w-6.5" />
-                              )}
-
-                              {index < images.length - 1 ? (
-                                <button
-                                  type="button"
-                                  onClick={() => moveImage(index, "right")}
-                                  className="p-1.5 bg-black/60 hover:bg-black/90 text-white rounded-full transition-colors duration-150 cursor-pointer border-none"
-                                  title="Move Right"
-                                >
-                                  <ChevronRightIcon className="h-3.5 w-3.5 stroke-[2.5]" />
-                                </button>
-                              ) : (
-                                <div className="w-6.5" />
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    }
-
-                    return (
-                      <button
-                        key={`empty-${index}`}
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="border-2 border-dashed border-border rounded-xl bg-muted/10 hover:bg-muted/30 hover:border-muted-foreground/30 transition-all flex flex-col items-center justify-center aspect-square gap-1.5 text-muted-foreground hover:text-foreground cursor-pointer group"
-                      >
-                        <PlusIcon className="h-5 w-5 stroke-2 transition-transform duration-200 group-hover:scale-110" />
-                        <span className="text-[10px] font-semibold tracking-wide uppercase select-none">
-                          {index === 0 ? "Add Cover" : `Add Image`}
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept="image/png, image/jpeg, image/webp"
-                  className="hidden"
-                  onChange={handleFileChange}
+                <UploadGallery
+                  maxFiles={maxImages}
+                  maxFileSize={imageSizeLimitMb}
+                  onImagesChange={(newImages) => setImages(newImages)}
+                  initialImages={initialData?.images?.map((img) => img.storagePath) || []}
+                  defaultFolder="products"
                 />
-
-                <div className="text-xs text-muted-foreground font-light mt-1 flex items-center gap-1.5">
-                  <UploadCloudIcon className="h-4.5 w-4.5 stroke-[1.5]" />
-                  <span>Drag and drop anywhere on this card, or click any slot to upload (PNG, JPG, WebP up to {imageSizeLimitMb}MB each).</span>
-                </div>
               </CardContent>
             </Card>
-
-            {isDragging && (
-              <div className="absolute inset-0 bg-emerald-950/10 backdrop-blur-[2px] border-2 border-dashed border-emerald-700/60 rounded-xl z-20 flex flex-col items-center justify-center pointer-events-none animate-fade-in">
-                <div className="p-4 bg-card text-emerald-800 rounded-full border border-emerald-250 shadow-sm flex items-center justify-center">
-                  <UploadCloudIcon className="h-8 w-8 animate-bounce" />
-                </div>
-                <span className="text-base font-semibold text-emerald-950 mt-3">
-                  Drop images to upload
-                </span>
-                <span className="text-xs text-emerald-900/80 mt-1">
-                  Upload up to {maxImages - images.length} remaining images
-                </span>
-              </div>
-            )}
           </div>
         </div>
       </form>
-      <AlertDialog open={!!errorAlert} onOpenChange={(open) => !open && setErrorAlert(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{errorAlert?.title || "Warning"}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {errorAlert?.message || "An unexpected warning occurred."}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setErrorAlert(null)}>
-              Acknowledge
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }

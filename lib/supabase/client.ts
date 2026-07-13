@@ -8,3 +8,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+export function getMediaUrl(storagePath: string | undefined | null): string {
+  if (!storagePath) return ""
+  if (storagePath.startsWith("http://") || storagePath.startsWith("https://")) {
+    return storagePath
+  }
+  // Backwards compatibility: strip old product-images/ prefix
+  const cleanPath = storagePath.replace(/^product-images\//, "")
+  return supabase.storage.from("media").getPublicUrl(cleanPath).data.publicUrl
+}
+

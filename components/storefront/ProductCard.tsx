@@ -4,7 +4,7 @@ import React, { useState } from "react"
 import { Card } from "@/components/ui"
 import { ImageIcon } from "@/lib/icons";
 
-import { supabase } from "@/lib/supabase/client"
+import { supabase, getMediaUrl } from "@/lib/supabase/client"
 import { useCart } from "@/hooks/use-cart"
 import { PriceDisplay } from "@/components/storefront/shared/PriceDisplay"
 import {
@@ -56,7 +56,7 @@ export function ProductCard({
 
   const thumbnailImage = product.images[0]?.storagePath
   const publicUrl = thumbnailImage
-    ? supabase.storage.from("product-images").getPublicUrl(thumbnailImage).data.publicUrl
+    ? getMediaUrl(thumbnailImage)
     : null
 
   // Deterministic rating between 3.5 and 5.0 based on product.id

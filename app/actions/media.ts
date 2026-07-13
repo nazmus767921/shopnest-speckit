@@ -4,9 +4,12 @@ import { auth } from "@/lib/auth/auth"
 import { headers } from "next/headers"
 import { getMerchantByOwnerId } from "@/db/queries/merchants"
 import { getSubscriptionByMerchantId } from "@/db/queries/subscriptions"
-import { insertMediaFile, deleteMediaFiles, insertMediaFolder, deleteMediaFolder, renameMediaFile, moveMediaFiles, toggleStarMediaFiles } from "@/db/queries/media"
+import { insertMediaFile, deleteMediaFiles, insertMediaFolder, deleteMediaFolder, renameMediaFile, moveMediaFiles, toggleStarMediaFiles, getMediaFiles, getMediaFolders } from "@/db/queries/media"
 import { revalidatePath, revalidateTag } from "next/cache"
 import { supabaseAdmin } from "@/lib/supabase/admin"
+import { db } from "@/db"
+import { mediaFolders } from "@/db/schema"
+import { and, eq } from "drizzle-orm"
 
 async function requireMerchantContext() {
   const session = await auth.api.getSession({
@@ -33,8 +36,28 @@ export async function createMediaFileAction(payload: { url: string, key: string,
     if (payload.size > limitBytes) {
       return { success: false, error: `Image size exceeds the ${limitMb}MB limit on your current plan.` }
     }
+
+    const folderSlug = payload.folder || "uncategorized"
+    if (folderSlug !== "uncategorized") {
+      const existing = await db.select()
+        .from(mediaFolders)
+        .where(and(eq(mediaFolders.merchantId, merchant.id), eq(mediaFolders.slug, folderSlug)))
+        .limit(1)
+
+      if (existing.length === 0) {
+        const folderName = folderSlug.charAt(0).toUpperCase() + folderSlug.slice(1)
+        await db.insert(mediaFolders).values({
+          merchantId: merchant.id,
+          name: folderName,
+          slug: folderSlug
+        })
+      }
+    }
     
-    const file = await insertMediaFile(merchant.id, session.user.id, payload)
+    const file = await insertMediaFile(merchant.id, session.user.id, {
+      ...payload,
+      folder: folderSlug
+    })
     revalidatePath("/media")
     revalidateTag("media", "max")
     return { success: true, file }
@@ -122,6 +145,26 @@ export async function toggleStarMediaAction(fileIds: string[], isStarred: boolea
     revalidatePath("/media")
     revalidateTag("media", "max")
     return { success: true, count }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getMediaFilesAction() {
+  try {
+    const { merchant } = await requireMerchantContext()
+    const files = await getMediaFiles(merchant.id)
+    return { success: true, files }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export async function getMediaFoldersAction() {
+  try {
+    const { merchant } = await requireMerchantContext()
+    const folders = await getMediaFolders(merchant.id)
+    return { success: true, folders }
   } catch (error: any) {
     return { success: false, error: error.message }
   }

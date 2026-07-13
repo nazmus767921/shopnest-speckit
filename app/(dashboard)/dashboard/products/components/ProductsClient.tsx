@@ -54,7 +54,7 @@ import {
 import { PlusIcon, ShoppingBagIcon, SearchIcon, Edit2Icon, Trash2Icon, Loader2Icon, EyeIcon, EyeOffIcon, ImageIcon, ExternalLinkIcon, GridIcon, ListIcon, MoreVerticalIcon, FilterIcon, XIcon, TagIcon, FolderOpenIcon } from "@/lib/icons";
 
 import Link from "next/link"
-import { supabase } from "@/lib/supabase/client"
+import { supabase, getMediaUrl } from "@/lib/supabase/client"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -451,7 +451,7 @@ export function ProductsClient({ merchantId, storefrontBaseUrl, initialProducts,
 
   const getProductImageUrl = (storagePath: string | undefined) => {
     if (!storagePath) return null
-    return supabase.storage.from("product-images").getPublicUrl(storagePath).data.publicUrl
+    return getMediaUrl(storagePath)
   }
 
   const getStorefrontProductUrl = (slug: string) => {

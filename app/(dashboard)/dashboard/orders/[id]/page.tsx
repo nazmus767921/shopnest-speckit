@@ -11,7 +11,7 @@ import { ChevronLeftIcon, CalendarIcon, PhoneIcon, MapPinIcon, CreditCardIcon, U
 
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { supabase } from "@/lib/supabase/client"
+import { supabase, getMediaUrl } from "@/lib/supabase/client"
 import { db } from "@/db"
 import { user } from "@/db/schema"
 import { eq } from "drizzle-orm"
@@ -350,7 +350,7 @@ async function OrderDetailPageContent({ params }: Props) {
               {order.items.map((item) => {
                 const thumbnail = item.product?.images?.[0]?.storagePath
                 const imageUrl = thumbnail
-                  ? supabase.storage.from("product-images").getPublicUrl(thumbnail).data.publicUrl
+                  ? getMediaUrl(thumbnail)
                   : null
 
                 return (

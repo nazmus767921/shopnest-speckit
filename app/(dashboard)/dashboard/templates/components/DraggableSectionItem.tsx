@@ -65,6 +65,7 @@ export function DraggableSectionItem({
             <div 
               {...attributes} 
               {...listeners}
+              style={{ touchAction: "none" }}
               className="p-1.5 text-muted-foreground/60 hover:text-foreground hover:bg-muted rounded-md cursor-grab active:cursor-grabbing"
               title="Drag to reorder"
             >

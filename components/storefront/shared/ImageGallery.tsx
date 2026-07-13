@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { ImageIcon, XIcon, ChevronLeftIcon, ChevronRightIcon } from "@/lib/icons";
 
-import { supabase } from "@/lib/supabase/client"
+import { supabase, getMediaUrl } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 
 interface ImageGalleryProps {
@@ -59,7 +59,7 @@ export function ImageGallery({
 
   const activeImage = images[selectedIndex]?.storagePath
   const activeUrl = activeImage
-    ? supabase.storage.from("product-images").getPublicUrl(activeImage).data.publicUrl
+    ? getMediaUrl(activeImage)
     : null
 
   const isLeft = thumbnailLayout === "left"
@@ -124,9 +124,7 @@ export function ImageGallery({
             : "flex-row w-full"
         )}>
           {images.map((img, idx) => {
-            const thumbUrl = supabase.storage
-              .from("product-images")
-              .getPublicUrl(img.storagePath).data.publicUrl
+            const thumbUrl = getMediaUrl(img.storagePath)
 
             return (
               <button
