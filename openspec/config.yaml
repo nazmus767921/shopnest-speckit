@@ -18,7 +18,7 @@ context: |
 rules:
   proposal:
     - Ensure proposals define clear boundary contracts for any new libraries.
-    - Use grill-me skill
+    - Must use grill-me skill before making proposal
   design:
     - Must specify how the Next.js 16.2.9 caching strategy ("use cache", connection(), `<Suspense>`) is handled.
     - Must document the DB schema modifications and the multi-tenant query filter implementation.
