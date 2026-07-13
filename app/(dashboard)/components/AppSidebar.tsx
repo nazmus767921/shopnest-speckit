@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboardIcon, LayoutTemplateIcon, ShoppingBagIcon, TagIcon, SettingsIcon, CreditCardIcon, PercentIcon, FolderTreeIcon, FileTextIcon, MenuIcon, GlobeIcon, ExternalLinkIcon, ChevronsUpDownIcon, ChevronRightIcon, ShieldIcon, Share2Icon, ClockIcon } from "@/lib/icons";
+import { LayoutDashboardIcon, LayoutTemplateIcon, ShoppingBagIcon, TagIcon, SettingsIcon, CreditCardIcon, PercentIcon, FolderTreeIcon, FileTextIcon, MenuIcon, GlobeIcon, ExternalLinkIcon, ChevronsUpDownIcon, ChevronRightIcon, ShieldIcon, Share2Icon, ClockIcon, ImageIcon } from "@/lib/icons";
 import { ShareStorefrontDialog } from "@/components/dashboard/ShareStorefrontDialog";
 
 import {
@@ -250,6 +250,11 @@ export function AppSidebar({
                     label: "Pages",
                     href: "/dashboard/pages",
                     icon: FileTextIcon,
+                  },
+                  {
+                    label: "Media",
+                    href: "/dashboard/media",
+                    icon: ImageIcon,
                   },
                   {
                     label: "Navigation",
