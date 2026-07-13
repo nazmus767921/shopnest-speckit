@@ -6,12 +6,12 @@ import { MediaCard } from "./MediaCard"
 import { MediaDetailsPane } from "./MediaDetailsPane"
 import { MediaActionOverlay } from "./MediaActionOverlay"
 import { MediaDataTable } from "./MediaDataTable"
-import { 
-  deleteFolderAction, 
-  createFolderAction, 
-  deleteMediaFilesAction, 
-  renameMediaFileAction, 
-  moveMediaFilesAction, 
+import {
+  deleteFolderAction,
+  createFolderAction,
+  deleteMediaFilesAction,
+  renameMediaFileAction,
+  moveMediaFilesAction,
   createMediaFileAction,
   toggleStarMediaAction
 } from "@/app/actions/media"
@@ -21,19 +21,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription, 
-  DialogFooter 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
 } from "@/components/ui/dialog"
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetHeader, 
-  SheetTitle 
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle
 } from "@/components/ui/sheet"
 import {
   Select,
@@ -42,13 +42,13 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
-import { 
-  LayoutGridIcon, 
-  ListIcon, 
-  UploadCloudIcon, 
-  SearchIcon, 
-  XIcon, 
-  CheckCircle2Icon, 
+import {
+  LayoutGridIcon,
+  ListIcon,
+  UploadCloudIcon,
+  SearchIcon,
+  XIcon,
+  CheckCircle2Icon,
   AlertCircleIcon,
   Loader2Icon,
   MenuIcon,
@@ -118,7 +118,7 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
   const [lastSelectedId, setLastSelectedId] = React.useState<string | null>(null)
   const [searchQuery, setSearchQuery] = React.useState("")
   const [activeTab, setActiveTab] = React.useState("library")
-  
+
   // Sort and Filter States
   const [sortBy, setSortBy] = React.useState<"name" | "size" | "date">("date")
   const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("desc")
@@ -402,7 +402,7 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
 
     for (const staged of pending) {
       setStagedFiles(prev => prev.map(f => f.id === staged.id ? { ...f, status: "uploading", progress: 10 } : f))
-      
+
       const interval = setInterval(() => {
         setStagedFiles(prev => prev.map(f => {
           if (f.id === staged.id && f.status === "uploading" && f.progress < 85) {
@@ -460,7 +460,7 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
       }
     }
   }
-  
+
   const onDragLeave = (e: React.DragEvent) => {
     e.preventDefault()
     dragCounter.current -= 1
@@ -468,11 +468,11 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
       setIsDragOverPage(false)
     }
   }
-  
+
   const onDragOver = (e: React.DragEvent) => {
     e.preventDefault()
   }
-  
+
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault()
     dragCounter.current = 0
@@ -503,25 +503,25 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
     const uploading = stagedFiles.filter(f => f.status === "uploading").length
     const totalBytes = stagedFiles.reduce((acc, f) => acc + f.size, 0)
     const progress = total > 0 ? Math.round((stagedFiles.reduce((acc, f) => acc + f.progress, 0) / (total * 100)) * 100) : 0
-    
+
     return { total, success, errors, uploading, totalBytes, progress }
   }, [stagedFiles])
 
   return (
-    <div 
+    <div
       className="flex h-full bg-background overflow-hidden relative select-none w-full"
       onDragEnter={onDragEnter}
       onDragLeave={onDragLeave}
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
-      <input 
-        type="file" 
-        ref={fileInputRef} 
-        onChange={(e) => { if (e.target.files) stageFilesForUpload(Array.from(e.target.files)) }} 
-        className="hidden" 
-        accept="image/*" 
-        multiple 
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={(e) => { if (e.target.files) stageFilesForUpload(Array.from(e.target.files)) }}
+        className="hidden"
+        accept="image/*"
+        multiple
       />
 
       {/* Global Drag Overlay */}
@@ -537,7 +537,7 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
 
       {/* Desktop Sidebar (Left Pane) */}
       {!isMobile && (
-        <MediaSidebar 
+        <MediaSidebar
           files={files}
           folders={folders}
           currentFolder={currentFolder}
@@ -556,7 +556,7 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
       {isMobile && (
         <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
           <SheetContent side="left" className="p-0 w-[260px] max-w-[80vw] h-full border-r bg-muted/30">
-            <MediaSidebar 
+            <MediaSidebar
               files={files}
               folders={folders}
               currentFolder={currentFolder}
@@ -573,10 +573,10 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
           </SheetContent>
         </Sheet>
       )}
-      
+
       <div className="flex-1 flex flex-col min-w-0 bg-background relative border-r border-foreground/5 h-full overflow-hidden w-full">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col h-full overflow-hidden w-full">
-          
+
           {/* Top Page Header (Styled like Products Page Header) */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-4 px-6 border-b border-border shrink-0 bg-background">
             <div>
@@ -587,13 +587,13 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
                 Manage your store media files, images, vector assets, and staging queues
               </p>
             </div>
-            
+
             {/* Buttons Row (Centered Side-by-Side on Mobile) */}
             <div className="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto">
               {isMobile && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => setIsSidebarOpen(true)}
                   className="h-9 px-3 rounded-xl border-border bg-background hover:bg-muted text-xs font-semibold flex items-center gap-2"
                 >
@@ -629,8 +629,8 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
               )}
 
               {/* Primary Action Button (Fills Remaining Space on Mobile) */}
-              <Button 
-                onClick={() => fileInputRef.current?.click()} 
+              <Button
+                onClick={() => fileInputRef.current?.click()}
                 className={cn(
                   "h-9 text-xs font-bold px-4 rounded-xl bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 flex items-center justify-center gap-2",
                   isMobile ? "flex-1" : "w-auto"
@@ -646,15 +646,15 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
           <div className="px-4 py-2.5 md:px-6 md:py-0 md:h-12 border-b border-foreground/10 flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 shrink-0 bg-background/95 backdrop-blur z-10 w-full">
             <div className="flex items-center gap-4">
               <TabsList className="bg-transparent border-none rounded-none h-10 md:h-12 p-0 flex gap-5 md:gap-6 shrink-0 shadow-none">
-                <TabsTrigger 
-                  value="library" 
+                <TabsTrigger
+                  value="library"
                   className="bg-transparent border-b-2 border-transparent rounded-none h-10 md:h-12 px-0.5 text-xs md:text-sm font-semibold text-muted-foreground hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none shadow-none transition-all duration-200 flex items-center"
                 >
                   <HardDriveIcon className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
                   Library
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="upload" 
+                <TabsTrigger
+                  value="upload"
                   className="bg-transparent border-b-2 border-transparent rounded-none h-10 md:h-12 px-0.5 text-xs md:text-sm font-semibold text-muted-foreground hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none shadow-none transition-all duration-200 relative flex items-center"
                 >
                   <UploadCloudIcon className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
@@ -666,7 +666,7 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
                   )}
                 </TabsTrigger>
               </TabsList>
-              
+
               {activeTab === "library" && !isMobile && (
                 <div className="flex items-center gap-1.5 ml-2">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted/60 px-2 py-0.5 rounded">
@@ -696,10 +696,10 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
                 </div>
 
                 {/* Collapsible Filter Bar Toggle */}
-                <Button 
-                  variant={showFilters ? "secondary" : "ghost"} 
-                  size="icon" 
-                  className="h-8 w-8 md:h-7 md:w-7 rounded-md shrink-0 border border-foreground/5 bg-muted/10 md:bg-transparent" 
+                <Button
+                  variant={showFilters ? "secondary" : "ghost"}
+                  size="icon"
+                  className="h-8 w-8 md:h-7 md:w-7 rounded-md shrink-0 border border-foreground/5 bg-muted/10 md:bg-transparent"
                   onClick={() => setShowFilters(!showFilters)}
                   title="Filters & Sorting"
                 >
@@ -760,8 +760,8 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
           {/* Library Tab Content */}
           <TabsContent value="library" className="flex-1 overflow-hidden m-0 p-0 focus-visible:outline-none h-full w-full">
             <ScrollArea className="h-full w-full">
-              <div 
-                className="p-4 min-h-[300px] w-full" 
+              <div
+                className="p-4 min-h-[300px] w-full"
                 onClick={() => setSelectedIds(new Set())}
               >
                 {visibleFiles.length === 0 ? (
@@ -773,14 +773,14 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
                     </p>
                   </div>
                 ) : viewMode === "grid" || isMobile ? (
-                  <div 
+                  <div
                     className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 w-full"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {visibleFiles.map(file => (
-                      <MediaCard 
-                        key={file.id} 
-                        file={file} 
+                      <MediaCard
+                        key={file.id}
+                        file={file}
                         isSelected={selectedIds.has(file.id)}
                         onToggleSelect={handleToggleSelect}
                         onDragStart={handleDragStartItem}
@@ -825,7 +825,7 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
                 <ScrollArea className="flex-1 min-h-0">
                   {stagedFiles.length === 0 ? (
                     <div className="p-3 h-[calc(100vh-16rem)] flex items-center justify-center w-full">
-                      <div 
+                      <div
                         onClick={() => fileInputRef.current?.click()}
                         className="w-full h-full max-h-[400px] border border-dashed border-foreground/15 hover:border-foreground/35 rounded-xl flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-background/50 p-6"
                       >
@@ -837,16 +837,16 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 p-3">
                       {stagedFiles.map((staged) => (
-                        <div 
-                          key={staged.id} 
+                        <div
+                          key={staged.id}
                           className="group border border-foreground/10 rounded-lg overflow-hidden bg-background relative aspect-square flex flex-col select-none shadow-sm hover:border-foreground/20 hover:shadow transition-all"
                         >
                           {/* Close/Remove action (Persistent on mobile, hover on desktop) */}
                           {staged.status !== "uploading" && (
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              onClick={() => removeStagedFile(staged.id)} 
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeStagedFile(staged.id)}
                               className="absolute top-1.5 right-1.5 z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive text-muted-foreground p-1 rounded bg-background border border-foreground/5 transition-opacity h-6 w-6 flex items-center justify-center shadow-sm"
                             >
                               <XIcon className="h-3.5 w-3.5" />
@@ -903,7 +903,7 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
                 {/* Controls Card (Compact layout on mobile, sticky bottom pinned) */}
                 <div className="border border-foreground/10 rounded-xl p-3 md:p-4 bg-background/95 md:bg-muted/5 backdrop-blur flex flex-col gap-2 md:gap-3 shrink-0 sticky bottom-0 md:relative z-20 shadow-lg md:shadow-none">
                   <h4 className="text-xs font-bold text-foreground hidden md:block">Upload Operations</h4>
-                  
+
                   {/* Compact Horizontal Meta Summary for Mobile */}
                   <div className="flex md:hidden items-center justify-between text-xs text-muted-foreground bg-background/50 p-2.5 rounded-lg border border-foreground/5">
                     <span className="font-semibold text-foreground">Staged: {queueStats.total}</span>
@@ -945,8 +945,8 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
 
                   {/* Staged Buttons Row (Side-by-Side on Mobile) */}
                   <div className="pt-1 flex gap-2 md:flex-col md:gap-1.5">
-                    <Button 
-                      onClick={handleBulkUpload} 
+                    <Button
+                      onClick={handleBulkUpload}
                       disabled={isBulkUploading || stagedFiles.filter(f => f.status === "staged" || f.status === "error").length === 0}
                       className="flex-1 text-xs h-8.5 font-bold"
                     >
@@ -959,9 +959,9 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
                         "Upload All"
                       )}
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setStagedFiles([])} 
+                    <Button
+                      variant="outline"
+                      onClick={() => setStagedFiles([])}
                       disabled={isBulkUploading || stagedFiles.length === 0}
                       className="flex-1 text-xs h-8.5 text-muted-foreground hover:text-foreground border-border/80"
                     >
@@ -1035,19 +1035,19 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
 
           <div className="flex items-center gap-1.5">
             {/* Open Actions Bottom Sheet */}
-            <Button 
-              variant="default" 
-              size="sm" 
+            <Button
+              variant="default"
+              size="sm"
               onClick={() => setIsDetailsSheetOpen(true)}
               className="h-7 text-[11px] px-3.5 rounded-full font-bold bg-primary text-primary-foreground hover:bg-primary/90"
             >
               Actions
             </Button>
-            
+
             {/* Cancel/Clear selection */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setSelectedIds(new Set())}
               className="h-8 w-8 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground"
               title="Cancel"
@@ -1072,14 +1072,14 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
                   <XIcon className="h-4 w-4" />
                 </Button>
               </div>
-              
+
               <ScrollArea className="flex-1 overflow-y-auto min-h-0">
                 <div className="p-4">
                   {/* Actions Grid Row on the very TOP of the sheet content */}
                   <div className="grid grid-cols-4 gap-2 mb-6 border-b border-foreground/5 pb-4">
                     {/* Star Action */}
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={() => handleToggleStar(Array.from(selectedIds), !selectedFiles.every(f => f.isStarred))}
                       className="flex flex-col items-center justify-center gap-1.5 h-16 rounded-xl border-border hover:bg-muted text-xs font-semibold"
                     >
@@ -1088,8 +1088,8 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
                     </Button>
 
                     {/* Rename Action (Single select only) */}
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       disabled={selectedFiles.length !== 1}
                       onClick={() => {
                         setIsDetailsSheetOpen(false);
@@ -1102,8 +1102,8 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
                     </Button>
 
                     {/* Move Action */}
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={() => {
                         setIsDetailsSheetOpen(false);
                         handleMove(Array.from(selectedIds));
@@ -1115,8 +1115,8 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
                     </Button>
 
                     {/* Delete Action */}
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={() => {
                         setIsDetailsSheetOpen(false);
                         handleDeleteFiles(Array.from(selectedIds));
@@ -1170,7 +1170,7 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
                         </div>
                         <h4 className="text-sm font-bold text-foreground">{selectedFiles.length} Items Selected</h4>
                         <p className="text-xs text-muted-foreground mb-4">Aggregate selection summary</p>
-                        
+
                         <div className="w-full space-y-2 border-t border-foreground/5 pt-4 text-left">
                           <div className="flex justify-between items-center text-xs">
                             <span className="text-muted-foreground">Total Size</span>
@@ -1202,7 +1202,7 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
               </DialogDescription>
             </DialogHeader>
             <div className="py-2">
-              <Input 
+              <Input
                 value={renameInput}
                 onChange={(e) => setRenameInput(e.target.value)}
                 className="text-xs h-8 border-foreground/15 focus-visible:ring-primary/20"
@@ -1239,17 +1239,17 @@ export function MediaLibraryClient({ files, folders, limitMb }: MediaLibraryClie
             </DialogHeader>
             <ScrollArea className="flex-1 pr-1 py-2">
               <div className="space-y-1">
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   className="w-full justify-start h-8 text-xs font-medium rounded-md hover:bg-muted/80"
                   onClick={() => executeMove(moveFileIds, "uncategorized")}
                 >
                   Uncategorized
                 </Button>
                 {folders.map(folder => (
-                  <Button 
+                  <Button
                     key={folder.id}
-                    variant="ghost" 
+                    variant="ghost"
                     className="w-full justify-start h-8 text-xs font-medium rounded-md hover:bg-muted/80"
                     onClick={() => executeMove(moveFileIds, folder.slug)}
                   >

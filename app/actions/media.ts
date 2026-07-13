@@ -36,7 +36,7 @@ export async function createMediaFileAction(payload: { url: string, key: string,
     
     const file = await insertMediaFile(merchant.id, session.user.id, payload)
     revalidatePath("/media")
-    revalidateTag("media")
+    revalidateTag("media", "max")
     return { success: true, file }
   } catch (error: any) {
     return { success: false, error: error.message }
@@ -60,7 +60,7 @@ export async function deleteMediaFilesAction(fileIds: string[]) {
     }
     
     revalidatePath("/media")
-    revalidateTag("media")
+    revalidateTag("media", "max")
     return { success: true, count: deletedFiles.length }
   } catch (error: any) {
     return { success: false, error: error.message }
@@ -72,7 +72,7 @@ export async function createFolderAction(name: string, slug: string) {
     const { merchant } = await requireMerchantContext()
     const folder = await insertMediaFolder(merchant.id, { name, slug })
     revalidatePath("/media")
-    revalidateTag("media")
+    revalidateTag("media", "max")
     return { success: true, folder }
   } catch (error: any) {
     return { success: false, error: error.message }
@@ -84,7 +84,7 @@ export async function deleteFolderAction(folderSlug: string) {
     const { merchant } = await requireMerchantContext()
     await deleteMediaFolder(merchant.id, folderSlug)
     revalidatePath("/media")
-    revalidateTag("media")
+    revalidateTag("media", "max")
     return { success: true }
   } catch (error: any) {
     return { success: false, error: error.message }
@@ -96,7 +96,7 @@ export async function renameMediaFileAction(fileId: string, newName: string) {
     const { merchant } = await requireMerchantContext()
     const file = await renameMediaFile(merchant.id, fileId, newName)
     revalidatePath("/media")
-    revalidateTag("media")
+    revalidateTag("media", "max")
     return { success: true, file }
   } catch (error: any) {
     return { success: false, error: error.message }
@@ -108,7 +108,7 @@ export async function moveMediaFilesAction(fileIds: string[], targetFolder: stri
     const { merchant } = await requireMerchantContext()
     const count = await moveMediaFiles(merchant.id, fileIds, targetFolder)
     revalidatePath("/media")
-    revalidateTag("media")
+    revalidateTag("media", "max")
     return { success: true, count }
   } catch (error: any) {
     return { success: false, error: error.message }
@@ -120,7 +120,7 @@ export async function toggleStarMediaAction(fileIds: string[], isStarred: boolea
     const { merchant } = await requireMerchantContext()
     const count = await toggleStarMediaFiles(merchant.id, fileIds, isStarred)
     revalidatePath("/media")
-    revalidateTag("media")
+    revalidateTag("media", "max")
     return { success: true, count }
   } catch (error: any) {
     return { success: false, error: error.message }

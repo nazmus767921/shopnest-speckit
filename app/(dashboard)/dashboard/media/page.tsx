@@ -67,53 +67,93 @@ function MediaPageSkeleton() {
   return (
     <div className="flex h-full bg-background overflow-hidden w-full animate-pulse">
       {/* Sidebar Skeleton */}
-      <div className="w-[220px] border-r border-foreground/5 bg-muted/10 p-4 space-y-6 hidden md:block shrink-0">
-        <div className="space-y-2.5">
-          <div className="h-4 w-16 bg-muted rounded-full" />
-          <div className="space-y-1.5">
-            <div className="h-8 bg-muted rounded-lg w-full" />
-            <div className="h-8 bg-muted rounded-lg w-[85%]" />
-            <div className="h-8 bg-muted rounded-lg w-[90%]" />
+      <div className="w-[220px] border-r border-foreground/5 bg-background p-4 flex flex-col gap-6 hidden md:flex shrink-0 h-full">
+        {/* Library Section */}
+        <div>
+          <div className="h-3 w-16 bg-muted/60 rounded mb-3 mx-3" />
+          <div className="space-y-1">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-9 px-3 rounded-lg flex items-center justify-between bg-muted/5">
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 bg-muted/50 rounded" />
+                  <div className={`h-4 bg-muted/60 rounded ${i === 0 ? 'w-16' : i === 1 ? 'w-12' : 'w-14'}`} />
+                </div>
+                <div className="h-4 w-6 bg-muted/40 rounded-full" />
+              </div>
+            ))}
           </div>
         </div>
-        <div className="space-y-2.5">
-          <div className="h-4 w-20 bg-muted rounded-full" />
-          <div className="space-y-1.5">
-            <div className="h-8 bg-muted rounded-lg w-[75%]" />
-            <div className="h-8 bg-muted rounded-lg w-[80%]" />
+
+        {/* Folders Section */}
+        <div>
+          <div className="flex items-center justify-between mb-3 mx-3">
+            <div className="h-3 w-14 bg-muted/60 rounded" />
+            <div className="h-4 w-4 bg-muted/50 rounded" />
+          </div>
+          <div className="space-y-1">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-9 px-3 rounded-lg flex items-center justify-between bg-muted/5">
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 bg-muted/50 rounded" />
+                  <div className={`h-4 bg-muted/60 rounded ${i === 0 ? 'w-20' : i === 1 ? 'w-16' : 'w-24'}`} />
+                </div>
+                <div className="h-4 w-6 bg-muted/40 rounded-full" />
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Main Content Skeleton */}
-      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
-        {/* Header Skeleton */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 pb-4 border-b border-border shrink-0">
+      <div className="flex-1 flex flex-col min-w-0 bg-background relative border-r border-foreground/5 h-full overflow-hidden w-full">
+        {/* Top Page Header Skeleton */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-4 px-6 border-b border-border shrink-0 bg-background">
           <div>
-            <div className="h-7 w-48 bg-muted rounded-full" />
-            <div className="h-4 w-80 bg-muted rounded-full mt-2" />
+            <div className="h-7 w-36 md:h-8 md:w-44 bg-muted/60 rounded" />
+            <div className="h-3.5 w-64 md:w-96 bg-muted/40 rounded mt-2" />
           </div>
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-16 bg-muted rounded-xl hidden sm:block" />
-            <div className="h-9 w-32 bg-muted rounded-xl" />
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="h-9 w-18 bg-muted/40 rounded-xl hidden md:block" />
+            <div className="h-9 bg-muted/60 rounded-xl flex-1 md:flex-initial md:w-32" />
           </div>
         </div>
 
-        {/* Library Sub-Header Skeleton */}
-        <div className="h-12 px-6 border-b border-foreground/10 flex items-center justify-between shrink-0 bg-background/50">
-          <div className="h-7 w-40 bg-muted rounded-lg" />
-          <div className="h-7 w-44 bg-muted rounded-lg" />
+        {/* Sub-Header Toolbar Skeleton */}
+        <div className="px-4 py-2.5 md:px-6 md:py-0 md:h-12 border-b border-foreground/10 flex flex-col md:flex-row md:items-center md:justify-between gap-2.5 shrink-0 bg-background/95 backdrop-blur z-10 w-full">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-5 md:gap-6 h-10 md:h-12">
+              <div className="flex items-center gap-2 h-full border-b-2 border-primary">
+                <div className="h-3.5 w-3.5 bg-muted/60 rounded" />
+                <div className="h-3.5 w-12 bg-muted/60 rounded" />
+              </div>
+              <div className="flex items-center gap-2 h-full border-b-2 border-transparent">
+                <div className="h-3.5 w-3.5 bg-muted/40 rounded" />
+                <div className="h-3.5 w-20 bg-muted/40 rounded" />
+              </div>
+            </div>
+            <div className="hidden md:flex items-center gap-1.5 ml-2">
+              <div className="h-4 w-16 bg-muted/30 rounded" />
+              <div className="h-4 w-12 bg-muted/30 rounded" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <div className="h-8 md:h-7 bg-muted/20 border border-foreground/10 rounded-md flex-1 md:w-40" />
+            <div className="h-8 w-8 md:h-7 md:w-7 bg-muted/30 border border-foreground/10 rounded-md shrink-0" />
+          </div>
         </div>
 
         {/* Grid Area Skeleton */}
-        <div className="flex-1 p-6 overflow-hidden">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="border border-border rounded-lg p-2 space-y-3">
-                <div className="aspect-square bg-muted rounded-md w-full" />
-                <div className="space-y-1.5">
-                  <div className="h-3 w-[70%] bg-muted rounded" />
-                  <div className="h-3 w-[40%] bg-muted rounded" />
+        <div className="flex-1 p-4 overflow-y-auto min-h-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 w-full">
+            {Array.from({ length: 18 }).map((_, i) => (
+              <div key={i} className="border border-foreground/10 bg-background rounded-lg flex flex-col overflow-hidden shadow-sm">
+                <div className="aspect-square bg-muted/20 w-full border-b border-foreground/10" />
+                <div className="p-3 flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <div className="h-3 bg-muted/50 rounded w-[70%]" />
+                    <div className="h-2.5 bg-muted/30 rounded w-[40%] mt-1" />
+                  </div>
+                  <div className="h-6 w-6 bg-muted/30 rounded shrink-0" />
                 </div>
               </div>
             ))}

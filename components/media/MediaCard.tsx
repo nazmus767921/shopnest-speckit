@@ -18,6 +18,7 @@ interface MediaFile {
   type: string
   folder: string
   isStarred: boolean
+  createdAt: Date
 }
 
 interface MediaCardProps {
