@@ -81,7 +81,7 @@ export function PlansList({ initialPlans }: PlansListProps) {
   return (
     <div className="flex flex-col gap-6 select-text w-full">
       {error && (
-        <Alert variant="danger" className="animate-fade-in">
+        <Alert variant="destructive" className="animate-fade-in">
           {error}
         </Alert>
       )}
@@ -94,12 +94,13 @@ export function PlansList({ initialPlans }: PlansListProps) {
         <Button
           variant="primary"
           size="sm"
-          as={Link}
-          href="/admin/plans/new"
+          asChild
           className="flex items-center gap-2 cursor-pointer shadow-none font-semibold"
         >
-          <PlusIcon className="h-4 w-4" />
-          <span>New Plan</span>
+          <Link href="/admin/plans/new">
+            <PlusIcon className="h-4 w-4" />
+            <span>Create Plan</span>
+          </Link>
         </Button>
       </div>
 
@@ -268,13 +269,14 @@ export function PlansList({ initialPlans }: PlansListProps) {
                 <Button
                   variant="outline-light"
                   size="sm"
-                  as={Link}
-                  href={`/admin/plans/edit/${p.id}`}
+                  asChild
                   disabled={loadingId === p.id}
                   className="flex items-center gap-1.5 min-h-9 px-3.5 text-caption font-semibold cursor-pointer border-hairline hover:bg-canvas-cream"
                 >
-                  <Edit2Icon className="h-3.5 w-3.5" />
-                  <span>Edit</span>
+                  <Link href={`/admin/plans/edit/${p.id}`}>
+                    <Edit2Icon className="h-3.5 w-3.5" />
+                    <span>Edit</span>
+                  </Link>
                 </Button>
                 {isArchived ? (
                   <Button

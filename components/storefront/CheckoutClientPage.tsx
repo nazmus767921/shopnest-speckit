@@ -9,7 +9,7 @@ import { useCart } from "@/hooks/use-cart"
 import { type CartItem } from "@/lib/cart/cart-store"
 import { addressSchema, paymentSchema } from "@/lib/validations/checkout"
 import { CheckoutIdentitySection } from "./CheckoutIdentitySection"
-import { Card, Button, Input, FormLabel, Combobox } from "@/components/ui"
+import { Card, Button, Input, FormLabel, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui"
 import { toast } from "sonner"
 import { formatTaka } from "@/lib/utils"
 import { submitAddress, submitPayment } from "@/app/(storefront)/[subdomain]/checkout/actions"
@@ -468,16 +468,16 @@ export function CheckoutClientPage({
                   {shippingZones.length > 0 ? (
                     <div>
                       <FormLabel htmlFor="delivery-division">Division</FormLabel>
-                      <Combobox
-                        options={configuredDivisions}
-                        value={selectedDivision || null}
-                        onChange={handleDivisionChange}
-                        getOptionLabel={(d) => d}
-                        getOptionValue={(d) => d}
-                        placeholder="Select Division..."
-                        error={errors.deliveryCity}
-                        className="rounded-[var(--radius)]"
-                      />
+                      <Select value={selectedDivision || undefined} onValueChange={handleDivisionChange}>
+                        <SelectTrigger className={errors.deliveryCity ? "border-destructive" : ""}>
+                          <SelectValue placeholder="Select Division..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {configuredDivisions.map(d => (
+                            <SelectItem key={d} value={d}>{d}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   ) : (
                     <div>
@@ -502,17 +502,16 @@ export function CheckoutClientPage({
               {shippingZones.length > 0 && (
                   <div>
                     <FormLabel htmlFor="delivery-district">District / Area</FormLabel>
-                    <Combobox
-                      options={configuredDistricts}
-                      value={selectedDistrict || null}
-                      onChange={handleDistrictChange}
-                      getOptionLabel={(d) => d}
-                      getOptionValue={(d) => d}
-                      placeholder="Select District..."
-                      disabled={!selectedDivision}
-                      error={errors.deliveryCity}
-                      className="rounded-[var(--radius)]"
-                    />
+                    <Select value={selectedDistrict || undefined} onValueChange={handleDistrictChange} disabled={!selectedDivision}>
+                        <SelectTrigger className={errors.deliveryCity ? "border-destructive" : ""}>
+                          <SelectValue placeholder="Select District..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {configuredDistricts.map(d => (
+                            <SelectItem key={d} value={d}>{d}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                   </div>
                 )}
 

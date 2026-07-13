@@ -39,11 +39,11 @@ export function Navbar() {
 
         {/* Desktop Action Buttons */}
         <div className="hidden md:flex items-center gap-4">
-          <Button variant="ghost" size="sm" as={Link} href="/login" className="text-on-primary hover:text-on-primary/85">
-            Log in
+          <Button variant="ghost" size="sm" asChild className="text-on-primary hover:text-on-primary/85">
+            <Link href="/login">Log in</Link>
           </Button>
-          <Button variant="outline-dark" size="sm" as={Link} href="/register">
-            Start Free Trial
+          <Button variant="outline-dark" size="sm" asChild>
+            <Link href="/register">Start Free Trial</Link>
           </Button>
         </div>
 
@@ -87,11 +87,11 @@ export function Navbar() {
               FAQ
             </Link>
             <div className="flex flex-col gap-3 pt-4">
-              <Button variant="ghost" size="sm" className="w-full justify-center" onClick={() => setMobileMenuOpen(false)} as={Link} href="/login">
-                Log in
+              <Button variant="ghost" size="sm" className="w-full justify-center" onClick={() => setMobileMenuOpen(false)} asChild>
+                <Link href="/login">Log in</Link>
               </Button>
-              <Button variant="primary" size="sm" className="w-full justify-center text-on-primary bg-primary border-primary" onClick={() => setMobileMenuOpen(false)} as={Link} href="/register">
-                Start Free Trial
+              <Button variant="primary" size="sm" className="w-full justify-center text-on-primary bg-primary border-primary" onClick={() => setMobileMenuOpen(false)} asChild>
+                <Link href="/register">Start Free Trial</Link>
               </Button>
             </div>
           </div>

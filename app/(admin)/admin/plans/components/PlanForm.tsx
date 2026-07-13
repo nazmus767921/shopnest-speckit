@@ -185,7 +185,7 @@ export function PlanForm({ initialData, isEdit = false, onSubmit }: PlanFormProp
   return (
     <div className="flex flex-col gap-6 w-full select-text">
       {error && (
-        <Alert variant="danger" className="animate-fade-in">
+        <Alert variant="destructive" className="animate-fade-in">
           {error}
         </Alert>
       )}

@@ -6,7 +6,7 @@ import type { DowngradeViolation } from "@/lib/plans/validateDowngrade"
 import type { PlanFeatures } from "@/lib/plans/types"
 import { Loader2Icon, ArrowDownCircleIcon, CheckIcon, ShieldAlertIcon, CheckCircleIcon, XCircleIcon, SearchIcon, XIcon, CoinsIcon, CreditCardIcon, LandmarkIcon, CalendarIcon, AlertTriangleIcon, UserIcon, ArrowUpRightIcon, PlusIcon, LayersIcon } from "@/lib/icons";
 
-import { Combobox, AlertDialog, Dialog, Button, Badge, Alert, Select } from "@/components/ui"
+import { Combobox, AlertDialog, Dialog, Button, Badge, Alert, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui"
 
 interface MerchantDropdownItem {
   id: string
@@ -662,45 +662,38 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-2.5 w-full md:w-auto md:justify-end">
-              <Select<{ value: string; label: string }>
-                options={[
-                  { value: "all", label: "All Statuses" },
-                  { value: "verified", label: "Verified" },
-                  { value: "rejected", label: "Rejected" },
-                ]}
-                value={[{ value: "all", label: "All Statuses" }, { value: "verified", label: "Verified" }, { value: "rejected", label: "Rejected" }].find((o: { value: string; label: string }) => o.value === statusFilter) ?? null}
-                onChange={(opt: { value: string; label: string } | null) => opt && setStatusFilter(opt.value)}
-                getOptionLabel={(o: { value: string; label: string }) => o.label}
-                getOptionValue={(o: { value: string; label: string }) => o.value}
-                className="w-full md:w-36"
-              />
-              <Select<{ value: string; label: string }>
-                options={[
-                  { value: "all", label: "All Methods" },
-                  { value: "bkash", label: "bKash" },
-                  { value: "nagad", label: "Nagad" },
-                  { value: "bank", label: "Bank Transfer" },
-                ]}
-                value={[{ value: "all", label: "All Methods" }, { value: "bkash", label: "bKash" }, { value: "nagad", label: "Nagad" }, { value: "bank", label: "Bank Transfer" }].find((o: { value: string; label: string }) => o.value === methodFilter) ?? null}
-                onChange={(opt: { value: string; label: string } | null) => opt && setMethodFilter(opt.value)}
-                getOptionLabel={(o: { value: string; label: string }) => o.label}
-                getOptionValue={(o: { value: string; label: string }) => o.value}
-                className="w-full md:w-36"
-              />
-              <Select<{ value: string; label: string }>
-                options={[
-                  { value: "all", label: "All Plans" },
-                  ...plans.map((p: any) => ({ value: p.slug, label: p.name })),
-                ]}
-                value={[
-                  { value: "all", label: "All Plans" },
-                  ...plans.map((p: any) => ({ value: p.slug, label: p.name })),
-                ].find((o: { value: string; label: string }) => o.value === planFilter) ?? null}
-                onChange={(opt: { value: string; label: string } | null) => opt && setPlanFilter(opt.value)}
-                getOptionLabel={(o: { value: string; label: string }) => o.label}
-                getOptionValue={(o: { value: string; label: string }) => o.value}
-                className="w-full md:w-36"
-              />
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full md:w-36 bg-canvas-light border-hairline-light">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="verified">Verified</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={methodFilter} onValueChange={setMethodFilter}>
+                <SelectTrigger className="w-full md:w-36 bg-canvas-light border-hairline-light">
+                  <SelectValue placeholder="All Methods" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Methods</SelectItem>
+                  <SelectItem value="bkash">bKash</SelectItem>
+                  <SelectItem value="nagad">Nagad</SelectItem>
+                  <SelectItem value="bank">Bank Transfer</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={planFilter} onValueChange={setPlanFilter}>
+                <SelectTrigger className="w-full md:w-36 bg-canvas-light border-hairline-light">
+                  <SelectValue placeholder="All Plans" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Plans</SelectItem>
+                  {plans.map((p: any) => (
+                    <SelectItem key={p.slug} value={p.slug}>{p.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -876,10 +869,10 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                         <label className="text-eyebrow-cap font-bold text-shade-40 uppercase tracking-wider flex items-center gap-1.5">
                           <UserIcon className="h-4 w-4" /> Boutique Store
                         </label>
-                        <Combobox
-                          options={merchants}
-                          value={merchants.find((m) => m.id === merchantId) || null}
-                          onChange={(val) => {
+                        <Select
+                          value={merchantId || undefined}
+                          onValueChange={(id) => {
+                            const val = merchants.find(m => m.id === id);
                             if (val) {
                               setMerchantId(val.id)
                               const matchingPlan = plans.find(p => p.slug === val.plan)
@@ -894,18 +887,21 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                             setChangePlanTargetId("")
                             setChangePlanViolations([])
                           }}
-                          getOptionLabel={(m) => `${m.name} (${m.subdomain})`}
-                          getOptionValue={(m) => m.id}
-                          searchKeys={["name", "subdomain"]}
-                          placeholder="Select Boutique..."
-                          searchPlaceholder="Type boutique name or subdomain..."
-                          renderOption={(m) => (
-                            <div className="flex flex-col">
-                              <span className="font-semibold leading-tight">{m.name}</span>
-                              <span className="text-micro text-shade-40 font-mono mt-0.5">{m.subdomain}.shopnest.com.bd</span>
-                            </div>
-                          )}
-                        />
+                        >
+                          <SelectTrigger className="h-auto py-2 border-hairline-light">
+                             <SelectValue placeholder="Select Boutique..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {merchants.map(m => (
+                               <SelectItem key={m.id} value={m.id}>
+                                  <div className="flex flex-col text-left">
+                                    <span className="font-semibold leading-tight">{m.name}</span>
+                                    <span className="text-[10px] text-shade-40 font-mono mt-0.5">{m.subdomain}.shopnest.com.bd</span>
+                                  </div>
+                               </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       {selectedMerchant ? (() => {
@@ -993,21 +989,16 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
                         {/* Payment Method */}
                         <div className="flex flex-col gap-1.5">
                           <span className="text-[10px] font-bold text-shade-40 uppercase tracking-wider">Collection Channel</span>
-                          <Select<{ value: string; label: string }>
-                            options={[
-                              { value: "bkash", label: "bKash" },
-                              { value: "nagad", label: "Nagad" },
-                              { value: "bank", label: "Bank Transfer" },
-                            ]}
-                            value={[
-                              { value: "bkash", label: "bKash" },
-                              { value: "nagad", label: "Nagad" },
-                              { value: "bank", label: "Bank Transfer" },
-                            ].find((o: { value: string; label: string }) => o.value === paymentMethod) ?? null}
-                            onChange={(opt: { value: string; label: string } | null) => opt && setPaymentMethod(opt.value)}
-                            getOptionLabel={(o: { value: string; label: string }) => o.label}
-                            getOptionValue={(o: { value: string; label: string }) => o.value}
-                          />
+                          <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                            <SelectTrigger className="bg-canvas-light border-hairline-light h-11 font-semibold">
+                              <SelectValue placeholder="Select Collection Channel..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="bkash">bKash</SelectItem>
+                              <SelectItem value="nagad">Nagad</SelectItem>
+                              <SelectItem value="bank">Bank Transfer</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
 
                         {/* Transaction ID */}
@@ -1081,22 +1072,24 @@ export function SubscriptionsClient({ merchants, initialPayments, plans }: Props
 
                               <div className="flex flex-col gap-1.5 mt-1">
                                 <span className="text-[10px] font-bold text-shade-40 uppercase tracking-wider">New Target Plan</span>
-                                <Select<{ value: string; label: string }>
-                                  options={[
-                                    { value: "", label: "Select plan..." },
-                                    ...availablePlans.map((p: any) => ({ value: p.id, label: `${p.name} (৳${Math.floor(p.pricePaisa / 100)}/mo)` })),
-                                  ]}
-                                  value={[
-                                    { value: "", label: "Select plan..." },
-                                    ...availablePlans.map((p: any) => ({ value: p.id, label: `${p.name} (৳${Math.floor(p.pricePaisa / 100)}/mo)` })),
-                                  ].find((o: { value: string; label: string }) => o.value === changePlanTargetId) ?? null}
-                                  onChange={(opt: { value: string; label: string } | null) => {
-                                    setChangePlanTargetId(opt?.value ?? "")
+                                <Select
+                                  value={changePlanTargetId || undefined}
+                                  onValueChange={(val) => {
+                                    setChangePlanTargetId(val)
                                     setChangePlanViolations([])
                                   }}
-                                  getOptionLabel={(o: { value: string; label: string }) => o.label}
-                                  getOptionValue={(o: { value: string; label: string }) => o.value}
-                                />
+                                >
+                                  <SelectTrigger className="bg-canvas-light border-hairline-light">
+                                    <SelectValue placeholder="Select plan..." />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {availablePlans.map((p: any) => (
+                                      <SelectItem key={p.id} value={p.id}>
+                                        {p.name} (৳{Math.floor(p.pricePaisa / 100)}/mo)
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </div>
 
                               {/* Violations alerts */}
