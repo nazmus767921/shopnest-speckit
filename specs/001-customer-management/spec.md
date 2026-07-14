@@ -13,6 +13,7 @@
 ### Session 2026-07-14
 - Q: Should guest checkouts using only a phone number still function? → A: Yes, guest checkout using only a phone number must remain fully functional without requiring registration.
 - Q: How are guest orders handled if the customer registers an account later? → A: If a customer signs up with an email/phone matching their past guest checkout orders, those orders must be automatically bound/associated with their new user account, allowing them to view their history.
+- Q: How should we verify the phone number during registration to securely bind past guest orders? → A: Send an OTP via SMS to verify the phone number during registration before binding the orders.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -113,7 +114,7 @@ As a storefront customer who previously checked out as a guest using my phone nu
 - **FR-008**: Merchant admins MUST have the capability to add a customer's IP address to a blocklist.
 - **FR-009**: The storefront MUST reject logins and block requests from suspended accounts or blacklisted IPs.
 - **FR-010**: Storefront guest checkouts using only a phone number MUST remain fully functional without requiring account registration.
-- **FR-011**: When a storefront customer registers a new account, the system MUST check for any existing orders matching the customer's email or guest phone number and automatically bind those orders to the new customer's user ID.
+- **FR-011**: When a storefront customer registers a new account, the system MUST check for any existing orders matching the customer's email or guest phone number and automatically bind those orders to the new customer's user ID. For phone numbers, this MUST be gated by OTP SMS verification to prevent unauthorized order history access.
 
 ### Key Entities
 

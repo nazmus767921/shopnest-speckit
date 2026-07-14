@@ -48,12 +48,12 @@
 **Independent Test**: Visitor registers at subdomain register page, session is established, and they can login on the subdomain login page.
 
 ### Tests for User Story 1
-- [ ] T008 [P] [US1] Write Vitest unit tests for storefront registration and login views in app/(storefront)/[subdomain]/__tests__/auth.test.tsx
+- [x] T008 [P] [US1] Write Vitest unit tests for storefront registration and login views in app/(storefront)/[subdomain]/__tests__/auth.test.tsx
 
 ### Implementation for User Story 1
-- [ ] T009 [US1] Configure Better Auth schema settings to support suffix-based email (`email:merchantId`) login lookup in lib/auth/auth.ts
-- [ ] T010 [US1] Implement storefront customer registration page and submission form in app/(storefront)/[subdomain]/register/page.tsx
-- [ ] T011 [US1] Implement storefront customer sign-in page and submission form in app/(storefront)/[subdomain]/login/page.tsx
+- [x] T009 [US1] Configure Better Auth schema settings to support suffix-based email (`email:merchantId`) login lookup in lib/auth/auth.ts
+- [x] T010 [US1] Implement storefront customer registration page and submission form in app/(storefront)/[subdomain]/register/page.tsx
+- [x] T011 [US1] Implement storefront customer sign-in page and submission form in app/(storefront)/[subdomain]/login/page.tsx
 
 **Checkpoint**: Storefront customer authentication is fully functional and testable.
 
@@ -66,12 +66,12 @@
 **Independent Test**: Logged-in customer can view profile dashboard, add/edit addresses, and list past orders.
 
 ### Tests for User Story 2
-- [ ] T012 [P] [US2] Write Vitest tests for customer profile dashboard and address book components in app/(storefront)/[subdomain]/profile/__tests__/profile.test.tsx
+- [x] T012 [P] [US2] Write Vitest tests for customer profile dashboard and address book components in app/(storefront)/[subdomain]/profile/__tests__/profile.test.tsx
 
 ### Implementation for User Story 2
-- [ ] T013 [US2] Implement customer dashboard layout and basic profile information view in app/(storefront)/[subdomain]/profile/page.tsx
-- [ ] T014 [US2] Implement customer shipping address book add/edit/delete form views in app/(storefront)/[subdomain]/profile/addresses.tsx
-- [ ] T015 [US2] Implement storefront customer orders listing page in app/(storefront)/[subdomain]/orders/page.tsx
+- [x] T013 [US2] Implement customer dashboard layout and basic profile information view in app/(storefront)/[subdomain]/profile/page.tsx
+- [x] T014 [US2] Implement customer shipping address book add/edit/delete form views in app/(storefront)/[subdomain]/profile/addresses.tsx
+- [x] T015 [US2] Implement storefront customer orders listing page in app/(storefront)/[subdomain]/orders/page.tsx
 
 **Checkpoint**: Customer portal features are fully operational.
 
@@ -84,10 +84,10 @@
 **Independent Test**: Merchant admin visits dashboard Customers page, searches/filters, and views lists of customers.
 
 ### Tests for User Story 3
-- [ ] T016 [P] [US3] Write Vitest tests for merchant admin customer directory table view in app/(dashboard)/dashboard/customers/__tests__/directory.test.tsx
+- [x] T016 [P] [US3] Write Vitest tests for merchant admin customer directory table view in app/(dashboard)/dashboard/customers/__tests__/directory.test.tsx
 
 ### Implementation for User Story 3
-- [ ] T017 [US3] Implement Customer Directory layout with search bar, pagination, and plan/status filters in app/(dashboard)/dashboard/customers/page.tsx
+- [x] T017 [US3] Implement Customer Directory layout with search bar, pagination, and plan/status filters in app/(dashboard)/dashboard/customers/page.tsx
 
 **Checkpoint**: Admin customer directory is complete.
 
@@ -100,11 +100,11 @@
 **Independent Test**: Admin views customer spend metrics/logs, suspends account, and bans client IP address.
 
 ### Tests for User Story 4
-- [ ] T018 [P] [US4] Write Vitest tests for admin customer details view and ban control actions in app/(dashboard)/dashboard/customers/__tests__/moderation.test.tsx
+- [x] T018 [P] [US4] Write Vitest tests for admin customer details view and ban control actions in app/(dashboard)/dashboard/customers/__tests__/moderation.test.tsx
 
 ### Implementation for User Story 4
-- [ ] T019 [US4] Implement individual Customer Details dashboard displaying life spend, order items, and IP log in app/(dashboard)/dashboard/customers/[id]/page.tsx
-- [ ] T020 [US4] Create customer moderation server actions to toggle account status and blacklist IP addresses in app/actions/customers.ts
+- [x] T019 [US4] Implement individual Customer Details dashboard displaying life spend, order items, and IP log in app/(dashboard)/dashboard/customers/[id]/page.tsx
+- [x] T020 [US4] Create customer moderation server actions to toggle account status and blacklist IP addresses in app/actions/customers.ts
 
 **Checkpoint**: Customer moderation controls are fully functional.
 
@@ -117,12 +117,15 @@
 **Independent Test**: Register customer with phone number that has past guest orders, and verify that the orders show in their order history.
 
 ### Tests for User Story 5
-- [ ] T021 [P] [US5] Write Vitest query tests for retroactive guest order binding in db/queries/__tests__/order-binding.test.ts
+- [x] T021 [P] [US5] Write Vitest query tests for retroactive guest order binding in db/queries/__tests__/order-binding.test.ts
 
 ### Implementation for User Story 5
-- [ ] T022 [US5] Implement order binding function during customer registration flow in app/(storefront)/[subdomain]/register/actions.ts
+- [x] T022 [US5] Implement order binding function during customer registration flow in app/(storefront)/[subdomain]/register/actions.ts
+- [x] T025 [US5] Configure Better Auth `phoneNumber` plugin for SMS OTP generation in lib/auth/auth.ts
+- [x] T026 [US5] Update storefront customer registration page to support phone number entry and OTP verification step in app/(storefront)/[subdomain]/register/page.tsx
+- [x] T027 [US5] Update registration server actions to verify OTP before calling order binding function in app/(storefront)/[subdomain]/register/actions.ts
 
-**Checkpoint**: Retroactive guest order binding is complete.
+**Checkpoint**: Guest order binding is complete.
 
 ---
 
@@ -130,8 +133,9 @@
 
 **Purpose**: General improvements and final verification
 
-- [ ] T023 Implement access blocked message view for banned IP visits in app/blocked/page.tsx
-- [ ] T024 Run quickstart.md validation scenarios to verify end-to-end flows in specs/001-customer-management/quickstart.md
+### Implementation for Polish & Cross-Cutting Concerns
+- [x] T023 Implement access blocked message view for banned IP visits in app/blocked/page.tsx
+- [x] T024 Run quickstart.md validation scenarios to verify end-to-end flows in specs/001-customer-management/quickstart.md
 
 ---
 

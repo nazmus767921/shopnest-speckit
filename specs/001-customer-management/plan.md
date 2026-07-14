@@ -88,7 +88,7 @@ lib/
   - Add partial index for null `merchantId` global admins.
   - Define `customerAddresses` and `bannedIps` tables.
 - **[NEW] [customers.ts](file:///c:/Users/Admin/Desktop/Projects/running/shopnest-speckit/db/queries/customers.ts)**:
-  - Implement queries: `getCustomersByMerchant`, `getCustomerDetails`, `createCustomerAddress`, `bannedIpCheck`, `bindGuestOrdersToUser`.
+  - Implement queries: `getCustomersByMerchant`, `getCustomerDetails`, `createCustomerAddress`, `bannedIpCheck`, `bindGuestOrdersToUser` (with OTP verification).
 
 ### Authentication Layer
 - **[MODIFY] [auth.ts](file:///c:/Users/Admin/Desktop/Projects/running/shopnest-speckit/lib/auth/auth.ts)**: Ensure Better Auth schema maps correctly to the updated `user` structure.

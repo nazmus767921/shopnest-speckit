@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
-import { anonymous, emailOTP, admin, twoFactor } from "better-auth/plugins"
+import { anonymous, emailOTP, admin, twoFactor, phoneNumber } from "better-auth/plugins"
 import { headers } from "next/headers"
 import { checkRateLimit, otpRateLimiter } from "@/lib/redis/rate-limit"
 import { db } from "@/db"
@@ -20,6 +20,18 @@ export const auth = betterAuth({
       twoFactor: schema.twoFactor,
     },
   }),
+  user: {
+    additionalFields: {
+      merchantId: {
+        type: "string",
+        required: false,
+      },
+      role: {
+        type: "string",
+        required: false,
+      },
+    },
+  },
   session: {
     cookieCache: {
       enabled: true,
@@ -38,6 +50,20 @@ export const auth = betterAuth({
   plugins: [
     anonymous({
       emailDomainName: "guest.shopnest.com.bd",
+    }),
+    phoneNumber({
+      sendOTP: async ({ phoneNumber, code }) => {
+        const headersList = await headers()
+        const ip = headersList.get("x-forwarded-for") || "unknown"
+        const rateLimit = await checkRateLimit(otpRateLimiter, ip)
+        if (!rateLimit.success) {
+          throw new Error("Too many OTP requests. Please try again later.")
+        }
+        await sendSms({
+          to: phoneNumber,
+          message: `Your ShopNest verification code is: ${code}. Valid for 10 minutes.`,
+        })
+      }
     }),
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {

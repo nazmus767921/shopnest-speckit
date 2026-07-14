@@ -45,3 +45,16 @@ Implement sign-in, sign-up, and account management directly under the dynamic st
 
 ### Alternatives Considered
 - *Centralized Main-Domain Login*: Redirecting storefront customers to the main admin login page (`localhost:3000/login`) and back. Rejected due to poor customer user experience and lack of branding isolation.
+
+---
+
+## 4. SMS OTP Verification for Phone Binding
+
+### Decision
+We will use the `phoneNumber` plugin in Better Auth to handle phone number verification and OTP sending during registration. We will mock the SMS gateway for now (logging OTPs to the console).
+
+### Rationale
+The `phoneNumber` plugin integrates seamlessly with our existing Better Auth setup and provides built-in OTP generation, verification, and rate-limiting.
+
+### Alternatives Considered
+- *Custom OTP generation using Upstash Redis*: Rejected because leveraging the built-in Better Auth plugin reduces security risks and boilerplate.

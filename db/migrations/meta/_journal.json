@@ -239,6 +239,13 @@
       "when": 1783905036432,
       "tag": "0033_brown_silver_samurai",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1784006111226,
+      "tag": "0034_woozy_menace",
+      "breakpoints": true
     }
   ]
 }

@@ -3,7 +3,8 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { MenuIcon, XIcon, ChevronDownIcon } from "@/lib/icons";
+import { MenuIcon, XIcon, ChevronDownIcon, UserIcon } from "@/lib/icons";
+import { authClient } from "@/lib/auth/auth-client"
 
 import { CartIconButton } from "@/components/storefront/shared/CartIconButton"
 import { type NavbarProps } from "../types"
@@ -12,6 +13,9 @@ import { Sheet, SheetContent } from "@/components/ui/sheet"
 export function FashionNavbar({ store, subdomain, menu, categories }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
+  const { data: session } = authClient.useSession()
+  
+  const isLoggedInCustomer = session?.user && session.user.role === "customer" && !session.user.isAnonymous
 
   const navLinks = [
     { name: "Shop", href: "/products" },
@@ -193,7 +197,10 @@ export function FashionNavbar({ store, subdomain, menu, categories }: NavbarProp
         </nav>
 
         {/* Right: Cart, MenuIcon */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-5">
+          <Link href={isLoggedInCustomer ? "/profile" : "/login"} className="text-zinc-500 hover:text-ink transition-colors hidden md:block">
+            <UserIcon className="h-5 w-5 stroke-[1.5]" />
+          </Link>
           <CartIconButton merchantId={store.id} subdomain={subdomain} />
           
           <button
@@ -248,6 +255,17 @@ export function FashionNavbar({ store, subdomain, menu, categories }: NavbarProp
                 </Link>
               ))
             )}
+            
+            <div className="w-12 h-[1px] bg-zinc-200 my-2" />
+            
+            <Link
+              href={isLoggedInCustomer ? "/profile" : "/login"}
+              onClick={() => setIsOpen(false)}
+              className="text-xs font-sans tracking-[0.2em] uppercase py-2 text-zinc-500 hover:text-primary font-light flex items-center gap-2"
+            >
+              <UserIcon className="h-4 w-4 stroke-[1.5]" />
+              {isLoggedInCustomer ? "Account" : "Sign In"}
+            </Link>
           </div>
         </SheetContent>
       </Sheet>

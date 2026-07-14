@@ -47,3 +47,18 @@ This guide provides end-to-end verification scenarios to validate storefront cus
 ### Steps
 1. Perform any HTTP request or refresh the page on `http://fashion.localhost:3000/` from the banned IP address.
 2. **Verification**: Verify that the page rendering is instantly blocked at the middleware layer, and the browser displays a custom **Access Denied (403)** screen indicating that the IP has been banned.
+
+---
+
+## Verification Scenario 4: Phone Binding via OTP
+
+### Setup
+1. Run the dev server (`bun dev`).
+2. Visit a valid merchant storefront subdomain.
+
+### Steps
+1. Create a guest order using the phone number `01712345678`.
+2. Go to the storefront sign-up page (`/register`).
+3. Sign up and enter the phone number `01712345678`.
+4. Enter the mock OTP sent to the server console.
+5. **Verification**: Once registered, navigate to the Account > Orders page and verify the past guest order is listed.

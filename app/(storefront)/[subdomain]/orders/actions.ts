@@ -7,6 +7,7 @@ import { user as userTable, account as accountTable } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { hashPassword } from "better-auth/crypto"
 import { getCustomerOrders, getCustomerOrderDetails } from "@/db/queries/orders"
+import { bindGuestOrdersToUser } from "@/db/queries/customers"
 
 /**
  * Action to fetch the current customer's order history.
@@ -127,6 +128,16 @@ export async function promoteGuestSession(formData: {
         updatedAt: new Date(),
       })
     })
+
+    // Retroactively bind any other orders with this email under this merchant
+    if (session.user.merchantId) {
+      await bindGuestOrdersToUser(
+        session.user.id,
+        newEmail,
+        null,
+        session.user.merchantId
+      )
+    }
 
     return { success: true }
   } catch (err: unknown) {

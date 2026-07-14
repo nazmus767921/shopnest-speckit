@@ -91,6 +91,37 @@ export async function proxy(request: NextRequest) {
       return NextResponse.rewrite(url)
     }
 
+    // Check for IP bans (T007)
+    const ip = request.headers.get("x-forwarded-for") || "127.0.0.1"
+    const cleanIp = ip.split(",")[0].trim()
+    const { isIpBanned } = await import("@/db/queries/customers")
+    const banned = await isIpBanned(merchant.id, cleanIp)
+    if (banned) {
+      return new NextResponse(
+        `<!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Access Denied | ShopNest</title>
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f9fafb;">
+            <div style="max-width: 440px; width: 100%; margin: 20px; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; text-align: center;">
+              <div style="font-size: 48px; margin-bottom: 20px;">🚫</div>
+              <h1 style="font-size: 24px; font-weight: 600; color: #111827; margin-bottom: 10px;">Access Denied</h1>
+              <p style="font-size: 15px; color: #4b5563; line-height: 1.5; margin-bottom: 24px;">This store has restricted access from your IP address. If you believe this is an error, please contact the store owner.</p>
+              <div style="height: 1px; background: #f3f4f6; margin-bottom: 20px;"></div>
+              <div style="font-size: 12px; color: #9ca3af; font-family: monospace;">Status Code: 403 Forbidden</div>
+            </div>
+          </body>
+        </html>`,
+        {
+          status: 403,
+          headers: { "content-type": "text/html" },
+        }
+      )
+    }
+
     if (merchant.subscriptionStatus === "suspended") {
       url.pathname = "/store-suspended"
       return NextResponse.rewrite(url)

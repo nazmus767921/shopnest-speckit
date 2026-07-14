@@ -3,7 +3,8 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { MenuIcon, XIcon, ShoppingBagIcon, ChevronDownIcon } from "@/lib/icons";
+import { MenuIcon, XIcon, ShoppingBagIcon, ChevronDownIcon, UserIcon } from "@/lib/icons";
+import { authClient } from "@/lib/auth/auth-client"
 
 import { CartIconButton } from "@/components/storefront/shared/CartIconButton"
 import { type NavbarProps } from "../types"
@@ -12,6 +13,9 @@ import { Sheet, SheetContent } from "@/components/ui/sheet"
 export function GeneralNavbar({ store, subdomain, menu, categories }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
+  const { data: session } = authClient.useSession()
+  
+  const isLoggedInCustomer = session?.user && session.user.role === "customer" && !session.user.isAnonymous
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -192,11 +196,17 @@ export function GeneralNavbar({ store, subdomain, menu, categories }: NavbarProp
           <span className="tag-storefront-discount font-semibold">
             Active Storefront
           </span>
+          <Link href={isLoggedInCustomer ? "/profile" : "/login"} className="text-[var(--color-ink)] hover:opacity-70 transition-opacity">
+            <UserIcon className="h-5 w-5 stroke-[1.8]" />
+          </Link>
           <CartIconButton merchantId={store.id} subdomain={subdomain} />
         </nav>
  
         {/* Mobile controls */}
         <div className="flex md:hidden items-center gap-3">
+          <Link href={isLoggedInCustomer ? "/profile" : "/login"} className="text-[var(--color-ink)] hover:opacity-70 transition-opacity">
+            <UserIcon className="h-5 w-5 stroke-[1.8]" />
+          </Link>
           <CartIconButton merchantId={store.id} subdomain={subdomain} />
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -250,8 +260,16 @@ export function GeneralNavbar({ store, subdomain, menu, categories }: NavbarProp
                 ))
               )}
             </div>
-            <div className="border-t border-[var(--color-hairline-light)] pt-4 flex items-center justify-between pl-3">
-              <span className="tag-storefront-discount font-semibold">
+            <div className="border-t border-[var(--color-hairline-light)] pt-4 flex flex-col gap-4 pl-3">
+              <Link
+                href={isLoggedInCustomer ? "/profile" : "/login"}
+                onClick={() => setIsOpen(false)}
+                className="text-storefront-body-md text-[var(--color-shade-50)] hover:text-[var(--color-ink)] flex items-center gap-2"
+              >
+                <UserIcon className="h-5 w-5 stroke-[1.8]" />
+                {isLoggedInCustomer ? "My Account" : "Sign In"}
+              </Link>
+              <span className="tag-storefront-discount font-semibold w-fit">
                 Active Storefront
               </span>
             </div>
