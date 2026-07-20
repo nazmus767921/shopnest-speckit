@@ -1,10 +1,12 @@
 import React from "react"
 import { StorefrontSection } from "@/lib/storefront-sections/types"
+import { SectionKey } from "@/lib/storefront-sections/section-catalog"
 
 export interface ThemeSettings {
   colors?: {
     primary?: string
     secondary?: string
+    accent?: string
     background?: string
     text?: string
   }
@@ -35,8 +37,17 @@ export interface Product {
   stockCount: number
   lowStockThreshold: number
   images: Array<{ storagePath: string }>
-  category: { id: string; name: string } | null
+  category: { id: string; name: string; slug?: string } | null
   promotions: Array<{ promotionType: string }>
+  flashSales?: Array<{
+    id: string
+    salePricePaisa: number
+    limitQuantity: number
+    soldQuantity: number
+    startTime: string
+    endTime: string
+    isActive: boolean
+  }>
   attributes: Array<{
     name: string
     displayType: "swatch" | "dropdown" | "radio"
@@ -63,6 +74,7 @@ export interface Category {
   slug: string
   description: string | null
   parentId?: string | null
+  imageUrl?: string | null
 }
 
 export interface CategoryWithProducts extends Category {
@@ -131,6 +143,12 @@ export interface StandardPageProps {
   }
 }
 
+export interface SectionProps {
+  section: StorefrontSection
+  merchantId?: string
+  subdomain?: string
+}
+
 export interface TemplateModule {
   HomePage: React.ComponentType<HomePageProps>
   PLP: React.ComponentType<PLPProps>
@@ -139,4 +157,5 @@ export interface TemplateModule {
   Navbar: React.ComponentType<NavbarProps>
   Footer: React.ComponentType<FooterProps>
   StandardPage: React.ComponentType<StandardPageProps>
+  sections?: Partial<Record<SectionKey, React.ComponentType<SectionProps>>>
 }

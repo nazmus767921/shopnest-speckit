@@ -1,12 +1,10 @@
 import type { TemplateModule } from "./types"
-import * as general from "./general"
-import * as fashion from "./fashion"
+import * as elegance from "./elegance"
 
 export const templates: Record<string, TemplateModule> = {
-  general,
-  fashion,
+  elegance,
 }
 
 export function getTemplate(slug: string): TemplateModule {
-  return templates[slug] ?? templates.general
+  return templates[slug] ?? templates.elegance
 }
