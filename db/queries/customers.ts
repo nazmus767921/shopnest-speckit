@@ -1,5 +1,5 @@
 import { db } from "@/db"
-import { user, customerAddresses, bannedIps, orders } from "@/db/schema"
+import { user, customerAddresses, bannedIps, orders, customerNotes } from "@/db/schema"
 import { eq, and, sql, desc, count, like, or } from "drizzle-orm"
 
 export async function getCustomersByMerchant(
@@ -275,4 +275,73 @@ export async function bindGuestOrdersToUser(
         or(...conditions)
       )
     )
+}
+
+export async function getCustomerNotes(merchantId: string, customerId: string) {
+  return await db
+    .select({
+      id: customerNotes.id,
+      content: customerNotes.content,
+      createdAt: customerNotes.createdAt,
+      authorName: user.name,
+    })
+    .from(customerNotes)
+    .leftJoin(user, eq(customerNotes.authorId, user.id))
+    .where(
+      and(
+        eq(customerNotes.merchantId, merchantId),
+        eq(customerNotes.customerId, customerId)
+      )
+    )
+    .orderBy(desc(customerNotes.createdAt))
+}
+
+export async function addCustomerNote(
+  merchantId: string,
+  customerId: string,
+  authorId: string,
+  content: string
+) {
+  const [inserted] = await db
+    .insert(customerNotes)
+    .values({
+      merchantId,
+      customerId,
+      authorId,
+      content,
+    })
+    .returning()
+  return inserted
+}
+
+export async function deleteCustomerAccount(merchantId: string, customerId: string) {
+  const [deleted] = await db
+    .delete(user)
+    .where(
+      and(
+        eq(user.id, customerId),
+        eq(user.merchantId, merchantId)
+      )
+    )
+    .returning()
+  return deleted
+}
+
+export async function getCustomerOrdersByAdmin(merchantId: string, customerId: string) {
+  return await db
+    .select()
+    .from(orders)
+    .where(
+      and(
+        eq(orders.merchantId, merchantId),
+        eq(orders.userId, customerId)
+      )
+    )
+    .orderBy(desc(orders.createdAt))
+}
+
+export async function getCustomerDataForExport(merchantId: string, customerId: string) {
+  const customer = await getCustomerDetails(merchantId, customerId)
+  const customerOrders = await getCustomerOrdersByAdmin(merchantId, customerId)
+  return { customer, orders: customerOrders }
 }

@@ -92,3 +92,64 @@ export async function unbanIpAddressAction(ipAddress: string) {
     return { error: err.message || "Failed to unban IP address." }
   }
 }
+
+export async function addCustomerNoteAction(customerId: string, content: string) {
+  const headersList = await headers()
+  const session = await auth.api.getSession({ headers: headersList })
+  if (!session || !session.user || (session.user.role !== "merchant" && session.user.role !== "admin")) {
+    return { error: "Unauthorized" }
+  }
+  const merchant = await getMerchantByOwnerId(session.user.id)
+  if (!merchant) return { error: "Merchant not found" }
+
+  try {
+    const { addCustomerNote } = await import("@/db/queries/customers")
+    await addCustomerNote(merchant.id, customerId, session.user.id, content)
+    return { success: true }
+  } catch (err: any) {
+    return { error: err.message || "Failed to add note." }
+  }
+}
+
+export async function deleteCustomerAction(customerId: string) {
+  const headersList = await headers()
+  const session = await auth.api.getSession({ headers: headersList })
+  if (!session || !session.user || (session.user.role !== "merchant" && session.user.role !== "admin")) {
+    return { error: "Unauthorized" }
+  }
+  const merchant = await getMerchantByOwnerId(session.user.id)
+  if (!merchant) return { error: "Merchant not found" }
+
+  try {
+    const { deleteCustomerAccount } = await import("@/db/queries/customers")
+    await deleteCustomerAccount(merchant.id, customerId)
+    return { success: true }
+  } catch (err: any) {
+    return { error: err.message || "Failed to delete account." }
+  }
+}
+
+
+export async function exportCustomerDataCsvAction(customerId: string) {
+  const headersList = await headers()
+  const session = await auth.api.getSession({ headers: headersList })
+  if (!session || !session.user || (session.user.role !== "merchant" && session.user.role !== "admin")) {
+    return { error: "Unauthorized" }
+  }
+  const merchant = await getMerchantByOwnerId(session.user.id)
+  if (!merchant) return { error: "Merchant not found" }
+
+  try {
+    const { getCustomerDataForExport } = await import("@/db/queries/customers")
+    const data = await getCustomerDataForExport(merchant.id, customerId)
+    
+    let csv = "Order ID,Status,Total Taka,Date\n"
+    data.orders.forEach((o) => {
+      csv += `"${o.id}","${o.status}","${(o.totalPaisa / 100).toFixed(2)}","${o.createdAt.toISOString()}"\n`
+    })
+
+    return { success: true, csv }
+  } catch (err: any) {
+    return { error: err.message || "Failed to export data." }
+  }
+}

@@ -1,4 +1,4 @@
-import React, { Suspense } from "react"
+import React from "react"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { connection } from "next/server"
@@ -14,11 +14,7 @@ interface PageProps {
 }
 
 export default function CustomersPage({ searchParams }: PageProps) {
-  return (
-    <Suspense fallback={<div className="p-6 text-sm text-gray-500 animate-pulse">Loading customers directory...</div>}>
-      <CustomersPageContent searchParams={searchParams} />
-    </Suspense>
-  )
+  return <CustomersPageContent searchParams={searchParams} />
 }
 
 async function CustomersPageContent({ searchParams }: PageProps) {

@@ -1,4 +1,4 @@
-import React, { Suspense } from "react"
+import React from "react"
 import { headers } from "next/headers"
 import { redirect, notFound } from "next/navigation"
 import { connection } from "next/server"
@@ -11,11 +11,7 @@ interface PageProps {
 }
 
 export default function CustomerDetailsPage({ params }: PageProps) {
-  return (
-    <Suspense fallback={<div className="p-6 text-sm text-gray-500 animate-pulse">Loading customer details...</div>}>
-      <CustomerDetailsPageContent params={params} />
-    </Suspense>
-  )
+  return <CustomerDetailsPageContent params={params} />
 }
 
 async function CustomerDetailsPageContent({ params }: PageProps) {
@@ -38,8 +34,13 @@ async function CustomerDetailsPageContent({ params }: PageProps) {
   const { id } = await params
 
   // 4. Query customer details for this merchant
-  const { getCustomerDetails } = await import("@/db/queries/customers")
+  const { getCustomerDetails, getCustomerNotes, getCustomerOrdersByAdmin } = await import("@/db/queries/customers")
   const details = await getCustomerDetails(merchant.id, id)
+
+  const [notes, orders] = await Promise.all([
+    getCustomerNotes(merchant.id, id),
+    getCustomerOrdersByAdmin(merchant.id, id)
+  ])
 
   if (!details) {
     notFound()
@@ -62,6 +63,18 @@ async function CustomerDetailsPageContent({ params }: PageProps) {
       address: addr.address,
       city: addr.city,
       isDefault: addr.isDefault,
+    })),
+    notes: notes.map((n) => ({
+      id: n.id,
+      content: n.content,
+      createdAt: n.createdAt.toISOString(),
+      authorName: n.authorName || "Unknown",
+    })),
+    orders: orders.map((o) => ({
+      id: o.id,
+      status: o.status,
+      totalPaisa: o.totalPaisa,
+      createdAt: o.createdAt.toISOString(),
     })),
   }
 

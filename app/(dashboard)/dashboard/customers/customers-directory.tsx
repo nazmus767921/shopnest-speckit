@@ -1,11 +1,19 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { DataTable } from "@/components/ui/data-table"
+import { type ColumnDef } from "@tanstack/react-table"
 import Link from "next/link"
-import { SearchIcon } from "@/lib/icons"
+import { 
+  SearchIcon, 
+  ChevronLeftIcon, 
+  ChevronRightIcon, 
+  ExternalLinkIcon 
+} from "@/lib/icons"
 
 interface Customer {
   id: string
@@ -50,93 +58,115 @@ export default function CustomersDirectory({
     router.push(`/dashboard/customers?${params.toString()}`)
   }
 
+  // Define DataTable columns mapping
+  const columns: ColumnDef<Customer>[] = [
+    {
+      accessorKey: "name",
+      header: "Customer Name",
+      cell: ({ row }) => (
+        <span className="font-bold text-slate-900">{row.original.name}</span>
+      )
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      cell: ({ row }) => {
+        const cleanEmail = row.original.email.includes("+") 
+          ? row.original.email.split("+")[0] + "@" + row.original.email.split("@")[1] 
+          : row.original.email
+        return <span className="font-semibold text-slate-650">{cleanEmail}</span>
+      }
+    },
+    {
+      accessorKey: "banned",
+      header: "Status",
+      cell: ({ row }) => (
+        row.original.banned ? (
+          <Badge variant="destructive">Suspended</Badge>
+        ) : (
+          <Badge variant="mint">Active</Badge>
+        )
+      )
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Joined Date",
+      cell: ({ row }) => {
+        const dateStr = new Date(row.original.createdAt).toLocaleDateString("en-BD", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+        return <span className="font-semibold text-slate-500">{dateStr}</span>
+      }
+    },
+    {
+      id: "actions",
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row }) => (
+        <div className="text-right">
+          <Link 
+            href={`/dashboard/customers/${row.original.id}`}
+            className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-650 hover:text-indigo-900 hover:underline cursor-pointer"
+          >
+            View Details
+            <ExternalLinkIcon className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      )
+    }
+  ]
+
   return (
-    <div className="flex flex-col gap-6 w-full p-6 bg-white border border-gray-150 rounded-2xl shadow-sm">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="flex flex-col gap-6 text-foreground pb-24 relative font-sans">
+      
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Customers</h2>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Manage your store's customer database and moderation settings
+          <h1 className="text-2xl tracking-tight text-slate-900 font-semibold leading-none">
+            Customer Directory
+          </h1>
+          <p className="text-sm text-slate-505 font-medium mt-1">
+            Manage your store&apos;s customer database, view details, and handle account status suspensions
           </p>
         </div>
       </div>
 
-      <form onSubmit={handleSearchSubmit} className="flex gap-2 w-full max-w-md">
-        <div className="relative w-full">
-          <SearchIcon className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-          <Input
-            id="search-input"
-            value={searchVal}
-            onChange={(e) => setSearchVal(e.target.value)}
-            placeholder="Search customers by name or email..."
-            className="pl-9"
-          />
+      {/* Search Controls & Count Badge Row */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <form onSubmit={handleSearchSubmit} className="flex gap-2 w-full max-w-md">
+          <div className="relative w-full">
+            <SearchIcon className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+            <Input
+              id="search-input"
+              value={searchVal}
+              onChange={(e) => setSearchVal(e.target.value)}
+              placeholder="Search customers by name or email..."
+              className="pl-9 rounded-xl border-slate-200 focus-visible:bg-white text-sm h-10"
+            />
+          </div>
+          <Button type="submit" className="rounded-xl font-semibold h-10 px-5 cursor-pointer">
+            Search
+          </Button>
+        </form>
+        <div className="text-xs text-slate-500 font-bold border border-slate-200 bg-slate-50/50 rounded-xl px-4 py-2.5 w-fit">
+          Total Customers: <span className="font-extrabold text-slate-900">{totalCount}</span>
         </div>
-        <Button type="submit">Search</Button>
-      </form>
-
-      <div className="border border-gray-150 rounded-xl overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-150 text-left text-sm">
-          <thead className="bg-gray-50 font-medium text-gray-500">
-            <tr>
-              <th className="px-6 py-3.5">Customer Name</th>
-              <th className="px-6 py-3.5">Email</th>
-              <th className="px-6 py-3.5">Status</th>
-              <th className="px-6 py-3.5">Joined Date</th>
-              <th className="px-6 py-3.5 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 bg-white text-gray-700">
-            {customers.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-10 text-center text-gray-400">
-                  No customers found.
-                </td>
-              </tr>
-            ) : (
-              customers.map((c) => {
-                const cleanEmail = c.email.includes("+") ? c.email.split("+")[0] + "@" + c.email.split("@")[1] : c.email
-                const dateStr = new Date(c.createdAt).toLocaleDateString("en-BD", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })
-                return (
-                  <tr key={c.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 font-semibold text-gray-900">{c.name}</td>
-                    <td className="px-6 py-4">{cleanEmail}</td>
-                    <td className="px-6 py-4">
-                      {c.banned ? (
-                        <span className="px-2 py-0.5 text-xs font-semibold bg-red-50 text-red-600 rounded-full border border-red-100">
-                          Suspended
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.5 text-xs font-semibold bg-green-50 text-green-600 rounded-full border border-green-100">
-                          Active
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">{dateStr}</td>
-                    <td className="px-6 py-4 text-right">
-                      <Link href={`/dashboard/customers/${c.id}`}>
-                        <span className="text-sm font-medium text-primary hover:underline cursor-pointer">
-                          View Details
-                        </span>
-                      </Link>
-                    </td>
-                  </tr>
-                )
-              })
-            )}
-          </tbody>
-        </table>
       </div>
 
+      {/* Customers List Table Card Container */}
+      <DataTable 
+        columns={columns} 
+        data={customers} 
+        hidePagination 
+      />
+
+      {/* Pagination Footer */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between pt-4 border-t border-gray-150">
-          <span className="text-sm text-gray-500">
-            Showing Page <span className="font-semibold text-gray-900">{currentPage}</span> of{" "}
-            <span className="font-semibold text-gray-900">{totalPages}</span>
+        <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+          <span className="text-sm text-slate-505 font-semibold">
+            Showing Page <span className="font-extrabold text-slate-900">{currentPage}</span> of{" "}
+            <span className="font-extrabold text-slate-900">{totalPages}</span>
           </span>
           <div className="flex gap-2">
             <Button
@@ -144,7 +174,9 @@ export default function CustomersDirectory({
               size="sm"
               disabled={currentPage <= 1}
               onClick={() => handlePageChange(currentPage - 1)}
+              className="border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold rounded-xl h-9 cursor-pointer flex items-center gap-1"
             >
+              <ChevronLeftIcon className="h-4 w-4" />
               Previous
             </Button>
             <Button
@@ -152,12 +184,15 @@ export default function CustomersDirectory({
               size="sm"
               disabled={currentPage >= totalPages}
               onClick={() => handlePageChange(currentPage + 1)}
+              className="border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold rounded-xl h-9 cursor-pointer flex items-center gap-1"
             >
               Next
+              <ChevronRightIcon className="h-4 w-4" />
             </Button>
           </div>
         </div>
       )}
+
     </div>
   )
 }
