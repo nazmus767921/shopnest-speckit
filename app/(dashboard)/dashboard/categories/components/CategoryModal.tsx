@@ -22,6 +22,7 @@ const categorySchema = z.object({
   slug: z.string().min(2, "Slug must be at least 2 characters.")
     .regex(/^[a-z0-9-]+$/, "Slug must only contain lowercase alphanumeric characters and hyphens."),
   parentId: z.string().nullable().optional(),
+  imageUrl: z.string().nullable().optional(),
 })
 
 interface Category {
@@ -29,6 +30,7 @@ interface Category {
   name: string
   slug: string
   parentId: string | null
+  imageUrl?: string | null
 }
 
 interface CategoryModalProps {
@@ -57,6 +59,7 @@ export function CategoryModal({ editingCategory, parentCategories, hasChildren, 
       name: editingCategory?.name ?? "",
       slug: editingCategory?.slug ?? "",
       parentId: editingCategory?.parentId ?? "none",
+      imageUrl: editingCategory?.imageUrl ?? "",
     },
     onSubmit: async ({ value }) => {
       setSuccessMessage(null)
@@ -64,7 +67,8 @@ export function CategoryModal({ editingCategory, parentCategories, hasChildren, 
 
       const validation = categorySchema.safeParse({
         ...value,
-        parentId: value.parentId === "none" ? null : value.parentId
+        parentId: value.parentId === "none" ? null : value.parentId,
+        imageUrl: value.imageUrl || null
       })
       if (!validation.success) {
         setErrorMessage(validation.error.issues[0].message)
@@ -191,6 +195,28 @@ export function CategoryModal({ editingCategory, parentCategories, hasChildren, 
                     This category has subcategories. It cannot be nested under another category.
                   </FieldDescription>
                 )}
+                {field.state.meta.errors.length > 0 && (
+                  <FieldError>{String(field.state.meta.errors[0])}</FieldError>
+                )}
+              </Field>
+            )}
+          </form.Field>
+ 
+          {/* Category Image URL */}
+          <form.Field name="imageUrl">
+            {(field) => (
+              <Field>
+                <FieldLabel htmlFor="modal-cat-image">Category Image URL (Optional)</FieldLabel>
+                <Input
+                  id="modal-cat-image"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="e.g. https://images.unsplash.com/... or /uploads/..."
+                />
+                <FieldDescription>
+                  Provide a square image URL for this category to render it in a circular layout on the storefront.
+                </FieldDescription>
                 {field.state.meta.errors.length > 0 && (
                   <FieldError>{String(field.state.meta.errors[0])}</FieldError>
                 )}

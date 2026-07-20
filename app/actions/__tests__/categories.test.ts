@@ -73,6 +73,7 @@ describe("Category Actions - Hierarchy Limits", () => {
       name: "Child Cat",
       slug: "child-cat",
       parentId: "grandparent_cat", // this means it's already a subcategory
+      imageUrl: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     })
@@ -97,6 +98,7 @@ describe("Category Actions - Hierarchy Limits", () => {
       name: "Child Cat",
       slug: "child-cat",
       parentId: "grandparent_cat", 
+      imageUrl: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     })
