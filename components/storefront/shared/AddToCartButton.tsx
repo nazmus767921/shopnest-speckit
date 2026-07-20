@@ -17,6 +17,8 @@ interface Props {
     imageUrl: string | null
     variantId?: string | null
     variantLabel?: string | null
+    isFlashSale?: boolean
+    compareAtPricePaisa?: number
   }
   quantity?: number
   size?: "sm" | "md" | "lg"

@@ -12,7 +12,7 @@ export const user = pgTable("user", {
   updatedAt: timestamp("updatedAt").notNull(),
   isAnonymous: boolean("isAnonymous"),
   role: text("role"),
-  merchantId: text("merchant_id").references(() => merchants.id, { onDelete: "cascade" }),
+  merchantId: text("merchant_id").references((): AnyPgColumn => merchants.id, { onDelete: "cascade" }),
   banned: boolean("banned").default(false),
   banReason: text("ban_reason"),
   banExpires: timestamp("ban_expires"),
@@ -77,6 +77,8 @@ export const twoFactor = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     verified: boolean("verified").default(true),
+    failedVerificationCount: integer("failed_verification_count").default(0),
+    lockedUntil: timestamp("locked_until"),
   },
   (table) => [
     index("twoFactor_secret_idx").on(table.secret),
@@ -89,7 +91,7 @@ export const merchants = pgTable("merchants", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   subdomain: text("subdomain").notNull().unique(),
-  ownerId: text("owner_id").references(() => user.id, { onDelete: "set null" }),
+  ownerId: text("owner_id").references((): AnyPgColumn => user.id, { onDelete: "set null" }),
   plan: text("plan").default("starter").notNull(), // starter | growth
   subscriptionStatus: text("subscription_status").default("trial").notNull(), // trial | active | suspended | cancelled
   trialExpiry: timestamp("trial_expiry").notNull(),
@@ -102,7 +104,7 @@ export const merchants = pgTable("merchants", {
   payDeliveryChargeFirst: boolean("pay_delivery_charge_first").notNull().default(false),
   bkashWalletNumber: text("bkash_wallet_number"),
   nagadWalletNumber: text("nagad_wallet_number"),
-  template: text("template").default("general").notNull(),
+  template: text("template").default("elegance").notNull(),
   themeSettings: jsonb("theme_settings").$type<{
     colors?: {
       primary?: string
@@ -382,10 +384,37 @@ export const categories = pgTable("categories", {
   name: text("name").notNull(),
   slug: text("slug").notNull(),
   parentId: text("parent_id").references((): AnyPgColumn => categories.id, { onDelete: "cascade" }),
+  imageUrl: text("image_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (table) => [
   uniqueIndex("categories_merchant_id_slug_idx").on(table.merchantId, table.slug),
+]).enableRLS()
+
+// ─── Flash Sales ─────────────────────────────────────────────────────────────
+
+export const flashSales = pgTable("flash_sales", {
+  id: text("id").primaryKey(),
+  merchantId: text("merchant_id")
+    .notNull()
+    .references(() => merchants.id, { onDelete: "cascade" }),
+  productId: text("product_id")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  variantId: text("variant_id")
+    .references(() => productVariants.id, { onDelete: "cascade" }),
+  salePricePaisa: integer("sale_price_paisa").notNull(),
+  limitQuantity: integer("limit_quantity").notNull(),
+  soldQuantity: integer("sold_quantity").notNull().default(0),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("flash_sales_merchant_id_idx").on(table.merchantId),
+  index("flash_sales_product_id_idx").on(table.productId),
+  index("flash_sales_variant_id_idx").on(table.variantId),
 ]).enableRLS()
 
 // ─── Product Promotions ──────────────────────────────────────────────────────
@@ -543,6 +572,25 @@ export const shippingZoneDistricts = pgTable("shipping_zone_districts", {
   uniqueIndex("shipping_zone_districts_zone_district_unique_idx").on(table.zoneId, table.district),
   index("shipping_zone_districts_merchant_id_idx").on(table.merchantId),
 ]).enableRLS()
+// ─── Customer CRM ──────────────────────────────────────────────────────────────────────
+
+export const customerNotes = pgTable("customer_notes", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  merchantId: text("merchant_id")
+    .notNull()
+    .references(() => merchants.id, { onDelete: "cascade" }),
+  customerId: text("customer_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  authorId: text("author_id")
+    .references(() => user.id, { onDelete: "set null" }), // the admin/merchant owner
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("customer_notes_customer_id_idx").on(table.customerId),
+  index("customer_notes_merchant_id_idx").on(table.merchantId),
+]).enableRLS()
 
 
 // ─── Notification Queue ──────────────────────────────────────────────────────────────────
@@ -649,7 +697,23 @@ export const productMetadataRelations = relations(productMetadata, ({ one }) => 
 
 // ─── Relations ────────────────────────────────────────────────────────────────
 
+export const customerNotesRelations = relations(customerNotes, ({ one }) => ({
+  merchant: one(merchants, {
+    fields: [customerNotes.merchantId],
+    references: [merchants.id],
+  }),
+  customer: one(user, {
+    fields: [customerNotes.customerId],
+    references: [user.id],
+  }),
+  author: one(user, {
+    fields: [customerNotes.authorId],
+    references: [user.id],
+  }),
+}))
+
 export const merchantsRelations = relations(merchants, ({ one, many }) => ({
+  customerNotes: many(customerNotes),
   owner: one(user, {
     fields: [merchants.ownerId],
     references: [user.id],
@@ -697,6 +761,7 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   attributes: many(productAttributes),
   variants: many(productVariants),
   metadata: many(productMetadata),
+  flashSales: many(flashSales),
 }))
 
 export const categoriesRelations = relations(categories, ({ one, many }) => ({
@@ -714,6 +779,17 @@ export const productPromotionsRelations = relations(productPromotions, ({ one })
   }),
   merchant: one(merchants, {
     fields: [productPromotions.merchantId],
+    references: [merchants.id],
+  }),
+}))
+
+export const flashSalesRelations = relations(flashSales, ({ one }) => ({
+  product: one(products, {
+    fields: [flashSales.productId],
+    references: [products.id],
+  }),
+  merchant: one(merchants, {
+    fields: [flashSales.merchantId],
     references: [merchants.id],
   }),
 }))
@@ -851,6 +927,7 @@ export const userRelations = relations(user, ({ many }) => ({
   accounts: many(account),
   twoFactors: many(twoFactor),
   customerAddresses: many(customerAddresses),
+  customerNotes: many(customerNotes),
 }))
 
 export const sessionRelations = relations(session, ({ one }) => ({

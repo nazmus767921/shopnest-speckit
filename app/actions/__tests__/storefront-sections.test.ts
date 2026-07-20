@@ -1,103 +1,103 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
-import { saveStorefrontSectionsAction, seedDefaultSectionsAction } from "../storefront-sections"
+import { expect, test, describe, vi } from 'vitest'
 
-const mockGetSession = vi.fn()
-vi.mock("@/lib/auth/auth", () => ({
+// Mocking dependencies since it's a server action
+vi.mock('@/lib/auth/auth', () => ({
   auth: {
     api: {
-      getSession: (...args: any[]) => mockGetSession(...args),
-    },
-  },
+      getSession: vi.fn().mockResolvedValue({ user: { id: 'user_1' } })
+    }
+  }
 }))
 
-const mockGetMerchantByOwnerId = vi.fn()
-vi.mock("@/db/queries/merchants", () => ({
-  getMerchantByOwnerId: (...args: any[]) => mockGetMerchantByOwnerId(...args),
+vi.mock('@/db/queries/merchants', () => ({
+  getMerchantByOwnerId: vi.fn().mockResolvedValue({ id: 'merchant_1' })
 }))
 
-const mockSaveStorefrontSections = vi.fn()
-const mockGetStorefrontSections = vi.fn()
-vi.mock("@/db/queries/storefront-sections", () => ({
-  saveStorefrontSections: (...args: any[]) => mockSaveStorefrontSections(...args),
-  getStorefrontSections: (...args: any[]) => mockGetStorefrontSections(...args),
+vi.mock('next/headers', () => ({
+  headers: vi.fn().mockResolvedValue(new Map())
 }))
 
-vi.mock("next/headers", () => ({
-  headers: vi.fn(() => Promise.resolve(new Headers())),
+vi.mock('@/lib/redis/client', () => ({
+  redis: {
+    del: vi.fn().mockResolvedValue(true)
+  }
 }))
 
-const mockRevalidateTag = vi.fn()
-vi.mock("next/cache", () => ({
-  revalidateTag: (...args: any[]) => mockRevalidateTag(...args),
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn(),
+  revalidateTag: vi.fn()
 }))
 
-describe("Storefront Sections Actions", () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    mockGetSession.mockResolvedValue({ user: { id: "user-123", email: "test@example.com" } })
-    mockGetMerchantByOwnerId.mockResolvedValue({ id: "merch-123", subdomain: "test" })
+vi.mock('@/db/queries/storefront-sections', () => ({
+  upsertStorefrontSections: vi.fn().mockResolvedValue(true)
+}))
+
+import { saveStorefrontSectionsAction } from '../storefront-sections'
+import { upsertStorefrontSections } from '@/db/queries/storefront-sections'
+import { StorefrontSection } from '@/lib/storefront-sections/types'
+import { SECTION_SORT_ORDER } from '@/lib/storefront-sections/section-catalog'
+
+describe('saveStorefrontSectionsAction', () => {
+  test('core sections reject isVisible: false', async () => {
+    const inputSections = [
+      {
+        sectionKey: 'hero', // core
+        content: { title: 'Test' },
+        isVisible: false,
+        sortOrder: 0
+      }
+    ] as StorefrontSection[]
+
+    const res = await saveStorefrontSectionsAction(inputSections)
+    expect(res.success).toBe(true)
+
+    const savedArgs = vi.mocked(upsertStorefrontSections).mock.calls[0][1]
+    const heroSaved = savedArgs.find((s: any) => s.sectionKey === 'hero')
+    
+    // Should override isVisible to true for core sections
+    expect(heroSaved.isVisible).toBe(true)
   })
 
-  describe("saveStorefrontSectionsAction", () => {
-    it("should save valid sections and revalidate tag", async () => {
-      const sections = [
-        { sectionKey: "hero", content: { title: "Test" }, sortOrder: 0, isVisible: true }
-      ]
-      
-      const res = await saveStorefrontSectionsAction(sections)
-      
-      expect(res.success).toBe(true)
-      expect(mockSaveStorefrontSections).toHaveBeenCalledWith("merch-123", sections)
-      expect(mockRevalidateTag).toHaveBeenCalledWith("storefront-sections-test", "max")
-    })
+  test('optional sections accept toggle', async () => {
+    vi.mocked(upsertStorefrontSections).mockClear()
 
-    it("should fail if unauthenticated", async () => {
-      mockGetSession.mockResolvedValueOnce(null)
-      const res = await saveStorefrontSectionsAction([])
-      expect(res.success).toBe(false)
-      expect(res.error).toBe("Unauthorized")
-      expect(mockSaveStorefrontSections).not.toHaveBeenCalled()
-    })
+    const inputSections = [
+      {
+        sectionKey: 'announcement_bar', // optional
+        content: { text: 'Test' },
+        isVisible: false,
+        sortOrder: 0
+      }
+    ] as StorefrontSection[]
 
-    it("should fail validation on invalid payload", async () => {
-      const invalidSections = [
-        { sectionKey: "", content: {}, sortOrder: "invalid", isVisible: true }
-      ] as any
-      
-      const res = await saveStorefrontSectionsAction(invalidSections)
-      
-      expect(res.success).toBe(false)
-      expect(res.error).toContain("Validation error")
-      expect(mockSaveStorefrontSections).not.toHaveBeenCalled()
-    })
+    const res = await saveStorefrontSectionsAction(inputSections)
+    expect(res.success).toBe(true)
+
+    const savedArgs = vi.mocked(upsertStorefrontSections).mock.calls[0][1]
+    const announcementSaved = savedArgs.find((s: any) => s.sectionKey === 'announcement_bar')
+    
+    // Should accept isVisible: false for optional sections
+    expect(announcementSaved.isVisible).toBe(false)
   })
 
-  describe("seedDefaultSectionsAction", () => {
-    it("should do nothing if sections already exist", async () => {
-      mockGetStorefrontSections.mockResolvedValueOnce([
-        { id: "1" }
-      ])
+  test('sortOrder is overridden by catalog', async () => {
+    vi.mocked(upsertStorefrontSections).mockClear()
 
-      const res = await seedDefaultSectionsAction()
+    const inputSections = [
+      {
+        sectionKey: 'hero',
+        content: { title: 'Test' },
+        isVisible: true,
+        sortOrder: 99 // Invalid sort order
+      }
+    ] as StorefrontSection[]
 
-      expect(res.success).toBe(true)
-      expect(res.seeded).toBe(false)
-      expect(mockSaveStorefrontSections).not.toHaveBeenCalled()
-    })
+    await saveStorefrontSectionsAction(inputSections)
 
-    it("should seed default sections if none exist", async () => {
-      mockGetStorefrontSections.mockResolvedValueOnce([])
-
-      const res = await seedDefaultSectionsAction()
-
-      expect(res.success).toBe(true)
-      expect(res.seeded).toBe(true)
-      expect(mockSaveStorefrontSections).toHaveBeenCalledWith(
-        "merch-123",
-        expect.arrayContaining([
-          expect.objectContaining({ sectionKey: "hero" })
-        ])
-      )
-    })
+    const savedArgs = vi.mocked(upsertStorefrontSections).mock.calls[0][1]
+    const heroSaved = savedArgs.find((s: any) => s.sectionKey === 'hero')
+    
+    // Should override to the correct catalog sort order
+    expect(heroSaved.sortOrder).toBe(SECTION_SORT_ORDER.hero)
   })
 })

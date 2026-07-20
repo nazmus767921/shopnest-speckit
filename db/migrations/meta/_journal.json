@@ -246,6 +246,20 @@
       "when": 1784006111226,
       "tag": "0034_woozy_menace",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1784006111227,
+      "tag": "0037_add_retail_template",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1784555773054,
+      "tag": "0036_long_captain_flint",
+      "breakpoints": true
     }
   ]
 }

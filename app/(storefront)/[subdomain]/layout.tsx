@@ -1,8 +1,7 @@
 import React from "react"
 import { headers } from "next/headers"
 import type { Metadata } from "next"
-import "@/templates/general/styles.css"
-import "@/templates/fashion/styles.css"
+import "@/templates/elegance/styles.css"
 import { getCachedMerchantById } from "@/lib/cache/merchants"
 import { getCachedMenuBySlug } from "@/db/queries/navigation"
 import { getCachedCategories } from "@/lib/cache/categories"
@@ -54,7 +53,7 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
   
   // Fetch full merchant record from DB
   const merchant = merchantId ? await getCachedMerchantById(merchantId) : null
-  const template = headersList.get("x-merchant-template") || merchant?.template || "general"
+  const template = headersList.get("x-merchant-template") || merchant?.template || "elegance"
   const templateModule = getTemplate(template)
 
   const store = {
@@ -87,8 +86,8 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
       <templateModule.Navbar store={store} subdomain={subdomain} menu={mainMenu} categories={categories as any} />
 
       {/* Main Content Area */}
-      <main className={`grow px-4 md:px-8 ${template === "fashion" ? "pt-[81px] pb-16 md:pt-[89px] md:pb-24" : "py-8 md:py-12"}`}>
-        <div className={`${template === "fashion" ? "max-w-10xl" : "max-w-7xl"} mx-auto`}>{children}</div>
+      <main className={`grow px-4 md:px-8 ${template === "elegance" ? "pt-[81px] pb-16 md:pt-[89px] md:pb-24" : "py-8 md:py-12"}`}>
+        <div className={`${template === "elegance" ? "max-w-10xl" : "max-w-7xl"} mx-auto`}>{children}</div>
       </main>
 
       {/* Dynamic Template Footer */}

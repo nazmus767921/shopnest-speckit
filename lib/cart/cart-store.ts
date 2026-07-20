@@ -15,6 +15,10 @@ export interface CartItem {
   variantLabel?: string | null
   /** Set to true when the variant has been cascade-deleted and is no longer available */
   isUnavailable?: boolean
+  /** Whether this item is part of an active flash sale campaign */
+  isFlashSale?: boolean
+  /** Original compare-at price in paisa before discount */
+  compareAtPricePaisa?: number
 }
 
 export interface CartState {

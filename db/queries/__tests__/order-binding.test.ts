@@ -26,7 +26,7 @@ describe("Retroactive Guest Order Binding", () => {
   })
 
   it("should trigger database query updates to rebind guest orders", async () => {
-    const mockFrom = vi.spyOn(db, "from")
+    const mockFrom = vi.spyOn(db as any, "from")
     const mockUpdate = vi.spyOn(db, "update")
 
     await bindGuestOrdersToUser(

@@ -9,7 +9,7 @@ import { revalidatePath, revalidateTag } from "next/cache"
 import { assertPlanLimit } from "@/lib/plans/assertPlan"
 import { db } from "@/db"
 import { productPromotions, products } from "@/db/schema"
-import { eq, and, inArray } from "drizzle-orm"
+import { eq, and, inArray, ilike, desc, isNull } from "drizzle-orm"
 
 async function getAuthenticatedMerchant() {
   const session = await auth.api.getSession({
@@ -312,5 +312,78 @@ export async function bulkUpdateCategoryAction(productIds: string[], categoryId:
     return { success: false, error: error.message || "Failed to bulk update categories." }
   }
 }
+
+export async function searchProductsAction(searchQuery: string) {
+  try {
+    const merchant = await getAuthenticatedMerchant()
+    const queryStr = searchQuery?.trim() || ""
+
+    const results = await db.query.products.findMany({
+      where: and(
+        eq(products.merchantId, merchant.id),
+        isNull(products.deletedAt),
+        queryStr !== "" ? ilike(products.name, `%${queryStr}%`) : undefined
+      ),
+      with: {
+        variants: {
+          with: {
+            attributeLinks: {
+              with: {
+                attributeOption: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: [desc(products.createdAt)],
+      limit: 20,
+    })
+
+    const flatList: Array<{
+      id: string
+      variantId?: string | null
+      name: string
+      pricePaisa: number
+      stockCount: number
+    }> = []
+
+    for (const p of results) {
+      if (p.variants && p.variants.length > 0) {
+        for (const v of p.variants) {
+          const attributesStr = v.attributeLinks
+            .map((link) => link.attributeOption.value)
+            .join(" / ")
+
+          const variantName = attributesStr ? `${p.name} (${attributesStr})` : p.name
+          const variantPrice = v.pricePaisa !== null ? v.pricePaisa : p.pricePaisa
+
+          flatList.push({
+            id: p.id,
+            variantId: v.id,
+            name: variantName,
+            pricePaisa: variantPrice,
+            stockCount: v.stockCount,
+          })
+        }
+      } else {
+        flatList.push({
+          id: p.id,
+          variantId: null,
+          name: p.name,
+          pricePaisa: p.pricePaisa,
+          stockCount: p.stockCount,
+        })
+      }
+    }
+
+    return {
+      success: true,
+      products: flatList,
+    }
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to search products." }
+  }
+}
+
 
 

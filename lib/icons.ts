@@ -45,6 +45,7 @@ export { Save as SaveIcon } from "lucide-react"
 export { UploadCloud as UploadCloudIcon } from "lucide-react"
 export { Clipboard as ClipboardIcon } from "lucide-react"
 export { ClipboardList as ClipboardListIcon } from "lucide-react"
+export { Download as DownloadIcon } from "lucide-react"
 
 // ─── Status & Feedback ───────────────────────────────────────────────────────
 export { AlertCircle as AlertCircleIcon } from "lucide-react"
@@ -193,6 +194,11 @@ export { LinkedInIcon } from "@/components/icons"
 export { TwitterXIcon } from "@/components/icons"
 export { TikTokIcon } from "@/components/icons"
 export { InstagramIcon } from "@/components/icons"
+
+export { Heart as HeartIcon } from "lucide-react"
+export { Watch as WatchIcon } from "lucide-react"
+export { Shirt as ShirtIcon } from "lucide-react"
+export { CircleUser as CircleUserIcon } from "lucide-react"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 export type { LucideIcon } from "lucide-react"

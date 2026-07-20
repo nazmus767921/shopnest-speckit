@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboardIcon, LayoutTemplateIcon, ShoppingBagIcon, TagIcon, SettingsIcon, CreditCardIcon, PercentIcon, FolderTreeIcon, FileTextIcon, MenuIcon, GlobeIcon, ExternalLinkIcon, ChevronsUpDownIcon, ChevronRightIcon, ShieldIcon, Share2Icon, ClockIcon, ImageIcon, UsersIcon } from "@/lib/icons";
+import { LayoutDashboardIcon, LayoutTemplateIcon, ShoppingBagIcon, TagIcon, SettingsIcon, CreditCardIcon, PercentIcon, FolderTreeIcon, FileTextIcon, MenuIcon, GlobeIcon, ExternalLinkIcon, ChevronsUpDownIcon, ChevronRightIcon, ShieldIcon, Share2Icon, ClockIcon, ImageIcon, UsersIcon, ZapIcon } from "@/lib/icons";
 import { ShareStorefrontDialog } from "@/components/dashboard/ShareStorefrontDialog";
 
 import {
@@ -285,6 +285,11 @@ export function AppSidebar({
                     label: "Discounts",
                     href: "/dashboard/discounts",
                     icon: PercentIcon,
+                  },
+                  {
+                    label: "Flash Sales",
+                    href: "/dashboard/flash-sales",
+                    icon: ZapIcon,
                   },
                 ].map((item) => {
                   const isActive = pathname.startsWith(item.href)

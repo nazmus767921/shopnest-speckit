@@ -151,7 +151,7 @@ export function TemplatesDashboardClient({ initialTemplates }: Props) {
           <Card key={tpl.id} variant="default" className="overflow-hidden flex flex-col justify-between rounded-2xl border border-hairline-light">
             <div className="relative aspect-[3/2] w-full bg-zinc-50 border-b border-hairline-light overflow-hidden">
               <img
-                src={tpl.slug === "fashion" ? "/images/templates/fashion-thumbnail.png" : "/images/templates/general-thumbnail.png"}
+                src={tpl.previewImageUrl || "/images/templates/elegance-thumbnail.png"}
                 alt={tpl.name}
                 className="w-full h-full object-cover"
               />

@@ -13,6 +13,7 @@ interface Template {
   description: string
   isLocked: boolean
   allowedTiers: string[]
+  previewImageUrl?: string | null
 }
 
 interface TemplatePickerProps {
@@ -50,7 +51,7 @@ export function TemplatePicker({ templates, loading, selectedTemplate, onSelect 
             <div className="relative aspect-[3/2] w-full bg-muted border-b border-border overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={tpl.slug === "fashion" ? "/images/templates/fashion-thumbnail.png" : "/images/templates/general-thumbnail.png"}
+                src={tpl.previewImageUrl || "/images/templates/general-thumbnail.png"}
                 alt={`${tpl.name} Preview`}
                 className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
               />

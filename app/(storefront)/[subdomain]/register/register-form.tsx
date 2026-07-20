@@ -52,7 +52,7 @@ export default function RegisterForm({ subdomain }: { subdomain: string }) {
           if (value.phone) {
             setPhone(value.phone)
             // Initiate OTP flow
-            const otpRes = await authClient.phoneNumber.sendOTP({ phoneNumber: value.phone })
+            const otpRes = await authClient.phoneNumber.sendOtp({ phoneNumber: value.phone })
             if (otpRes.error) {
               setError(otpRes.error.message || "Failed to send OTP.")
               setLoading(false)

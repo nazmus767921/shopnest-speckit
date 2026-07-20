@@ -2,8 +2,10 @@ import * as dotenv from "dotenv"
 dotenv.config({ path: ".env.local" })
 
 async function main() {
-  // Override connection URL to use session mode pooler (reliable IPv4 port 5432)
-  process.env.DATABASE_URL = "postgresql://postgres.xszlikygqbovkgtvfpjr:9EwCpjuvQKRZKdUC@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres"
+  // Use MIGRATION_DATABASE_URL if available as a direct connection
+  if (process.env.MIGRATION_DATABASE_URL) {
+    process.env.DATABASE_URL = process.env.MIGRATION_DATABASE_URL
+  }
 
   // Dynamically import to ensure process.env.DATABASE_URL is set first
   const { db } = await import("../db")
