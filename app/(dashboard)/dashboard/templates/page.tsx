@@ -25,7 +25,7 @@ export default function TemplatesPage() {
           <div className="flex flex-col gap-2">
             <h1 className="text-2xl font-bold text-foreground">Storefront Templates</h1>
             <p className="text-sm text-muted-foreground">
-              Choose a design template for your storefront and customize the homepage sections.
+              Customize your storefront's homepage sections and global theme settings.
             </p>
           </div>
           <TemplatesSkeleton />
@@ -67,6 +67,7 @@ async function TemplatesPageContent() {
       description: `Best for ${t.businessTypes.join(", ")}`,
       isLocked,
       allowedTiers: t.allowedTiers,
+      previewImageUrl: t.previewImageUrl,
     }
   })
 
@@ -91,13 +92,13 @@ async function TemplatesPageContent() {
           </a>
         </div>
         <p className="text-sm text-muted-foreground">
-          Choose a design template for your storefront and customize the homepage sections.
+          Customize your storefront's homepage sections and global theme settings.
         </p>
       </div>
 
       <TemplatesPageClient 
         templates={mappedTemplates} 
-        currentTemplate={merchant.template || "general"} 
+        currentTemplate={merchant.template || "elegance"} 
         initialSections={sections as any}
         initialThemeSettings={merchant.themeSettings as any}
         merchantSubdomain={merchant.subdomain || ""}

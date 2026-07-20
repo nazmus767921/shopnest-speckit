@@ -1,3 +1,4 @@
+/** @deprecated Replaced by template-specific components in the elegance template. */
 import React from "react"
 import Link from "next/link"
 import { AnnouncementBarContent } from "@/lib/storefront-sections/types"

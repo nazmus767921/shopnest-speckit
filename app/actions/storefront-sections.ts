@@ -7,6 +7,19 @@ import { getCachedStorefrontSections } from "@/lib/cache/storefront"
 import { saveStorefrontSections } from "@/db/queries/storefront-sections"
 import { updateStorefrontSectionsSchema } from "@/lib/validations/storefront-sections"
 import { defaultStorefrontSections } from "@/lib/storefront-sections/defaults"
+import { isCoreSection, SECTION_SORT_ORDER, SectionKey } from "@/lib/storefront-sections/section-catalog"
+import {
+  heroContentSchema,
+  announcementBarContentSchema,
+  categoryShowcaseContentSchema,
+  featuredProductsContentSchema,
+  promoBannerContentSchema,
+  brandStoryContentSchema,
+  testimonialsContentSchema,
+  newsletterContentSchema,
+  faqContentSchema,
+  footerContentSchema
+} from "@/lib/validations/storefront-sections"
 import { revalidateTag } from "next/cache"
 
 export async function saveStorefrontSectionsAction(rawSections: any) {
@@ -28,7 +41,44 @@ export async function saveStorefrontSectionsAction(rawSections: any) {
       return { success: false, error: "Validation error: " + parseResult.error.issues[0].message }
     }
 
-    await saveStorefrontSections(merchant.id, parseResult.data)
+    const validatedSections = []
+    for (const section of parseResult.data) {
+      // Enforce core section visibility
+      if (isCoreSection(section.sectionKey) && !section.isVisible) {
+        section.isVisible = true 
+      }
+      
+      // Override sort order with catalog defaults
+      const defaultOrder = SECTION_SORT_ORDER[section.sectionKey as SectionKey]
+      if (typeof defaultOrder === "number") {
+        section.sortOrder = defaultOrder
+      }
+
+      // Validate content payload
+      let contentValidation
+      switch (section.sectionKey as SectionKey) {
+        case "hero": contentValidation = heroContentSchema.safeParse(section.content); break
+        case "announcement_bar": contentValidation = announcementBarContentSchema.safeParse(section.content); break
+        case "category_showcase": contentValidation = categoryShowcaseContentSchema.safeParse(section.content); break
+        case "featured_products": contentValidation = featuredProductsContentSchema.safeParse(section.content); break
+        case "promo_banner": contentValidation = promoBannerContentSchema.safeParse(section.content); break
+        case "brand_story": contentValidation = brandStoryContentSchema.safeParse(section.content); break
+        case "testimonials": contentValidation = testimonialsContentSchema.safeParse(section.content); break
+        case "newsletter": contentValidation = newsletterContentSchema.safeParse(section.content); break
+        case "faq": contentValidation = faqContentSchema.safeParse(section.content); break
+        case "footer": contentValidation = footerContentSchema.safeParse(section.content); break
+        default: contentValidation = { success: true, data: section.content }
+      }
+
+      if (!contentValidation.success) {
+        return { success: false, error: `Validation error in ${section.sectionKey}: ${contentValidation.error.issues[0].message}` }
+      }
+
+      section.content = contentValidation.data
+      validatedSections.push(section)
+    }
+
+    await saveStorefrontSections(merchant.id, validatedSections)
 
     revalidateTag(`storefront-${merchant.id}`, "max")
 

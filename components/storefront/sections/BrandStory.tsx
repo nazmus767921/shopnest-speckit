@@ -1,8 +1,8 @@
 import React from "react"
 import Link from "next/link"
-import { AboutContent } from "@/lib/storefront-sections/types"
+import { BrandStoryContent } from "@/lib/storefront-sections/types"
 
-export function BrandStory({ content }: { content: AboutContent }) {
+export function BrandStory({ content }: { content: BrandStoryContent }) {
   const { title, description, imageUrl, buttonText, buttonLink } = content
 
   return (

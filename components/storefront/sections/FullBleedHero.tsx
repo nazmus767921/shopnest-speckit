@@ -1,3 +1,4 @@
+/** @deprecated Replaced by template-specific components in the elegance template. */
 import React from "react"
 import Link from "next/link"
 import { HeroContent } from "@/lib/storefront-sections/types"

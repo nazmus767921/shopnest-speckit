@@ -1,3 +1,4 @@
+/** @deprecated Replaced by template-specific components in the elegance template. */
 import React from "react"
 import { ProductGridContent } from "@/lib/storefront-sections/types"
 import { getNewArrivals, getFeaturedProducts, getExclusiveProducts, getProductsByIds } from "@/lib/products/data"

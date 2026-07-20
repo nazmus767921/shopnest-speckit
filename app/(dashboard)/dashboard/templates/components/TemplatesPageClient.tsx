@@ -6,7 +6,7 @@ import { applyTemplateAction, updateThemeSettingsAction } from "@/app/actions/se
 import { saveStorefrontSectionsAction, seedDefaultSectionsAction } from "@/app/actions/storefront-sections"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { SaveIcon, ChevronDownIcon, ChevronRightIcon, LayoutTemplateIcon, PaletteIcon, LayoutListIcon, PlusIcon } from "@/lib/icons";
+import { SaveIcon, ChevronDownIcon, ChevronRightIcon, LayoutTemplateIcon, PaletteIcon, LayoutListIcon, LockIcon, EyeIcon, EyeOffIcon } from "@/lib/icons";
 
 import {
   Select,
@@ -15,44 +15,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Switch } from "@/components/ui/switch"
 import {
   HeroEditor,
   AnnouncementBarEditor,
   CategoryShowcaseEditor,
-  AboutEditor,
-  ProductGridEditor,
+  BrandStoryEditor,
+  FeaturedProductsEditor,
+  PromoBannerEditor,
+  TestimonialsEditor,
+  NewsletterEditor,
   FaqEditor,
   FooterEditor
 } from "./SectionEditors"
 import { StorefrontSection } from "@/lib/storefront-sections/types"
 import { defaultStorefrontSections } from "@/lib/storefront-sections/defaults"
+import { SECTION_SORT_ORDER, isCoreSection, SectionKey } from "@/lib/storefront-sections/section-catalog"
 import { PreviewPane } from "./PreviewPane"
 import { UnsavedChangesBar } from "./UnsavedChangesBar"
 import { fontPairs } from "@/lib/fonts"
-import { DraggableSectionItem } from "./DraggableSectionItem"
-
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core'
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
 
 interface TemplatesPageClientProps {
   templates: any[]
@@ -64,22 +45,18 @@ interface TemplatesPageClientProps {
 
 export function TemplatesPageClient({ templates, currentTemplate, initialSections, initialThemeSettings, merchantSubdomain }: TemplatesPageClientProps) {
   const [selectedTemplate, setSelectedTemplate] = useState(currentTemplate)
-  const getSectionsWithFooter = (secs: any[]) => {
-    if (secs.length === 0) return secs
-    if (secs.some(s => s.sectionKey === "footer")) return secs
-    const defaultFooter = defaultStorefrontSections.find(s => s.sectionKey === "footer")
-    return [...secs, {
-      id: `new-footer-${Date.now()}`,
-      sectionKey: "footer",
-      content: defaultFooter?.content || {},
-      sortOrder: 9999,
-      isVisible: true,
-      isNew: true
-    }]
+  
+  // Sort sections by catalog order
+  const sortSections = (secs: StorefrontSection[]) => {
+    return [...secs].sort((a, b) => {
+      const orderA = SECTION_SORT_ORDER[a.sectionKey as SectionKey] ?? 99
+      const orderB = SECTION_SORT_ORDER[b.sectionKey as SectionKey] ?? 99
+      return orderA - orderB
+    })
   }
 
-  const [baselineSections, setBaselineSections] = useState<any[]>(initialSections)
-  const [sections, setSections] = useState<any[]>(getSectionsWithFooter(initialSections))
+  const [baselineSections, setBaselineSections] = useState<StorefrontSection[]>(sortSections(initialSections))
+  const [sections, setSections] = useState<StorefrontSection[]>(sortSections(initialSections))
 
   const defaultTheme = {
     colors: { primary: "#000000", secondary: "#4b5563", background: "#ffffff", text: "#000000" },
@@ -94,22 +71,9 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
   const [isSaving, setIsSaving] = useState(false)
   const [isSavingTheme, setIsSavingTheme] = useState(false)
 
-  const [activeAccordion, setActiveAccordion] = useState<string>("sections") // "template", "theme", "sections"
+  const [activeAccordion, setActiveAccordion] = useState<string>("sections")
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
   const [isPanelExpanded, setIsPanelExpanded] = useState(true)
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 250,
-        tolerance: 5,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  )
 
   useEffect(() => {
     if (initialSections.length === 0) {
@@ -121,7 +85,9 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
     setIsSaving(true)
     const res = await seedDefaultSectionsAction()
     if (res.success && res.seeded) {
-      setSections(defaultStorefrontSections)
+      const sorted = sortSections(defaultStorefrontSections as StorefrontSection[])
+      setSections(sorted)
+      setBaselineSections(sorted)
       toast.success("Default sections loaded.")
     } else if (!res.success) {
       toast.error(res.error || "Failed to load default sections.")
@@ -143,16 +109,10 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
 
   const handleSaveSections = async () => {
     setIsSaving(true)
-    const orderedSections = sections.map((sec, index) => ({
-      ...sec,
-      sortOrder: index
-    }))
-
-    const res = await saveStorefrontSectionsAction(orderedSections)
+    const res = await saveStorefrontSectionsAction(sections)
     if (res.success) {
       toast.success("Homepage sections saved successfully.")
-      setSections(orderedSections)
-      setBaselineSections(orderedSections)
+      setBaselineSections(sections)
     } else {
       toast.error(res.error || "Failed to save sections.")
     }
@@ -177,14 +137,9 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
     const promises = []
     
     if (hasUnsavedSections) {
-      const orderedSections = sections.map((sec, index) => ({
-        ...sec,
-        sortOrder: index
-      }))
-      promises.push(saveStorefrontSectionsAction(orderedSections).then(res => {
+      promises.push(saveStorefrontSectionsAction(sections).then(res => {
         if (res.success) {
-          setSections(orderedSections)
-          setBaselineSections(orderedSections)
+          setBaselineSections(sections)
         } else {
           toast.error(res.error || "Failed to save sections.")
         }
@@ -212,25 +167,28 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
     setThemeSettings(baselineTheme)
   }
 
-  const renderEditorForSection = (section: any, onChange: (newContent: any) => void) => {
+  const renderEditorForSection = (section: StorefrontSection, onChange: (newContent: any) => void) => {
     switch (section.sectionKey) {
       case "hero":
-        return <HeroEditor content={section.content} onChange={onChange} />
+        return <HeroEditor content={section.content as any} onChange={onChange} />
       case "announcement_bar":
-        return <AnnouncementBarEditor content={section.content} onChange={onChange} />
+        return <AnnouncementBarEditor content={section.content as any} onChange={onChange} />
       case "category_showcase":
-        return <CategoryShowcaseEditor content={section.content} onChange={onChange} />
-      case "about":
-        return <AboutEditor content={section.content} onChange={onChange} />
-      case "product_grid_featured":
-      case "product_grid_new_arrivals":
-      case "product_grid_exclusive":
-      case "product_grid":
-        return <ProductGridEditor content={section.content} onChange={onChange} />
+        return <CategoryShowcaseEditor content={section.content as any} onChange={onChange} />
+      case "brand_story":
+        return <BrandStoryEditor content={section.content as any} onChange={onChange} />
+      case "featured_products":
+        return <FeaturedProductsEditor content={section.content as any} onChange={onChange} />
+      case "promo_banner":
+        return <PromoBannerEditor content={section.content as any} onChange={onChange} />
+      case "testimonials":
+        return <TestimonialsEditor content={section.content as any} onChange={onChange} />
+      case "newsletter":
+        return <NewsletterEditor content={section.content as any} onChange={onChange} />
       case "faq":
-        return <FaqEditor content={section.content} onChange={onChange} />
+        return <FaqEditor content={section.content as any} onChange={onChange} />
       case "footer":
-        return <FooterEditor content={section.content} onChange={onChange} />
+        return <FooterEditor content={section.content as any} onChange={onChange} />
       default:
         return <div className="text-sm text-muted-foreground">No editor available for {section.sectionKey}</div>
     }
@@ -248,68 +206,18 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
     setSections(newSections)
   }
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-
-    if (over && active.id !== over.id) {
-      setSections((items) => {
-        const oldIndex = items.findIndex((i) => (i.id || i.sectionKey) === active.id)
-        const newIndex = items.findIndex((i) => (i.id || i.sectionKey) === over.id)
-
-        let newItems = arrayMove(items, oldIndex, newIndex)
-
-        const footerIndex = newItems.findIndex(i => i.sectionKey === "footer")
-        if (footerIndex !== -1 && footerIndex !== newItems.length - 1) {
-          const footerItem = newItems.splice(footerIndex, 1)[0]
-          newItems.push(footerItem)
-        }
-
-        return newItems
-      })
-    }
+  const SECTION_LABELS: Record<string, string> = {
+    hero: "Hero Banner",
+    announcement_bar: "Announcement Bar",
+    category_showcase: "Category Showcase",
+    brand_story: "Brand Story",
+    featured_products: "Featured Products",
+    promo_banner: "Promotional Banner",
+    testimonials: "Testimonials",
+    newsletter: "Newsletter",
+    faq: "FAQ Section",
+    footer: "Footer"
   }
-
-  const handleAddSection = (sectionKey: string) => {
-    const defaultSec = defaultStorefrontSections.find(s => s.sectionKey === sectionKey)
-    const newSection = {
-      id: `new-${Date.now()}`,
-      sectionKey,
-      content: defaultSec ? defaultSec.content : {},
-      sortOrder: sections.length,
-      isVisible: true,
-      isNew: true
-    }
-
-    setSections(prev => {
-      const footerIndex = prev.findIndex(s => s.sectionKey === "footer")
-      if (footerIndex !== -1) {
-        const newSections = [...prev]
-        newSections.splice(footerIndex, 0, newSection)
-        return newSections
-      }
-      return [...prev, newSection]
-    })
-
-    setExpandedSection(newSection.id || newSection.sectionKey)
-  }
-
-  const handleDeleteSection = (index: number) => {
-    const newSections = [...sections]
-    newSections.splice(index, 1)
-    setSections(newSections)
-  }
-
-  const AVAILABLE_SECTIONS = [
-    { key: "hero", label: "Hero Banner" },
-    { key: "announcement_bar", label: "Announcement Bar" },
-    { key: "category_showcase", label: "Category Showcase" },
-    { key: "about", label: "About Section" },
-    { key: "product_grid_featured", label: "Featured Products" },
-    { key: "product_grid_new_arrivals", label: "New Arrivals" },
-    { key: "product_grid_exclusive", label: "Exclusive Products" },
-    { key: "faq", label: "FAQ Section" },
-    { key: "footer", label: "Footer" }
-  ]
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-20 items-start text-foreground transition-all duration-300">
@@ -317,35 +225,37 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
       {/* Left Pane: Controls */}
       <div className={`flex flex-col gap-6 transition-all duration-300 ${isPanelExpanded ? "lg:col-span-5 opacity-100" : "hidden opacity-0"}`}>
 
-        {/* Accordion 1: Active Theme */}
-        <div className="border border-border rounded-xl bg-card">
-          <button
-            className={`w-full flex items-center justify-between p-6 hover:bg-muted/50 transition-colors ${activeAccordion === 'template' ? 'border-b border-border rounded-t-xl' : 'rounded-xl'}`}
-            onClick={() => setActiveAccordion(activeAccordion === 'template' ? '' : 'template')}
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
-                <LayoutTemplateIcon className="w-5 h-5" />
+        {/* Accordion 1: Active Theme (Only show if multiple templates exist) */}
+        {templates.length > 1 && (
+          <div className="border border-border rounded-xl bg-card">
+            <button
+              className={`w-full flex items-center justify-between p-6 hover:bg-muted/50 transition-colors ${activeAccordion === 'template' ? 'border-b border-border rounded-t-xl' : 'rounded-xl'}`}
+              onClick={() => setActiveAccordion(activeAccordion === 'template' ? '' : 'template')}
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+                  <LayoutTemplateIcon className="w-5 h-5" />
+                </div>
+                <div className="flex flex-col items-start">
+                  <h2 className="text-base font-bold">Active Theme</h2>
+                  <p className="text-sm text-muted-foreground">Select your storefront layout</p>
+                </div>
               </div>
-              <div className="flex flex-col items-start">
-                <h2 className="text-base font-bold">Active Theme</h2>
-                <p className="text-sm text-muted-foreground">Select your storefront layout</p>
-              </div>
-            </div>
-            {activeAccordion === 'template' ? <ChevronDownIcon className="w-5 h-5 text-muted-foreground" /> : <ChevronRightIcon className="w-5 h-5 text-muted-foreground" />}
-          </button>
+              {activeAccordion === 'template' ? <ChevronDownIcon className="w-5 h-5 text-muted-foreground" /> : <ChevronRightIcon className="w-5 h-5 text-muted-foreground" />}
+            </button>
 
-          {activeAccordion === 'template' && (
-            <div className="p-6 bg-muted/30 rounded-b-xl">
-              <TemplatePicker
-                templates={templates}
-                loading={false}
-                selectedTemplate={selectedTemplate}
-                onSelect={handleApplyTemplate}
-              />
-            </div>
-          )}
-        </div>
+            {activeAccordion === 'template' && (
+              <div className="p-6 bg-muted/30 rounded-b-xl">
+                <TemplatePicker
+                  templates={templates}
+                  loading={false}
+                  selectedTemplate={selectedTemplate}
+                  onSelect={handleApplyTemplate}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Accordion 2: Global Theme Settings */}
         <div className="border border-border rounded-xl bg-card">
@@ -517,66 +427,66 @@ export function TemplatesPageClient({ templates, currentTemplate, initialSection
 
           {activeAccordion === 'sections' && (
             <div className="p-6 bg-muted/30 flex flex-col gap-6 rounded-b-xl">
+              <div className="flex flex-col gap-3">
+                {sections.map((section, index) => {
+                  const id = section.id || section.sectionKey
+                  const isExpanded = expandedSection === id
+                  const isCore = isCoreSection(section.sectionKey)
 
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground max-w-50">
-                  Drag to reorder sections.
-                </p>
-                <div className="w-48">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start gap-2">
-                        <PlusIcon className="h-4 w-4" /> Add Section
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-48">
-                      {AVAILABLE_SECTIONS.filter(s => !sections.some(sec => sec.sectionKey === s.key)).map(s => (
-                        <DropdownMenuItem key={s.key} onSelect={() => handleAddSection(s.key)}>
-                          {s.label}
-                        </DropdownMenuItem>
-                      ))}
-                      {AVAILABLE_SECTIONS.filter(s => !sections.some(sec => sec.sectionKey === s.key)).length === 0 && (
-                        <div className="px-2 py-1.5 text-xs text-muted-foreground text-center">
-                          All sections added
+                  return (
+                    <div 
+                      key={id}
+                      className={`border border-border bg-card rounded-xl overflow-hidden shadow-sm transition-all duration-200 ${!section.isVisible ? "opacity-75 grayscale-[0.2]" : ""}`}
+                    >
+                      <div className={`flex items-center justify-between p-4 ${isExpanded ? "border-b border-border bg-muted/30" : "hover:bg-muted/30"}`}>
+                        <button
+                          onClick={() => setExpandedSection(isExpanded ? null : id)}
+                          className="flex items-center gap-3 flex-1 text-left"
+                        >
+                          {isExpanded ? <ChevronDownIcon className="w-5 h-5 text-muted-foreground" /> : <ChevronRightIcon className="w-5 h-5 text-muted-foreground" />}
+                          <span className="font-semibold text-sm">
+                            {SECTION_LABELS[section.sectionKey] || section.sectionKey}
+                          </span>
+                        </button>
+                        
+                        <div className="flex items-center gap-3 pl-3 border-l border-border ml-3">
+                          {isCore ? (
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground px-2 py-1 bg-muted/50 rounded-full font-medium" title="This is a core section and cannot be hidden">
+                              <LockIcon className="w-3.5 h-3.5" />
+                              Required
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              {/* If Switch doesn't exist, this will fallback, but we assume it does based on Shadcn */}
+                              {typeof Switch !== 'undefined' ? (
+                                <Switch 
+                                  checked={section.isVisible} 
+                                  onCheckedChange={() => toggleSectionVisibility(index)} 
+                                />
+                              ) : (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    toggleSectionVisibility(index)
+                                  }}
+                                  className={`p-1.5 rounded-full ${section.isVisible ? "text-primary hover:bg-primary/10" : "text-muted-foreground hover:bg-muted"}`}
+                                >
+                                  {section.isVisible ? <EyeIcon className="w-4 h-4" /> : <EyeOffIcon className="w-4 h-4" />}
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {isExpanded && (
+                        <div className="p-5 bg-background">
+                          {renderEditorForSection(section, (newContent) => updateSectionContent(index, newContent))}
                         </div>
                       )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                >
-                  <SortableContext
-                    items={sections.map(s => s.id || s.sectionKey)}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    {sections.map((section, index) => {
-                      const id = section.id || section.sectionKey
-                      const isExpanded = expandedSection === id
-
-                      return (
-                        <DraggableSectionItem
-                          key={id}
-                          id={id}
-                          section={section}
-                          index={index}
-                          isExpanded={isExpanded}
-                          onToggleExpand={() => setExpandedSection(isExpanded ? null : id)}
-                          onToggleVisibility={() => toggleSectionVisibility(index)}
-                          onDelete={() => handleDeleteSection(index)}
-                          renderEditor={() => renderEditorForSection(section, (newContent) => updateSectionContent(index, newContent))}
-                          isDraggable={section.sectionKey !== "footer"}
-                          isDeletable={section.sectionKey !== "footer"}
-                        />
-                      )
-                    })}
-                  </SortableContext>
-                </DndContext>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}
