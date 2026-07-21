@@ -1,7 +1,7 @@
-/** @deprecated Replaced by template-specific components in the elegance template. */
-import React from "react"
+"use client"
+import React, { useEffect, useState } from "react"
 import { FeaturedProductsContent } from "@/lib/storefront/schema/sections"
-import { getNewArrivals, getFeaturedProducts, getExclusiveProducts, getProductsByIds } from "@/lib/products/data"
+import { fetchFeaturedProducts, fetchProductsByIds } from "@/app/actions/storefront"
 import { ProductSlider } from "@/components/storefront/shared/ProductSlider"
 
 interface DynamicProductGridProps {
@@ -10,19 +10,23 @@ interface DynamicProductGridProps {
   subdomain: string
 }
 
-export async function DynamicProductGrid({ content, merchantId, subdomain }: DynamicProductGridProps) {
-  let products: any[] = []
-  let promoType = ""
+export function DynamicProductGrid({ content, merchantId, subdomain }: DynamicProductGridProps) {
+  const [products, setProducts] = useState<any[]>([])
+  const [promoType, setPromoType] = useState("")
 
-  if (content.productIds && content.productIds.length > 0) {
-    products = await getProductsByIds(merchantId, content.productIds)
-  } else {
-    products = await getFeaturedProducts(merchantId, 8)
-    promoType = "featured"
-  }
+  useEffect(() => {
+    if (content.productIds && content.productIds.length > 0) {
+      fetchProductsByIds(merchantId, content.productIds).then(setProducts)
+    } else {
+      fetchFeaturedProducts(merchantId, 8).then(res => {
+        setProducts(res)
+        setPromoType("featured")
+      })
+    }
+  }, [merchantId, content.productIds])
 
   if (products.length === 0) {
-    return null
+    return <div className="h-96 w-full animate-pulse bg-zinc-100" />
   }
 
   return (

@@ -1,4 +1,5 @@
 import type { Product } from "@/templates/types"
+import type { StorefrontContext } from "@/lib/storefront/types"
 
 /**
  * Transforms raw DB product row into canonical storefront Product format.

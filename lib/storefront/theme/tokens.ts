@@ -1,8 +1,9 @@
-import { ThemeSettings } from "@/templates/types"
+import type { StorefrontContext, MerchantStore } from "@/lib/storefront/types"
+import type { StorefrontContext } from "@/lib/storefront/types"
 import React from "react"
 import { getFontFamily } from "./fonts"
 
-export function getThemeVariables(settings?: ThemeSettings | null): React.CSSProperties {
+export function getThemeVariables(settings?: MerchantStore["themeSettings"] | null, context?: StorefrontContext): React.CSSProperties {
   if (!settings) return {}
 
   const vars: any = {}
@@ -27,7 +28,7 @@ export function getThemeVariables(settings?: ThemeSettings | null): React.CSSPro
   }
 
   if (settings.layout?.borderRadius) {
-    const radiusMap = {
+    const radiusMap: any = {
       none: "0",
       sm: "0.25rem",
       md: "0.5rem",

@@ -1,7 +1,4 @@
 import React, { Suspense } from "react"
-import { StorefrontSection } from "@/lib/storefront/schema/sections"
-import { SectionKey } from "@/lib/storefront-sections/section-catalog"
-import { TemplateModule } from "@/templates/types"
 import { FullBleedHero } from "./FullBleedHero"
 import { AnnouncementMarquee } from "./AnnouncementMarquee"
 import { CategoryMosaic } from "./CategoryMosaic"
@@ -11,65 +8,64 @@ import { FaqSection } from "./FaqSection"
 import { SectionErrorBoundary } from "../shared/SectionErrorBoundary"
 
 interface SectionRendererProps {
-  sections: StorefrontSection[]
-  merchantId: string
-  subdomain: string
-  templateModule?: TemplateModule
-  rhythm?: Record<string, string>
+  section: {
+    id: string
+    type: string
+    settings: any
+  }
+  store: any
 }
 
-// Map of fallback components for sections that the template doesn't override
-const FallbackSections: Partial<Record<SectionKey, React.ComponentType<{ content: any; merchantId: string; subdomain: string }>>> = {
-  announcement_bar: ({ content }) => <AnnouncementMarquee content={content} />,
-  hero: ({ content }) => <FullBleedHero content={content} />,
-  category_showcase: ({ content, merchantId }) => (
-    <Suspense fallback={<div className="h-96 w-full animate-pulse bg-zinc-100" />}>
-      <CategoryMosaic content={content} merchantId={merchantId} />
-    </Suspense>
-  ),
-  brand_story: ({ content }) => <BrandStory content={content} />,
-  featured_products: ({ content, merchantId, subdomain }) => (
-    <Suspense fallback={<div className="h-96 w-full animate-pulse bg-zinc-100" />}>
-      <DynamicProductGrid content={content} merchantId={merchantId} subdomain={subdomain} />
-    </Suspense>
-  ),
-  faq: ({ content }) => <FaqSection content={content} />,
-}
+export default function SectionRenderer({ section, store }: SectionRendererProps) {
+  let ComponentToRender: React.ComponentType<any> | null = null
 
-export function SectionRenderer({ sections, merchantId, subdomain, templateModule, rhythm }: SectionRendererProps) {
-  // Sort sections by sortOrder just in case they aren't already sorted
-  const sortedSections = [...sections].sort((a, b) => a.sortOrder - b.sortOrder)
-  
-  // Filter only visible sections
-  const visibleSections = sortedSections.filter(s => s.isVisible)
+  // Map JSON 'type' to React components
+  switch (section.type) {
+    case 'hero':
+      ComponentToRender = FullBleedHero
+      break
+    case 'announcement_bar':
+      ComponentToRender = AnnouncementMarquee
+      break
+    case 'category_showcase':
+      ComponentToRender = CategoryMosaic
+      break
+    case 'brand_story':
+      ComponentToRender = BrandStory
+      break
+    case 'featured_products':
+      ComponentToRender = DynamicProductGrid
+      break
+    case 'faq':
+      ComponentToRender = FaqSection
+      break
+    // 'promo_banner', 'newsletter', 'testimonials' etc. could be added here
+    default:
+      ComponentToRender = null
+      break
+  }
+
+  if (!ComponentToRender) {
+    return (
+      <div className="p-4 border border-dashed border-red-300 bg-red-50 text-red-800 text-center text-sm my-4">
+        Unknown section type: <strong>{section.type}</strong>
+      </div>
+    )
+  }
 
   return (
-    <>
-      {visibleSections.map((section) => {
-        const key = section.sectionKey as SectionKey
-        const sectionRhythm = rhythm?.[key]
-        
-        let ComponentToRender: React.ComponentType<any> | null = null
-
-        // 1. Try template-specific section
-        if (templateModule?.sections?.[key]) {
-          ComponentToRender = templateModule.sections[key]!
-        }
-        // 2. Fall back to shared default
-        else if (FallbackSections[key]) {
-          ComponentToRender = FallbackSections[key]!
-        }
-
-        if (!ComponentToRender) return null
-
-        return (
-          <div key={(section as any).id || key} data-rhythm={sectionRhythm}>
-            <SectionErrorBoundary sectionKey={key}>
-              <ComponentToRender content={section.content} merchantId={merchantId} subdomain={subdomain} />
-            </SectionErrorBoundary>
-          </div>
-        )
-      })}
-    </>
+    <SectionErrorBoundary sectionKey={section.type}>
+      <Suspense fallback={<div className="h-64 w-full animate-pulse bg-zinc-100" />}>
+        {/* We map the JSON settings to the 'content' prop that these legacy components expect,
+            or pass them directly if the component is updated. For now, assuming they take 'content'.
+            Also passing merchantId and subdomain as required by some components. */}
+        <ComponentToRender 
+          content={section.settings} 
+          merchantId={store.id} 
+          subdomain={store.subdomain} 
+          settings={section.settings}
+        />
+      </Suspense>
+    </SectionErrorBoundary>
   )
 }
