@@ -247,6 +247,11 @@ export function AppSidebar({
                     icon: LayoutTemplateIcon,
                   },
                   {
+                    label: "Visual Editor",
+                    href: "/dashboard/editor",
+                    icon: ImageIcon,
+                  },
+                  {
                     label: "Pages",
                     href: "/dashboard/pages",
                     icon: FileTextIcon,
