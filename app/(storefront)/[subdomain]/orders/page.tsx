@@ -3,8 +3,8 @@ import { headers } from "next/headers"
 import { notFound } from "next/navigation"
 import { auth } from "@/lib/auth/auth"
 import { getCachedMerchantById } from "@/lib/cache/merchants"
-import { OrdersLookupForm } from "@/components/storefront/OrdersLookupForm"
-import { CustomerOrdersList } from "@/components/storefront/CustomerOrdersList"
+import { OrdersLookupForm } from "@/components/storefront/pages/OrdersLookupForm"
+import { CustomerOrdersList } from "@/components/storefront/pages/CustomerOrdersList"
 import type { Metadata } from "next"
 
 type Props = {

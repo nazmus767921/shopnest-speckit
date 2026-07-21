@@ -33,7 +33,7 @@ import { defaultStorefrontSections } from "@/lib/storefront-sections/defaults"
 import { SECTION_SORT_ORDER, isCoreSection, SectionKey } from "@/lib/storefront-sections/section-catalog"
 import { PreviewPane } from "./PreviewPane"
 import { UnsavedChangesBar } from "./UnsavedChangesBar"
-import { fontPairs } from "@/lib/fonts"
+import { fontPairs } from "@/lib/storefront/theme/fonts"
 
 interface TemplatesPageClientProps {
   templates: any[]

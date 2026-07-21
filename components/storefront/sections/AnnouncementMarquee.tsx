@@ -1,10 +1,12 @@
 /** @deprecated Replaced by template-specific components in the elegance template. */
 import React from "react"
 import Link from "next/link"
-import { AnnouncementBarContent } from "@/lib/storefront-sections/types"
+import { AnnouncementBarContent } from "@/lib/storefront/schema/sections"
 
 export function AnnouncementMarquee({ content }: { content: AnnouncementBarContent }) {
-  const { text, link, backgroundColor = "#000000", textColor = "#ffffff" } = content
+  const { text, link } = content
+  const backgroundColor = (content as any).backgroundColor || "#000000"
+  const textColor = (content as any).textColor || "#ffffff"
 
   // Generate a repeated set of text spans to fill the viewport width nicely
   const repeatedText = Array(12).fill(text)

@@ -71,7 +71,7 @@ export async function saveStorefrontSectionsAction(rawSections: any) {
       }
 
       if (!contentValidation.success) {
-        return { success: false, error: `Validation error in ${section.sectionKey}: ${contentValidation.error.issues[0].message}` }
+        return { success: false, error: `Validation error in ${section.sectionKey}: ${(contentValidation as any).error?.issues[0]?.message || 'Unknown error'}` }
       }
 
       section.content = contentValidation.data

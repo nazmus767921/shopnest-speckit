@@ -1,11 +1,13 @@
 /** @deprecated Replaced by template-specific components in the elegance template. */
 import React from "react"
 import Link from "next/link"
-import { CategoryShowcaseContent } from "@/lib/storefront-sections/types"
+import { CategoryShowcaseContent } from "@/lib/storefront/schema/sections"
 import { getCategories } from "@/db/queries/categories"
 
 export async function CategoryMosaic({ content, merchantId }: { content: CategoryShowcaseContent, merchantId: string }) {
-  const { title, layout = "grid" } = content
+  const { headline } = content
+  const title = headline
+  const layout = (content as any).layout || "grid"
   
   // Fetch active categories for the merchant
   const allCategories = await getCategories(merchantId)

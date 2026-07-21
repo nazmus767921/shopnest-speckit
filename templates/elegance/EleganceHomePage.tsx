@@ -3,11 +3,11 @@ import Link from "next/link"
 import { SparklesIcon, FlameIcon, PackageOpenIcon } from "@/lib/icons";
 
 import { Card } from "@/components/ui"
-import { ProductSlider } from "@/components/storefront/ProductSlider"
+import { ProductSlider } from "@/components/storefront/shared/ProductSlider"
 import { SectionRenderer } from "@/components/storefront/sections/SectionRenderer"
 import { type HomePageProps } from "../types"
 import { assignColorRhythm } from "@/lib/storefront-sections/color-rhythm"
-import * as eleganceModule from "./index"
+import { elegance as eleganceModule } from "./index"
 
 export function EleganceHomePage({ store, sections = [] }: HomePageProps) {
   const visibleKeys = sections

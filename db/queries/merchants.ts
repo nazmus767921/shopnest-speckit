@@ -136,3 +136,5 @@ export async function updateThemeSettings(merchantId: string, themeSettings: any
     .returning()
   return updated
 }
+
+

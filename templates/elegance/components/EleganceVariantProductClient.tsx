@@ -6,7 +6,7 @@ import { VariantSelectorErrorBoundary } from "@/components/storefront/variant-se
 import { AddToCartButton } from "@/components/storefront/shared/AddToCartButton"
 import { BuyNowButton } from "@/components/storefront/shared/BuyNowButton"
 import { QuantityAdjuster } from "@/components/storefront/shared/QuantityAdjuster"
-import { PriceDisplay } from "@/components/storefront/shared/PriceDisplay"
+import { PriceDisplay } from "@/components/storefront/primitives/PriceDisplay"
 import { cn } from "@/lib/utils"
 import type { VariantOption, AttributeInfo } from "@/components/storefront/variant-selector/VariantSelector"
 import type { StorefrontProduct } from "@/app/(storefront)/[subdomain]/product/[slug]/VariantProductClient"
@@ -74,7 +74,8 @@ export function EleganceVariantProductClient({
         variantLabel: Object.entries(selectedVariant.attributeCombination)
           .map(([key, val]) => `${key}: ${val}`)
           .join(", "),
-      }
+        compareAtPricePaisa: (selectedVariant.compareAtPricePaisa ?? product.compareAtPricePaisa) ?? undefined,
+      } as any;
     }
     return null
   }, [selectedVariant, product])
@@ -176,7 +177,7 @@ export function EleganceVariantProductClient({
           {/* Add To Cart */}
           <AddToCartButton
             merchantId={merchantId}
-            product={cartProduct || { ...product, variantId: undefined }}
+            product={cartProduct || ({ ...product, variantId: undefined, compareAtPricePaisa: product.compareAtPricePaisa ?? undefined } as any)}
             quantity={quantity}
             size="lg"
             className="w-full btn-storefront-primary py-4 font-sans font-medium uppercase tracking-wider text-xs rounded-full border-none hover:bg-zinc-800 disabled:opacity-50 disabled:pointer-events-none transition-colors"

@@ -4,13 +4,14 @@ import React from "react"
 import { ArrowLeftIcon } from "@/lib/icons";
 
 import Link from "next/link"
+import { StarRating } from "@/components/storefront/primitives/StarRating"
 import { ImageGallery } from "@/components/storefront/shared/ImageGallery"
-import { PriceDisplay } from "@/components/storefront/shared/PriceDisplay"
+import { PriceDisplay } from "@/components/storefront/primitives/PriceDisplay"
 import { Breadcrumbs } from "@/components/storefront/shared/Breadcrumbs"
 import { AddToCartButton } from "@/components/storefront/shared/AddToCartButton"
 import { BuyNowButton } from "@/components/storefront/shared/BuyNowButton"
 import { ProductGrid } from "@/components/storefront/shared/ProductGrid"
-import { ProductTabs } from "@/components/storefront/ProductTabs"
+import { ProductTabs } from "@/components/storefront/shared/ProductTabs"
 import { EleganceVariantProductClient } from "./components/EleganceVariantProductClient"
 import { EleganceProductCard } from "./components/EleganceProductCard"
 import { type PDPProps } from "../types"
@@ -25,7 +26,7 @@ export function ElegancePDP({ store, product, relatedProducts, faqs }: PDPProps)
     slug: product.slug,
     name: product.name,
     pricePaisa: product.pricePaisa,
-    compareAtPricePaisa: product.compareAtPricePaisa,
+    compareAtPricePaisa: product.compareAtPricePaisa ?? undefined,
     stockCount: product.stockCount,
     imageUrl: product.images[0]?.storagePath || null,
   }
@@ -86,18 +87,7 @@ export function ElegancePDP({ store, product, relatedProducts, faqs }: PDPProps)
             </h1>
 
             {/* Rating */}
-            <div className="flex items-center gap-1.5 mt-0.5 select-none">
-              <div className="flex items-center gap-0.5">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <svg key={i} className="h-4 w-4 fill-[var(--color-rating-star)] text-[var(--color-rating-star)]" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
-              <span className="text-xs font-sans text-[var(--color-shade-50)]">
-                (4.9 Rating)
-              </span>
-            </div>
+            <StarRating rating={4.9} />
 
             {/* Price */}
             {!hasVariants && (

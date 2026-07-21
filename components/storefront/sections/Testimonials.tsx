@@ -1,10 +1,9 @@
 import React from "react"
 import { TestimonialCard } from "@/components/storefront/primitives/TestimonialCard"
-import { type SectionProps } from "@/templates/types"
+import { TestimonialsContent } from "@/lib/storefront/schema/sections"
 
-export function Testimonials({ section }: SectionProps) {
-  const content = section.content as any
-  const title = content.title || "What Our Customers Say"
+export function Testimonials({ content }: { content: TestimonialsContent }) {
+  const title = (content as any).headline || (content as any).title || "What Our Customers Say"
   const testimonials = content.testimonials || []
 
   if (testimonials.length === 0) {

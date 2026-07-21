@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'vitest'
-import { SECTION_CATALOG, CORE_SECTIONS, OPTIONAL_SECTIONS, isCoreSection, isOptionalSection, SECTION_SORT_ORDER } from '../section-catalog'
+import { SECTION_CATALOG, CORE_SECTION_KEYS, OPTIONAL_SECTION_KEYS, isCoreSection, isOptionalSection, SECTION_SORT_ORDER } from '../section-catalog'
 
 describe('Section Catalog', () => {
   test('has exactly 10 sections total', () => {
@@ -7,13 +7,13 @@ describe('Section Catalog', () => {
   })
 
   test('has exactly 4 core sections', () => {
-    expect(CORE_SECTIONS.length).toBe(4)
-    expect(CORE_SECTIONS).toEqual(['hero', 'category_showcase', 'featured_products', 'footer'])
+    expect(CORE_SECTION_KEYS.size).toBe(4)
+    expect(Array.from(CORE_SECTION_KEYS)).toEqual(['hero', 'category_showcase', 'featured_products', 'footer'])
   })
 
   test('has exactly 6 optional sections', () => {
-    expect(OPTIONAL_SECTIONS.length).toBe(6)
-    expect(OPTIONAL_SECTIONS).toEqual([
+    expect(OPTIONAL_SECTION_KEYS.size).toBe(6)
+    expect(Array.from(OPTIONAL_SECTION_KEYS)).toEqual([
       'announcement_bar',
       'promo_banner',
       'brand_story',

@@ -1,9 +1,8 @@
 import React from "react"
 import { NewsletterForm } from "@/components/storefront/primitives/NewsletterForm"
-import { type SectionProps } from "@/templates/types"
+import { NewsletterContent } from "@/lib/storefront-sections/types"
 
-export function Newsletter({ section }: SectionProps) {
-  const content = section.content as any
+export function Newsletter({ content }: { content: NewsletterContent }) {
   const heading = content.heading || "Join Our Newsletter"
   const subheading = content.subheading || "Subscribe to receive updates, access to exclusive deals, and more."
   const placeholder = content.placeholder || "Enter your email address"

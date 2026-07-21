@@ -139,6 +139,7 @@ export async function proxy(request: NextRequest) {
 
     // Check for owner template preview override
     let activeTemplate = merchant.template || "general"
+    let isPreview = false
     const templatePreview = url.searchParams.get("template_preview")
     if (templatePreview) {
       const session = await auth.api.getSession({
@@ -146,6 +147,7 @@ export async function proxy(request: NextRequest) {
       })
       if (session?.user && session.user.id === merchant.ownerId) {
         activeTemplate = templatePreview
+        isPreview = true
       }
     }
 
@@ -154,7 +156,10 @@ export async function proxy(request: NextRequest) {
     requestHeaders.set("x-merchant-id", merchant.id)
     requestHeaders.set("x-merchant-name", merchant.name)
     requestHeaders.set("x-merchant-subdomain", merchant.subdomain)
-    requestHeaders.set("x-merchant-template", activeTemplate)
+    requestHeaders.set("x-merchant-template", merchant.template || "general")
+    if (isPreview && templatePreview) {
+      requestHeaders.set("x-template-preview", templatePreview)
+    }
 
     url.pathname = `/${subdomain}${pathname}`
     return NextResponse.rewrite(url, {

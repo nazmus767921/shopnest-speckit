@@ -1,6 +1,17 @@
 import React from "react"
-import { StorefrontSection } from "@/lib/storefront-sections/types"
-import { SectionKey } from "@/lib/storefront-sections/section-catalog"
+import {
+  HeroContent,
+  FeaturedProductsContent,
+  CategoryShowcaseContent,
+  PromoBannerContent,
+  BrandStoryContent,
+  TestimonialsContent,
+  NewsletterContent,
+  FAQContent,
+  AnnouncementBarContent,
+  FooterContent,
+  StorefrontSection,
+} from "@/lib/storefront/schema/sections"
 
 export interface ThemeSettings {
   colors?: {
@@ -19,12 +30,28 @@ export interface ThemeSettings {
   }
 }
 
-export interface StoreData {
+// Minimal representations of DB entities
+export interface MerchantStore {
   id: string
   name: string
   subdomain: string
   template: string
   themeSettings?: ThemeSettings | null
+}
+
+export interface User {
+  id: string
+  email: string
+  name?: string
+}
+
+export interface Category {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  parentId?: string | null
+  imageUrl?: string | null
 }
 
 export interface Product {
@@ -68,17 +95,15 @@ export interface Product {
   }>
 }
 
-export interface Category {
+export interface MenuWithItems {
   id: string
   name: string
-  slug: string
-  description: string | null
-  parentId?: string | null
-  imageUrl?: string | null
-}
-
-export interface CategoryWithProducts extends Category {
-  products: Product[]
+  items: Array<{
+    id: string
+    label: string
+    url: string
+    order: number
+  }>
 }
 
 export interface FilterState {
@@ -94,68 +119,110 @@ export interface PaginationState {
   pageSize: number
 }
 
+// 1. StorefrontContext
+export interface StorefrontContext {
+  // Core Entities
+  store: MerchantStore;
+  merchant: User;
+  
+  // Template Resolution
+  templateSlug: string;
+  isPreview: boolean;
+  
+  // Content & Navigation
+  sections: StorefrontSection[];
+  menus: {
+    main?: MenuWithItems;
+    footer?: MenuWithItems;
+  };
+  categories: Category[];
+  
+  // Styling
+  themeVars: Record<string, string>;
+}
+
+// Props for Pages and Shell
+export interface ShellProps {
+  store: MerchantStore;
+  menus: StorefrontContext['menus'];
+  categories: Category[];
+  themeVars: Record<string, string>;
+  children: React.ReactNode;
+}
 
 export interface HomePageProps {
-  store: StoreData
-  sections: StorefrontSection[]
+  store: MerchantStore;
+  sections: StorefrontSection[];
 }
 
 export interface PLPProps {
-  store: StoreData
-  products: Product[]
-  categories: Category[]
-  activeFilters: FilterState
-  pagination: PaginationState
+  store: MerchantStore;
+  products: Product[];
+  categories: Category[];
+  activeFilters: FilterState;
+  pagination: PaginationState;
 }
 
 export interface PDPProps {
-  store: StoreData
-  product: Product
-  relatedProducts: Product[]
-  faqs?: Array<{ question: string; answer: string }>
-}
-
-export interface CartPageProps {
-  store: StoreData
-}
-
-export interface NavbarProps {
-  store: StoreData
-  subdomain: string
-  menu?: any
-  categories?: Category[]
-}
-
-export interface FooterProps {
-  store: StoreData
-  menu?: any
-  footerSection?: any
+  store: MerchantStore;
+  product: Product;
+  relatedProducts: Product[];
+  faqs?: Array<{ question: string; answer: string }>;
 }
 
 export interface StandardPageProps {
-  store: StoreData
+  store: MerchantStore;
   page: {
-    id: string
-    title: string
-    content: string
-    metaTitle?: string | null
-    metaDescription?: string | null
-  }
+    id: string;
+    title: string;
+    content: string;
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
 }
 
-export interface SectionProps {
-  section: StorefrontSection
-  merchantId?: string
-  subdomain?: string
+// 2. Template Contract (TemplateModule)
+export interface TemplateMetadata {
+  slug: string;
+  name: string;
+  description: string;
+  thumbnail?: string;
+  defaultTheme: {
+    colors: Record<string, string>;
+    fonts: { display: string; sans: string };
+    radius: string;
+  };
+  layoutConfig: {
+    hasSidebar: boolean;
+    maxWidth: 'standard' | 'wide' | 'full';
+  };
 }
 
 export interface TemplateModule {
-  HomePage: React.ComponentType<HomePageProps>
-  PLP: React.ComponentType<PLPProps>
-  PDP: React.ComponentType<PDPProps>
-  CartPage: React.ComponentType<CartPageProps>
-  Navbar: React.ComponentType<NavbarProps>
-  Footer: React.ComponentType<FooterProps>
-  StandardPage: React.ComponentType<StandardPageProps>
-  sections?: Partial<Record<SectionKey, React.ComponentType<SectionProps>>>
+  metadata: TemplateMetadata;
+  
+  // Layout
+  Shell: React.ComponentType<ShellProps>;
+  
+  // Pages
+  pages: {
+    home: React.ComponentType<HomePageProps>;
+    plp: React.ComponentType<PLPProps>;
+    pdp: React.ComponentType<PDPProps>;
+    standard: React.ComponentType<StandardPageProps>;
+  };
+  
+  // Section Renderers (Must implement all 10)
+  sections: {
+    hero: React.ComponentType<{ content: HeroContent, merchantId: string, subdomain: string }>;
+    featured_products: React.ComponentType<{ content: FeaturedProductsContent, merchantId: string, subdomain: string }>;
+    category_showcase: React.ComponentType<{ content: CategoryShowcaseContent, merchantId: string, subdomain: string }>;
+    promo_banner: React.ComponentType<{ content: PromoBannerContent, merchantId: string, subdomain: string }>;
+    brand_story: React.ComponentType<{ content: BrandStoryContent, merchantId: string, subdomain: string }>;
+    testimonials: React.ComponentType<{ content: TestimonialsContent, merchantId: string, subdomain: string }>;
+    newsletter: React.ComponentType<{ content: NewsletterContent, merchantId: string, subdomain: string }>;
+    faq: React.ComponentType<{ content: FAQContent, merchantId: string, subdomain: string }>;
+    announcement_bar: React.ComponentType<{ content: AnnouncementBarContent, merchantId: string, subdomain: string }>;
+    footer: React.ComponentType<{ content: FooterContent, merchantId: string, subdomain: string }>;
+  };
 }

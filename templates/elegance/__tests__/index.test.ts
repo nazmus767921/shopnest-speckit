@@ -1,14 +1,12 @@
 import { expect, test, describe } from "vitest"
-import * as elegance from "../index"
+import { elegance } from "../index"
 
 describe("Elegance Template Module", () => {
   test("exports required page components", () => {
-    expect(elegance.HomePage).toBeDefined()
-    expect(elegance.PLP).toBeDefined()
-    expect(elegance.PDP).toBeDefined()
-    expect(elegance.CartPage).toBeDefined()
-    expect(elegance.Navbar).toBeDefined()
-    expect(elegance.StandardPage).toBeDefined()
+    expect(elegance.pages.home).toBeDefined()
+    expect(elegance.pages.plp).toBeDefined()
+    expect(elegance.pages.pdp).toBeDefined()
+    expect(elegance.pages.standard).toBeDefined()
   })
 
   test("exports template-specific sections", () => {

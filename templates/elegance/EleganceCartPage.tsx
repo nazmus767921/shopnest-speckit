@@ -10,9 +10,9 @@ import { Card } from "@/components/ui"
 import { formatTaka } from "@/lib/utils"
 import { validateCartVariantsAction } from "@/app/actions/validate-cart"
 import { Breadcrumbs } from "@/components/storefront/shared/Breadcrumbs"
-import { type CartPageProps } from "../types"
+import { type MerchantStore } from "../types"
 
-export function EleganceCartPage({ store }: CartPageProps) {
+export function EleganceCartPage({ store }: { store: MerchantStore }) {
   const { items, updateQuantity, removeItem, subtotalPaisa } = useCart(store.id)
   const [mounted, setMounted] = useState(false)
 

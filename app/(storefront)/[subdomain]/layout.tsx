@@ -2,17 +2,13 @@ import React from "react"
 import { headers } from "next/headers"
 import type { Metadata } from "next"
 import "@/templates/elegance/styles.css"
-import { getCachedMerchantById } from "@/lib/cache/merchants"
-import { getCachedMenuBySlug } from "@/db/queries/navigation"
-import { getCachedCategories } from "@/lib/cache/categories"
-import { getTemplate } from "@/templates/registry"
-import { getCachedStorefrontSections } from "@/lib/cache/storefront"
-import { defaultStorefrontSections } from "@/lib/storefront-sections/defaults"
+import "@/lib/storefront/theme/storefront-tokens.css"
 import { Archivo_Black } from "next/font/google"
 import { Suspense } from "react"
 import { connection } from "next/server"
-import { getThemeVariables } from "@/lib/theme"
-import { fontClasses } from "@/lib/fonts"
+import { fontClasses } from "@/lib/storefront/theme/fonts"
+import { getStorefrontContext } from "@/lib/storefront/data/context"
+import { getTemplate } from "@/templates/registry"
 
 const archivoBlack = Archivo_Black({
   weight: "400",
@@ -38,9 +34,11 @@ export const instant = false
 export default function StorefrontLayout({ children, params }: Props) {
   return (
     <Suspense fallback={<div className="min-h-screen bg-zinc-50 animate-pulse" />}>
-      <StorefrontThemeWrapper params={params}>
-        {children}
-      </StorefrontThemeWrapper>
+      <div className={`${archivoBlack.variable} ${fontClasses}`}>
+        <StorefrontThemeWrapper params={params}>
+          {children}
+        </StorefrontThemeWrapper>
+      </div>
     </Suspense>
   )
 }
@@ -49,49 +47,26 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
   await connection()
   const { subdomain } = await params
   const headersList = await headers()
-  const merchantId = headersList.get("x-merchant-id") || ""
   
-  // Fetch full merchant record from DB
-  const merchant = merchantId ? await getCachedMerchantById(merchantId) : null
-  const template = headersList.get("x-merchant-template") || merchant?.template || "elegance"
-  const templateModule = getTemplate(template)
+  const previewTemplateSlug = headersList.get("x-template-preview")
 
-  const store = {
-    id: merchant?.id || "",
-    name: merchant?.name || "Boutique Store",
-    subdomain: merchant?.subdomain || subdomain,
-    template,
-    themeSettings: merchant?.themeSettings || null,
-  }
-
-  let sections = merchantId ? await getCachedStorefrontSections(merchantId) : []
-  if (!sections || sections.length === 0) {
-    sections = defaultStorefrontSections as any
-  }
-  let footerSection = sections.find((s: any) => s.sectionKey === "footer")
-  if (!footerSection) {
-    footerSection = defaultStorefrontSections.find(s => s.sectionKey === "footer") as any
-  }
-
-  const themeVars = getThemeVariables(store.themeSettings)
-
-  // Fetch menus dynamically with fallbacks handled inside template
-  const mainMenu = merchantId ? await getCachedMenuBySlug(merchantId, "main-menu") : null
-  const footerMenu = merchantId ? await getCachedMenuBySlug(merchantId, "footer-menu") : null
-  const categories = merchantId ? await getCachedCategories(merchantId) : []
-
+  const context = await getStorefrontContext(subdomain, previewTemplateSlug)
+  const { store, templateSlug, menus, categories, themeVars } = context
+  const template = getTemplate(templateSlug)
+  
   return (
-    <div style={themeVars} className={`storefront-template-${template} ${archivoBlack.variable} ${fontClasses} min-h-screen flex flex-col font-sans overflow-x-hidden`}>
-      {/* Dynamic Template Header */}
-      <templateModule.Navbar store={store} subdomain={subdomain} menu={mainMenu} categories={categories as any} />
-
-      {/* Main Content Area */}
-      <main className={`grow px-4 md:px-8 ${template === "elegance" ? "pt-[81px] pb-16 md:pt-[89px] md:pb-24" : "py-8 md:py-12"}`}>
-        <div className={`${template === "elegance" ? "max-w-10xl" : "max-w-7xl"} mx-auto`}>{children}</div>
-      </main>
-
-      {/* Dynamic Template Footer */}
-      <templateModule.Footer store={store} menu={footerMenu} footerSection={footerSection} />
-    </div>
+    <template.Shell 
+      store={store} 
+      menus={menus as any} 
+      categories={categories as any}
+      themeVars={themeVars}
+    >
+      {context.isPreview && (
+        <div className="bg-blue-600 text-white text-center text-sm py-2 px-4 sticky top-0 z-[100] font-sans">
+          <strong>Preview Mode:</strong> You are currently previewing the <strong>{template.metadata.name}</strong> template.
+        </div>
+      )}
+      {children}
+    </template.Shell>
   )
 }

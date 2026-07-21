@@ -2,15 +2,13 @@
 
 import React from "react"
 import { ProductCard } from "@/components/storefront/primitives/ProductCard"
-import { type SectionProps } from "../../types"
+import type { FeaturedProductsContent } from "@/lib/storefront/schema/sections"
 import Link from "next/link"
 
-export function FeaturedProducts({ section, merchantId, subdomain }: SectionProps) {
-  const content = section.content as any
-  const title = content.title || "Featured Products"
-  const products = content.products || []
+export function FeaturedProducts({ content, merchantId, subdomain }: { content: FeaturedProductsContent, merchantId: string, subdomain: string }) {
+  const { headline, subheadline, productIds } = content || {}
 
-  if (products.length === 0) {
+  if (!productIds || productIds.length === 0) {
     return null
   }
 
@@ -18,20 +16,18 @@ export function FeaturedProducts({ section, merchantId, subdomain }: SectionProp
     <section className="py-24 px-6 md:px-12 max-w-10xl mx-auto w-full bg-[var(--color-surface)]">
       <div className="flex flex-col items-center justify-center mb-16 text-center">
         <h2 className="font-display text-4xl text-[var(--color-ink)] mb-4">
-          {title}
+          {headline}
         </h2>
+        {subheadline && <p className="text-[var(--color-ink)] mb-4">{subheadline}</p>}
         <div className="w-16 h-px bg-[var(--color-hairline-warm)]" />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
-        {products.slice(0, 8).map((product: any) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            merchantId={merchantId!}
-            subdomain={subdomain!}
-            imageAspectRatio="aspect-[3/4]"
-          />
+        {productIds.slice(0, 8).map((id) => (
+          <div key={id} className="p-4 border border-[var(--color-hairline-warm)] text-center">
+            {/* Stub for resolved product */}
+            Product ID: {id}
+          </div>
         ))}
       </div>
 

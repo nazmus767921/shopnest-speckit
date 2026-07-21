@@ -88,7 +88,8 @@ export function VariantProductClient({
         variantLabel: Object.entries(selectedVariant.attributeCombination)
           .map(([key, val]) => `${key}: ${val}`)
           .join(", "),
-      };
+        compareAtPricePaisa: (selectedVariant.compareAtPricePaisa ?? product.compareAtPricePaisa) ?? undefined,
+      } as any;
     }
     return null;
   }, [selectedVariant, product]);
@@ -152,7 +153,7 @@ export function VariantProductClient({
           {/* Add To Cart */}
           <AddToCartButton
             merchantId={merchantId}
-            product={cartProduct || { ...product, variantId: undefined }}
+            product={cartProduct || ({ ...product, variantId: undefined, compareAtPricePaisa: product.compareAtPricePaisa ?? undefined } as any)}
             quantity={quantity}
             size="lg"
             className="w-full h-12 rounded-full bg-primary text-white font-bold font-sans cursor-pointer flex items-center justify-center gap-2 hover:bg-zinc-800 disabled:opacity-50 disabled:pointer-events-none transition-colors"

@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Added for Speckit setup
+    "dist/**",
+    "coverage/**",
+    "*.min.js",
   ]),
 ]);
 

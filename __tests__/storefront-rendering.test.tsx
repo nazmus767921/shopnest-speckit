@@ -38,7 +38,7 @@ describe("Storefront Rendering", () => {
     ]
 
     const { container } = render(
-      <SectionRenderer sections={sections} merchantId="m1" subdomain="test" />
+      <SectionRenderer sections={sections as any} merchantId="m1" subdomain="test" />
     )
 
     // FAQ should render (sortOrder 1)

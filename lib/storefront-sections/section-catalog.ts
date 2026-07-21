@@ -142,6 +142,11 @@ export function isCoreSection(key: string): boolean {
   return CORE_SECTION_KEYS.has(key as SectionKey)
 }
 
+/** Check if a section key is an optional section */
+export function isOptionalSection(key: string): boolean {
+  return OPTIONAL_SECTION_KEYS.has(key as SectionKey)
+}
+
 /** Check if a section key is valid */
 export function isValidSectionKey(key: string): key is SectionKey {
   return SECTION_KEYS.includes(key as SectionKey)

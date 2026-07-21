@@ -3,7 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { PriceDisplay } from "@/components/storefront/shared/PriceDisplay"
+import { PriceDisplay } from "@/components/storefront/primitives/PriceDisplay"
 import { type Product } from "../../types"
 
 interface EleganceProductCardProps {
@@ -14,7 +14,7 @@ interface EleganceProductCardProps {
 
 import { useState } from "react"
 import { useCart } from "@/hooks/use-cart"
-import { VariantQuickSelectDialog, type DialogProduct } from "@/components/storefront/VariantQuickSelectDialog"
+import { VariantQuickSelectDialog, type DialogProduct } from "@/components/storefront/shared/VariantQuickSelectDialog"
 
 export function EleganceProductCard({ product, subdomain, merchantId }: EleganceProductCardProps) {
   const [dialogOpen, setDialogOpen] = useState(false)

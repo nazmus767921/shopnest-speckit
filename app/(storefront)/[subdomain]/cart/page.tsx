@@ -1,14 +1,15 @@
 import React from "react"
 import { headers } from "next/headers"
 import { notFound } from "next/navigation"
-import { getCachedMerchantById } from "@/lib/cache/merchants"
-import { getTemplate } from "@/templates/registry"
+import { getStorefrontContext } from "@/lib/storefront/data/context"
 import { Suspense } from "react"
 import { connection } from "next/server"
 
 type Props = {
   params: Promise<{ subdomain: string }>
 }
+
+import { CartClientPage } from "@/components/storefront/pages/CartClientPage"
 
 export default function CartPage({ params }: Props) {
   return (
@@ -22,27 +23,17 @@ async function CartPageContent({ params }: Props) {
   await connection()
   const { subdomain } = await params
   const headersList = await headers()
-  const merchantId = headersList.get("x-merchant-id")
-  const template = headersList.get("x-merchant-template") || "general"
+  const previewTemplateSlug = headersList.get("x-template-preview")
 
-  if (!merchantId) {
+  const context = await getStorefrontContext(subdomain, previewTemplateSlug)
+  const { store } = context
+
+  if (!store.id) {
     notFound()
   }
 
-  const merchant = await getCachedMerchantById(merchantId)
-
-  const store = {
-    id: merchant?.id || "",
-    name: merchant?.name || "Boutique Store",
-    subdomain: merchant?.subdomain || subdomain,
-    template,
-    themeSettings: merchant?.themeSettings || null,
-  }
-
-  const templateModule = getTemplate(template)
-
   return (
-    <templateModule.CartPage store={store} />
+    <CartClientPage merchantId={store.id} merchantName={store.name} subdomain={subdomain} />
   )
 }
 

@@ -1,13 +1,14 @@
 import React, { Suspense } from "react"
-import { StorefrontSection } from "@/lib/storefront-sections/types"
+import { StorefrontSection } from "@/lib/storefront/schema/sections"
 import { SectionKey } from "@/lib/storefront-sections/section-catalog"
-import { TemplateModule, SectionProps } from "@/templates/types"
+import { TemplateModule } from "@/templates/types"
 import { FullBleedHero } from "./FullBleedHero"
 import { AnnouncementMarquee } from "./AnnouncementMarquee"
 import { CategoryMosaic } from "./CategoryMosaic"
 import { BrandStory } from "./BrandStory"
 import { DynamicProductGrid } from "./DynamicProductGrid"
 import { FaqSection } from "./FaqSection"
+import { SectionErrorBoundary } from "../shared/SectionErrorBoundary"
 
 interface SectionRendererProps {
   sections: StorefrontSection[]
@@ -18,21 +19,21 @@ interface SectionRendererProps {
 }
 
 // Map of fallback components for sections that the template doesn't override
-const FallbackSections: Partial<Record<SectionKey, React.ComponentType<SectionProps & { merchantId: string; subdomain: string }>>> = {
-  announcement_bar: ({ section }) => <AnnouncementMarquee content={section.content as any} />,
-  hero: ({ section }) => <FullBleedHero content={section.content as any} />,
-  category_showcase: ({ section, merchantId }) => (
+const FallbackSections: Partial<Record<SectionKey, React.ComponentType<{ content: any; merchantId: string; subdomain: string }>>> = {
+  announcement_bar: ({ content }) => <AnnouncementMarquee content={content} />,
+  hero: ({ content }) => <FullBleedHero content={content} />,
+  category_showcase: ({ content, merchantId }) => (
     <Suspense fallback={<div className="h-96 w-full animate-pulse bg-zinc-100" />}>
-      <CategoryMosaic content={section.content as any} merchantId={merchantId} />
+      <CategoryMosaic content={content} merchantId={merchantId} />
     </Suspense>
   ),
-  brand_story: ({ section }) => <BrandStory content={section.content as any} />,
-  featured_products: ({ section, merchantId, subdomain }) => (
+  brand_story: ({ content }) => <BrandStory content={content} />,
+  featured_products: ({ content, merchantId, subdomain }) => (
     <Suspense fallback={<div className="h-96 w-full animate-pulse bg-zinc-100" />}>
-      <DynamicProductGrid content={section.content as any} merchantId={merchantId} subdomain={subdomain} />
+      <DynamicProductGrid content={content} merchantId={merchantId} subdomain={subdomain} />
     </Suspense>
   ),
-  faq: ({ section }) => <FaqSection content={section.content as any} />,
+  faq: ({ content }) => <FaqSection content={content} />,
 }
 
 export function SectionRenderer({ sections, merchantId, subdomain, templateModule, rhythm }: SectionRendererProps) {
@@ -62,8 +63,10 @@ export function SectionRenderer({ sections, merchantId, subdomain, templateModul
         if (!ComponentToRender) return null
 
         return (
-          <div key={section.id || key} data-rhythm={sectionRhythm}>
-            <ComponentToRender section={section} merchantId={merchantId} subdomain={subdomain} />
+          <div key={(section as any).id || key} data-rhythm={sectionRhythm}>
+            <SectionErrorBoundary sectionKey={key}>
+              <ComponentToRender content={section.content} merchantId={merchantId} subdomain={subdomain} />
+            </SectionErrorBoundary>
           </div>
         )
       })}

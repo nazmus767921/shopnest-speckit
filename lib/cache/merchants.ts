@@ -16,3 +16,11 @@ export async function getCachedMerchantByOwnerId(ownerId: string) {
   cacheTag(`merchant-owner-${ownerId}`);
   return getMerchantByOwnerId(ownerId);
 }
+
+export async function getCachedMerchantBySubdomain(subdomain: string) {
+  "use cache";
+  cacheLife('max');
+  cacheTag(`merchant-subdomain-${subdomain}`);
+  const { getMerchantBySubdomain } = await import('@/db/queries/merchants');
+  return getMerchantBySubdomain(subdomain);
+}

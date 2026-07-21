@@ -6,7 +6,7 @@ import { PackageOpenIcon } from "@/lib/icons";
 
 import { Card } from "@/components/ui"
 import { EleganceProductFilters } from "./components/EleganceProductFilters"
-import { ProductCard } from "@/components/storefront/ProductCard"
+import { ProductCard } from "@/components/storefront/primitives/ProductCard"
 import { type PLPProps } from "../types"
 import { useSearchParams, useRouter } from "next/navigation"
 

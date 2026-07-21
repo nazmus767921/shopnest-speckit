@@ -7,8 +7,15 @@ import { MenuIcon, XIcon, ChevronDownIcon, UserIcon } from "@/lib/icons";
 import { authClient } from "@/lib/auth/auth-client"
 
 import { CartIconButton } from "@/components/storefront/shared/CartIconButton"
-import { type NavbarProps } from "../types"
+import { type MerchantStore, type MenuWithItems, type Category } from "../types"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
+
+interface NavbarProps {
+  store: MerchantStore
+  subdomain: string
+  menu?: MenuWithItems
+  categories?: Category[]
+}
 
 export function EleganceNavbar({ store, subdomain, menu, categories }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -45,8 +52,8 @@ export function EleganceNavbar({ store, subdomain, menu, categories }: NavbarPro
     const parentItem = menuItems.find((item: any) => item.id === parentId)
     
     let autoChildren: any[] = []
-    if (parentItem?.type === "category" && parentItem.category && categories) {
-      const subcats = categories.filter((c: any) => c.parentId === parentItem.category.id)
+    if ((parentItem as any)?.type === "category" && (parentItem as any).category && categories) {
+      const subcats = categories.filter((c: any) => c.parentId === (parentItem as any).category.id)
       autoChildren = subcats.map((c: any) => ({
         id: `auto-subcat-${c.id}`,
         label: c.name,
