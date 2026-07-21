@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 import { PreviewSectionRenderer } from "@/components/storefront/sections/PreviewSectionRenderer"
 import { StorefrontSection } from "@/lib/storefront-sections/types"
 import { ThemeSettings } from "@/templates/types"
-import { getThemeVariables } from "@/lib/theme"
+import { getThemeVariables } from "@/lib/storefront/theme/tokens"
 
 interface PreviewClientProps {
   initialSections: StorefrontSection[]

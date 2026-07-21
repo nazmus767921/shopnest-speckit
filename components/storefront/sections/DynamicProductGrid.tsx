@@ -1,44 +1,44 @@
-import React from "react"
-import { ProductGridContent } from "@/lib/storefront-sections/types"
-import { getNewArrivals, getFeaturedProducts, getExclusiveProducts, getProductsByIds } from "@/lib/products/data"
-import { ProductSlider } from "../ProductSlider"
+"use client"
+import React, { useEffect, useState } from "react"
+import { FeaturedProductsContent } from "@/lib/storefront/schema/sections"
+import { fetchFeaturedProducts, fetchProductsByIds } from "@/app/actions/storefront"
+import { ProductSlider } from "@/components/storefront/shared/ProductSlider"
 
 interface DynamicProductGridProps {
-  content: ProductGridContent
+  content: FeaturedProductsContent
   merchantId: string
   subdomain: string
 }
 
-export async function DynamicProductGrid({ content, merchantId, subdomain }: DynamicProductGridProps) {
-  let products: any[] = []
-  let promoType = ""
+export function DynamicProductGrid({ content, merchantId, subdomain }: DynamicProductGridProps) {
+  const [products, setProducts] = useState<any[]>([])
+  const [promoType, setPromoType] = useState("")
 
-  if (content.gridType === 'new_arrivals') {
-    products = await getNewArrivals(merchantId, 8)
-    promoType = "new_arrival"
-  } else if (content.gridType === 'featured') {
-    products = await getFeaturedProducts(merchantId, 8)
-    promoType = "featured"
-  } else if (content.gridType === 'exclusive') {
-    products = await getExclusiveProducts(merchantId, 8)
-    promoType = "exclusive"
-  } else if (content.gridType === 'manual_selection' && content.productIds) {
-    products = await getProductsByIds(merchantId, content.productIds)
-  }
+  useEffect(() => {
+    if (content.productIds && content.productIds.length > 0) {
+      fetchProductsByIds(merchantId, content.productIds).then(setProducts)
+    } else {
+      fetchFeaturedProducts(merchantId, 8).then(res => {
+        setProducts(res)
+        setPromoType("featured")
+      })
+    }
+  }, [merchantId, content.productIds])
 
   if (products.length === 0) {
-    return null
+    return <div className="h-96 w-full animate-pulse bg-zinc-100" />
   }
 
   return (
     <div className="relative overflow-hidden w-full max-w-10xl mx-auto px-4 md:px-8 mt-24 mb-24">
       <div className="flex flex-col items-center text-center gap-4 mb-16">
-        <span className="text-zinc-500 text-xs font-sans font-light uppercase tracking-[0.2em] select-none">
-          {content.gridType === 'new_arrivals' ? 'Just Released' : 
-           content.gridType === 'featured' ? 'Must Have' : 'Curated For You'}
-        </span>
+        {content.subheadline && (
+          <span className="text-zinc-500 text-xs font-sans font-light uppercase tracking-[0.2em] select-none">
+            {content.subheadline}
+          </span>
+        )}
         <h2 className="font-sans text-4xl md:text-5xl font-light tracking-tight text-primary">
-          {content.title}
+          {content.headline}
         </h2>
       </div>
 

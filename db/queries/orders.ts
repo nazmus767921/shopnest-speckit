@@ -1,6 +1,6 @@
 import { db } from "@/db"
-import { orders, orderItems, paymentConfirmations, products, merchants, productVariants } from "@/db/schema"
-import { eq, ne, exists, and, inArray, gte, sql, isNull, desc, asc, count, or, like } from "drizzle-orm"
+import { orders, orderItems, paymentConfirmations, products, merchants, productVariants, flashSales } from "@/db/schema"
+import { eq, ne, exists, and, inArray, gte, lte, sql, isNull, desc, asc, count, or, like } from "drizzle-orm"
 import { assertPlanLimit } from "@/lib/plans/assertPlan"
 import { syncParentProductStock } from "./products"
 
@@ -77,6 +77,36 @@ export async function createOrder(params: {
         }
 
         let unitPricePaisa = product.pricePaisa
+
+        // Check if there is an active flash sale for this product
+        const now = new Date()
+        const [flashSale] = await tx
+          .select()
+          .from(flashSales)
+          .where(
+            and(
+              eq(flashSales.merchantId, params.merchantId),
+              eq(flashSales.productId, item.productId),
+              eq(flashSales.isActive, true),
+              lte(flashSales.startTime, now),
+              gte(flashSales.endTime, now),
+              item.variantId
+                ? or(eq(flashSales.variantId, item.variantId), isNull(flashSales.variantId))
+                : isNull(flashSales.variantId)
+            )
+          )
+          .orderBy(
+            sql`CASE WHEN ${flashSales.variantId} IS NOT NULL THEN 0 ELSE 1 END`
+          )
+          .limit(1)
+          .for("update")
+
+        if (flashSale) {
+          if (flashSale.soldQuantity + item.quantity > flashSale.limitQuantity) {
+            throw new Error(`The flash sale for "${product.name}" has sold out or does not have enough promo stock remaining.`)
+          }
+          unitPricePaisa = flashSale.salePricePaisa
+        }
 
         if (item.variantId) {
           // For variant items, check variant-level stock and resolve unit price
@@ -163,8 +193,52 @@ export async function createOrder(params: {
       })
       await tx.insert(orderItems).values(orderItemsValues)
 
-      // 6. Decrement stock counts with a final safety check (Invariant 2)
+      // 6. Decrement stock counts and update flash sale sold counts with a final safety check (Invariant 2)
       for (const item of params.items) {
+        const resolved = resolvedItems.find((r) => r.productId === item.productId)
+        const productName = resolved ? resolved.productName : "Product"
+        const now = new Date()
+        const [flashSale] = await tx
+          .select()
+          .from(flashSales)
+          .where(
+            and(
+              eq(flashSales.merchantId, params.merchantId),
+              eq(flashSales.productId, item.productId),
+              eq(flashSales.isActive, true),
+              lte(flashSales.startTime, now),
+              gte(flashSales.endTime, now),
+              item.variantId
+                ? or(eq(flashSales.variantId, item.variantId), isNull(flashSales.variantId))
+                : isNull(flashSales.variantId)
+            )
+          )
+          .orderBy(
+            sql`CASE WHEN ${flashSales.variantId} IS NOT NULL THEN 0 ELSE 1 END`
+          )
+          .limit(1)
+          .for("update")
+
+        if (flashSale) {
+          const updateResult = await tx
+            .update(flashSales)
+            .set({
+              soldQuantity: sql`${flashSales.soldQuantity} + ${item.quantity}`,
+              updatedAt: new Date()
+            })
+            .where(
+              and(
+                eq(flashSales.id, flashSale.id),
+                eq(flashSales.merchantId, params.merchantId),
+                sql`${flashSales.soldQuantity} + ${item.quantity} <= ${flashSales.limitQuantity}`
+              )
+            )
+            .returning()
+
+          if (updateResult.length === 0) {
+            throw new Error(`The flash sale for "${productName}" just ran out of promo stock. Please review your cart.`)
+          }
+        }
         if (item.variantId) {
           // Decrement variant stock (Invariant 2 extended to variant stock)
           const updateResult = await tx

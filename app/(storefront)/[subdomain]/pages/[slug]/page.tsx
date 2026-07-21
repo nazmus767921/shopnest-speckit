@@ -52,7 +52,7 @@ async function StandardPageContent({ params }: Props) {
   }
 
   const templateModule = getTemplate(template)
-  const TemplatePage = templateModule.StandardPage
+  const TemplatePage = templateModule.pages?.standard
 
   if (!TemplatePage) {
     return (

@@ -3,7 +3,8 @@ import { headers } from "next/headers"
 import { notFound } from "next/navigation"
 import { getCachedMerchantById } from "@/lib/cache/merchants"
 import { getShippingZonesWithDistricts } from "@/db/queries/shippingZones"
-import { CheckoutClientPage } from "@/components/storefront/CheckoutClientPage"
+import { CheckoutClientPage } from "@/components/storefront/pages/CheckoutClientPage"
+import { getStorefrontContext } from "@/lib/storefront/data/context"
 import type { Metadata } from "next"
 
 type Props = {
@@ -33,7 +34,11 @@ async function CheckoutPageContent({ params }: Props) {
   await connection()
   const { subdomain } = await params
   const headersList = await headers()
-  const merchantId = headersList.get("x-merchant-id")
+  const previewTemplateSlug = headersList.get("x-template-preview")
+
+  const context = await getStorefrontContext(subdomain, previewTemplateSlug)
+  const { store } = context
+  const merchantId = store.id
 
   if (!merchantId) {
     notFound()

@@ -15,6 +15,7 @@ export async function getCategories(merchantId: string) {
       name: categories.name,
       slug: categories.slug,
       parentId: categories.parentId,
+      imageUrl: categories.imageUrl,
       createdAt: categories.createdAt,
       updatedAt: categories.updatedAt,
       productCount: sql<number>`count(distinct ${products.id})::int`,
@@ -55,6 +56,7 @@ export async function createCategory(
     name: string
     slug: string
     parentId?: string | null
+    imageUrl?: string | null
   }
 ) {
   // Count existing categories
@@ -80,6 +82,7 @@ export async function createCategory(
       name: data.name,
       slug: data.slug.trim().toLowerCase(),
       parentId: data.parentId ?? null,
+      imageUrl: data.imageUrl ?? null,
     })
     .returning()
 
@@ -96,6 +99,7 @@ export async function updateCategory(
     name: string
     slug: string
     parentId?: string | null
+    imageUrl?: string | null
   }
 ) {
   const existing = await getCategoryById(merchantId, categoryId)
@@ -109,6 +113,7 @@ export async function updateCategory(
       name: data.name,
       slug: data.slug.trim().toLowerCase(),
       parentId: data.parentId === undefined ? existing.parentId : data.parentId,
+      imageUrl: data.imageUrl === undefined ? existing.imageUrl : data.imageUrl,
       updatedAt: new Date(),
     })
     .where(

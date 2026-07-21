@@ -15,7 +15,7 @@ import { db } from "@/db"
 import { products, shippingZones } from "@/db/schema"
 import { eq, count, isNull, and } from "drizzle-orm"
 
-export default function DashboardPage({ searchParams }: { searchParams: { days?: string } }) {
+export default function DashboardPage({ searchParams }: { searchParams: Promise<{ days?: string }> }) {
   return (
     <Suspense fallback={<DashboardPageSkeleton />}>
       <DashboardPageContent searchParams={searchParams} />
@@ -23,7 +23,8 @@ export default function DashboardPage({ searchParams }: { searchParams: { days?:
   )
 }
 
-async function DashboardPageContent({ searchParams }: { searchParams: { days?: string } }) {
+async function DashboardPageContent({ searchParams }: { searchParams: Promise<{ days?: string }> }) {
+  const params = await searchParams
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -65,7 +66,7 @@ async function DashboardPageContent({ searchParams }: { searchParams: { days?: s
     )
   }
 
-  const days = Number(searchParams.days) || 1
+  const days = Number(params.days) || 1
 
   return (
     <div className="flex flex-col gap-8 animate-fade-in text-foreground select-text">

@@ -45,7 +45,7 @@ export function PreviewSectionRenderer({ sections }: PreviewSectionRendererProps
           case "hero":
             content = <FullBleedHero content={section.content as any} />
             break
-          case "about":
+          case "brand_story":
             content = <BrandStory content={section.content as any} />
             break
           case "faq":
@@ -59,14 +59,43 @@ export function PreviewSectionRenderer({ sections }: PreviewSectionRendererProps
               />
             )
             break
-          case "product_grid":
-          case "product_grid_featured":
-          case "product_grid_new_arrivals":
-          case "product_grid_exclusive":
+          case "featured_products":
             content = (
               <PlaceholderSection 
-                title="Product Grid" 
+                title="Featured Products" 
                 subtitle="Products are loaded dynamically based on your inventory. They will appear here on your live storefront."
+              />
+            )
+            break
+          case "promo_banner":
+            content = (
+              <PlaceholderSection 
+                title="Promotional Banner" 
+                subtitle="This section will appear here on your live storefront."
+              />
+            )
+            break
+          case "testimonials":
+            content = (
+              <PlaceholderSection 
+                title="Testimonials" 
+                subtitle="Customer testimonials will appear here on your live storefront."
+              />
+            )
+            break
+          case "newsletter":
+            content = (
+              <PlaceholderSection 
+                title="Newsletter" 
+                subtitle="Newsletter subscription form will appear here on your live storefront."
+              />
+            )
+            break
+          case "footer":
+            content = (
+              <PlaceholderSection 
+                title="Footer" 
+                subtitle="Footer will appear here on your live storefront."
               />
             )
             break

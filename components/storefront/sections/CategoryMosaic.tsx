@@ -1,17 +1,23 @@
-import React from "react"
+"use client"
+import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import { CategoryShowcaseContent } from "@/lib/storefront-sections/types"
-import { getCategories } from "@/db/queries/categories"
+import { CategoryShowcaseContent } from "@/lib/storefront/schema/sections"
+import { fetchCategories } from "@/app/actions/storefront"
 
-export async function CategoryMosaic({ content, merchantId }: { content: CategoryShowcaseContent, merchantId: string }) {
-  const { title, layout = "grid" } = content
+export function CategoryMosaic({ content, merchantId }: { content: CategoryShowcaseContent, merchantId: string }) {
+  const { headline } = content
+  const title = headline
+  const layout = (content as any).layout || "grid"
   
-  // Fetch active categories for the merchant
-  const allCategories = await getCategories(merchantId)
-  // Limit to 4-5 categories for the best layout
-  const categories = allCategories.slice(0, 5)
+  const [categories, setCategories] = useState<any[]>([])
 
-  if (categories.length === 0) return null
+  useEffect(() => {
+    fetchCategories(merchantId).then(data => {
+      setCategories(data.slice(0, 5))
+    })
+  }, [merchantId])
+
+  if (categories.length === 0) return <div className="h-96 w-full animate-pulse bg-zinc-100" />
 
   return (
     <section className="py-24 md:py-32 px-4 md:px-8 max-w-screen-2xl mx-auto w-full">

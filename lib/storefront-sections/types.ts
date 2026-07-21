@@ -4,23 +4,33 @@ export type HeroContent = {
   buttonText?: string
   buttonLink?: string
   imageUrl?: string
-  overlayOpacity?: number
 }
 
 export type AnnouncementBarContent = {
   text: string
   link?: string
-  backgroundColor?: string
-  textColor?: string
 }
 
 export type CategoryShowcaseContent = {
   title: string
   categoryIds: string[] // Array of category UUIDs
-  layout?: 'grid' | 'mosaic'
 }
 
-export type AboutContent = {
+export type FeaturedProductsContent = {
+  title: string
+  gridType: 'new_arrivals' | 'featured' | 'exclusive' | 'manual_selection'
+  productIds?: string[] // Used when gridType is manual_selection
+}
+
+export type PromoBannerContent = {
+  title: string
+  subtitle?: string
+  buttonText?: string
+  buttonLink?: string
+  imageUrl?: string
+}
+
+export type BrandStoryContent = {
   title: string
   description: string
   imageUrl?: string
@@ -28,10 +38,23 @@ export type AboutContent = {
   buttonLink?: string
 }
 
-export type ProductGridContent = {
-  title: string
-  gridType: 'new_arrivals' | 'featured' | 'exclusive' | 'manual_selection'
-  productIds?: string[] // Used when gridType is manual_selection
+export type Testimonial = {
+  name: string
+  text: string
+  rating?: number
+  avatarUrl?: string
+}
+
+export type TestimonialsContent = {
+  heading?: string
+  testimonials: Testimonial[]
+}
+
+export type NewsletterContent = {
+  heading?: string
+  subheading?: string
+  placeholder?: string
+  buttonText?: string
 }
 
 export type FaqContent = {
@@ -53,15 +76,18 @@ export type StorefrontSectionContent =
   | HeroContent
   | AnnouncementBarContent
   | CategoryShowcaseContent
-  | AboutContent
-  | ProductGridContent
+  | FeaturedProductsContent
+  | PromoBannerContent
+  | BrandStoryContent
+  | TestimonialsContent
+  | NewsletterContent
   | FaqContent
   | FooterContent
 
 export type StorefrontSection = {
   id: string
   merchantId: string
-  sectionKey: string // 'hero', 'announcement_bar', 'category_showcase', 'about', etc.
+  sectionKey: string // 'hero', 'announcement_bar', 'category_showcase', 'brand_story', etc.
   content: StorefrontSectionContent | Record<string, any>
   sortOrder: number
   isVisible: boolean

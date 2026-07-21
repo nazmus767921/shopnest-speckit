@@ -4,10 +4,10 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { getCachedPublishedProducts } from "@/lib/cache/products"
 import { getCachedPublishedProductBySlug } from "@/lib/cache/products"
-import { getCachedMerchantById } from "@/lib/cache/merchants"
-import { getTemplate } from "@/templates/registry"
 import { getAttributesWithOptionsByProductId, getVariantsWithCombinationsByProductId } from "@/db/queries/variants"
-import { getCachedStorefrontSections } from "@/lib/cache/storefront"
+
+import { getStorefrontContext } from "@/lib/storefront/data/context"
+import { getTemplate } from "@/templates/registry"
 import { Suspense } from "react"
 import { connection } from "next/server"
 
@@ -47,8 +47,12 @@ async function ProductDetailPageContent({ params }: Props) {
   await connection()
   const { subdomain, slug } = await params
   const headersList = await headers()
-  const merchantId = headersList.get("x-merchant-id") || ""
-  const template = headersList.get("x-merchant-template") || "general"
+  const previewTemplateSlug = headersList.get("x-template-preview")
+
+  const context = await getStorefrontContext(subdomain, previewTemplateSlug)
+  const { store, templateSlug } = context
+  const template = getTemplate(templateSlug)
+  const merchantId = store.id
 
   if (!merchantId) {
     notFound()
@@ -59,8 +63,6 @@ async function ProductDetailPageContent({ params }: Props) {
   if (!product) {
     notFound()
   }
-
-  const merchant = await getCachedMerchantById(merchantId)
 
   // Fetch metadata and variant data
   const variantAttributes = product.hasVariants
@@ -124,21 +126,14 @@ async function ProductDetailPageContent({ params }: Props) {
     }
   })
 
-  const store = {
-    id: merchant?.id || "",
-    name: merchant?.name || "Boutique Store",
-    subdomain: merchant?.subdomain || subdomain,
-    template,
-  }
 
-  const sections = merchantId ? await getCachedStorefrontSections(merchantId) : []
+
+  const sections = context.sections || []
   const faqSection = sections.find((s: any) => s.sectionKey === "faq")
   const faqs = (faqSection?.content as any)?.questions || []
 
-  const templateModule = getTemplate(template)
-
   return (
-    <templateModule.PDP
+    <template.pages.pdp
       store={store}
       product={formattedProduct}
       relatedProducts={formattedRelatedProducts}

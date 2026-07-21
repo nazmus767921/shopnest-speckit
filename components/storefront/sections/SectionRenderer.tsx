@@ -1,83 +1,71 @@
 import React, { Suspense } from "react"
-import { StorefrontSection } from "@/lib/storefront-sections/types"
 import { FullBleedHero } from "./FullBleedHero"
 import { AnnouncementMarquee } from "./AnnouncementMarquee"
 import { CategoryMosaic } from "./CategoryMosaic"
 import { BrandStory } from "./BrandStory"
 import { DynamicProductGrid } from "./DynamicProductGrid"
 import { FaqSection } from "./FaqSection"
+import { SectionErrorBoundary } from "../shared/SectionErrorBoundary"
 
 interface SectionRendererProps {
-  sections: StorefrontSection[]
-  merchantId: string
-  subdomain: string
+  section: {
+    id: string
+    type: string
+    settings: any
+  }
+  store: any
 }
 
-export function SectionRenderer({ sections, merchantId, subdomain }: SectionRendererProps) {
-  // Sort sections by sortOrder just in case they aren't already sorted
-  const sortedSections = [...sections].sort((a, b) => a.sortOrder - b.sortOrder)
-  
-  // Filter only visible sections
-  const visibleSections = sortedSections.filter(s => s.isVisible)
+export default function SectionRenderer({ section, store }: SectionRendererProps) {
+  let ComponentToRender: React.ComponentType<any> | null = null
+
+  // Map JSON 'type' to React components
+  switch (section.type) {
+    case 'hero':
+      ComponentToRender = FullBleedHero
+      break
+    case 'announcement_bar':
+      ComponentToRender = AnnouncementMarquee
+      break
+    case 'category_showcase':
+      ComponentToRender = CategoryMosaic
+      break
+    case 'brand_story':
+      ComponentToRender = BrandStory
+      break
+    case 'featured_products':
+      ComponentToRender = DynamicProductGrid
+      break
+    case 'faq':
+      ComponentToRender = FaqSection
+      break
+    // 'promo_banner', 'newsletter', 'testimonials' etc. could be added here
+    default:
+      ComponentToRender = null
+      break
+  }
+
+  if (!ComponentToRender) {
+    return (
+      <div className="p-4 border border-dashed border-red-300 bg-red-50 text-red-800 text-center text-sm my-4">
+        Unknown section type: <strong>{section.type}</strong>
+      </div>
+    )
+  }
 
   return (
-    <>
-      {visibleSections.map((section) => {
-        switch (section.sectionKey) {
-          case "announcement_bar":
-            return (
-              <AnnouncementMarquee 
-                key={section.id || "announcement_bar"} 
-                content={section.content as any} 
-              />
-            )
-          case "hero":
-            return (
-              <FullBleedHero 
-                key={section.id || "hero"} 
-                content={section.content as any} 
-              />
-            )
-          case "category_showcase":
-            return (
-              <Suspense key={section.id || "category_showcase"} fallback={<div className="h-96 w-full animate-pulse bg-zinc-100" />}>
-                <CategoryMosaic 
-                  content={section.content as any} 
-                  merchantId={merchantId} 
-                />
-              </Suspense>
-            )
-          case "about":
-            return (
-              <BrandStory 
-                key={section.id || "about"} 
-                content={section.content as any} 
-              />
-            )
-          case "product_grid":
-          case "product_grid_featured":
-          case "product_grid_new_arrivals":
-          case "product_grid_exclusive":
-            return (
-              <Suspense key={section.id || section.sectionKey} fallback={<div className="h-96 w-full animate-pulse bg-zinc-100" />}>
-                <DynamicProductGrid 
-                  content={section.content as any} 
-                  merchantId={merchantId}
-                  subdomain={subdomain}
-                />
-              </Suspense>
-            )
-          case "faq":
-            return (
-              <FaqSection
-                key={section.id || "faq"}
-                content={section.content as any}
-              />
-            )
-          default:
-            return null // Unknown section, ignore
-        }
-      })}
-    </>
+    <SectionErrorBoundary sectionKey={section.type}>
+      <Suspense fallback={<div className="h-64 w-full animate-pulse bg-zinc-100" />}>
+        {/* We map the JSON settings to the 'content' prop that these legacy components expect,
+            or pass them directly if the component is updated. For now, assuming they take 'content'.
+            Also passing merchantId and subdomain as required by some components. */}
+        <ComponentToRender 
+          content={section.settings} 
+          merchantId={store.id} 
+          subdomain={store.subdomain} 
+          settings={section.settings}
+        />
+      </Suspense>
+    </SectionErrorBoundary>
   )
 }

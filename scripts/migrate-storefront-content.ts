@@ -1,6 +1,6 @@
 import { db } from "@/db"
 import { sql } from "drizzle-orm"
-import { defaultHeroContent, defaultAboutContent, defaultAnnouncementBarContent, defaultCategoryShowcaseContent } from "@/lib/storefront-sections/defaults"
+import { defaultHeroContent, defaultBrandStoryContent as defaultAboutContent, defaultAnnouncementBarContent, defaultCategoryShowcaseContent } from "@/lib/storefront-sections/defaults"
 
 /**
  * One-time data migration script for centralize-storefront-content.

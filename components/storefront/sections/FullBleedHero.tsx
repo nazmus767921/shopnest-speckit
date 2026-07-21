@@ -1,10 +1,17 @@
+/** @deprecated Replaced by template-specific components in the elegance template. */
 import React from "react"
 import Link from "next/link"
-import { HeroContent } from "@/lib/storefront-sections/types"
+import { HeroContent } from "@/lib/storefront/schema/sections"
 import { Button } from "@/components/ui/button"
 
 export function FullBleedHero({ content }: { content: HeroContent }) {
-  const { title, subtitle, buttonText, buttonLink, imageUrl, overlayOpacity = 50 } = content
+  const { headline } = content
+  const title = headline
+  const subtitle = content.subheadline
+  const buttonText = content.primaryButtonLabel
+  const buttonLink = content.primaryButtonLink
+  const imageUrl = content.imageUrl
+  const overlayOpacity = (content as any).overlayOpacity || 50
 
   return (
     <div className="relative w-[100vw] min-h-[90vh] left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] flex flex-col lg:flex-row bg-[var(--color-background,white)] overflow-hidden">

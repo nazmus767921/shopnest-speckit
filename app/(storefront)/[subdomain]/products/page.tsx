@@ -2,9 +2,9 @@ import React from "react"
 import { headers } from "next/headers"
 import { getFilteredPublishedProducts } from "@/db/queries/products"
 import { getCachedCategories } from "@/lib/cache/categories"
-import { getCachedMerchantById } from "@/lib/cache/merchants"
-import { getTemplate } from "@/templates/registry"
+import { getStorefrontContext } from "@/lib/storefront/data/context"
 import { type Category } from "@/templates/types"
+import { getTemplate } from "@/templates/registry"
 import { Suspense } from "react"
 import { connection } from "next/server"
 
@@ -34,10 +34,13 @@ async function ProductsPageContent({ params, searchParams }: Props) {
   const page = typeof sParams.page === "string" ? parseInt(sParams.page) : 1
 
   const headersList = await headers()
-  const merchantId = headersList.get("x-merchant-id") || ""
-  const template = headersList.get("x-merchant-template") || "general"
+  const previewTemplateSlug = headersList.get("x-template-preview")
 
-  const merchant = merchantId ? await getCachedMerchantById(merchantId) : null
+  const context = await getStorefrontContext(subdomain, previewTemplateSlug)
+  const { store, templateSlug } = context
+  const template = getTemplate(templateSlug)
+  const merchantId = store.id
+
   const rawCategories = merchantId ? await getCachedCategories(merchantId) : []
   const products = merchantId
     ? await getFilteredPublishedProducts(merchantId, { categoryId, search })
@@ -113,14 +116,6 @@ async function ProductsPageContent({ params, searchParams }: Props) {
   const totalPages = Math.max(1, Math.ceil(totalCount / limit))
   const paginatedProducts = formattedProducts.slice((page - 1) * limit, page * limit)
 
-  const store = {
-    id: merchant?.id || "",
-    name: merchant?.name || "Boutique Store",
-    subdomain: merchant?.subdomain || subdomain,
-    template,
-    themeSettings: merchant?.themeSettings || null,
-  }
-
   const activeFilters = {
     categorySlug: categoryId || undefined,
   }
@@ -131,10 +126,8 @@ async function ProductsPageContent({ params, searchParams }: Props) {
     pageSize: limit,
   }
 
-  const templateModule = getTemplate(template)
-
   return (
-    <templateModule.PLP
+    <template.pages.plp
       store={store}
       products={paginatedProducts}
       categories={categories}

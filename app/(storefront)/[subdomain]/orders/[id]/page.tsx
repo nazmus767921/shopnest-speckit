@@ -5,7 +5,7 @@ import Link from "next/link"
 import { auth } from "@/lib/auth/auth"
 import { getCachedMerchantById } from "@/lib/cache/merchants"
 import { fetchCustomerOrderDetails } from "../actions"
-import { CustomerOrderDetailClient } from "@/components/storefront/CustomerOrderDetailClient"
+import { CustomerOrderDetailClient } from "@/components/storefront/pages/CustomerOrderDetailClient"
 import { Card, Button } from "@/components/ui"
 import { AlertCircleIcon, ArrowLeftIcon } from "@/lib/icons";
 

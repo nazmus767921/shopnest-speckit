@@ -10,6 +10,7 @@ export default defineConfig({
             NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
             NEXT_PUBLIC_SUPABASE_ANON_KEY: "mock-key",
             NEXT_PUBLIC_ROOT_DOMAIN: "localhost:3000",
+            NEXT_PUBLIC_TELEGRAM_BOT_USERNAME: "shopnest_orders_bot",
         }
     },
 })

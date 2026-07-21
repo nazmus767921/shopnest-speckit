@@ -28,7 +28,8 @@ export function Setup2FAClient() {
       })
 
       if (res.error) {
-        setError(res.error.message || "Failed to initiate 2FA. Verify your password.")
+        console.error("2FA initiation error:", res.error)
+        setError(res.error.message || `Failed to initiate 2FA (Error code: ${res.error.status || 'unknown'})`)
       } else if (res.data) {
         setTotpURI(res.data.totpURI)
         setBackupCodes(res.data.backupCodes)

@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboardIcon, LayoutTemplateIcon, ShoppingBagIcon, TagIcon, SettingsIcon, CreditCardIcon, PercentIcon, FolderTreeIcon, FileTextIcon, MenuIcon, GlobeIcon, ExternalLinkIcon, ChevronsUpDownIcon, ChevronRightIcon, ShieldIcon, Share2Icon, ClockIcon, ImageIcon } from "@/lib/icons";
+import { LayoutDashboardIcon, LayoutTemplateIcon, ShoppingBagIcon, TagIcon, SettingsIcon, CreditCardIcon, PercentIcon, FolderTreeIcon, FileTextIcon, MenuIcon, GlobeIcon, ExternalLinkIcon, ChevronsUpDownIcon, ChevronRightIcon, ShieldIcon, Share2Icon, ClockIcon, ImageIcon, UsersIcon, ZapIcon } from "@/lib/icons";
 import { ShareStorefrontDialog } from "@/components/dashboard/ShareStorefrontDialog";
 
 import {
@@ -247,6 +247,11 @@ export function AppSidebar({
                     icon: LayoutTemplateIcon,
                   },
                   {
+                    label: "Visual Editor",
+                    href: "/dashboard/editor",
+                    icon: ImageIcon,
+                  },
+                  {
                     label: "Pages",
                     href: "/dashboard/pages",
                     icon: FileTextIcon,
@@ -272,6 +277,11 @@ export function AppSidebar({
                     icon: FolderTreeIcon,
                   },
                   {
+                    label: "Customers",
+                    href: "/dashboard/customers",
+                    icon: UsersIcon,
+                  },
+                  {
                     label: "Orders",
                     href: "/dashboard/orders",
                     icon: TagIcon,
@@ -280,6 +290,11 @@ export function AppSidebar({
                     label: "Discounts",
                     href: "/dashboard/discounts",
                     icon: PercentIcon,
+                  },
+                  {
+                    label: "Flash Sales",
+                    href: "/dashboard/flash-sales",
+                    icon: ZapIcon,
                   },
                 ].map((item) => {
                   const isActive = pathname.startsWith(item.href)

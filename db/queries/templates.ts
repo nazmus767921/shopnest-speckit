@@ -6,10 +6,50 @@ import { eq, asc } from "drizzle-orm"
  * Get all active templates, ordered by sortOrder ascending.
  */
 export async function getActiveTemplates() {
-  return await db.query.storeTemplates.findMany({
+  const templates = await db.query.storeTemplates.findMany({
     where: eq(storeTemplates.isActive, true),
     orderBy: [asc(storeTemplates.sortOrder)],
   })
+
+  if (templates.length === 0) {
+    return [
+      {
+        id: "elegance",
+        slug: "elegance",
+        name: "Elegance",
+        description: "A premium and neutral theme",
+        allowedTiers: ["starter", "growth", "pro"],
+        businessTypes: ["Fashion", "Beauty", "Retail"],
+        previewImageUrl: "https://via.placeholder.com/600x400?text=Elegance",
+        sortOrder: 1,
+        isActive: true,
+      },
+      {
+        id: "sunset",
+        slug: "sunset",
+        name: "Sunset",
+        description: "A vibrant theme for modern stores",
+        allowedTiers: ["starter", "growth", "pro"],
+        businessTypes: ["Apparel", "Electronics"],
+        previewImageUrl: "https://via.placeholder.com/600x400?text=Sunset",
+        sortOrder: 2,
+        isActive: true,
+      },
+      {
+        id: "midnight",
+        slug: "midnight",
+        name: "Midnight",
+        description: "Dark and sleek",
+        allowedTiers: ["pro"],
+        businessTypes: ["Tech", "Gaming"],
+        previewImageUrl: "https://via.placeholder.com/600x400?text=Midnight",
+        sortOrder: 3,
+        isActive: true,
+      }
+    ] as (typeof storeTemplates.$inferSelect)[]
+  }
+
+  return templates
 }
 
 /**
