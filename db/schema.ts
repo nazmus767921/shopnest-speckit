@@ -140,21 +140,22 @@ export const pages = pgTable("pages", {
 ]).enableRLS()
 
 
-export const storefrontSections = pgTable("storefront_sections", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+export const themes = pgTable("themes", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  cssVariables: jsonb("css_variables").notNull().default('{}'),
+}).enableRLS()
+
+export const merchantThemes = pgTable("merchant_themes", {
   merchantId: text("merchant_id")
-    .notNull()
+    .primaryKey()
     .references(() => merchants.id, { onDelete: "cascade" }),
-  sectionKey: text("section_key").notNull(),
-  content: jsonb("content").notNull().default('{}'),
-  sortOrder: integer("sort_order").notNull().default(0),
-  isVisible: boolean("is_visible").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-}, (table) => [
-  uniqueIndex("storefront_sections_merchant_id_section_key_unique_idx").on(table.merchantId, table.sectionKey),
-  index("storefront_sections_merchant_id_idx").on(table.merchantId),
-]).enableRLS()
+  themeId: text("theme_id")
+    .notNull()
+    .references(() => themes.id, { onDelete: "restrict" }),
+  activeLayout: jsonb("active_layout").notNull().default('[]'),
+}).enableRLS()
+
 
 export const products = pgTable("products", {
   id: text("id").primaryKey(),
@@ -735,17 +736,29 @@ export const merchantsRelations = relations(merchants, ({ one, many }) => ({
   productAttributes: many(productAttributes),
   productVariants: many(productVariants),
   productMetadata: many(productMetadata),
-  storefrontSections: many(storefrontSections),
+  merchantTheme: one(merchantThemes, {
+    fields: [merchants.id],
+    references: [merchantThemes.merchantId],
+  }),
   mediaFolders: many(mediaFolders),
   mediaFiles: many(mediaFiles),
 }))
 
-export const storefrontSectionsRelations = relations(storefrontSections, ({ one }) => ({
+export const themesRelations = relations(themes, ({ many }) => ({
+  merchantThemes: many(merchantThemes),
+}))
+
+export const merchantThemesRelations = relations(merchantThemes, ({ one }) => ({
   merchant: one(merchants, {
-    fields: [storefrontSections.merchantId],
+    fields: [merchantThemes.merchantId],
     references: [merchants.id],
   }),
+  theme: one(themes, {
+    fields: [merchantThemes.themeId],
+    references: [themes.id],
+  }),
 }))
+
 
 export const productsRelations = relations(products, ({ one, many }) => ({
   merchant: one(merchants, {
