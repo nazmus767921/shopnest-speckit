@@ -1,14 +1,16 @@
 import React from "react"
 import { headers } from "next/headers"
 import type { Metadata } from "next"
-import "@/templates/elegance/styles.css"
 import "@/lib/storefront/theme/storefront-tokens.css"
 import { Archivo_Black } from "next/font/google"
 import { Suspense } from "react"
 import { connection } from "next/server"
 import { fontClasses } from "@/lib/storefront/theme/fonts"
 import { getStorefrontContext } from "@/lib/storefront/data/context"
-import { getTemplate } from "@/templates/registry"
+import { generateThemeCss } from "@/lib/storefront/theme/generate-css"
+import { StorefrontNavbar } from "@/components/storefront/shared/StorefrontNavbar"
+// A dummy footer for now since we deleted the template
+const DummyFooter = ({ store }: any) => <footer className="bg-zinc-900 text-white p-8 text-center mt-auto">© 2024 {store.name}. All rights reserved.</footer>
 
 const archivoBlack = Archivo_Black({
   weight: "400",
@@ -34,11 +36,9 @@ export const instant = false
 export default function StorefrontLayout({ children, params }: Props) {
   return (
     <Suspense fallback={<div className="min-h-screen bg-zinc-50 animate-pulse" />}>
-      <div className={`${archivoBlack.variable} ${fontClasses}`}>
-        <StorefrontThemeWrapper params={params}>
-          {children}
-        </StorefrontThemeWrapper>
-      </div>
+      <StorefrontThemeWrapper params={params}>
+        {children}
+      </StorefrontThemeWrapper>
     </Suspense>
   )
 }
@@ -49,24 +49,23 @@ async function StorefrontThemeWrapper({ children, params }: Props) {
   const headersList = await headers()
   
   const previewTemplateSlug = headersList.get("x-template-preview")
-
   const context = await getStorefrontContext(subdomain, previewTemplateSlug)
-  const { store, templateSlug, menus, categories, themeVars } = context
-  const template = getTemplate(templateSlug)
   
+  const customCss = context.cssVariables ? generateThemeCss(context.cssVariables) : ''
+
   return (
-    <template.Shell 
-      store={store} 
-      menus={menus as any} 
-      categories={categories as any}
-      themeVars={themeVars}
-    >
+    <div className={`${archivoBlack.variable} ${fontClasses} min-h-screen flex flex-col font-sans theme-${context.templateSlug}`}>
+      {customCss && <style dangerouslySetInnerHTML={{ __html: customCss }} />}
       {context.isPreview && (
         <div className="bg-blue-600 text-white text-center text-sm py-2 px-4 sticky top-0 z-[100] font-sans">
-          <strong>Preview Mode:</strong> You are currently previewing the <strong>{template.metadata.name}</strong> template.
+          <strong>Preview Mode:</strong> You are currently previewing changes.
         </div>
       )}
-      {children}
-    </template.Shell>
+      <StorefrontNavbar store={context.store} menus={context.menus as any} />
+      <main className="flex-1 flex flex-col">
+        {children}
+      </main>
+      <DummyFooter store={context.store} />
+    </div>
   )
 }
